@@ -4,6 +4,12 @@ RUN corepack enable && corepack prepare pnpm@11.8.0 --activate
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 
+FROM node:22.17.1-slim AS prod-dependencies
+WORKDIR /app
+RUN corepack enable && corepack prepare pnpm@11.8.0 --activate
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN pnpm install --frozen-lockfile --prod --ignore-scripts
+
 FROM node:22.17.1-slim AS builder
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -23,6 +29,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=12500
 RUN groupadd --system --gid 1001 nodejs && useradd --system --uid 1001 --gid nodejs nextjs
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=prod-dependencies --chown=nextjs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/drizzle ./drizzle
