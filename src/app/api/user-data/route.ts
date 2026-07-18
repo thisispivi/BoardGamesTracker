@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { env } from "@/env";
 import { writeAuditEvent } from "@/server/audit";
 import { getSession } from "@/server/session";
 import {
@@ -115,8 +116,10 @@ function formatFromFilename(filename: string): UserDataFormat | null {
   return parsed.success ? parsed.data : null;
 }
 
-/** Rejects cross-site state changes while allowing same-origin test clients. */
+/** Rejects cross-site state changes using the configured app origin, since a
+ * reverse-proxied deployment can make `request.nextUrl.origin` diverge from
+ * the public origin the browser actually sent. */
 function hasSameOrigin(request: NextRequest): boolean {
   const origin = request.headers.get("origin");
-  return !origin || origin === request.nextUrl.origin;
+  return !origin || origin === new URL(env.NEXT_PUBLIC_APP_URL).origin;
 }
