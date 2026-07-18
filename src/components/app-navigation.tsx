@@ -13,12 +13,13 @@ import {
   Shield,
   X,
 } from "lucide-react";
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Logo } from "@/components/logo";
 import { useI18n } from "@/components/i18n-provider";
+import { AppSpinner } from "@/components/ui/app-spinner";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
@@ -82,7 +83,8 @@ export function AppNavigation({
             )}
           >
             <link.icon className="size-4.5" />
-            {link.label}
+            <span className="min-w-0 flex-1 truncate">{link.label}</span>
+            <NavigationPendingIndicator />
           </Link>
         );
       })}
@@ -140,6 +142,21 @@ export function AppNavigation({
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
+  );
+}
+
+/** Reserves a stable slot and appears only when a slow link is pending. */
+function NavigationPendingIndicator() {
+  const { pending } = useLinkStatus();
+  const t = useI18n();
+  return (
+    <AppSpinner
+      label={t("common.loading")}
+      className={cn(
+        "nav-pending-spinner size-4 shrink-0",
+        pending && "is-pending",
+      )}
+    />
   );
 }
 

@@ -33,6 +33,7 @@ const document: UserDataDocument = {
       personalRating: 9,
       notes: "Sleeved",
       moneySpent: 29.99,
+      gifted: false,
     },
   ],
 };

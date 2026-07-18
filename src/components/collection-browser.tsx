@@ -10,6 +10,7 @@ import {
   MultiSelect,
   type MultiSelectOption,
 } from "@/components/ui/multi-select";
+import { getTaxonomyLabel } from "@/lib/game-taxonomy";
 import { normalizeSearchText } from "@/lib/search";
 
 type CollectionGroup = {
@@ -97,7 +98,15 @@ function facetOptions(
     }
   }
   return [...counts]
-    .map(([value, count]) => ({ count, label: value, value }))
+    .map(([value, count]) => ({
+      count,
+      label: getTaxonomyLabel(
+        value,
+        taxonomy === "categories" ? "category" : "mechanic",
+        locale,
+      ),
+      value,
+    }))
     .sort((left, right) => left.label.localeCompare(right.label, locale));
 }
 

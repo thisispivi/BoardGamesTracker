@@ -43,6 +43,13 @@
       "when": 1784381101546,
       "tag": "0005_serious_victor_mancha",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1784391334089,
+      "tag": "0006_vengeful_secret_warriors",
+      "breakpoints": true
     }
   ]
 }

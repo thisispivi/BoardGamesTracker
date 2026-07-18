@@ -58,6 +58,31 @@
 
 * {
   border-color: var(--border);
+  scrollbar-color: color-mix(in srgb, var(--primary) 58%, var(--muted))
+    transparent;
+  scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+  width: 0.7rem;
+  height: 0.7rem;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--primary) 58%, var(--muted));
+  border: 0.16rem solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--accent) 72%, var(--primary));
+  border: 0.12rem solid transparent;
+  background-clip: padding-box;
 }
 
 html {
@@ -123,6 +148,42 @@ textarea {
 
 .field-input {
   @apply bg-background h-11 w-full rounded-xl border px-3 font-normal;
+}
+
+.app-spinner {
+  display: inline-block;
+  border: 0.18em solid color-mix(in srgb, var(--primary) 20%, transparent);
+  border-top-color: var(--primary);
+  border-right-color: var(--accent);
+  border-radius: 999px;
+  animation: app-spinner-turn 720ms linear infinite;
+}
+
+.nav-pending-spinner {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.nav-pending-spinner.is-pending {
+  visibility: visible;
+  animation-name: app-spinner-turn, nav-spinner-in;
+  animation-duration: 720ms, 160ms;
+  animation-delay: 0ms, 100ms;
+  animation-timing-function: linear, ease-out;
+  animation-iteration-count: infinite, 1;
+  animation-fill-mode: none, forwards;
+}
+
+@keyframes app-spinner-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes nav-spinner-in {
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes dialog-overlay-in {
@@ -243,18 +304,21 @@ textarea {
   animation: popover-in 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.filter-options {
+.filter-options,
+.modal-scroll-area {
   scrollbar-color: color-mix(in srgb, var(--muted-foreground) 48%, transparent)
     transparent;
   scrollbar-gutter: stable;
   scrollbar-width: thin;
 }
 
-.filter-options::-webkit-scrollbar {
+.filter-options::-webkit-scrollbar,
+.modal-scroll-area::-webkit-scrollbar {
   width: 0.5rem;
 }
 
-.filter-options::-webkit-scrollbar-thumb {
+.filter-options::-webkit-scrollbar-thumb,
+.modal-scroll-area::-webkit-scrollbar-thumb {
   background: color-mix(in srgb, var(--muted-foreground) 48%, transparent);
   border: 0.125rem solid transparent;
   border-radius: 999px;

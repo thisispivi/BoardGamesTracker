@@ -1,20 +1,16 @@
 "use client";
 
-import {
-  ArrowLeft,
-  ExternalLink,
-  LoaderCircle,
-  Plus,
-  Search,
-  X,
-} from "lucide-react";
+import * as Dialog from "@radix-ui/react-dialog";
+import { ArrowLeft, ExternalLink, Plus, Search, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
 import { useI18n } from "@/components/i18n-provider";
+import { GiftedPriceField } from "@/components/gifted-price-field";
+import { Button } from "@/components/ui/button";
+import { AppSpinner } from "@/components/ui/app-spinner";
 import {
   addGameAction,
   type CollectionActionState,
@@ -23,7 +19,7 @@ import type { GameDiscoveryResult } from "@/server/discovery/types";
 
 const initialState: CollectionActionState = { success: false, message: "" };
 
-/** Search-first dialog for adding a game to the collection or wishlist. */
+/** Debounced search dialog for adding a title or pasted BGG game URL. */
 export function AddGameDialog({
   currency,
   destination = "collection",
@@ -37,301 +33,162 @@ export function AddGameDialog({
   const [results, setResults] = useState<GameDiscoveryResult[]>([]);
   const [selected, setSelected] = useState<GameDiscoveryResult | null>(null);
   const [searching, setSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const [state, action, adding] = useActionState(addGameAction, initialState);
   const router = useRouter();
 
-  useEffect(() => {
-    if (!state.message) {
-      return;
+  /** Resets ephemeral search state whenever the dialog is dismissed. */
+  function changeOpen(nextOpen: boolean): void {
+    setOpen(nextOpen);
+    if (!nextOpen) {
+      setQuery("");
+      setResults([]);
+      setSelected(null);
+      setSearching(false);
+      setHasSearched(false);
+      setSearchError(null);
     }
+  }
 
+  /** Clears stale discovery state immediately while the user keeps typing. */
+  function changeQuery(nextQuery: string): void {
+    setQuery(nextQuery);
+    setResults([]);
+    setSearching(false);
+    setHasSearched(false);
+    setSearchError(null);
+  }
+
+  useEffect(() => {
+    if (!state.message) return;
     if (state.success) {
       toast.success(state.message);
       router.refresh();
-      const timeout = window.setTimeout(() => {
-        setOpen(false);
-        setSelected(null);
-      }, 0);
+      const timeout = window.setTimeout(() => changeOpen(false), 0);
       return () => window.clearTimeout(timeout);
     }
     toast.error(state.message);
   }, [router, state]);
 
-  /** Queries the authenticated SearXNG discovery proxy. */
-  async function handleSearch(
-    event: React.FormEvent<HTMLFormElement>,
-  ): Promise<void> {
-    event.preventDefault();
-    if (query.trim().length < 2) {
+  useEffect(() => {
+    const term = query.trim();
+    if (!open || selected || term.length < 3) {
       return;
     }
 
-    setSearching(true);
-    setResults([]);
-    try {
-      const response = await fetch(
-        `/api/games/search?q=${encodeURIComponent(query.trim())}`,
-      );
-      const payload = (await response.json()) as {
-        results?: GameDiscoveryResult[];
-        error?: string;
-      };
-      if (!response.ok) {
-        toast.error(payload.error ?? t("add.searchFailed"));
-        return;
-      }
-      setResults(payload.results ?? []);
-    } catch {
-      toast.error(t("add.unavailable"));
-    } finally {
-      setSearching(false);
-    }
-  }
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => {
+      setSearching(true);
+      void fetch(`/api/games/search?q=${encodeURIComponent(term)}`, {
+        signal: controller.signal,
+      })
+        .then(async (response) => {
+          const payload = (await response.json()) as {
+            results?: GameDiscoveryResult[];
+            error?: string;
+          };
+          if (!response.ok) {
+            setSearchError(payload.error ?? "unavailable");
+            setResults([]);
+            return;
+          }
+          setResults(payload.results ?? []);
+        })
+        .catch((error: unknown) => {
+          if (error instanceof DOMException && error.name === "AbortError") {
+            return;
+          }
+          setSearchError("unavailable");
+          setResults([]);
+        })
+        .finally(() => {
+          if (!controller.signal.aborted) {
+            setSearching(false);
+            setHasSearched(true);
+          }
+        });
+    }, 350);
+
+    return () => {
+      window.clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [open, query, selected]);
 
   return (
-    <>
-      <Button type="button" onClick={() => setOpen(true)}>
-        <Plus className="size-4" />
-        {t(destination === "wishlist" ? "wishlist.add" : "add.button")}
-      </Button>
-      {open && (
-        <div
-          className="modal-overlay fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm"
-          onMouseDown={() => setOpen(false)}
-        >
-          <section
-            className="modal-content bg-card max-h-[90vh] w-full max-w-2xl overflow-auto rounded-3xl border p-6 shadow-2xl sm:p-8"
-            onMouseDown={(event) => event.stopPropagation()}
-            aria-modal="true"
-            role="dialog"
-            aria-labelledby="add-game-title"
-          >
-            <div className="flex items-start justify-between gap-5">
-              <div>
-                <p className="text-primary text-xs font-bold tracking-widest uppercase">
-                  {t("add.eyebrow")}
-                </p>
-                <h2
-                  id="add-game-title"
-                  className="font-display mt-1 text-2xl font-bold"
-                >
-                  {selected ? selected.name : t("add.findTitle")}
-                </h2>
-                <p className="text-muted-foreground mt-2 text-sm">
-                  {selected ? t("add.selectedBody") : t("add.searchBody")}
-                </p>
-              </div>
+    <Dialog.Root open={open} onOpenChange={changeOpen}>
+      <Dialog.Trigger asChild>
+        <Button type="button">
+          <Plus className="size-4" />
+          {t(destination === "wishlist" ? "wishlist.add" : "add.button")}
+        </Button>
+      </Dialog.Trigger>
+      <Dialog.Portal>
+        <Dialog.Overlay className="dialog-overlay fixed inset-0 z-50 bg-black/45 backdrop-blur-sm" />
+        <Dialog.Content className="dialog-content bg-card fixed top-1/2 left-1/2 z-51 flex max-h-[90vh] w-[calc(100%-2rem)] max-w-2xl flex-col overflow-hidden rounded-3xl border shadow-2xl focus:outline-none">
+          <header className="flex shrink-0 items-start justify-between gap-5 border-b px-6 py-5 sm:px-8 sm:py-6">
+            <div className="min-w-0">
+              <p className="text-primary text-xs font-bold tracking-widest uppercase">
+                {t("add.eyebrow")}
+              </p>
+              <Dialog.Title className="font-display mt-1 truncate text-2xl font-bold">
+                {selected ? selected.name : t("add.findTitle")}
+              </Dialog.Title>
+              <Dialog.Description className="text-muted-foreground mt-2 text-sm">
+                {selected ? t("add.selectedBody") : t("add.searchBodyWithUrl")}
+              </Dialog.Description>
+            </div>
+            <Dialog.Close asChild>
               <button
                 type="button"
-                onClick={() => setOpen(false)}
-                className="hover:bg-muted rounded-full p-2"
+                className="hover:bg-muted grid size-10 shrink-0 place-items-center rounded-full transition"
                 aria-label={t("common.close")}
               >
                 <X className="size-5" />
               </button>
-            </div>
+            </Dialog.Close>
+          </header>
 
+          <div className="modal-scroll-area min-h-0 flex-1 overflow-y-auto px-6 py-6 sm:px-8">
             {selected ? (
-              <form action={action} className="mt-7 space-y-5">
-                <input type="hidden" name="destination" value={destination} />
-                <input
-                  type="hidden"
-                  name="selectionToken"
-                  value={selected.selectionToken}
-                />
-                <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4">
-                  <button
-                    type="button"
-                    onClick={() => setSelected(null)}
-                    className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm font-bold"
-                  >
-                    <ArrowLeft className="size-4" /> {t("add.chooseAnother")}
-                  </button>
-                  <a
-                    href={selected.bggUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-primary flex items-center gap-2 text-sm font-bold hover:underline"
-                  >
-                    {t("add.viewBgg")} <ExternalLink className="size-4" />
-                  </a>
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-3">
-                  <Field label={t("add.year")}>
-                    <input
-                      name="yearPublished"
-                      type="number"
-                      min={1800}
-                      max={2200}
-                      defaultValue={selected.yearPublished ?? ""}
-                      className="field-input"
-                      placeholder="2019"
-                    />
-                  </Field>
-                  <Field label={t("add.minPlayers")}>
-                    <input
-                      name="minPlayers"
-                      type="number"
-                      min={1}
-                      max={99}
-                      defaultValue={1}
-                      required
-                      className="field-input"
-                    />
-                  </Field>
-                  <Field label={t("add.maxPlayers")}>
-                    <input
-                      name="maxPlayers"
-                      type="number"
-                      min={1}
-                      max={99}
-                      defaultValue={4}
-                      required
-                      className="field-input"
-                    />
-                  </Field>
-                  <Field label={t("add.minMinutes")}>
-                    <input
-                      name="minPlaytime"
-                      type="number"
-                      min={0}
-                      max={10_000}
-                      defaultValue={30}
-                      required
-                      className="field-input"
-                    />
-                  </Field>
-                  <Field label={t("add.maxMinutes")}>
-                    <input
-                      name="maxPlaytime"
-                      type="number"
-                      min={1}
-                      max={10_000}
-                      defaultValue={60}
-                      required
-                      className="field-input"
-                    />
-                  </Field>
-                  <Field label={t("add.complexity")}>
-                    <input
-                      name="weight"
-                      type="number"
-                      min={1}
-                      max={5}
-                      step={0.1}
-                      defaultValue={2.5}
-                      className="field-input"
-                    />
-                  </Field>
-                  {destination === "collection" ? (
-                    <Field label={t("edit.money", { currency })}>
-                      <input
-                        name="moneySpent"
-                        type="number"
-                        min={0}
-                        max={999_999_999.99}
-                        step="0.01"
-                        defaultValue={0}
-                        required
-                        className="field-input"
-                      />
-                    </Field>
-                  ) : (
-                    <input type="hidden" name="moneySpent" value="0" />
-                  )}
-                </div>
-
-                <Field label={t("add.categories")}>
-                  <input
-                    name="categories"
-                    maxLength={500}
-                    className="field-input"
-                    placeholder={t("add.categoriesPlaceholder")}
-                  />
-                </Field>
-                <Field label={t("add.mechanics")}>
-                  <input
-                    name="mechanics"
-                    maxLength={1_000}
-                    className="field-input"
-                    placeholder={t("add.mechanicsPlaceholder")}
-                  />
-                </Field>
-                <Field label={t("add.families")}>
-                  <input
-                    name="families"
-                    maxLength={1_000}
-                    className="field-input"
-                    placeholder={t("add.familiesPlaceholder")}
-                  />
-                </Field>
-                <Field label={t("add.artwork")}>
-                  <input
-                    name="imageUrl"
-                    type="url"
-                    maxLength={2_000}
-                    defaultValue={selected.imageUrl ?? ""}
-                    className="field-input"
-                    placeholder="https://cf.geekdo-images.com/..."
-                  />
-                </Field>
-                <Field label={t("add.description")}>
-                  <textarea
-                    name="description"
-                    maxLength={2_000}
-                    rows={3}
-                    className="field-input min-h-24 py-3"
-                    placeholder={t("add.descriptionPlaceholder")}
-                  />
-                </Field>
-                <div className="flex justify-end border-t pt-5">
-                  <Button type="submit" disabled={adding}>
-                    {adding ? (
-                      <LoaderCircle className="size-4 animate-spin" />
-                    ) : (
-                      <Plus className="size-4" />
-                    )}
-                    {t(
-                      destination === "wishlist"
-                        ? "wishlist.addSubmit"
-                        : "add.submit",
-                    )}
-                  </Button>
-                </div>
-              </form>
+              <SelectedGameForm
+                action={action}
+                adding={adding}
+                currency={currency}
+                destination={destination}
+                selected={selected}
+                onChooseAnother={() => setSelected(null)}
+              />
             ) : (
-              <>
-                <form onSubmit={handleSearch} className="mt-6 flex gap-2">
-                  <label className="relative flex-1">
-                    <span className="sr-only">{t("add.gameTitle")}</span>
-                    <Search className="text-muted-foreground absolute top-1/2 left-4 size-4 -translate-y-1/2" />
-                    <input
-                      value={query}
-                      onChange={(event) => setQuery(event.target.value)}
-                      minLength={2}
-                      maxLength={80}
-                      required
-                      autoFocus
-                      className="bg-background h-12 w-full rounded-xl border pr-4 pl-11"
-                      placeholder={t("add.searchPlaceholder")}
+              <div>
+                <label className="relative block">
+                  <span className="sr-only">{t("add.gameTitle")}</span>
+                  <Search className="text-muted-foreground absolute top-1/2 left-4 size-4 -translate-y-1/2" />
+                  <input
+                    value={query}
+                    onChange={(event) => changeQuery(event.target.value)}
+                    minLength={3}
+                    maxLength={500}
+                    autoFocus
+                    className="bg-background focus:ring-primary/20 h-12 w-full rounded-xl border pr-12 pl-11 transition focus:ring-4 focus:outline-none"
+                    placeholder={t("add.searchPlaceholder")}
+                  />
+                  {searching && (
+                    <AppSpinner
+                      className="absolute top-[calc(50%-0.5rem)] right-4 size-4"
+                      label={t("common.loading")}
                     />
-                  </label>
-                  <Button type="submit" disabled={searching}>
-                    {searching ? (
-                      <LoaderCircle className="size-4 animate-spin" />
-                    ) : (
-                      t("add.search")
-                    )}
-                  </Button>
-                </form>
-                <div className="mt-5 space-y-2">
+                  )}
+                </label>
+
+                <div className="mt-5 space-y-2" aria-live="polite">
                   {results.map((result) => (
                     <button
                       key={result.bggId}
                       type="button"
                       onClick={() => setSelected(result)}
-                      className="hover:bg-muted/60 flex w-full items-center gap-4 rounded-xl border p-3 text-left transition"
+                      className="hover:bg-muted/60 focus:ring-primary/20 flex w-full items-center gap-4 rounded-2xl border p-3 text-left transition focus:ring-4 focus:outline-none"
                     >
                       <span className="bg-muted relative grid size-16 shrink-0 place-items-center overflow-hidden rounded-xl">
                         {result.imageUrl ? (
@@ -360,18 +217,210 @@ export function AddGameDialog({
                       </span>
                     </button>
                   ))}
-                  {!searching && results.length === 0 && query.length >= 2 && (
-                    <p className="text-muted-foreground py-8 text-center text-sm">
-                      {t("add.resultsHint")}
+                  {!searching && searchError && (
+                    <p className="text-danger py-8 text-center text-sm">
+                      {searchError === "unavailable"
+                        ? t("add.unavailable")
+                        : searchError}
                     </p>
                   )}
+                  {!searching &&
+                    !searchError &&
+                    hasSearched &&
+                    results.length === 0 && (
+                      <p className="text-muted-foreground py-8 text-center text-sm">
+                        {t("add.resultsHint")}
+                      </p>
+                    )}
                 </div>
-              </>
+              </div>
             )}
-          </section>
-        </div>
-      )}
-    </>
+          </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  );
+}
+
+/** Editable local details after a trusted discovery result has been selected. */
+function SelectedGameForm({
+  action,
+  adding,
+  currency,
+  destination,
+  onChooseAnother,
+  selected,
+}: {
+  action: (formData: FormData) => void;
+  adding: boolean;
+  currency: string;
+  destination: "collection" | "wishlist";
+  onChooseAnother: () => void;
+  selected: GameDiscoveryResult;
+}) {
+  const t = useI18n();
+  return (
+    <form action={action} className="space-y-5">
+      <input type="hidden" name="destination" value={destination} />
+      <input
+        type="hidden"
+        name="selectionToken"
+        value={selected.selectionToken}
+      />
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4">
+        <button
+          type="button"
+          onClick={onChooseAnother}
+          className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm font-bold"
+        >
+          <ArrowLeft className="size-4" /> {t("add.chooseAnother")}
+        </button>
+        <a
+          href={selected.bggUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="text-primary flex items-center gap-2 text-sm font-bold hover:underline"
+        >
+          {t("add.viewBgg")} <ExternalLink className="size-4" />
+        </a>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Field label={t("add.year")}>
+          <input
+            name="yearPublished"
+            type="number"
+            min={1800}
+            max={2200}
+            defaultValue={selected.yearPublished ?? ""}
+            className="field-input"
+            placeholder="2019"
+          />
+        </Field>
+        <Field label={t("add.minPlayers")}>
+          <input
+            name="minPlayers"
+            type="number"
+            min={1}
+            max={99}
+            defaultValue={1}
+            required
+            className="field-input"
+          />
+        </Field>
+        <Field label={t("add.maxPlayers")}>
+          <input
+            name="maxPlayers"
+            type="number"
+            min={1}
+            max={99}
+            defaultValue={4}
+            required
+            className="field-input"
+          />
+        </Field>
+        <Field label={t("add.minMinutes")}>
+          <input
+            name="minPlaytime"
+            type="number"
+            min={0}
+            max={10_000}
+            defaultValue={30}
+            required
+            className="field-input"
+          />
+        </Field>
+        <Field label={t("add.maxMinutes")}>
+          <input
+            name="maxPlaytime"
+            type="number"
+            min={1}
+            max={10_000}
+            defaultValue={60}
+            required
+            className="field-input"
+          />
+        </Field>
+        <Field label={t("add.complexity")}>
+          <input
+            name="weight"
+            type="number"
+            min={1}
+            max={5}
+            step={0.1}
+            defaultValue={2.5}
+            className="field-input"
+          />
+        </Field>
+        {destination === "collection" ? (
+          <GiftedPriceField className="sm:col-span-3" currency={currency} />
+        ) : (
+          <>
+            <input type="hidden" name="moneySpent" value="0" />
+            <input type="hidden" name="gifted" value="false" />
+          </>
+        )}
+      </div>
+
+      <Field label={t("add.categories")}>
+        <input
+          name="categories"
+          maxLength={500}
+          className="field-input"
+          placeholder={t("add.categoriesPlaceholder")}
+        />
+      </Field>
+      <Field label={t("add.mechanics")}>
+        <input
+          name="mechanics"
+          maxLength={1_000}
+          className="field-input"
+          placeholder={t("add.mechanicsPlaceholder")}
+        />
+      </Field>
+      <Field label={t("add.families")}>
+        <input
+          name="families"
+          maxLength={1_000}
+          className="field-input"
+          placeholder={t("add.familiesPlaceholder")}
+        />
+      </Field>
+      <Field label={t("add.artwork")}>
+        <input
+          name="imageUrl"
+          type="url"
+          maxLength={2_000}
+          defaultValue={selected.imageUrl ?? ""}
+          className="field-input"
+          placeholder="https://cf.geekdo-images.com/..."
+        />
+      </Field>
+      <Field label={t("add.description")}>
+        <textarea
+          name="description"
+          maxLength={2_000}
+          rows={3}
+          className="field-input min-h-24 py-3"
+          placeholder={t("add.descriptionPlaceholder")}
+        />
+      </Field>
+      <div className="flex justify-end border-t pt-5">
+        <Button
+          type="submit"
+          disabled={adding}
+          aria-label={adding ? t("common.loading") : undefined}
+        >
+          {adding ? (
+            <AppSpinner className="size-4" label={t("common.loading")} />
+          ) : (
+            <Plus className="size-4" />
+          )}
+          {!adding &&
+            t(destination === "wishlist" ? "wishlist.addSubmit" : "add.submit")}
+        </Button>
+      </div>
+    </form>
   );
 }
 

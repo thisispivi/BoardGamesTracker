@@ -7,6 +7,8 @@ export type PickableGame = {
   maxPlaytime: number;
   weight: number | null;
   favorite: boolean;
+  imageUrl?: string | null;
+  isExpansion: boolean;
   categories?: string[];
   mechanics?: string[];
   families?: string[];
@@ -18,7 +20,9 @@ export type PickerFilters = {
   maxMinutes: number;
   maxWeight: number;
   favoritesOnly: boolean;
-  taxonomy?: string;
+  mechanics?: string[];
+  themes?: string[];
+  excludeExpansions: boolean;
 };
 
 /** Returns games satisfying every active game-night constraint. */
@@ -34,20 +38,31 @@ export function filterGames(
     const fitsWeight =
       filters.maxWeight === 0 || (game.weight ?? 0) <= filters.maxWeight;
     const fitsFavorites = !filters.favoritesOnly || game.favorite;
-    const taxonomy = filters.taxonomy?.toLocaleLowerCase();
-    const fitsTaxonomy =
-      !taxonomy ||
-      [
-        ...(game.categories ?? []),
-        ...(game.mechanics ?? []),
-        ...(game.families ?? []),
-      ].some((value) => value.toLocaleLowerCase() === taxonomy);
+    const mechanics = new Set(
+      (filters.mechanics ?? []).map((value) => value.toLocaleLowerCase()),
+    );
+    const themes = new Set(
+      (filters.themes ?? []).map((value) => value.toLocaleLowerCase()),
+    );
+    const fitsMechanics =
+      mechanics.size === 0 ||
+      (game.mechanics ?? []).some((value) =>
+        mechanics.has(value.toLocaleLowerCase()),
+      );
+    const fitsThemes =
+      themes.size === 0 ||
+      [...(game.categories ?? []), ...(game.families ?? [])].some((value) =>
+        themes.has(value.toLocaleLowerCase()),
+      );
+    const fitsExpansion = !filters.excludeExpansions || !game.isExpansion;
     return (
       supportsPlayers &&
       fitsDuration &&
       fitsWeight &&
       fitsFavorites &&
-      fitsTaxonomy
+      fitsMechanics &&
+      fitsThemes &&
+      fitsExpansion
     );
   });
 }

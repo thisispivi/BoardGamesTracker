@@ -5,6 +5,7 @@ export type StatGame = {
   bggId: number;
   categories: string[];
   favorite: boolean;
+  gifted: boolean;
   isExpansion: boolean;
   mechanics: string[];
   moneySpent: number;
@@ -18,7 +19,7 @@ export type CountDatum = { name: string; value: number };
 /** Computes deterministic user-facing insights from owned collection data. */
 export function calculateCollectionStats(collection: StatGame[]) {
   const priced = collection
-    .filter((game) => game.moneySpent > 0)
+    .filter((game) => game.moneySpent > 0 || game.gifted)
     .toSorted((left, right) => right.moneySpent - left.moneySpent);
   const prices = priced
     .map((game) => game.moneySpent)
@@ -42,10 +43,13 @@ export function calculateCollectionStats(collection: StatGame[]) {
       ? sum(priced.map((game) => game.moneySpent)) / priced.length
       : 0,
     medianSpent,
-    mostExpensive: priced.slice(0, 7).map((game) => ({
-      name: game.name,
-      value: game.moneySpent,
-    })),
+    mostExpensive: priced
+      .filter((game) => !game.gifted)
+      .slice(0, 7)
+      .map((game) => ({
+        name: game.name,
+        value: game.moneySpent,
+      })),
     categories: countLabels(
       collection.flatMap((game) =>
         game.categories.filter((category) => !isExpansionCategory(category)),

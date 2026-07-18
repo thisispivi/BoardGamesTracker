@@ -42,8 +42,8 @@ export function ClearCollectionCard() {
   }, [router, state]);
 
   return (
-    <section className="bg-card shadow-soft rounded-3xl border border-red-500/25 p-6 sm:p-8">
-      <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
+    <section className="bg-card shadow-soft h-full rounded-3xl border border-red-500/25 p-6 sm:p-8">
+      <div className="flex h-full flex-col justify-between gap-7">
         <div className="flex items-start gap-4">
           <span className="bg-danger/10 text-danger grid size-12 shrink-0 place-items-center rounded-2xl">
             <TriangleAlert className="size-5" />
@@ -60,7 +60,7 @@ export function ClearCollectionCard() {
         <Button
           type="button"
           variant="danger"
-          className="shrink-0"
+          className="w-full shrink-0 sm:w-fit"
           onClick={() => setOpen(true)}
         >
           <Trash2 className="size-4" /> {t("clear.deleteAll")}

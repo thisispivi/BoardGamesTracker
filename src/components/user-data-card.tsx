@@ -54,7 +54,7 @@ export function UserDataCard() {
   }
 
   return (
-    <section className="bg-card shadow-soft rounded-3xl border p-6 sm:p-8">
+    <section className="bg-card shadow-soft h-full rounded-3xl border p-6 sm:p-8">
       <div className="flex items-center gap-4">
         <span className="bg-primary/10 text-primary grid size-12 place-items-center rounded-2xl">
           <FileArchive className="size-5" />

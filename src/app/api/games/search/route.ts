@@ -3,10 +3,12 @@ import { z } from "zod";
 import { log } from "@/lib/logger";
 import { getDictionary } from "@/lib/i18n";
 import { translate } from "@/lib/messages";
+import { discoverBoardGameByUrl } from "@/server/discovery/bgg-url";
+import { parseBoardGameUrl } from "@/server/discovery/result-parser";
 import { searchBoardGames } from "@/server/discovery/searxng";
 import { getSession } from "@/server/session";
 
-const querySchema = z.string().trim().min(2).max(80);
+const querySchema = z.string().trim().min(3).max(500);
 const requests = new Map<string, { count: number; resetsAt: number }>();
 
 /** Applies a small per-user metasearch limit for a single-instance deployment. */
@@ -49,6 +51,10 @@ export async function GET(request: Request): Promise<Response> {
   }
 
   try {
+    if (parseBoardGameUrl(query.data)) {
+      const game = await discoverBoardGameByUrl(query.data);
+      return Response.json({ results: game ? [game] : [] });
+    }
     return Response.json({ results: await searchBoardGames(query.data) });
   } catch (error) {
     log("warn", "game_discovery_failed", {

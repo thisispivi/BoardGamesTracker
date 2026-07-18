@@ -15,6 +15,7 @@ const games: PickableGame[] = [
     maxPlaytime: 30,
     weight: 2.1,
     favorite: true,
+    isExpansion: false,
   },
   {
     gameId: "2",
@@ -24,6 +25,7 @@ const games: PickableGame[] = [
     maxPlaytime: 60,
     weight: 1.2,
     favorite: false,
+    isExpansion: false,
   },
 ];
 
@@ -37,6 +39,7 @@ describe("game picker", () => {
         maxMinutes: 45,
         maxWeight: 3,
         favoritesOnly: true,
+        excludeExpansions: true,
       }),
     ).toEqual([games[0]]);
   });
@@ -49,6 +52,7 @@ describe("game picker", () => {
         maxMinutes: 0,
         maxWeight: 0,
         favoritesOnly: false,
+        excludeExpansions: true,
       }),
     ).toBeNull();
   });
@@ -58,9 +62,37 @@ describe("game picker", () => {
     expect(
       pickRandomGame(
         games,
-        { players: 4, maxMinutes: 0, maxWeight: 0, favoritesOnly: false },
+        {
+          players: 4,
+          maxMinutes: 0,
+          maxWeight: 0,
+          favoritesOnly: false,
+          excludeExpansions: true,
+        },
         () => 0,
       ),
     )?.toBe(games[1]);
+  });
+
+  it("combines multi-select mechanic, theme, and expansion filters", () => {
+    const expansion: PickableGame = {
+      ...games[0]!,
+      gameId: "3",
+      isExpansion: true,
+      mechanics: ["Drafting"],
+      families: ["Fantasy"],
+    };
+
+    expect(
+      filterGames([...games, expansion], {
+        players: 2,
+        maxMinutes: 0,
+        maxWeight: 0,
+        favoritesOnly: false,
+        mechanics: ["Drafting"],
+        themes: ["Fantasy"],
+        excludeExpansions: true,
+      }),
+    ).toEqual([]);
   });
 });

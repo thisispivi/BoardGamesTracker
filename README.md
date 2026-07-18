@@ -4,17 +4,32 @@ Board Games Tracker is a secure, self-hosted home for a board-game collection. I
 
 ![Next.js](https://img.shields.io/badge/Next.js-16.2-black) ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169e1) ![License](https://img.shields.io/badge/license-MIT-18594b)
 
-## What is included
+## Table of contents
+
+- [Features](#features)
+- [Architecture](#architecture)
+- [Quick start with Docker](#quick-start-with-docker)
+- [Local development](#local-development)
+- [Environment](#environment)
+- [Database workflow](#database-workflow)
+- [Quality gates](#quality-gates)
+- [Project structure](#project-structure)
+- [Security model](#security-model)
+- [Backups and upgrades](#backups-and-upgrades)
+- [License](#license)
+
+## Features
 
 - Responsive light/dark interface inspired by modern travel and mobility products
 - Email/password accounts with secure server-side sessions and administrator roles
 - Fuzzy English/Italian collection and discovery search with stop-word removal, typo tolerance, and compact queries such as `7wonders`
 - Main-game shelves with expansions grouped beneath the most likely owned base game
-- Local add/remove, favorites, BGG ratings, player counts, and duration with animated in-app confirmations
+- Local add/remove, favorites, gifted-game labels, purchase prices, BGG ratings, player counts, and duration with animated in-app confirmations
 - Secure BGG CSV collection import for owned games, ratings, plays, and notes
 - Token-free SearXNG discovery, PostgreSQL-cached BGG artwork, enriched publication years, and direct BGG links
-- Game-night picker for player count, maximum duration, complexity, and favorites
-- Administrative console for roles, bans, session revocation, account deletion, health metrics, and audit events
+- Game-night picker with candidate cover art, separate searchable multi-select mechanic/theme filters, optional expansion exclusion, and a labeled animated wheel
+- Collection analytics for spending, price coverage (including gifts), complexity, expansions, favorites, categories, and mechanics
+- Administrative console for roles, bans, session revocation, account deletion, health metrics, and paginated audit events
 - English and Italian navigation with a persisted locale preference
 - PostgreSQL migrations, Docker deployment, structured redacted logs, strict TypeScript, ESLint, Prettier, Husky, lint-staged, and Vitest
 
@@ -47,10 +62,10 @@ Requirements: Docker Engine with Compose v2 and a public HTTPS URL for productio
    ```dotenv
    POSTGRES_PASSWORD=replace-with-a-long-random-password
    BETTER_AUTH_SECRET=replace-with-at-least-32-random-characters
-   APP_URL=http://localhost:3000
+   APP_URL=http://localhost:12500
    ADMIN_EMAIL=you@example.com
    ALLOW_SIGN_UP=false
-   APP_PORT=3000
+   APP_PORT=12500
    LOG_LEVEL=info
    SEARXNG_SECRET=replace-with-a-different-random-secret
    ```
@@ -61,7 +76,7 @@ Requirements: Docker Engine with Compose v2 and a public HTTPS URL for productio
    docker compose up --build -d
    ```
 
-3. Open `http://localhost:3000`. When the database has no users, Board Games Tracker automatically presents first-time setup and makes the first account an administrator. Public registration closes as soon as that account exists. Pending SQL migrations run automatically before the server starts.
+3. Open `http://localhost:12500`. When the database has no users, Board Games Tracker automatically presents first-time setup and makes the first account an administrator. Public registration closes as soon as that account exists. Pending SQL migrations run automatically before the server starts.
 
 For production, put the app behind a TLS-terminating reverse proxy, set `APP_URL` to the exact external `https://` origin, restrict database access to the private Docker network, and back up the `board_games_tracker_data` volume.
 
@@ -88,7 +103,7 @@ Board Games Tracker queries a private SearXNG JSON endpoint for indexed BoardGam
 
 Official BGG collection CSV exports can be uploaded from Settings. Imports are restricted to 5 MB and 2,000 rows, validate the expected BGG columns and field bounds, and only add rows explicitly marked as owned. Imported BGG IDs are used to discover and download covers in bounded batches.
 
-Owned games and future purchases are kept in separate Collection and Wishlist views. Moving a purchased wishlist item into the collection records its price, while the Stats view summarizes total and average spend, price coverage, complexity, expansions, favorites, and the most common categories and mechanics. Play histories are deliberately not collected.
+Owned games and future purchases are kept in separate Collection and Wishlist views. Moving a wishlist item into the collection records either its purchase price or that it was gifted. Gifted games count toward price coverage while contributing zero to spend, average, and median calculations. The Stats view summarizes spend, price coverage, complexity, expansions, favorites, and the most common categories and mechanics. Play histories are deliberately not collected.
 
 Settings can export the signed-in user's Board Games Tracker profile preferences, collection, wishlist, personal metadata, and shared game metadata as JSON, CSV, XLSX, or SQL. All four formats import through the same bounded, versioned validator and merge by BGG ID. Uploaded SQL is parsed only as Board Games Tracker's escaped data envelope and is never executed. Credentials, sessions, audit logs, and other users' data are excluded.
 
@@ -132,6 +147,26 @@ pnpm audit         # dependency advisory check
 ```
 
 Husky runs lint-staged before each commit. Exported functions and components carry JSDoc summaries; implementation comments are deliberately kept out of expression lines.
+
+## Project structure
+
+```text
+BoardGamesTracker/
+├── drizzle/                  # Reviewed PostgreSQL migrations and snapshots
+├── scripts/                  # Migration and artwork-cache utilities
+├── searxng/                  # Private metasearch configuration
+├── src/
+│   ├── app/                  # Next.js routes, layouts, metadata, and handlers
+│   ├── components/           # Feature components and shared UI controls
+│   ├── lib/                  # i18n, taxonomy, search, currency, and statistics
+│   ├── server/               # Auth, data access, actions, discovery, and imports
+│   └── test/                 # Shared Vitest setup
+├── docker-compose.yml        # App, PostgreSQL, and SearXNG production stack
+├── drizzle.config.ts         # Typed migration configuration
+└── package.json              # Runtime dependencies and quality commands
+```
+
+Pages remain server-rendered by default. Interactive behavior is isolated in focused Client Components, while reusable filtering, validation, and formatting live outside route files.
 
 ## Security model
 

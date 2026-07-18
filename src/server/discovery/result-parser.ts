@@ -1,26 +1,40 @@
 import type { GameDiscoveryResult } from "@/server/discovery/types";
 
+/** Parses a canonical HTTPS BoardGameGeek game URL into its stable identity. */
+export function parseBoardGameUrl(
+  rawUrl: string,
+): { bggId: number; bggUrl: string } | null {
+  try {
+    const url = new URL(rawUrl.trim());
+    const hostname = url.hostname.toLowerCase().replace(/^www\./, "");
+    const path = url.pathname.match(/^\/boardgame\/(\d+)(?:\/[^/]+)?\/?$/);
+    const bggId = Number(path?.[1]);
+    if (
+      url.protocol !== "https:" ||
+      hostname !== "boardgamegeek.com" ||
+      !Number.isSafeInteger(bggId) ||
+      bggId <= 0 ||
+      bggId > 10_000_000
+    ) {
+      return null;
+    }
+    return {
+      bggId,
+      bggUrl: `https://boardgamegeek.com/boardgame/${bggId}`,
+    };
+  } catch {
+    return null;
+  }
+}
+
 /** Extracts a strict canonical BGG identity from a metasearch result. */
 export function parseBoardGameResult(
   title: string,
   rawUrl: string,
 ): Omit<GameDiscoveryResult, "selectionToken"> | null {
   try {
-    const url = new URL(rawUrl);
-    const hostname = url.hostname.toLowerCase().replace(/^www\./, "");
-    const path = url.pathname.match(/^\/boardgame\/(\d+)(?:\/[^/]+)?\/?$/);
-    if (
-      url.protocol !== "https:" ||
-      hostname !== "boardgamegeek.com" ||
-      !path
-    ) {
-      return null;
-    }
-
-    const bggId = Number(path[1]);
-    if (!Number.isSafeInteger(bggId) || bggId <= 0 || bggId > 10_000_000) {
-      return null;
-    }
+    const parsedUrl = parseBoardGameUrl(rawUrl);
+    if (!parsedUrl) return null;
 
     const cleaned = title
       .replace(/\s*[|–-]\s*(?:Board Game\s*[|–-]\s*)?BoardGameGeek\s*$/i, "")
@@ -33,8 +47,7 @@ export function parseBoardGameResult(
 
     const yearPublished = yearMatch ? Number(yearMatch[1]) : null;
     return {
-      bggId,
-      bggUrl: `https://boardgamegeek.com/boardgame/${bggId}`,
+      ...parsedUrl,
       imageUrl: null,
       name,
       yearPublished,

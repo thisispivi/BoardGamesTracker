@@ -25,6 +25,7 @@ export type CollectionActionState = {
 };
 
 const itemIdSchema = z.uuid();
+const giftedSchema = z.preprocess((value) => value === "true", z.boolean());
 const optionalInteger = (minimum: number, maximum: number) =>
   z.preprocess(
     (value) => (value === "" || value === null ? null : value),
@@ -53,6 +54,7 @@ const gameDetailsSchema = z
     minPlayers: z.coerce.number().int().min(1).max(99),
     minPlaytime: z.coerce.number().int().min(0).max(10_000),
     moneySpent: z.coerce.number().min(0).max(999_999_999.99),
+    gifted: giftedSchema,
     weight: z.preprocess(
       (value) => (value === "" || value === null ? null : value),
       z.coerce.number().min(1).max(5).nullable(),
@@ -64,19 +66,29 @@ const gameDetailsSchema = z
   })
   .refine((game) => game.maxPlaytime >= game.minPlaytime, {
     message: "Maximum duration cannot be lower than minimum duration.",
-  });
+  })
+  .transform((game) => ({
+    ...game,
+    moneySpent: game.gifted ? 0 : game.moneySpent,
+  }));
 
 type LocalGameDetails = z.infer<typeof gameDetailsSchema>;
 
-const editCollectionItemSchema = z.object({
-  itemId: itemIdSchema,
-  moneySpent: z.coerce.number().min(0).max(999_999_999.99),
-  notes: z.string().trim().max(2_000),
-  personalRating: z.preprocess(
-    (value) => (value === "" || value === null ? null : value),
-    z.coerce.number().min(0).max(10).nullable(),
-  ),
-});
+const editCollectionItemSchema = z
+  .object({
+    gifted: giftedSchema,
+    itemId: itemIdSchema,
+    moneySpent: z.coerce.number().min(0).max(999_999_999.99),
+    notes: z.string().trim().max(2_000),
+    personalRating: z.preprocess(
+      (value) => (value === "" || value === null ? null : value),
+      z.coerce.number().min(0).max(10).nullable(),
+    ),
+  })
+  .transform((item) => ({
+    ...item,
+    moneySpent: item.gifted ? 0 : item.moneySpent,
+  }));
 
 const libraryDestinationSchema = z.enum(["collection", "wishlist"]);
 
@@ -356,6 +368,7 @@ export async function addGameAction(
     minPlayers: formData.get("minPlayers"),
     minPlaytime: formData.get("minPlaytime"),
     moneySpent: formData.get("moneySpent"),
+    gifted: formData.get("gifted"),
     weight: formData.get("weight"),
     yearPublished: formData.get("yearPublished"),
   });
@@ -398,6 +411,7 @@ export async function addGameAction(
       userId: session.user.id,
       gameId: savedGame.id,
       moneySpent: isWishlist ? 0 : details.data.moneySpent,
+      gifted: isWishlist ? false : details.data.gifted,
       owned: !isWishlist,
       wishlist: isWishlist,
     })
@@ -405,6 +419,7 @@ export async function addGameAction(
       target: [collectionItems.userId, collectionItems.gameId],
       set: {
         moneySpent: isWishlist ? 0 : details.data.moneySpent,
+        gifted: isWishlist ? false : details.data.gifted,
         owned: !isWishlist,
         wishlist: isWishlist,
         updatedAt: new Date(),
@@ -443,6 +458,7 @@ export async function updateCollectionItemAction(
   const parsed = editCollectionItemSchema.safeParse({
     itemId: formData.get("itemId"),
     moneySpent: formData.get("moneySpent"),
+    gifted: formData.get("gifted"),
     notes: formData.get("notes"),
     personalRating: formData.get("personalRating"),
   });
@@ -457,6 +473,7 @@ export async function updateCollectionItemAction(
     .update(collectionItems)
     .set({
       moneySpent: parsed.data.moneySpent,
+      gifted: parsed.data.gifted,
       notes: parsed.data.notes,
       personalRating: parsed.data.personalRating,
       updatedAt: new Date(),
@@ -480,7 +497,10 @@ export async function updateCollectionItemAction(
     action: "collection.game_updated",
     targetType: "collection_item",
     targetId: updated.id,
-    metadata: { moneySpent: parsed.data.moneySpent },
+    metadata: {
+      gifted: parsed.data.gifted,
+      moneySpent: parsed.data.moneySpent,
+    },
   });
   revalidatePath("/collection");
   revalidatePath("/stats");
@@ -550,10 +570,16 @@ export async function moveWishlistToCollectionAction(
   const dictionary = await getDictionary();
   const parsed = z
     .object({
+      gifted: giftedSchema,
       itemId: itemIdSchema,
       moneySpent: z.coerce.number().min(0).max(999_999_999.99),
     })
+    .transform((item) => ({
+      ...item,
+      moneySpent: item.gifted ? 0 : item.moneySpent,
+    }))
     .safeParse({
+      gifted: formData.get("gifted"),
       itemId: formData.get("itemId"),
       moneySpent: formData.get("moneySpent"),
     });
@@ -568,6 +594,7 @@ export async function moveWishlistToCollectionAction(
     .update(collectionItems)
     .set({
       moneySpent: parsed.data.moneySpent,
+      gifted: parsed.data.gifted,
       owned: true,
       wishlist: false,
       updatedAt: new Date(),
@@ -592,7 +619,10 @@ export async function moveWishlistToCollectionAction(
     action: "wishlist.game_purchased",
     targetType: "collection_item",
     targetId: updated.id,
-    metadata: { moneySpent: parsed.data.moneySpent },
+    metadata: {
+      gifted: parsed.data.gifted,
+      moneySpent: parsed.data.moneySpent,
+    },
   });
   revalidatePath("/wishlist");
   revalidatePath("/collection");

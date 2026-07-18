@@ -28,6 +28,7 @@ export type CollectionGame = {
   personalRating: number | null;
   notes: string;
   moneySpent: number;
+  gifted: boolean;
   gameId: string;
   bggId: number;
   name: string;
@@ -197,9 +198,7 @@ export function GameCard({
           <h3 className="line-clamp-2 text-sm font-bold">{game.name}</h3>
           <p className="text-muted-foreground mt-1 text-xs">
             {game.yearPublished ?? t("common.yearUnknown")}
-            {game.moneySpent > 0 && (
-              <> · {formatMoney(game.moneySpent, currency, locale)}</>
-            )}
+            <CollectionCost game={game} currency={currency} locale={locale} />
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-0.5">
@@ -226,9 +225,7 @@ export function GameCard({
             </h2>
             <p className="text-muted-foreground mt-1 text-xs">
               {game.yearPublished ?? t("common.yearUnknown")}
-              {game.moneySpent > 0 && (
-                <> · {formatMoney(game.moneySpent, currency, locale)}</>
-              )}
+              <CollectionCost game={game} currency={currency} locale={locale} />
             </p>
           </div>
           {game.bggRating !== null && (
@@ -278,5 +275,28 @@ export function GameCard({
         )}
       </div>
     </article>
+  );
+}
+
+/** Renders a recorded price or the gifted label without implying a zero price. */
+function CollectionCost({
+  currency,
+  game,
+  locale,
+}: {
+  currency: string;
+  game: CollectionGame;
+  locale: string;
+}) {
+  const t = useI18n();
+  if (!game.gifted && game.moneySpent <= 0) return null;
+
+  return (
+    <>
+      {" · "}
+      {game.gifted
+        ? t("game.gifted")
+        : formatMoney(game.moneySpent, currency, locale)}
+    </>
   );
 }

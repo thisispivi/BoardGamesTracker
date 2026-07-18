@@ -14,6 +14,7 @@ import { toast } from "sonner";
 
 import type { CollectionGame } from "@/components/game-card";
 import { GameArtwork } from "@/components/game-artwork";
+import { GiftedPriceField } from "@/components/gifted-price-field";
 import { useI18n } from "@/components/i18n-provider";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -84,22 +85,7 @@ function PurchaseDialog({
           </div>
           <form action={action} className="mt-6 space-y-5">
             <input type="hidden" name="itemId" value={game.id} />
-            <label className="block text-sm font-bold">
-              <span className="mb-2 block">
-                {t("edit.money", { currency })}
-              </span>
-              <input
-                name="moneySpent"
-                type="number"
-                min={0}
-                max={999_999_999.99}
-                step="0.01"
-                defaultValue={0}
-                required
-                autoFocus
-                className="field-input"
-              />
-            </label>
+            <GiftedPriceField currency={currency} />
             <p className="text-muted-foreground text-sm leading-6">
               {t("wishlist.purchaseBody")}
             </p>

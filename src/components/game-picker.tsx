@@ -15,19 +15,32 @@ import { useMemo, useState } from "react";
 import { GameArtwork } from "@/components/game-artwork";
 import { useI18n } from "@/components/i18n-provider";
 import { Button } from "@/components/ui/button";
+import {
+  MultiSelect,
+  type MultiSelectOption,
+} from "@/components/ui/multi-select";
 import { Select } from "@/components/ui/select";
+import { getTaxonomyLabel, isExpansionCategory } from "@/lib/game-taxonomy";
 import { filterGames, pickRandomGame } from "@/server/picker";
 import type { CollectionGame } from "@/components/game-card";
 import { formatDuration } from "@/lib/utils";
 
 /** Animated filter-and-spin experience for choosing a collection game. */
-export function GamePicker({ games }: { games: CollectionGame[] }) {
+export function GamePicker({
+  games,
+  locale,
+}: {
+  games: CollectionGame[];
+  locale: string;
+}) {
   const t = useI18n();
   const [players, setPlayers] = useState(4);
   const [maxMinutes, setMaxMinutes] = useState(120);
   const [maxWeight, setMaxWeight] = useState(0);
   const [favoritesOnly, setFavoritesOnly] = useState(false);
-  const [taxonomy, setTaxonomy] = useState("all");
+  const [mechanics, setMechanics] = useState<string[]>([]);
+  const [themes, setThemes] = useState<string[]>([]);
+  const [excludeExpansions, setExcludeExpansions] = useState(true);
   const [rotation, setRotation] = useState(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [spinning, setSpinning] = useState(false);
@@ -36,43 +49,35 @@ export function GamePicker({ games }: { games: CollectionGame[] }) {
     maxMinutes,
     maxWeight,
     favoritesOnly,
-    taxonomy: taxonomy === "all" ? "" : taxonomy,
+    mechanics,
+    themes,
+    excludeExpansions,
   };
   const pickable = useMemo(
     () =>
-      games
-        .filter(
-          (game) =>
-            !game.categories.some(
-              (category) => category.toLowerCase() === "expansion",
-            ),
-        )
-        .map((game) => ({
-          gameId: game.gameId,
-          name: game.name,
-          minPlayers: game.minPlayers,
-          maxPlayers: game.maxPlayers,
-          maxPlaytime: game.maxPlaytime,
-          weight: game.weight,
-          favorite: game.favorite,
-          categories: game.categories,
-          mechanics: game.mechanics,
-          families: game.families,
-        })),
+      games.map((game) => ({
+        gameId: game.gameId,
+        name: game.name,
+        imageUrl: game.imageUrl,
+        isExpansion: game.isExpansion,
+        minPlayers: game.minPlayers,
+        maxPlayers: game.maxPlayers,
+        maxPlaytime: game.maxPlaytime,
+        weight: game.weight,
+        favorite: game.favorite,
+        categories: game.categories,
+        mechanics: game.mechanics,
+        families: game.families,
+      })),
     [games],
   );
-  const taxonomyOptions = useMemo(
-    () =>
-      [
-        ...new Set(
-          pickable.flatMap((game) => [
-            ...(game.categories ?? []),
-            ...(game.mechanics ?? []),
-            ...(game.families ?? []),
-          ]),
-        ),
-      ].sort((left, right) => left.localeCompare(right)),
-    [pickable],
+  const mechanicOptions = useMemo(
+    () => pickerOptions(games, "mechanic", locale),
+    [games, locale],
+  );
+  const themeOptions = useMemo(
+    () => pickerOptions(games, "theme", locale),
+    [games, locale],
   );
   const candidates = filterGames(pickable, filters);
   const selected = games.find((game) => game.gameId === selectedId) ?? null;
@@ -106,7 +111,7 @@ export function GamePicker({ games }: { games: CollectionGame[] }) {
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[380px_1fr]">
+    <div className="grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
       <aside className="bg-card shadow-soft rounded-3xl border p-6 sm:p-7">
         <div className="mb-7 flex items-center gap-3">
           <span className="bg-primary/10 text-primary grid size-10 place-items-center rounded-xl">
@@ -175,19 +180,35 @@ export function GamePicker({ games }: { games: CollectionGame[] }) {
               ]}
             />
           </div>
-          <div className="text-sm font-bold">
-            <span className="mb-3 flex items-center gap-2">
+          <div className="space-y-3 text-sm font-bold">
+            <span className="flex items-center gap-2">
               <ListFilter className="text-primary size-4" />{" "}
-              {t("picker.taxonomy")}
+              {t("picker.mechanics")}
             </span>
-            <Select
-              ariaLabel={t("picker.taxonomyAria")}
-              value={taxonomy}
-              onValueChange={setTaxonomy}
-              options={[
-                { value: "all", label: t("picker.anyTaxonomy") },
-                ...taxonomyOptions.map((value) => ({ value, label: value })),
-              ]}
+            <MultiSelect
+              ariaLabel={t("picker.mechanics")}
+              values={mechanics}
+              onValueChange={setMechanics}
+              options={mechanicOptions}
+              placeholder={t("picker.allMechanics")}
+              searchPlaceholder={t("picker.searchMechanics")}
+              selectedSummary={t("picker.selectedFilters")}
+              clearLabel={t("picker.clearSelection")}
+              emptyLabel={t("picker.noFilterOptions")}
+            />
+          </div>
+          <div className="space-y-3 text-sm font-bold">
+            <span className="block">{t("picker.themes")}</span>
+            <MultiSelect
+              ariaLabel={t("picker.themes")}
+              values={themes}
+              onValueChange={setThemes}
+              options={themeOptions}
+              placeholder={t("picker.allThemes")}
+              searchPlaceholder={t("picker.searchThemes")}
+              selectedSummary={t("picker.selectedFilters")}
+              clearLabel={t("picker.clearSelection")}
+              emptyLabel={t("picker.noFilterOptions")}
             />
           </div>
           <label className="bg-muted/70 flex cursor-pointer items-center justify-between rounded-xl p-4 text-sm font-bold">
@@ -202,6 +223,15 @@ export function GamePicker({ games }: { games: CollectionGame[] }) {
               className="size-4 accent-(--primary)"
             />
           </label>
+          <label className="bg-muted/70 flex cursor-pointer items-center justify-between rounded-xl p-4 text-sm font-bold">
+            <span>{t("picker.excludeExpansions")}</span>
+            <input
+              type="checkbox"
+              checked={excludeExpansions}
+              onChange={(event) => setExcludeExpansions(event.target.checked)}
+              className="size-4 accent-(--primary)"
+            />
+          </label>
         </div>
         <div className="mt-7 border-t pt-5">
           <p className="text-center text-sm">
@@ -210,17 +240,19 @@ export function GamePicker({ games }: { games: CollectionGame[] }) {
               { count: candidates.length },
             )}
           </p>
-          <div className="mt-4 max-h-52 space-y-1 overflow-y-auto overscroll-contain pr-1">
+          <div className="filter-options mt-4 max-h-60 space-y-1 overflow-y-auto overscroll-contain pr-1">
             {candidates.map((candidate) => (
               <button
                 key={candidate.gameId}
                 type="button"
                 onClick={() => setSelectedId(candidate.gameId)}
-                className="hover:bg-muted flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-semibold transition"
+                className="hover:bg-muted flex w-full items-center gap-3 rounded-xl p-2 text-left text-xs font-semibold transition"
               >
-                <span className="bg-primary/10 text-primary grid size-6 shrink-0 place-items-center rounded-md">
-                  <Dices className="size-3" />
-                </span>
+                <GameArtwork
+                  name={candidate.name}
+                  imageUrl={candidate.imageUrl ?? null}
+                  className="size-10 shrink-0 rounded-lg"
+                />
                 <span className="truncate">{candidate.name}</span>
               </button>
             ))}
@@ -275,8 +307,9 @@ export function GamePicker({ games }: { games: CollectionGame[] }) {
                 <motion.div
                   animate={{ rotate: rotation }}
                   transition={{ duration: 1.7, ease: [0.12, 0.7, 0.1, 1] }}
-                  className="border-card size-full rounded-full border-12 shadow-2xl [background:conic-gradient(var(--primary)_0_45deg,var(--accent)_45deg_90deg,#d8c269_90deg_135deg,#476f91_135deg_180deg,var(--primary)_180deg_225deg,var(--accent)_225deg_270deg,#d8c269_270deg_315deg,#476f91_315deg_360deg)]"
+                  className="border-card [container-type:inline-size] relative size-full rounded-full border-12 shadow-2xl [background:conic-gradient(var(--primary)_0_45deg,var(--accent)_45deg_90deg,#d8c269_90deg_135deg,#476f91_135deg_180deg,var(--primary)_180deg_225deg,var(--accent)_225deg_270deg,#d8c269_270deg_315deg,#476f91_315deg_360deg)]"
                 >
+                  <WheelLabels games={candidates} />
                   <div className="border-card bg-background absolute inset-[28%] grid place-items-center rounded-full border-8">
                     <Dices className="text-primary size-12" />
                   </div>
@@ -307,6 +340,65 @@ export function GamePicker({ games }: { games: CollectionGame[] }) {
           )}
         </AnimatePresence>
       </section>
+    </div>
+  );
+}
+
+/** Builds localized picker facets with occurrence counts for quick scanning. */
+function pickerOptions(
+  games: CollectionGame[],
+  facet: "mechanic" | "theme",
+  locale: string,
+): MultiSelectOption[] {
+  const options = new Map<string, { count: number; label: string }>();
+  for (const game of games) {
+    const categories = game.categories.filter(
+      (category) => !isExpansionCategory(category),
+    );
+    const values =
+      facet === "mechanic" ? game.mechanics : [...categories, ...game.families];
+    for (const value of new Set(values)) {
+      const existing = options.get(value);
+      const isCategory = categories.includes(value);
+      options.set(value, {
+        count: (existing?.count ?? 0) + 1,
+        label:
+          existing?.label ??
+          (facet === "mechanic" || isCategory
+            ? getTaxonomyLabel(
+                value,
+                facet === "mechanic" ? "mechanic" : "category",
+                locale,
+              )
+            : value),
+      });
+    }
+  }
+
+  return [...options]
+    .map(([value, option]) => ({ value, ...option }))
+    .sort((left, right) => left.label.localeCompare(right.label, locale));
+}
+
+/** Places a readable sample of eligible titles directly inside the wheel. */
+function WheelLabels({ games }: { games: { gameId: string; name: string }[] }) {
+  const visible = games.slice(0, 8);
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-full">
+      {visible.map((game, index) => {
+        const angle = (index / Math.max(visible.length, 1)) * 360;
+        return (
+          <span
+            key={game.gameId}
+            className="text-primary-foreground absolute top-1/2 left-1/2 line-clamp-2 w-[27cqw] text-center text-[clamp(0.5rem,3cqw,0.7rem)] leading-tight font-black drop-shadow-sm"
+            style={{
+              transform: `translate(-50%, -50%) rotate(${angle}deg) translateY(-36cqw) rotate(${-angle}deg)`,
+            }}
+          >
+            {game.name}
+          </span>
+        );
+      })}
     </div>
   );
 }

@@ -39,6 +39,7 @@ export async function getUserDataDocument(
       personalRating: collectionItems.personalRating,
       notes: collectionItems.notes,
       moneySpent: collectionItems.moneySpent,
+      gifted: collectionItems.gifted,
     })
     .from(collectionItems)
     .innerJoin(games, eq(collectionItems.gameId, games.id))
@@ -115,6 +116,7 @@ export async function importUserDataDocument(
           personalRating: item.personalRating,
           notes: item.notes,
           moneySpent: item.moneySpent,
+          gifted: item.gifted,
           updatedAt: now,
         })),
       )
@@ -127,6 +129,7 @@ export async function importUserDataDocument(
           personalRating: sql`excluded.personal_rating`,
           notes: sql`excluded.notes`,
           moneySpent: sql`excluded.money_spent`,
+          gifted: sql`excluded.gifted`,
           updatedAt: now,
         },
       });

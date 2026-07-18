@@ -6,6 +6,7 @@ import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import type { CollectionGame } from "@/components/game-card";
+import { GiftedPriceField } from "@/components/gifted-price-field";
 import { useI18n } from "@/components/i18n-provider";
 import { Button } from "@/components/ui/button";
 import {
@@ -81,32 +82,26 @@ export function EditGameDialog({
             <input type="hidden" name="itemId" value={game.id} />
             <div className="min-h-0 space-y-5 overflow-y-auto px-5 pb-5 sm:px-7">
               <div className="grid gap-4 sm:grid-cols-2">
-                <label className="text-sm font-bold">
-                  <span className="mb-2 block">
-                    {t("edit.money", { currency })}
-                  </span>
-                  <input
-                    name="moneySpent"
-                    type="number"
-                    min={0}
-                    max={999_999_999.99}
-                    step="0.01"
-                    defaultValue={game.moneySpent}
-                    className="field-input"
-                  />
-                </label>
-                <label className="text-sm font-bold">
-                  <span className="mb-2 block">{t("edit.rating")}</span>
-                  <input
-                    name="personalRating"
-                    type="number"
-                    min={0}
-                    max={10}
-                    step="0.1"
-                    defaultValue={game.personalRating ?? ""}
-                    className="field-input"
-                  />
-                </label>
+                <GiftedPriceField
+                  className="sm:col-span-2"
+                  currency={currency}
+                  defaultGifted={game.gifted}
+                  defaultValue={game.moneySpent}
+                  companionField={
+                    <label className="text-sm font-bold">
+                      <span className="mb-2 block">{t("edit.rating")}</span>
+                      <input
+                        name="personalRating"
+                        type="number"
+                        min={0}
+                        max={10}
+                        step="0.1"
+                        defaultValue={game.personalRating ?? ""}
+                        className="field-input"
+                      />
+                    </label>
+                  }
+                />
               </div>
               <label className="block text-sm font-bold">
                 <span className="mb-2 block">{t("edit.notes")}</span>

@@ -48,7 +48,7 @@ services:
       LOG_LEVEL: ${LOG_LEVEL:-info}
       SEARXNG_URL: http://searxng:8080
     ports:
-      - "${APP_PORT:-3000}:3000"
+      - "${APP_PORT:-12500}:12500"
     networks:
       - private
 

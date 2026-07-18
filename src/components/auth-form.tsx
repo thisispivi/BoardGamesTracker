@@ -1,7 +1,6 @@
 "use client";
 
 import { Eye, EyeOff, LoaderCircle } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -18,7 +17,9 @@ const authCopy = {
     bootstrapDescription:
       "Set up the first account. It will have full administrator access.",
     name: "Name",
+    namePlaceholder: "Alex Morgan",
     email: "Email",
+    emailPlaceholder: "alex@example.com",
     password: "Password",
     passwordPlaceholder: "At least 12 characters",
     passwordHelp:
@@ -38,7 +39,9 @@ const authCopy = {
     bootstrapDescription:
       "Configura il primo account. Avrà accesso completo come amministratore.",
     name: "Nome",
+    namePlaceholder: "Alex Morgan",
     email: "Email",
+    emailPlaceholder: "alex@example.com",
     password: "Password",
     passwordPlaceholder: "Almeno 12 caratteri",
     passwordHelp:
@@ -66,7 +69,6 @@ export function AuthForm({
   const [mode, setMode] = useState(initialMode);
   const [showPassword, setShowPassword] = useState(false);
   const [pending, setPending] = useState(false);
-  const router = useRouter();
   const copy = authCopy[locale];
 
   /** Submits credentials through Better Auth without exposing secrets to server logs. */
@@ -91,8 +93,9 @@ export function AuthForm({
       return;
     }
 
-    router.push("/dashboard");
-    router.refresh();
+    // A full navigation ensures the freshly written session cookie is present
+    // before the protected route and its proxy guard are evaluated.
+    window.location.assign("/dashboard");
   }
 
   return (
@@ -124,7 +127,7 @@ export function AuthForm({
               minLength={2}
               maxLength={80}
               className="bg-card mt-2 h-12 w-full rounded-xl border px-4 font-normal"
-              placeholder="Alex Morgan"
+              placeholder={copy.namePlaceholder}
             />
           </label>
         )}
@@ -137,7 +140,7 @@ export function AuthForm({
             required
             maxLength={254}
             className="bg-card mt-2 h-12 w-full rounded-xl border px-4 font-normal"
-            placeholder="alex@example.com"
+            placeholder={copy.emailPlaceholder}
           />
         </label>
         <label className="block text-sm font-semibold">

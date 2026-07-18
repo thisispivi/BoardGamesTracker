@@ -29,6 +29,7 @@ const gameHeaders = [
   "personalRating",
   "notes",
   "moneySpent",
+  "gifted",
 ] as const;
 
 type FlatGame = Record<(typeof gameHeaders)[number], string>;
@@ -295,6 +296,7 @@ function gameToFlatValues(game: PortableGame): string[] {
     game.personalRating === null ? "" : String(game.personalRating),
     safeSpreadsheetText(game.notes),
     String(game.moneySpent),
+    String(game.gifted),
   ];
 }
 
@@ -321,6 +323,7 @@ function gameToWorksheetValues(game: PortableGame): unknown[] {
     game.personalRating,
     safeSpreadsheetText(game.notes),
     game.moneySpent,
+    game.gifted,
   ];
 }
 
@@ -347,6 +350,7 @@ function flatToGame(row: FlatGame): PortableGame {
     personalRating: optionalNumber(row.personalRating),
     notes: unprotectCell(row.notes),
     moneySpent: requiredNumber(row.moneySpent),
+    gifted: row.gifted === "true",
   };
 }
 

@@ -6,6 +6,7 @@ const game = (overrides: Partial<StatGame>): StatGame => ({
   bggId: 1,
   categories: [],
   favorite: false,
+  gifted: false,
   isExpansion: false,
   mechanics: [],
   moneySpent: 0,
@@ -46,5 +47,18 @@ describe("calculateCollectionStats", () => {
       { key: "heavy", value: 0 },
       { key: "expert", value: 1 },
     ]);
+  });
+
+  it("counts gifts as recorded prices without adding purchase spend", () => {
+    const stats = calculateCollectionStats([
+      game({ name: "Gift", gifted: true }),
+      game({ bggId: 2, name: "Purchase", moneySpent: 30 }),
+    ]);
+
+    expect(stats.pricedItems).toBe(2);
+    expect(stats.totalSpent).toBe(30);
+    expect(stats.averageSpent).toBe(15);
+    expect(stats.medianSpent).toBe(15);
+    expect(stats.mostExpensive).toEqual([{ name: "Purchase", value: 30 }]);
   });
 });

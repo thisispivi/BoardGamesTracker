@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { GamePicker } from "@/components/game-picker";
 import { PageHeader } from "@/components/page-header";
-import { getDictionary } from "@/lib/i18n";
+import { getDictionary, getLocale } from "@/lib/i18n";
 import { translate } from "@/lib/messages";
 import { getCollection } from "@/server/collection";
 import { requireUser } from "@/server/session";
@@ -16,9 +16,10 @@ export async function generateMetadata(): Promise<Metadata> {
 /** Filtered, animated game-night randomizer. */
 export default async function PlayPage() {
   const session = await requireUser();
-  const [collection, dictionary] = await Promise.all([
+  const [collection, dictionary, locale] = await Promise.all([
     getCollection(session.user.id),
     getDictionary(),
+    getLocale(),
   ]);
 
   return (
@@ -28,7 +29,7 @@ export default async function PlayPage() {
         title={translate(dictionary, "play.title")}
         description={translate(dictionary, "play.description")}
       />
-      <GamePicker games={collection} />
+      <GamePicker games={collection} locale={locale} />
     </>
   );
 }

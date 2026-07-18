@@ -7,6 +7,7 @@ import { defaultLocale, isLocale, type Locale } from "@/lib/i18n";
 import { messages } from "@/lib/messages";
 import { getDictionary } from "@/lib/i18n";
 import { translate } from "@/lib/messages";
+import { isAppTheme } from "@/lib/theme";
 
 import "./globals.css";
 
@@ -15,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const dictionary = await getDictionary();
   return {
     metadataBase: new URL(
-      process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
+      process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:12500",
     ),
     title: {
       default: "Board Games Tracker",
@@ -45,12 +46,20 @@ export default async function RootLayout({
   const cookieLocale = cookieStore.get("locale")?.value;
   const locale: Locale =
     cookieLocale && isLocale(cookieLocale) ? cookieLocale : defaultLocale;
+  const cookieTheme = cookieStore.get("theme")?.value;
+  const theme = isAppTheme(cookieTheme) ? cookieTheme : undefined;
 
   return (
-    <html lang={locale} suppressHydrationWarning data-scroll-behavior="smooth">
+    <html
+      lang={locale}
+      className={theme === "dark" ? "dark" : undefined}
+      style={theme ? { colorScheme: theme } : undefined}
+      suppressHydrationWarning
+      data-scroll-behavior="smooth"
+    >
       <body>
         <I18nProvider dictionary={messages[locale]}>
-          <Providers>{children}</Providers>
+          <Providers initialTheme={theme}>{children}</Providers>
         </I18nProvider>
       </body>
     </html>

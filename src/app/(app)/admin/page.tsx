@@ -1,13 +1,15 @@
-import { count, desc, eq } from "drizzle-orm";
+import { count, desc } from "drizzle-orm";
 import { Activity, BookOpen, Shield, Users } from "lucide-react";
 import type { Metadata } from "next";
 
+import { AuditLogPanel } from "@/components/audit-log-panel";
 import { AdminUserActions } from "@/components/admin-user-actions";
 import { PageHeader } from "@/components/page-header";
 import { getDictionary, getLocale } from "@/lib/i18n";
 import { translate } from "@/lib/messages";
 import { db } from "@/server/db";
-import { auditLogs, collectionItems, user } from "@/server/db/schema";
+import { collectionItems, user } from "@/server/db/schema";
+import { getAuditLogPage } from "@/server/admin/audit-logs";
 import { requireAdmin } from "@/server/session";
 
 /** Administrator page metadata. */
@@ -23,35 +25,25 @@ export default async function AdminPage() {
     getDictionary(),
     getLocale(),
   ]);
-  const [usersList, userCount, gameCount, recentLogs] = await Promise.all([
-    db
-      .select({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        banned: user.banned,
-        createdAt: user.createdAt,
-      })
-      .from(user)
-      .orderBy(desc(user.createdAt))
-      .limit(100),
-    db.select({ value: count() }).from(user),
-    db.select({ value: count() }).from(collectionItems),
-    db
-      .select({
-        id: auditLogs.id,
-        action: auditLogs.action,
-        targetType: auditLogs.targetType,
-        targetId: auditLogs.targetId,
-        createdAt: auditLogs.createdAt,
-        actorName: user.name,
-      })
-      .from(auditLogs)
-      .leftJoin(user, eq(auditLogs.actorId, user.id))
-      .orderBy(desc(auditLogs.createdAt))
-      .limit(25),
-  ]);
+  const [usersList, userCount, gameCount, initialAuditPage] = await Promise.all(
+    [
+      db
+        .select({
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          banned: user.banned,
+          createdAt: user.createdAt,
+        })
+        .from(user)
+        .orderBy(desc(user.createdAt))
+        .limit(100),
+      db.select({ value: count() }).from(user),
+      db.select({ value: count() }).from(collectionItems),
+      getAuditLogPage(1),
+    ],
+  );
 
   return (
     <>
@@ -167,30 +159,20 @@ export default async function AdminPage() {
             {translate(dictionary, "admin.recent")}
           </h2>
         </div>
-        <div className="space-y-1">
-          {recentLogs.map((event) => (
-            <div
-              key={event.id}
-              className="hover:bg-muted/60 grid gap-1 rounded-xl px-3 py-3 text-sm sm:grid-cols-[1fr_180px] sm:items-center"
-            >
-              <div>
-                <strong>{event.action}</strong>
-                <span className="text-muted-foreground ml-2 text-xs">
-                  {event.actorName ?? translate(dictionary, "admin.system")} ·{" "}
-                  {event.targetType}
-                </span>
-              </div>
-              <time className="text-muted-foreground text-xs sm:text-right">
-                {event.createdAt.toLocaleString(locale)}
-              </time>
-            </div>
-          ))}
-          {recentLogs.length === 0 && (
-            <p className="text-muted-foreground py-8 text-center text-sm">
-              {translate(dictionary, "admin.noEvents")}
-            </p>
-          )}
-        </div>
+        <AuditLogPanel
+          initialPage={initialAuditPage}
+          locale={locale}
+          labels={{
+            loadError: translate(dictionary, "admin.loadError"),
+            loading: translate(dictionary, "admin.loading"),
+            next: translate(dictionary, "admin.next"),
+            noEvents: translate(dictionary, "admin.noEvents"),
+            page: translate(dictionary, "admin.auditPage"),
+            previous: translate(dictionary, "admin.previous"),
+            system: translate(dictionary, "admin.system"),
+            trail: translate(dictionary, "admin.trail"),
+          }}
+        />
       </section>
     </>
   );

@@ -5,11 +5,21 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { writeAuditEvent } from "@/server/audit";
+import { getAuditLogPage, type AuditLogPage } from "@/server/admin/audit-logs";
 import { db } from "@/server/db";
 import { session, user } from "@/server/db/schema";
 import { requireAdmin } from "@/server/session";
 
 const userIdSchema = z.string().min(1).max(128);
+const auditPageSchema = z.number().int().positive().max(1_000_000);
+
+/** Returns an authorized audit page without navigating away from the console. */
+export async function getAuditLogPageAction(
+  page: number,
+): Promise<AuditLogPage> {
+  await requireAdmin();
+  return getAuditLogPage(auditPageSchema.parse(page));
+}
 
 /** Prevents destructive changes to the acting admin and final administrator. */
 async function assertManageableUser(

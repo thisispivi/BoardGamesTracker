@@ -32,6 +32,7 @@ const portableGameSchema = z
     personalRating: z.number().min(0).max(10).nullable(),
     notes: z.string().max(2_000),
     moneySpent: z.number().min(0).max(999_999_999.99),
+    gifted: z.boolean().default(false),
   })
   .refine((game) => game.maxPlayers >= game.minPlayers)
   .refine((game) => game.maxPlaytime >= game.minPlaytime)
@@ -41,7 +42,9 @@ const portableGameSchema = z
     mechanics: [...new Set(game.mechanics)],
     families: [...new Set(game.families)],
     favorite: game.location === "collection" ? game.favorite : false,
-    moneySpent: game.location === "collection" ? game.moneySpent : 0,
+    gifted: game.location === "collection" ? game.gifted : false,
+    moneySpent:
+      game.location === "collection" && !game.gifted ? game.moneySpent : 0,
   }));
 
 /** Versioned, canonical representation shared by every export format. */

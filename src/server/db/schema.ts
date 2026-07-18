@@ -223,6 +223,7 @@ export const collectionItems = pgTable(
     })
       .notNull()
       .default(0),
+    gifted: boolean("gifted").notNull().default(false),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

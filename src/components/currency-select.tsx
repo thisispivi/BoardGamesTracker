@@ -6,7 +6,7 @@ import { toast } from "sonner";
 
 import { Select } from "@/components/ui/select";
 import { useI18n } from "@/components/i18n-provider";
-import { currencies, type Currency } from "@/lib/currency";
+import { currencies, getCurrencySymbol, type Currency } from "@/lib/currency";
 import { setCurrencyAction } from "@/server/actions/preferences";
 
 /** Immediately saves a supported ISO currency preference. */
@@ -33,12 +33,22 @@ export function CurrencySelect({
   }
 
   return (
-    <div className="w-full max-w-xs" aria-busy={pending}>
+    <div className="w-full sm:max-w-sm" aria-busy={pending}>
       <Select
         ariaLabel={t("settings.currency")}
         value={currency}
         onValueChange={changeCurrency}
-        options={currencies.map((value) => ({ value, label: value }))}
+        options={currencies.map((value) => ({
+          value,
+          label: (
+            <span className="flex items-center gap-3">
+              <span className="bg-primary/10 text-primary grid size-7 place-items-center rounded-lg text-xs font-black">
+                {getCurrencySymbol(value)}
+              </span>
+              <span>{value}</span>
+            </span>
+          ),
+        }))}
       />
     </div>
   );

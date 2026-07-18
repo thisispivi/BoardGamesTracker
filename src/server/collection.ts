@@ -14,6 +14,7 @@ async function getLibraryItems(userId: string, location: "owned" | "wishlist") {
       personalRating: collectionItems.personalRating,
       notes: collectionItems.notes,
       moneySpent: collectionItems.moneySpent,
+      gifted: collectionItems.gifted,
       gameId: games.id,
       bggId: games.bggId,
       name: games.name,
