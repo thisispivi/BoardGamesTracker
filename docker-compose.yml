@@ -31,7 +31,10 @@ services:
       - private
 
   app:
-    build: .
+    build:
+      context: .
+      args:
+        APP_URL: ${APP_URL:?Set APP_URL in .env}
     restart: unless-stopped
     depends_on:
       database:

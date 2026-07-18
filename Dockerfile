@@ -12,12 +12,13 @@ RUN pnpm install --frozen-lockfile --prod --ignore-scripts
 
 FROM node:22.17.1-slim AS builder
 WORKDIR /app
+ARG APP_URL=http://localhost:12500
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV SKIP_ENV_VALIDATION=true
 ENV DATABASE_URL=postgresql://build:build@127.0.0.1:5432/build
 ENV BETTER_AUTH_SECRET=build-only-secret-not-used-at-runtime-000000000
-ENV BETTER_AUTH_URL=http://localhost:12500
-ENV NEXT_PUBLIC_APP_URL=http://localhost:12500
+ENV BETTER_AUTH_URL=${APP_URL}
+ENV NEXT_PUBLIC_APP_URL=${APP_URL}
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
 RUN corepack enable && corepack prepare pnpm@11.8.0 --activate && pnpm build
