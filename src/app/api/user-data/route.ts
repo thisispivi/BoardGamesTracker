@@ -116,9 +116,11 @@ function formatFromFilename(filename: string): UserDataFormat | null {
   return parsed.success ? parsed.data : null;
 }
 
-/** Rejects cross-site state changes using the configured app origin, since a
+/**
+ * Rejects cross-site state changes using the configured app origin, since a
  * reverse-proxied deployment can make `request.nextUrl.origin` diverge from
- * the public origin the browser actually sent. */
+ * the public origin the browser actually sent.
+ */
 function hasSameOrigin(request: NextRequest): boolean {
   const origin = request.headers.get("origin");
   return !origin || origin === new URL(env.NEXT_PUBLIC_APP_URL).origin;
