@@ -7,66 +7,76 @@ import {
   Scale,
 } from "lucide-react";
 import type { Metadata } from "next";
+import { getFormatter, getTranslations } from "next-intl/server";
 
 import { PageHeader } from "@/components/page-header";
 import { StatsCharts } from "@/components/stats-charts";
 import { calculateCollectionStats } from "@/lib/collection-stats";
-import { formatMoney } from "@/lib/currency";
-import { getDictionary, getLocale } from "@/lib/i18n";
-import { translate } from "@/lib/messages";
 import { getCollection } from "@/server/collection";
 import { getUserPreferences } from "@/server/preferences";
 import { requireUser } from "@/server/session";
 
 /** Statistics page metadata. */
 export async function generateMetadata(): Promise<Metadata> {
-  const dictionary = await getDictionary();
-  return { title: translate(dictionary, "stats.metaTitle") };
+  const t = await getTranslations();
+  return { title: t("stats.metaTitle") };
 }
 
 /** Useful financial and taxonomy insights for the owned collection. */
 export default async function StatsPage() {
   const session = await requireUser();
-  const [collection, preferences, locale, dictionary] = await Promise.all([
+  const [collection, preferences, format, t] = await Promise.all([
     getCollection(session.user.id),
     getUserPreferences(session.user.id),
-    getLocale(),
-    getDictionary(),
+    getFormatter(),
+    getTranslations(),
   ]);
+  const formatCurrency = (value: number) =>
+    format.number(value, {
+      style: "currency",
+      currency: preferences.currency,
+      maximumFractionDigits: 2,
+    });
   const stats = calculateCollectionStats(collection);
   const cards = [
     {
-      label: translate(dictionary, "stats.totalValue"),
-      value: formatMoney(stats.totalSpent, preferences.currency, locale),
+      label: t("stats.totalValue"),
+      value: formatCurrency(stats.totalSpent),
       icon: Banknote,
     },
     {
-      label: translate(dictionary, "stats.averagePrice"),
-      value: formatMoney(stats.averageSpent, preferences.currency, locale),
+      label: t("stats.averagePrice"),
+      value: formatCurrency(stats.averageSpent),
       icon: Scale,
     },
     {
-      label: translate(dictionary, "stats.medianPrice"),
-      value: formatMoney(stats.medianSpent, preferences.currency, locale),
+      label: t("stats.medianPrice"),
+      value: formatCurrency(stats.medianSpent),
       icon: ReceiptText,
     },
     {
-      label: translate(dictionary, "stats.pricedCoverage"),
-      value: `${stats.pricedItems}/${stats.totalItems}`,
+      label: t("stats.pricedCoverage"),
+      value: `${format.number(stats.pricedItems)} / ${format.number(stats.totalItems)}`,
       icon: ChartNoAxesCombined,
     },
     {
-      label: translate(dictionary, "stats.expansionShare"),
+      label: t("stats.expansionShare"),
       value: stats.totalItems
-        ? `${Math.round((stats.expansions / stats.totalItems) * 100)}%`
-        : "0%",
+        ? format.number(stats.expansions / stats.totalItems, {
+            style: "percent",
+            maximumFractionDigits: 0,
+          })
+        : format.number(0, { style: "percent" }),
       icon: Boxes,
     },
     {
-      label: translate(dictionary, "stats.favoriteShare"),
+      label: t("stats.favoriteShare"),
       value: stats.totalItems
-        ? `${Math.round((stats.favorites / stats.totalItems) * 100)}%`
-        : "0%",
+        ? format.number(stats.favorites / stats.totalItems, {
+            style: "percent",
+            maximumFractionDigits: 0,
+          })
+        : format.number(0, { style: "percent" }),
       icon: Heart,
     },
   ];
@@ -74,9 +84,9 @@ export default async function StatsPage() {
   return (
     <>
       <PageHeader
-        eyebrow={translate(dictionary, "stats.eyebrow")}
-        title={translate(dictionary, "stats.title")}
-        description={translate(dictionary, "stats.description")}
+        eyebrow={t("stats.eyebrow")}
+        title={t("stats.title")}
+        description={t("stats.description")}
       />
       <section className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-3 2xl:grid-cols-6">
         {cards.map((card) => (
@@ -96,7 +106,6 @@ export default async function StatsPage() {
         categories={stats.categories}
         complexity={stats.complexity}
         currency={preferences.currency}
-        locale={locale}
         mechanics={stats.mechanics}
         mostExpensive={stats.mostExpensive}
       />

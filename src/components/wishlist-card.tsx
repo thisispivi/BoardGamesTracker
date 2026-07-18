@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import type { CollectionGame } from "@/components/game-card";
 import { GameArtwork } from "@/components/game-artwork";
 import { GiftedPriceField } from "@/components/gifted-price-field";
-import { useI18n } from "@/components/i18n-provider";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
@@ -40,7 +40,7 @@ function PurchaseDialog({
     initialState,
   );
   const router = useRouter();
-  const t = useI18n();
+  const t = useTranslations();
 
   useEffect(() => {
     if (!state.message) return;
@@ -119,7 +119,7 @@ export function WishlistCard({
   currency: string;
   game: CollectionGame;
 }) {
-  const t = useI18n();
+  const t = useTranslations();
   const tags = [...new Set([...game.categories, ...game.mechanics])].slice(
     0,
     4,

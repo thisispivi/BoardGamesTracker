@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
+import { useLocale, useTranslations } from "next-intl";
 import {
   Clock3,
   Dices,
@@ -13,7 +14,6 @@ import {
 import { useMemo, useState } from "react";
 
 import { GameArtwork } from "@/components/game-artwork";
-import { useI18n } from "@/components/i18n-provider";
 import { Button } from "@/components/ui/button";
 import {
   MultiSelect,
@@ -23,17 +23,13 @@ import { Select } from "@/components/ui/select";
 import { getTaxonomyLabel, isExpansionCategory } from "@/lib/game-taxonomy";
 import { filterGames, pickRandomGame } from "@/server/picker";
 import type { CollectionGame } from "@/components/game-card";
-import { formatDuration } from "@/lib/utils";
+import { useDurationFormatter } from "@/i18n/use-duration-formatter";
 
 /** Animated filter-and-spin experience for choosing a collection game. */
-export function GamePicker({
-  games,
-  locale,
-}: {
-  games: CollectionGame[];
-  locale: string;
-}) {
-  const t = useI18n();
+export function GamePicker({ games }: { games: CollectionGame[] }) {
+  const locale = useLocale();
+  const t = useTranslations();
+  const formatDuration = useDurationFormatter();
   const [players, setPlayers] = useState(4);
   const [maxMinutes, setMaxMinutes] = useState(120);
   const [maxWeight, setMaxWeight] = useState(0);
@@ -235,10 +231,7 @@ export function GamePicker({
         </div>
         <div className="mt-7 border-t pt-5">
           <p className="text-center text-sm">
-            {t(
-              candidates.length === 1 ? "picker.matchOne" : "picker.matchMany",
-              { count: candidates.length },
-            )}
+            {t("picker.match", { count: candidates.length })}
           </p>
           <div className="filter-options mt-4 max-h-60 space-y-1 overflow-y-auto overscroll-contain pr-1">
             {candidates.map((candidate) => (
@@ -283,8 +276,8 @@ export function GamePicker({
                 {selected.name}
               </h2>
               <p className="text-muted-foreground mt-2 text-sm">
-                {selected.minPlayers}–{selected.maxPlayers} players ·{" "}
-                {formatDuration(selected.maxPlaytime)}
+                {selected.minPlayers}–{selected.maxPlayers}{" "}
+                {t("common.players")} · {formatDuration(selected.maxPlaytime)}
               </p>
               <Button
                 type="button"

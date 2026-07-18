@@ -8,14 +8,13 @@ import {
   Trash2,
   Users,
 } from "lucide-react";
+import { useFormatter, useTranslations } from "next-intl";
 
 import { EditGameDialog } from "@/components/edit-game-dialog";
 import { GameArtwork } from "@/components/game-artwork";
-import { useI18n } from "@/components/i18n-provider";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { formatMoney } from "@/lib/currency";
 import { isExpansionCategory } from "@/lib/game-taxonomy";
-import { formatDuration } from "@/lib/utils";
+import { useDurationFormatter } from "@/i18n/use-duration-formatter";
 import {
   removeGameAction,
   toggleFavoriteAction,
@@ -49,7 +48,7 @@ export type CollectionGame = {
 
 /** Favorite toggle shared by full collection cards. */
 function FavoriteControl({ game }: { game: CollectionGame }) {
-  const t = useI18n();
+  const t = useTranslations();
   return (
     <form action={toggleFavoriteAction}>
       <input type="hidden" name="itemId" value={game.id} />
@@ -69,7 +68,7 @@ function FavoriteControl({ game }: { game: CollectionGame }) {
 
 /** In-app removal confirmation shared by collection card variants. */
 function RemoveControl({ game }: { game: CollectionGame }) {
-  const t = useI18n();
+  const t = useTranslations();
   return (
     <ConfirmDialog
       action={removeGameAction}
@@ -101,7 +100,7 @@ function ArtworkLink({
   game: CollectionGame;
   compact?: boolean;
 }) {
-  const t = useI18n();
+  const t = useTranslations();
   return (
     <div className="group/art relative">
       <GameArtwork
@@ -180,16 +179,16 @@ export function GameCard({
   eager = false,
   expansions = [],
   game,
-  locale,
 }: {
   compact?: boolean;
   currency: string;
   eager?: boolean;
   expansions?: CollectionGame[];
   game: CollectionGame;
-  locale: string;
 }) {
-  const t = useI18n();
+  const formatDuration = useDurationFormatter();
+  const format = useFormatter();
+  const t = useTranslations();
   if (compact) {
     return (
       <article className="hover:bg-muted/60 flex items-center gap-3 rounded-2xl p-2 transition duration-200">
@@ -198,7 +197,7 @@ export function GameCard({
           <h3 className="line-clamp-2 text-sm font-bold">{game.name}</h3>
           <p className="text-muted-foreground mt-1 text-xs">
             {game.yearPublished ?? t("common.yearUnknown")}
-            <CollectionCost game={game} currency={currency} locale={locale} />
+            <CollectionCost game={game} currency={currency} />
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-0.5">
@@ -225,13 +224,16 @@ export function GameCard({
             </h2>
             <p className="text-muted-foreground mt-1 text-xs">
               {game.yearPublished ?? t("common.yearUnknown")}
-              <CollectionCost game={game} currency={currency} locale={locale} />
+              <CollectionCost game={game} currency={currency} />
             </p>
           </div>
           {game.bggRating !== null && (
             <span className="bg-muted flex shrink-0 items-center gap-1 rounded-full px-2 py-1 text-xs font-bold">
               <Star className="fill-accent text-accent size-3" />
-              {game.bggRating.toFixed(1)}
+              {format.number(game.bggRating, {
+                minimumFractionDigits: 1,
+                maximumFractionDigits: 1,
+              })}
             </span>
           )}
         </div>
@@ -267,7 +269,6 @@ export function GameCard({
                   game={expansion}
                   compact
                   currency={currency}
-                  locale={locale}
                 />
               ))}
             </div>
@@ -282,13 +283,12 @@ export function GameCard({
 function CollectionCost({
   currency,
   game,
-  locale,
 }: {
   currency: string;
   game: CollectionGame;
-  locale: string;
 }) {
-  const t = useI18n();
+  const format = useFormatter();
+  const t = useTranslations();
   if (!game.gifted && game.moneySpent <= 0) return null;
 
   return (
@@ -296,7 +296,11 @@ function CollectionCost({
       {" · "}
       {game.gifted
         ? t("game.gifted")
-        : formatMoney(game.moneySpent, currency, locale)}
+        : format.number(game.moneySpent, {
+            style: "currency",
+            currency,
+            maximumFractionDigits: 2,
+          })}
     </>
   );
 }

@@ -33,16 +33,3 @@ const currencySymbols: Record<Currency, string> = {
 export function getCurrencySymbol(currency: Currency): string {
   return currencySymbols[currency];
 }
-
-/** Formats a persisted decimal amount in the user's locale and currency. */
-export function formatMoney(
-  amount: number,
-  currency: string,
-  locale: string,
-): string {
-  return new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 2,
-  }).format(amount);
-}

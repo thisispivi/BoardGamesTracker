@@ -18,45 +18,34 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Logo } from "@/components/logo";
-import { useI18n } from "@/components/i18n-provider";
+import { useTranslations } from "next-intl";
 import { AppSpinner } from "@/components/ui/app-spinner";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
-type NavigationLabels = {
-  dashboard: string;
-  collection: string;
-  wishlist: string;
-  stats: string;
-  play: string;
-  settings: string;
-  admin: string;
-  logout: string;
-};
-
 /** Active navigation, mobile drawer, and session sign-out. */
 export function AppNavigation({
-  labels,
   isAdmin,
   mobile = false,
   user,
 }: {
-  labels: NavigationLabels;
   isAdmin: boolean;
   mobile?: boolean;
   user?: { name: string; email: string };
 }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const t = useI18n();
+  const t = useTranslations();
   const links = [
-    { href: "/dashboard", label: labels.dashboard, icon: House },
-    { href: "/collection", label: labels.collection, icon: BookOpen },
-    { href: "/wishlist", label: labels.wishlist, icon: Heart },
-    { href: "/play", label: labels.play, icon: Dices },
-    { href: "/stats", label: labels.stats, icon: ChartNoAxesCombined },
-    { href: "/settings", label: labels.settings, icon: Settings },
-    ...(isAdmin ? [{ href: "/admin", label: labels.admin, icon: Shield }] : []),
+    { href: "/dashboard", label: t("navigation.dashboard"), icon: House },
+    { href: "/collection", label: t("navigation.collection"), icon: BookOpen },
+    { href: "/wishlist", label: t("navigation.wishlist"), icon: Heart },
+    { href: "/play", label: t("navigation.play"), icon: Dices },
+    { href: "/stats", label: t("navigation.stats"), icon: ChartNoAxesCombined },
+    { href: "/settings", label: t("navigation.settings"), icon: Settings },
+    ...(isAdmin
+      ? [{ href: "/admin", label: t("navigation.admin"), icon: Shield }]
+      : []),
   ];
 
   const content = (
@@ -136,7 +125,7 @@ export function AppNavigation({
                   </p>
                 </div>
               </div>
-              <SignOutButton label={labels.logout} />
+              <SignOutButton />
             </div>
           )}
         </Dialog.Content>
@@ -148,7 +137,7 @@ export function AppNavigation({
 /** Reserves a stable slot and appears only when a slow link is pending. */
 function NavigationPendingIndicator() {
   const { pending } = useLinkStatus();
-  const t = useI18n();
+  const t = useTranslations();
   return (
     <AppSpinner
       label={t("common.loading")}
@@ -161,8 +150,9 @@ function NavigationPendingIndicator() {
 }
 
 /** Revokes the current session from the account area. */
-export function SignOutButton({ label }: { label: string }) {
+export function SignOutButton() {
   const router = useRouter();
+  const t = useTranslations();
 
   async function signOut(): Promise<void> {
     await authClient.signOut();
@@ -177,7 +167,7 @@ export function SignOutButton({ label }: { label: string }) {
       className="text-muted-foreground hover:bg-danger/10 hover:text-danger mt-3 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition"
     >
       <LogOut className="size-4.5" />
-      {label}
+      {t("navigation.logout")}
     </button>
   );
 }

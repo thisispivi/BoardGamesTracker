@@ -3,7 +3,7 @@
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 
-import { isLocale } from "@/lib/i18n";
+import { isLocale } from "@/i18n/config";
 import { db } from "@/server/db";
 import { user } from "@/server/db/schema";
 import { requireUser } from "@/server/session";

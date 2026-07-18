@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useFormatter, useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
@@ -9,27 +10,10 @@ import { Button } from "@/components/ui/button";
 import type { AuditLogPage } from "@/server/admin/audit-logs";
 import { getAuditLogPageAction } from "@/server/actions/admin";
 
-type AuditLogLabels = {
-  loadError: string;
-  loading: string;
-  next: string;
-  noEvents: string;
-  page: string;
-  previous: string;
-  system: string;
-  trail: string;
-};
-
 /** Paginated audit log that updates only its own scrollable result region. */
-export function AuditLogPanel({
-  initialPage,
-  labels,
-  locale,
-}: {
-  initialPage: AuditLogPage;
-  labels: AuditLogLabels;
-  locale: string;
-}) {
+export function AuditLogPanel({ initialPage }: { initialPage: AuditLogPage }) {
+  const format = useFormatter();
+  const t = useTranslations();
   const [result, setResult] = useState(initialPage);
   const [pending, startTransition] = useTransition();
 
@@ -39,7 +23,7 @@ export function AuditLogPanel({
       try {
         setResult(await getAuditLogPageAction(page));
       } catch {
-        toast.error(labels.loadError);
+        toast.error(t("admin.loadError"));
       }
     });
   }
@@ -58,32 +42,35 @@ export function AuditLogPanel({
               <div>
                 <strong>{event.action}</strong>
                 <span className="text-muted-foreground ml-2 text-xs">
-                  {event.actorName ?? labels.system} · {event.targetType}
+                  {event.actorName ?? t("admin.system")} · {event.targetType}
                 </span>
               </div>
               <time className="text-muted-foreground text-xs sm:text-right">
-                {new Date(event.createdAt).toLocaleString(locale)}
+                {format.dateTime(new Date(event.createdAt), {
+                  dateStyle: "medium",
+                  timeStyle: "short",
+                })}
               </time>
             </div>
           ))}
           {result.events.length === 0 && (
             <p className="text-muted-foreground py-8 text-center text-sm">
-              {labels.noEvents}
+              {t("admin.noEvents")}
             </p>
           )}
         </div>
         {pending && (
           <div className="bg-card/72 absolute inset-0 grid place-items-center rounded-2xl backdrop-blur-[2px]">
             <div className="text-primary flex flex-col items-center gap-3 text-sm font-bold">
-              <AppSpinner className="size-7" label={labels.loading} />
-              <span>{labels.loading}</span>
+              <AppSpinner className="size-7" label={t("admin.loading")} />
+              <span>{t("admin.loading")}</span>
             </div>
           </div>
         )}
       </div>
       <nav
         className="mt-5 flex items-center justify-between gap-4 border-t pt-5"
-        aria-label={labels.trail}
+        aria-label={t("admin.trail")}
       >
         <Button
           type="button"
@@ -93,12 +80,13 @@ export function AuditLogPanel({
           disabled={pending || result.page <= 1}
           onClick={() => loadPage(result.page - 1)}
         >
-          <ChevronLeft className="size-4" /> {labels.previous}
+          <ChevronLeft className="size-4" /> {t("admin.previous")}
         </Button>
         <p className="text-muted-foreground text-xs font-bold tabular-nums">
-          {labels.page
-            .replace("{page}", String(result.page))
-            .replace("{pages}", String(result.pages))}
+          {t("admin.auditPage", {
+            page: result.page,
+            pages: result.pages,
+          })}
         </p>
         <Button
           type="button"
@@ -108,7 +96,7 @@ export function AuditLogPanel({
           disabled={pending || result.page >= result.pages}
           onClick={() => loadPage(result.page + 1)}
         >
-          {labels.next} <ChevronRight className="size-4" />
+          {t("admin.next")} <ChevronRight className="size-4" />
         </Button>
       </nav>
     </>

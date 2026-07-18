@@ -59,12 +59,12 @@ export function Select({
               <SelectPrimitive.Item
                 key={option.value}
                 value={option.value}
-                className="data-highlighted:bg-muted data-highlighted:text-foreground data-[state=checked]:bg-primary/10 data-[state=checked]:text-foreground relative flex cursor-pointer items-center rounded-xl py-2.5 pr-10 pl-3 text-sm font-semibold transition-colors outline-none select-none"
+                className="select-item data-[state=checked]:bg-primary/10 data-[state=checked]:text-foreground relative flex cursor-pointer items-center rounded-xl py-2.5 pr-10 pl-3 text-sm font-semibold transition-colors outline-none select-none"
               >
                 <SelectPrimitive.ItemText>
                   {option.label}
                 </SelectPrimitive.ItemText>
-                <SelectPrimitive.ItemIndicator className="text-primary absolute right-3">
+                <SelectPrimitive.ItemIndicator className="select-item-indicator text-primary absolute right-3">
                   <Check className="size-4" />
                 </SelectPrimitive.ItemIndicator>
               </SelectPrimitive.Item>

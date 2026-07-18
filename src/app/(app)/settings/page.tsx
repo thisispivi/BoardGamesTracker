@@ -12,24 +12,23 @@ import { ClearCollectionCard } from "@/components/clear-collection-card";
 import { CurrencySelect } from "@/components/currency-select";
 import { PageHeader } from "@/components/page-header";
 import { UserDataCard } from "@/components/user-data-card";
-import { getDictionary } from "@/lib/i18n";
-import { translate } from "@/lib/messages";
+import { getTranslations } from "next-intl/server";
 import { requireUser } from "@/server/session";
 import { getUserPreferences } from "@/server/preferences";
 import { getCollection } from "@/server/collection";
 
 /** Settings page metadata. */
 export async function generateMetadata(): Promise<Metadata> {
-  const dictionary = await getDictionary();
-  return { title: translate(dictionary, "settings.metaTitle") };
+  const t = await getTranslations();
+  return { title: t("settings.metaTitle") };
 }
 
 /** Account and session settings for the signed-in user. */
 export default async function SettingsPage() {
   const session = await requireUser();
-  const [preferences, dictionary, collection] = await Promise.all([
+  const [preferences, t, collection] = await Promise.all([
     getUserPreferences(session.user.id),
-    getDictionary(),
+    getTranslations(),
     getCollection(session.user.id),
   ]);
   const initials = session.user.name
@@ -41,17 +40,17 @@ export default async function SettingsPage() {
   const collectionFacts = [
     {
       icon: Boxes,
-      label: translate(dictionary, "settings.libraryItems"),
+      label: t("settings.libraryItems"),
       value: collection.length,
     },
     {
       icon: Heart,
-      label: translate(dictionary, "settings.libraryFavorites"),
+      label: t("settings.libraryFavorites"),
       value: collection.filter((game) => game.favorite).length,
     },
     {
       icon: Gift,
-      label: translate(dictionary, "settings.libraryGifts"),
+      label: t("settings.libraryGifts"),
       value: collection.filter((game) => game.gifted).length,
     },
   ];
@@ -59,9 +58,9 @@ export default async function SettingsPage() {
   return (
     <>
       <PageHeader
-        eyebrow={translate(dictionary, "settings.eyebrow")}
-        title={translate(dictionary, "settings.title")}
-        description={translate(dictionary, "settings.description")}
+        eyebrow={t("settings.eyebrow")}
+        title={t("settings.title")}
+        description={t("settings.description")}
       />
       <div className="grid items-stretch gap-5 lg:grid-cols-2">
         <section className="bg-card shadow-soft relative overflow-hidden rounded-4xl border p-6 sm:p-8 lg:col-span-2">
@@ -77,7 +76,7 @@ export default async function SettingsPage() {
                 </span>
                 <div className="min-w-0">
                   <p className="text-primary text-xs font-bold tracking-widest uppercase">
-                    {translate(dictionary, "settings.account")}
+                    {t("settings.account")}
                   </p>
                   <h2 className="font-display mt-1 truncate text-2xl font-bold">
                     {session.user.name}
@@ -109,7 +108,7 @@ export default async function SettingsPage() {
             </div>
             <p className="text-muted-foreground flex items-start gap-2 border-t pt-5 text-xs leading-5">
               <ShieldCheck className="text-primary mt-0.5 size-4 shrink-0" />
-              {translate(dictionary, "settings.session")}
+              {t("settings.session")}
             </p>
           </div>
         </section>
@@ -125,10 +124,10 @@ export default async function SettingsPage() {
               </span>
               <div>
                 <h2 className="font-display text-xl font-bold">
-                  {translate(dictionary, "settings.currency")}
+                  {t("settings.currency")}
                 </h2>
                 <p className="text-muted-foreground mt-1 text-sm leading-5">
-                  {translate(dictionary, "settings.currencyBody")}
+                  {t("settings.currencyBody")}
                 </p>
               </div>
             </div>

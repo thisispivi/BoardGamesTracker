@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 import type { CollectionGame } from "@/components/game-card";
 import { GiftedPriceField } from "@/components/gifted-price-field";
-import { useI18n } from "@/components/i18n-provider";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   type CollectionActionState,
@@ -25,7 +25,7 @@ export function EditGameDialog({
   game: CollectionGame;
 }) {
   const [open, setOpen] = useState(false);
-  const t = useI18n();
+  const t = useTranslations();
   const [state, action, pending] = useActionState(
     updateCollectionItemAction,
     initialState,

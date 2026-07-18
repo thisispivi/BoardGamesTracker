@@ -1,75 +1,27 @@
 "use client";
 
 import { Eye, EyeOff, LoaderCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 
-const authCopy = {
-  en: {
-    signIn: "Sign in",
-    createAccount: "Create account",
-    signInDescription: "Enter your email and password.",
-    signUpDescription: "Enter your details to get started.",
-    bootstrapTitle: "Create administrator",
-    bootstrapDescription:
-      "Set up the first account. It will have full administrator access.",
-    name: "Name",
-    namePlaceholder: "Alex Morgan",
-    email: "Email",
-    emailPlaceholder: "alex@example.com",
-    password: "Password",
-    passwordPlaceholder: "At least 12 characters",
-    passwordHelp:
-      "Use 12–128 characters. A unique password from a password manager is best.",
-    showPassword: "Show password",
-    hidePassword: "Hide password",
-    needAccount: "Need an account?",
-    haveAccount: "Already have an account?",
-    failure: "Authentication failed. Please try again.",
-  },
-  it: {
-    signIn: "Accedi",
-    createAccount: "Crea account",
-    signInDescription: "Inserisci email e password.",
-    signUpDescription: "Inserisci i tuoi dati per iniziare.",
-    bootstrapTitle: "Crea amministratore",
-    bootstrapDescription:
-      "Configura il primo account. Avrà accesso completo come amministratore.",
-    name: "Nome",
-    namePlaceholder: "Alex Morgan",
-    email: "Email",
-    emailPlaceholder: "alex@example.com",
-    password: "Password",
-    passwordPlaceholder: "Almeno 12 caratteri",
-    passwordHelp:
-      "Usa 12–128 caratteri. È consigliata una password univoca generata da un password manager.",
-    showPassword: "Mostra password",
-    hidePassword: "Nascondi password",
-    needAccount: "Non hai un account?",
-    haveAccount: "Hai già un account?",
-    failure: "Autenticazione non riuscita. Riprova.",
-  },
-} as const;
-
 /** Email/password login and registration form. */
 export function AuthForm({
   initialMode,
-  locale,
   allowSignUp,
   bootstrapRequired,
 }: {
   initialMode: "login" | "signup";
-  locale: "en" | "it";
   allowSignUp: boolean;
   bootstrapRequired: boolean;
 }) {
+  const t = useTranslations("auth");
   const [mode, setMode] = useState(initialMode);
   const [showPassword, setShowPassword] = useState(false);
   const [pending, setPending] = useState(false);
-  const copy = authCopy[locale];
 
   /** Submits credentials through Better Auth without exposing secrets to server logs. */
   async function handleSubmit(
@@ -89,7 +41,7 @@ export function AuthForm({
 
     setPending(false);
     if (result.error) {
-      toast.error(result.error.message ?? copy.failure);
+      toast.error(t("failure"));
       return;
     }
 
@@ -103,23 +55,23 @@ export function AuthForm({
       <div className="mb-8">
         <h1 className="font-display text-3xl font-bold tracking-tight">
           {bootstrapRequired
-            ? copy.bootstrapTitle
+            ? t("bootstrapTitle")
             : mode === "login"
-              ? copy.signIn
-              : copy.createAccount}
+              ? t("signIn")
+              : t("createAccount")}
         </h1>
         <p className="text-muted-foreground mt-3">
           {bootstrapRequired
-            ? copy.bootstrapDescription
+            ? t("bootstrapDescription")
             : mode === "login"
-              ? copy.signInDescription
-              : copy.signUpDescription}
+              ? t("signInDescription")
+              : t("signUpDescription")}
         </p>
       </div>
       <form method="post" onSubmit={handleSubmit} className="space-y-5">
         {mode === "signup" && (
           <label className="block text-sm font-semibold">
-            {copy.name}
+            {t("name")}
             <input
               name="name"
               autoComplete="name"
@@ -127,12 +79,12 @@ export function AuthForm({
               minLength={2}
               maxLength={80}
               className="bg-card mt-2 h-12 w-full rounded-xl border px-4 font-normal"
-              placeholder={copy.namePlaceholder}
+              placeholder={t("namePlaceholder")}
             />
           </label>
         )}
         <label className="block text-sm font-semibold">
-          {copy.email}
+          {t("email")}
           <input
             name="email"
             type="email"
@@ -140,11 +92,11 @@ export function AuthForm({
             required
             maxLength={254}
             className="bg-card mt-2 h-12 w-full rounded-xl border px-4 font-normal"
-            placeholder={copy.emailPlaceholder}
+            placeholder={t("emailPlaceholder")}
           />
         </label>
         <label className="block text-sm font-semibold">
-          {copy.password}
+          {t("password")}
           <span className="relative mt-2 block">
             <input
               name="password"
@@ -156,13 +108,13 @@ export function AuthForm({
               minLength={12}
               maxLength={128}
               className="bg-card h-12 w-full rounded-xl border px-4 pr-12 font-normal"
-              placeholder={copy.passwordPlaceholder}
+              placeholder={t("passwordPlaceholder")}
             />
             <button
               type="button"
               onClick={() => setShowPassword((value) => !value)}
               className="text-muted-foreground absolute top-1/2 right-3 -translate-y-1/2 rounded-lg p-2"
-              aria-label={showPassword ? copy.hidePassword : copy.showPassword}
+              aria-label={showPassword ? t("hidePassword") : t("showPassword")}
             >
               {showPassword ? (
                 <EyeOff className="size-4" />
@@ -174,17 +126,17 @@ export function AuthForm({
         </label>
         {mode === "signup" && (
           <p className="text-muted-foreground text-xs leading-5">
-            {copy.passwordHelp}
+            {t("passwordHelp")}
           </p>
         )}
         <Button type="submit" size="lg" className="w-full" disabled={pending}>
           {pending && <LoaderCircle className="size-4 animate-spin" />}
-          {mode === "login" ? copy.signIn : copy.createAccount}
+          {mode === "login" ? t("signIn") : t("createAccount")}
         </Button>
       </form>
       {allowSignUp && !bootstrapRequired && (
         <p className="text-muted-foreground mt-7 text-center text-sm">
-          {mode === "login" ? copy.needAccount : copy.haveAccount}{" "}
+          {mode === "login" ? t("needAccount") : t("haveAccount")}{" "}
           <button
             type="button"
             className="text-primary font-bold hover:underline"
@@ -192,7 +144,7 @@ export function AuthForm({
               setMode((value) => (value === "login" ? "signup" : "login"))
             }
           >
-            {mode === "login" ? copy.createAccount : copy.signIn}
+            {mode === "login" ? t("createAccount") : t("signIn")}
           </button>
         </p>
       )}

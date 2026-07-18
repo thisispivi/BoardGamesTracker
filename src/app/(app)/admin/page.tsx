@@ -1,12 +1,11 @@
 import { count, desc } from "drizzle-orm";
 import { Activity, BookOpen, Shield, Users } from "lucide-react";
 import type { Metadata } from "next";
+import { getFormatter, getTranslations } from "next-intl/server";
 
 import { AuditLogPanel } from "@/components/audit-log-panel";
 import { AdminUserActions } from "@/components/admin-user-actions";
 import { PageHeader } from "@/components/page-header";
-import { getDictionary, getLocale } from "@/lib/i18n";
-import { translate } from "@/lib/messages";
 import { db } from "@/server/db";
 import { collectionItems, user } from "@/server/db/schema";
 import { getAuditLogPage } from "@/server/admin/audit-logs";
@@ -14,16 +13,16 @@ import { requireAdmin } from "@/server/session";
 
 /** Administrator page metadata. */
 export async function generateMetadata(): Promise<Metadata> {
-  const dictionary = await getDictionary();
-  return { title: translate(dictionary, "admin.metaTitle") };
+  const t = await getTranslations();
+  return { title: t("admin.metaTitle") };
 }
 
 /** User management, service health, collection, and audit console. */
 export default async function AdminPage() {
-  const [actor, dictionary, locale] = await Promise.all([
+  const [actor, t, format] = await Promise.all([
     requireAdmin(),
-    getDictionary(),
-    getLocale(),
+    getTranslations(),
+    getFormatter(),
   ]);
   const [usersList, userCount, gameCount, initialAuditPage] = await Promise.all(
     [
@@ -48,25 +47,25 @@ export default async function AdminPage() {
   return (
     <>
       <PageHeader
-        eyebrow={translate(dictionary, "admin.eyebrow")}
-        title={translate(dictionary, "admin.title")}
-        description={translate(dictionary, "admin.description")}
+        eyebrow={t("admin.eyebrow")}
+        title={t("admin.title")}
+        description={t("admin.description")}
       />
       <section className="mb-7 grid gap-3 sm:grid-cols-3">
         {[
           {
-            label: translate(dictionary, "admin.users"),
+            label: t("admin.users"),
             value: userCount[0]?.value ?? 0,
             icon: Users,
           },
           {
-            label: translate(dictionary, "admin.items"),
+            label: t("admin.items"),
             value: gameCount[0]?.value ?? 0,
             icon: BookOpen,
           },
           {
-            label: translate(dictionary, "admin.service"),
-            value: translate(dictionary, "admin.healthy"),
+            label: t("admin.service"),
+            value: t("admin.healthy"),
             icon: Activity,
           },
         ].map((stat) => (
@@ -86,10 +85,10 @@ export default async function AdminPage() {
           <Shield className="text-primary size-5" />
           <div>
             <h2 className="font-display text-xl font-bold">
-              {translate(dictionary, "admin.access")}
+              {t("admin.access")}
             </h2>
             <p className="text-muted-foreground text-sm">
-              {translate(dictionary, "admin.accessBody")}
+              {t("admin.accessBody")}
             </p>
           </div>
         </div>
@@ -97,21 +96,11 @@ export default async function AdminPage() {
           <table className="w-full min-w-[760px] text-left text-sm">
             <thead className="bg-muted/60 text-muted-foreground text-xs tracking-wide uppercase">
               <tr>
-                <th className="px-6 py-3">
-                  {translate(dictionary, "admin.user")}
-                </th>
-                <th className="px-6 py-3">
-                  {translate(dictionary, "admin.role")}
-                </th>
-                <th className="px-6 py-3">
-                  {translate(dictionary, "admin.status")}
-                </th>
-                <th className="px-6 py-3">
-                  {translate(dictionary, "admin.joined")}
-                </th>
-                <th className="px-6 py-3 text-right">
-                  {translate(dictionary, "admin.actions")}
-                </th>
+                <th className="px-6 py-3">{t("admin.user")}</th>
+                <th className="px-6 py-3">{t("admin.role")}</th>
+                <th className="px-6 py-3">{t("admin.status")}</th>
+                <th className="px-6 py-3">{t("admin.joined")}</th>
+                <th className="px-6 py-3 text-right">{t("admin.actions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -128,14 +117,15 @@ export default async function AdminPage() {
                     <span
                       className={`rounded-full px-2.5 py-1 text-xs font-bold ${record.banned ? "bg-danger/10 text-danger" : "bg-primary/10 text-primary"}`}
                     >
-                      {translate(
-                        dictionary,
-                        record.banned ? "admin.banned" : "admin.active",
-                      )}
+                      {record.banned ? t("admin.banned") : t("admin.active")}
                     </span>
                   </td>
                   <td className="text-muted-foreground px-6 py-4">
-                    {record.createdAt.toLocaleDateString(locale)}
+                    {format.dateTime(record.createdAt, {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })}
                   </td>
                   <td className="px-6 py-4">
                     <AdminUserActions
@@ -153,26 +143,13 @@ export default async function AdminPage() {
       <section className="bg-card shadow-soft rounded-3xl border p-6 sm:p-8">
         <div className="mb-6">
           <p className="text-primary text-xs font-bold tracking-widest uppercase">
-            {translate(dictionary, "admin.trail")}
+            {t("admin.trail")}
           </p>
           <h2 className="font-display mt-1 text-xl font-bold">
-            {translate(dictionary, "admin.recent")}
+            {t("admin.recent")}
           </h2>
         </div>
-        <AuditLogPanel
-          initialPage={initialAuditPage}
-          locale={locale}
-          labels={{
-            loadError: translate(dictionary, "admin.loadError"),
-            loading: translate(dictionary, "admin.loading"),
-            next: translate(dictionary, "admin.next"),
-            noEvents: translate(dictionary, "admin.noEvents"),
-            page: translate(dictionary, "admin.auditPage"),
-            previous: translate(dictionary, "admin.previous"),
-            system: translate(dictionary, "admin.system"),
-            trail: translate(dictionary, "admin.trail"),
-          }}
-        />
+        <AuditLogPanel initialPage={initialAuditPage} />
       </section>
     </>
   );

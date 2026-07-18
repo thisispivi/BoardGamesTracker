@@ -1,20 +1,19 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 import { AuthForm } from "@/components/auth-form";
 import { LocaleSelect } from "@/components/locale-select";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { getDictionary, getLocale } from "@/lib/i18n";
-import { translate } from "@/lib/messages";
 import { isBootstrapRequired } from "@/server/bootstrap";
 import { getSession } from "@/server/session";
 import { env } from "@/env";
 
 /** Authentication page metadata. */
 export async function generateMetadata(): Promise<Metadata> {
-  const dictionary = await getDictionary();
-  return { title: translate(dictionary, "auth.metaTitle") };
+  const t = await getTranslations("auth");
+  return { title: t("metaTitle") };
 }
 
 /** Direct login and registration page. */
@@ -23,9 +22,8 @@ export default async function LoginPage({
 }: {
   searchParams: Promise<{ mode?: string | string[] }>;
 }) {
-  const [session, locale, bootstrapRequired] = await Promise.all([
+  const [session, bootstrapRequired] = await Promise.all([
     getSession(),
-    getLocale(),
     isBootstrapRequired(),
   ]);
   if (session) {
@@ -51,7 +49,6 @@ export default async function LoginPage({
         <div className="bg-card shadow-soft rounded-3xl border p-6 sm:p-8">
           <AuthForm
             initialMode={mode}
-            locale={locale}
             allowSignUp={allowSignUp}
             bootstrapRequired={bootstrapRequired}
           />

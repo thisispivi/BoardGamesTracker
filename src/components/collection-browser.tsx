@@ -2,10 +2,10 @@
 
 import Fuse from "fuse.js";
 import { BookOpen, Heart, RotateCcw, Search } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { GameCard, type CollectionGame } from "@/components/game-card";
-import { useI18n } from "@/components/i18n-provider";
 import {
   MultiSelect,
   type MultiSelectOption,
@@ -114,13 +114,12 @@ function facetOptions(
 export function CollectionBrowser({
   currency,
   games,
-  locale,
 }: {
   currency: string;
   games: CollectionGame[];
-  locale: string;
 }) {
-  const t = useI18n();
+  const locale = useLocale();
+  const t = useTranslations();
   const [query, setQuery] = useState("");
   const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [categories, setCategories] = useState<string[]>([]);
@@ -260,19 +259,9 @@ export function CollectionBrowser({
               </h2>
             </div>
             <p className="text-muted-foreground text-sm">
-              {t(
-                grouped.groups.length === 1
-                  ? "collection.gameCountOne"
-                  : "collection.gameCountMany",
-                { count: grouped.groups.length },
-              )}
+              {t("collection.gameCount", { count: grouped.groups.length })}
               {" · "}
-              {t(
-                expansionCount === 1
-                  ? "collection.expansionCountOne"
-                  : "collection.expansionCountMany",
-                { count: expansionCount },
-              )}
+              {t("collection.expansionCount", { count: expansionCount })}
             </p>
           </div>
           <div className="grid items-start gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
@@ -283,7 +272,6 @@ export function CollectionBrowser({
                 expansions={group.expansions}
                 eager={index < 3}
                 currency={currency}
-                locale={locale}
               />
             ))}
           </div>
@@ -310,7 +298,6 @@ export function CollectionBrowser({
                 game={expansion}
                 compact
                 currency={currency}
-                locale={locale}
               />
             ))}
           </div>

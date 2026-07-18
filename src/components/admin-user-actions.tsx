@@ -3,7 +3,7 @@
 import { ShieldCheck, Trash2, UserRoundCheck, UserRoundX } from "lucide-react";
 
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { useI18n } from "@/components/i18n-provider";
+import { useTranslations } from "next-intl";
 import {
   deleteUserAction,
   toggleUserBanAction,
@@ -20,7 +20,7 @@ export function AdminUserActions({
   user: ManagedUser;
   isSelf: boolean;
 }) {
-  const t = useI18n();
+  const t = useTranslations();
   if (isSelf) {
     return (
       <span className="text-muted-foreground block text-right text-xs">

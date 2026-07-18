@@ -1,5 +1,5 @@
 import { LocaleSelectControl } from "@/components/locale-select-control";
-import { getLocale } from "@/lib/i18n";
+import { getLocale } from "next-intl/server";
 
 /** Server-backed language preference control. */
 export async function LocaleSelect() {

@@ -3,7 +3,7 @@
 import { Gift, Info } from "lucide-react";
 import { useId, useState } from "react";
 
-import { useI18n } from "@/components/i18n-provider";
+import { useTranslations } from "next-intl";
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
@@ -23,7 +23,7 @@ export function GiftedPriceField({
 }) {
   const [gifted, setGifted] = useState(defaultGifted);
   const giftedId = useId();
-  const t = useI18n();
+  const t = useTranslations();
 
   return (
     <fieldset className={cn("space-y-4", className)}>

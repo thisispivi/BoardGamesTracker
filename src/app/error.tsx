@@ -4,7 +4,7 @@ import { RotateCcw } from "lucide-react";
 import { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
-import { useI18n } from "@/components/i18n-provider";
+import { useTranslations } from "next-intl";
 
 /** Isolates unexpected render failures without leaking stack traces. */
 export default function ErrorBoundary({
@@ -14,7 +14,7 @@ export default function ErrorBoundary({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  const t = useI18n();
+  const t = useTranslations();
   useEffect(() => {
     console.error("Application render failed", { digest: error.digest });
   }, [error]);

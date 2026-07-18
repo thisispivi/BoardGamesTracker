@@ -6,7 +6,7 @@ import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { useI18n } from "@/components/i18n-provider";
+import { useTranslations } from "next-intl";
 import {
   importBggCsvAction,
   type CollectionActionState,
@@ -16,7 +16,7 @@ const initialState: CollectionActionState = { success: false, message: "" };
 
 /** Dialog for securely importing an official BoardGameGeek CSV export. */
 export function ImportCollectionDialog() {
-  const t = useI18n();
+  const t = useTranslations();
   const [open, setOpen] = useState(false);
   const [state, action, importing] = useActionState(
     importBggCsvAction,

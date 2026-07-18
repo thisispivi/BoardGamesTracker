@@ -6,7 +6,8 @@ import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { useI18n } from "@/components/i18n-provider";
+import { useTranslations } from "next-intl";
+import { CLEAR_COLLECTION_CONFIRMATION } from "@/lib/collection-confirmation";
 import {
   clearCollectionAction,
   type CollectionActionState,
@@ -16,7 +17,7 @@ const initialState: CollectionActionState = { success: false, message: "" };
 
 /** Destructive settings card for clearing the signed-in user's collection. */
 export function ClearCollectionCard() {
-  const t = useI18n();
+  const t = useTranslations();
   const [open, setOpen] = useState(false);
   const [confirmation, setConfirmation] = useState("");
   const [state, action, clearing] = useActionState(
@@ -102,7 +103,9 @@ export function ClearCollectionCard() {
             </div>
 
             <p className="text-muted-foreground mt-5 text-sm leading-6">
-              {t("clear.warning")}
+              {t("clear.warning", {
+                confirmation: CLEAR_COLLECTION_CONFIRMATION,
+              })}
             </p>
             <form action={action} className="mt-6 space-y-5">
               <label className="block text-sm font-bold">
@@ -115,7 +118,7 @@ export function ClearCollectionCard() {
                   spellCheck={false}
                   required
                   className="field-input"
-                  placeholder="DELETE"
+                  placeholder={CLEAR_COLLECTION_CONFIRMATION}
                 />
               </label>
               <div className="flex flex-wrap justify-end gap-2 border-t pt-5">
@@ -129,7 +132,9 @@ export function ClearCollectionCard() {
                 <Button
                   type="submit"
                   variant="danger"
-                  disabled={clearing || confirmation !== "DELETE"}
+                  disabled={
+                    clearing || confirmation !== CLEAR_COLLECTION_CONFIRMATION
+                  }
                 >
                   {clearing ? (
                     <LoaderCircle className="size-4 animate-spin" />

@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import { useI18n } from "@/components/i18n-provider";
+import { useTranslations } from "next-intl";
 import { GiftedPriceField } from "@/components/gifted-price-field";
 import { Button } from "@/components/ui/button";
 import { AppSpinner } from "@/components/ui/app-spinner";
@@ -27,7 +27,7 @@ export function AddGameDialog({
   currency: string;
   destination?: "collection" | "wishlist";
 }) {
-  const t = useI18n();
+  const t = useTranslations();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<GameDiscoveryResult[]>([]);
@@ -258,7 +258,7 @@ function SelectedGameForm({
   onChooseAnother: () => void;
   selected: GameDiscoveryResult;
 }) {
-  const t = useI18n();
+  const t = useTranslations();
   return (
     <form action={action} className="space-y-5">
       <input type="hidden" name="destination" value={destination} />

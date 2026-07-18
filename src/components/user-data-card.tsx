@@ -6,7 +6,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { ImportCollectionDialog } from "@/components/import-collection-dialog";
-import { useI18n } from "@/components/i18n-provider";
+import { useTranslations } from "next-intl";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -16,7 +16,7 @@ const formats = ["json", "csv", "xlsx", "sql"] as const;
 export function UserDataCard() {
   const [importing, setImporting] = useState(false);
   const router = useRouter();
-  const t = useI18n();
+  const t = useTranslations();
 
   /** Uploads a bounded portable export to the authenticated import endpoint. */
   async function importData(event: React.FormEvent<HTMLFormElement>) {

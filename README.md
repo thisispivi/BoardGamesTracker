@@ -30,7 +30,7 @@ Board Games Tracker is a secure, self-hosted home for a board-game collection. I
 - Game-night picker with candidate cover art, separate searchable multi-select mechanic/theme filters, optional expansion exclusion, and a labeled animated wheel
 - Collection analytics for spending, price coverage (including gifts), complexity, expansions, favorites, categories, and mechanics
 - Administrative console for roles, bans, session revocation, account deletion, health metrics, and paginated audit events
-- English and Italian navigation with a persisted locale preference
+- Typed English and Italian localization with `next-intl`, ICU plurals, locale-aware formatting, and a persisted language preference
 - PostgreSQL migrations, Docker deployment, structured redacted logs, strict TypeScript, ESLint, Prettier, Husky, lint-staged, and Vitest
 
 > Board Games Tracker is independent software and is not affiliated with BoardGameGeek. SearXNG discovers indexed BGG links and BGG-hosted artwork; a bounded, best-effort server-side scrape enriches selected games. There is no BGG token, account association, or collection synchronization.
@@ -153,12 +153,14 @@ Husky runs lint-staged before each commit. Exported functions and components car
 ```text
 BoardGamesTracker/
 ├── drizzle/                  # Reviewed PostgreSQL migrations and snapshots
+├── messages/                 # Typed next-intl UI catalogs by locale
 ├── scripts/                  # Migration and artwork-cache utilities
 ├── searxng/                  # Private metasearch configuration
 ├── src/
 │   ├── app/                  # Next.js routes, layouts, metadata, and handlers
 │   ├── components/           # Feature components and shared UI controls
-│   ├── lib/                  # i18n, taxonomy, search, currency, and statistics
+│   ├── i18n/                 # Request config, locale rules, domain catalogs, and catalog tests
+│   ├── lib/                  # Taxonomy access, search, currency, and statistics
 │   ├── server/               # Auth, data access, actions, discovery, and imports
 │   └── test/                 # Shared Vitest setup
 ├── docker-compose.yml        # App, PostgreSQL, and SearXNG production stack

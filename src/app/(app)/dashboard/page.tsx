@@ -1,11 +1,9 @@
 import { ArrowRight, Banknote, BookOpen, Boxes, Heart } from "lucide-react";
 import Link from "next/link";
+import { getFormatter, getTranslations } from "next-intl/server";
 
 import { GameArtwork } from "@/components/game-artwork";
 import { buttonVariants } from "@/components/ui/button";
-import { formatMoney } from "@/lib/currency";
-import { getDictionary, getLocale } from "@/lib/i18n";
-import { translate, type MessageKey } from "@/lib/messages";
 import { cn } from "@/lib/utils";
 import { getCollection } from "@/server/collection";
 import { getUserPreferences } from "@/server/preferences";
@@ -14,14 +12,12 @@ import { requireUser } from "@/server/session";
 /** Personalized collection summary without promotional hero content. */
 export default async function DashboardPage() {
   const session = await requireUser();
-  const [collection, preferences, locale, dictionary] = await Promise.all([
+  const [collection, preferences, format, t] = await Promise.all([
     getCollection(session.user.id),
     getUserPreferences(session.user.id),
-    getLocale(),
-    getDictionary(),
+    getFormatter(),
+    getTranslations(),
   ]);
-  const t = (key: MessageKey, values?: Record<string, string | number>) =>
-    translate(dictionary, key, values);
   const expansions = collection.filter((item) => item.isExpansion);
   const games = collection.filter((item) => !expansions.includes(item));
   const favorites = collection.filter((item) => item.favorite).length;
@@ -65,7 +61,11 @@ export default async function DashboardPage() {
           { label: t("dashboard.favorites"), value: favorites, icon: Heart },
           {
             label: t("dashboard.spent"),
-            value: formatMoney(totalSpent, preferences.currency, locale),
+            value: format.number(totalSpent, {
+              style: "currency",
+              currency: preferences.currency,
+              maximumFractionDigits: 2,
+            }),
             icon: Banknote,
           },
         ].map((stat, index) => (

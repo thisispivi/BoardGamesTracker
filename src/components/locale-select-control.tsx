@@ -1,13 +1,13 @@
 "use client";
 
 import { Languages } from "lucide-react";
+import type { Locale } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { CircleFlag } from "react-circle-flags";
 
 import { Select } from "@/components/ui/select";
-import type { Locale } from "@/lib/i18n";
-import { useI18n } from "@/components/i18n-provider";
+import { useTranslations } from "next-intl";
 import { setLocaleAction } from "@/server/actions/preferences";
 
 const localeOptions = [
@@ -24,7 +24,7 @@ export function LocaleSelectControl({
   const [locale, setLocale] = useState(initialLocale);
   const [pending, startTransition] = useTransition();
   const router = useRouter();
-  const t = useI18n();
+  const t = useTranslations();
 
   function changeLocale(value: string): void {
     if (value !== "en" && value !== "it") return;

@@ -1,9 +1,9 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { AddGameDialog } from "@/components/add-game-dialog";
-import { I18nProvider } from "@/components/i18n-provider";
-import { messages } from "@/lib/messages";
+import messages from "../../messages/en.json";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ refresh: vi.fn() }),
@@ -24,9 +24,9 @@ describe("AddGameDialog", () => {
     const fetchMock = vi.fn(() => new Promise<Response>(() => undefined));
     vi.stubGlobal("fetch", fetchMock);
     render(
-      <I18nProvider dictionary={messages.en}>
+      <NextIntlClientProvider locale="en" messages={messages}>
         <AddGameDialog currency="EUR" />
-      </I18nProvider>,
+      </NextIntlClientProvider>,
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Add a game" }));

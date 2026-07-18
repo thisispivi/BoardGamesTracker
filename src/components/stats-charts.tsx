@@ -12,10 +12,9 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
 
-import { useI18n } from "@/components/i18n-provider";
 import type { CountDatum } from "@/lib/collection-stats";
-import { formatMoney } from "@/lib/currency";
 import { getTaxonomyLabel } from "@/lib/game-taxonomy";
 
 const chartColors = ["var(--primary)", "var(--accent)", "#3f8fba", "#b86b8f"];
@@ -24,7 +23,6 @@ type StatsChartsProps = {
   categories: CountDatum[];
   complexity: { key: "light" | "medium" | "heavy" | "expert"; value: number }[];
   currency: string;
-  locale: string;
   mechanics: CountDatum[];
   mostExpensive: CountDatum[];
 };
@@ -41,11 +39,18 @@ export function StatsCharts({
   categories,
   complexity,
   currency,
-  locale,
   mechanics,
   mostExpensive,
 }: StatsChartsProps) {
-  const t = useI18n();
+  const format = useFormatter();
+  const locale = useLocale();
+  const t = useTranslations();
+  const formatCurrency = (value: number) =>
+    format.number(value, {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 2,
+    });
   const complexityData = complexity.map((datum) => ({
     name: t(`stats.complexity.${datum.key}`),
     value: datum.value,
@@ -81,9 +86,7 @@ export function StatsCharts({
                 axisLine={false}
                 tickLine={false}
                 tick={axisTick}
-                tickFormatter={(value: number) =>
-                  formatMoney(value, currency, locale)
-                }
+                tickFormatter={formatCurrency}
               />
               <YAxis
                 dataKey="name"
@@ -99,9 +102,7 @@ export function StatsCharts({
                 isAnimationActive={false}
                 content={
                   <ChartTooltip
-                    valueFormatter={(value) =>
-                      formatMoney(Number(value), currency, locale)
-                    }
+                    valueFormatter={(value) => formatCurrency(Number(value))}
                   />
                 }
               />
@@ -335,7 +336,7 @@ function truncate(value: string, maximum: number): string {
 
 /** Localized empty state for chart panels without enough source data. */
 function EmptyChart() {
-  const t = useI18n();
+  const t = useTranslations();
   return (
     <div className="text-muted-foreground grid h-full place-items-center text-sm">
       {t("stats.noData")}

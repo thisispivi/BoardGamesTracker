@@ -3,9 +3,9 @@
 import { and, eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { getDictionary } from "@/lib/i18n";
+import { getTranslations } from "next-intl/server";
 import { hasExpansionCategory } from "@/lib/game-taxonomy";
-import { translate } from "@/lib/messages";
+import { CLEAR_COLLECTION_CONFIRMATION } from "@/lib/collection-confirmation";
 
 import { db } from "@/server/db";
 import { scrapeBggMetadata, type BggMetadata } from "@/server/bgg/scrape";
@@ -177,7 +177,7 @@ export async function importBggCsvAction(
   formData: FormData,
 ): Promise<CollectionActionState> {
   const session = await requireUser();
-  const dictionary = await getDictionary();
+  const t = await getTranslations();
   const file = formData.get("collection");
   if (
     !(file instanceof File) ||
@@ -187,7 +187,7 @@ export async function importBggCsvAction(
   ) {
     return {
       success: false,
-      message: translate(dictionary, "action.chooseCsv"),
+      message: t("action.chooseCsv"),
     };
   }
 
@@ -197,13 +197,13 @@ export async function importBggCsvAction(
   } catch {
     return {
       success: false,
-      message: translate(dictionary, "action.invalidCsv"),
+      message: t("action.invalidCsv"),
     };
   }
   if (imported.games.length === 0) {
     return {
       success: false,
-      message: translate(dictionary, "action.noOwned"),
+      message: t("action.noOwned"),
     };
   }
 
@@ -331,7 +331,7 @@ export async function importBggCsvAction(
 
   return {
     success: true,
-    message: translate(dictionary, "action.imported", {
+    message: t("action.imported", {
       games: imported.games.length,
       artwork: cachedArtwork.size,
     }),
@@ -344,7 +344,7 @@ export async function addGameAction(
   formData: FormData,
 ): Promise<CollectionActionState> {
   const session = await requireUser();
-  const dictionary = await getDictionary();
+  const t = await getTranslations();
   const token = z.string().max(4_000).safeParse(formData.get("selectionToken"));
   const destination = libraryDestinationSchema.safeParse(
     formData.get("destination") ?? "collection",
@@ -353,7 +353,7 @@ export async function addGameAction(
   if (!selection || !destination.success) {
     return {
       success: false,
-      message: translate(dictionary, "action.chooseGame"),
+      message: t("action.chooseGame"),
     };
   }
 
@@ -375,7 +375,7 @@ export async function addGameAction(
   if (!details.success) {
     return {
       success: false,
-      message: translate(dictionary, "action.checkDetails"),
+      message: t("action.checkDetails"),
     };
   }
 
@@ -395,7 +395,7 @@ export async function addGameAction(
     if (existingOwned) {
       return {
         success: false,
-        message: translate(dictionary, "action.alreadyOwned"),
+        message: t("action.alreadyOwned"),
       };
     }
   }
@@ -440,11 +440,9 @@ export async function addGameAction(
   revalidatePath("/dashboard");
   return {
     success: true,
-    message: translate(
-      dictionary,
-      isWishlist ? "action.wishlisted" : "action.added",
-      { name: selection.name },
-    ),
+    message: t(isWishlist ? "action.wishlisted" : "action.added", {
+      name: selection.name,
+    }),
   };
 }
 
@@ -454,7 +452,7 @@ export async function updateCollectionItemAction(
   formData: FormData,
 ): Promise<CollectionActionState> {
   const session = await requireUser();
-  const dictionary = await getDictionary();
+  const t = await getTranslations();
   const parsed = editCollectionItemSchema.safeParse({
     itemId: formData.get("itemId"),
     moneySpent: formData.get("moneySpent"),
@@ -465,7 +463,7 @@ export async function updateCollectionItemAction(
   if (!parsed.success) {
     return {
       success: false,
-      message: translate(dictionary, "action.checkDetails"),
+      message: t("action.checkDetails"),
     };
   }
 
@@ -488,7 +486,7 @@ export async function updateCollectionItemAction(
   if (!updated) {
     return {
       success: false,
-      message: translate(dictionary, "action.itemMissing"),
+      message: t("action.itemMissing"),
     };
   }
 
@@ -508,7 +506,7 @@ export async function updateCollectionItemAction(
   revalidatePath("/play");
   return {
     success: true,
-    message: translate(dictionary, "action.gameUpdated"),
+    message: t("action.gameUpdated"),
   };
 }
 
@@ -567,7 +565,7 @@ export async function moveWishlistToCollectionAction(
   formData: FormData,
 ): Promise<CollectionActionState> {
   const session = await requireUser();
-  const dictionary = await getDictionary();
+  const t = await getTranslations();
   const parsed = z
     .object({
       gifted: giftedSchema,
@@ -586,7 +584,7 @@ export async function moveWishlistToCollectionAction(
   if (!parsed.success) {
     return {
       success: false,
-      message: translate(dictionary, "action.checkDetails"),
+      message: t("action.checkDetails"),
     };
   }
 
@@ -610,7 +608,7 @@ export async function moveWishlistToCollectionAction(
   if (!updated) {
     return {
       success: false,
-      message: translate(dictionary, "action.itemMissing"),
+      message: t("action.itemMissing"),
     };
   }
 
@@ -631,7 +629,7 @@ export async function moveWishlistToCollectionAction(
   revalidatePath("/play");
   return {
     success: true,
-    message: translate(dictionary, "action.movedToCollection"),
+    message: t("action.movedToCollection"),
   };
 }
 
@@ -641,14 +639,16 @@ export async function clearCollectionAction(
   formData: FormData,
 ): Promise<CollectionActionState> {
   const session = await requireUser();
-  const dictionary = await getDictionary();
+  const t = await getTranslations();
   const confirmation = z
-    .literal("DELETE")
+    .literal(CLEAR_COLLECTION_CONFIRMATION)
     .safeParse(formData.get("confirmation"));
   if (!confirmation.success) {
     return {
       success: false,
-      message: translate(dictionary, "action.confirmClear"),
+      message: t("action.confirmClear", {
+        confirmation: CLEAR_COLLECTION_CONFIRMATION,
+      }),
     };
   }
 
@@ -674,10 +674,6 @@ export async function clearCollectionAction(
   revalidatePath("/play");
   return {
     success: true,
-    message: translate(
-      dictionary,
-      deleted.length === 1 ? "action.clearedOne" : "action.clearedMany",
-      { count: deleted.length },
-    ),
+    message: t("action.cleared", { count: deleted.length }),
   };
 }

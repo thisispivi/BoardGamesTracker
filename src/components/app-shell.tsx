@@ -11,25 +11,15 @@ type AppShellProps = {
     image?: string | null | undefined;
     role?: string | null | undefined;
   };
-  labels: {
-    dashboard: string;
-    collection: string;
-    wishlist: string;
-    play: string;
-    stats: string;
-    settings: string;
-    admin: string;
-    logout: string;
-  };
 };
 
 /** Responsive navigation shell for signed-in screens. */
-export function AppShell({ children, user, labels }: AppShellProps) {
+export function AppShell({ children, user }: AppShellProps) {
   return (
     <div className="bg-background min-h-screen lg:grid lg:grid-cols-[260px_minmax(0,1fr)]">
       <aside className="bg-card sticky top-0 hidden h-screen flex-col border-r px-5 py-6 lg:flex">
         <Logo className="px-2" />
-        <AppNavigation labels={labels} isAdmin={user.role === "admin"} />
+        <AppNavigation isAdmin={user.role === "admin"} />
         <div className="mt-auto space-y-4">
           <div className="bg-muted/70 flex items-center justify-between rounded-xl p-2">
             <LocaleSelect />
@@ -46,19 +36,14 @@ export function AppShell({ children, user, labels }: AppShellProps) {
               </p>
             </div>
           </div>
-          <SignOutButton label={labels.logout} />
+          <SignOutButton />
         </div>
       </aside>
       <header className="bg-background/90 sticky top-0 z-20 flex h-18 items-center justify-between border-b px-4 backdrop-blur lg:hidden">
         <Logo />
         <div className="flex items-center gap-1">
           <ThemeToggle />
-          <AppNavigation
-            labels={labels}
-            isAdmin={user.role === "admin"}
-            mobile
-            user={user}
-          />
+          <AppNavigation isAdmin={user.role === "admin"} mobile user={user} />
         </div>
       </header>
       <div className="min-w-0">

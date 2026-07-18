@@ -5,7 +5,7 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { Select } from "@/components/ui/select";
-import { useI18n } from "@/components/i18n-provider";
+import { useTranslations } from "next-intl";
 import { currencies, getCurrencySymbol, type Currency } from "@/lib/currency";
 import { setCurrencyAction } from "@/server/actions/preferences";
 
@@ -18,7 +18,7 @@ export function CurrencySelect({
   const [currency, setCurrency] = useState(initialCurrency);
   const [pending, startTransition] = useTransition();
   const router = useRouter();
-  const t = useI18n();
+  const t = useTranslations();
 
   function changeCurrency(value: string): void {
     if (!currencies.includes(value as Currency)) return;
@@ -42,7 +42,7 @@ export function CurrencySelect({
           value,
           label: (
             <span className="flex items-center gap-3">
-              <span className="bg-primary/10 text-primary grid size-7 place-items-center rounded-lg text-xs font-black">
+              <span className="select-option-mark bg-primary/10 text-primary grid size-7 place-items-center rounded-lg text-xs font-black">
                 {getCurrencySymbol(value)}
               </span>
               <span>{value}</span>
