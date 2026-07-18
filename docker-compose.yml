@@ -1,0 +1,61 @@
+services:
+  database:
+    image: postgres:17.5-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-board_games_tracker}
+      POSTGRES_USER: ${POSTGRES_USER:-board_games_tracker}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - board_games_tracker_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-board_games_tracker} -d ${POSTGRES_DB:-board_games_tracker}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - private
+
+  searxng:
+    image: searxng/searxng:latest
+    restart: unless-stopped
+    environment:
+      SEARXNG_SECRET: ${SEARXNG_SECRET:?Set SEARXNG_SECRET in .env}
+    volumes:
+      - ./searxng/settings.yml:/etc/searxng/settings.yml:ro
+    networks:
+      - private
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      database:
+        condition: service_healthy
+      searxng:
+        condition: service_started
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-board_games_tracker}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB:-board_games_tracker}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Set BETTER_AUTH_SECRET in .env}
+      BETTER_AUTH_URL: ${APP_URL:?Set APP_URL in .env}
+      NEXT_PUBLIC_APP_URL: ${APP_URL:?Set APP_URL in .env}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ALLOW_SIGN_UP: ${ALLOW_SIGN_UP:-false}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      SEARXNG_URL: http://searxng:8080
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    networks:
+      - private
+
+volumes:
+  board_games_tracker_data:
+    name: ${POSTGRES_VOLUME_NAME:-board_games_tracker_data}
+
+networks:
+  private:
+    driver: bridge

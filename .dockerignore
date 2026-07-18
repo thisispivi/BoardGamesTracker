@@ -1,0 +1,9 @@
+.git
+.github
+.husky
+.next
+coverage
+node_modules
+.env*
+npm-debug.log*
+README.md
