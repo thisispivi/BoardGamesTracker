@@ -1,8 +1,15 @@
+<div align="center">
+  <picture>
+    <img alt="Board Games Tracker banner" src="public/board-games-tracker-banner.png" width="100%">
+  </picture>
+
 # Board Games Tracker
 
-Board Games Tracker is a secure, self-hosted home for a board-game collection. It presents each user's games in a calm visual shelf, supports multiple local users, and settles game-night indecision with a filterable animated picker.
-
 ![Next.js](https://img.shields.io/badge/Next.js-16.2-black) ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169e1) ![License](https://img.shields.io/badge/license-MIT-18594b)
+
+</div>
+
+Board Games Tracker is a secure, self-hosted home for a board-game collection. It presents each user's games in a calm visual shelf, supports multiple local users, and settles game-night indecision with a filterable animated picker.
 
 ## Table of contents
 

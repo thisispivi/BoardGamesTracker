@@ -26,12 +26,12 @@ type AppShellProps = {
  */
 export function AppShell({ children, user }: AppShellProps): ReactNode {
   return (
-    <div className="bg-background min-h-screen lg:grid lg:grid-cols-[260px_minmax(0,1fr)]">
+    <div className="bg-background min-h-screen lg:grid lg:grid-cols-[270px_minmax(0,1fr)]">
       <aside className="bg-card sticky top-0 hidden h-screen flex-col border-r px-5 py-6 lg:flex">
         <Logo className="px-2" />
         <AppNavigation isAdmin={user.role === "admin"} />
         <div className="mt-auto space-y-4">
-          <div className="bg-muted/70 flex items-center justify-between rounded-xl p-2">
+          <div className="bg-muted/70 flex items-center justify-between rounded-xl p-2 pl-4">
             <LocaleSelect />
             <ThemeToggle />
           </div>
@@ -57,7 +57,7 @@ export function AppShell({ children, user }: AppShellProps): ReactNode {
         </div>
       </header>
       <div className="min-w-0">
-        <main className="mx-auto w-full max-w-[1500px] px-5 py-7 sm:px-8 sm:py-10 lg:px-12">
+        <main className="mx-auto w-full max-w-375 px-5 py-7 sm:px-8 sm:py-10 lg:px-12">
           {children}
         </main>
       </div>

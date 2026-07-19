@@ -310,7 +310,7 @@ export function GamePicker({ games }: GamePickerProps): ReactNode {
       </aside>
 
       <section
-        className="bg-card shadow-soft relative order-1 grid min-h-[470px] min-w-0 scroll-mt-24 place-items-center overflow-hidden rounded-3xl border px-4 pt-20 pb-5 sm:min-h-[570px] sm:px-6 sm:pt-24 sm:pb-6 lg:order-2"
+        className="bg-card shadow-soft relative order-1 grid min-h-117.5 min-w-0 scroll-mt-24 place-items-center overflow-hidden rounded-3xl border px-4 pt-20 pb-5 sm:min-h-142.5 sm:px-6 sm:pt-24 sm:pb-6 lg:order-2"
         ref={reelStageRef}
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,color-mix(in_srgb,var(--primary)_17%,transparent),transparent_48%)] opacity-50" />
@@ -613,7 +613,7 @@ function CoverReel({
     <div className="relative mx-auto h-48 w-full max-w-3xl overflow-hidden sm:h-60">
       <div className="from-card pointer-events-none absolute inset-y-0 left-0 z-20 w-12 bg-linear-to-r to-transparent sm:w-24" />
       <div className="from-card pointer-events-none absolute inset-y-0 right-0 z-20 w-12 bg-linear-to-l to-transparent sm:w-24" />
-      <div className="bg-accent/10 ring-accent pointer-events-none absolute top-1/2 left-1/2 z-30 h-[calc(100%-0.75rem)] w-32 -translate-x-1/2 -translate-y-1/2 rounded-2xl border-3 border-[color:color-mix(in_srgb,var(--accent)_60%,transparent)] shadow-xl ring-4 sm:w-40 lg:w-44" />
+      <div className="bg-accent/10 ring-accent pointer-events-none absolute top-1/2 left-1/2 z-30 h-[calc(100%-0.75rem)] w-32 -translate-x-1/2 -translate-y-1/2 rounded-2xl border-3 border-[color-mix(in_srgb,var(--accent)_60%,transparent)] shadow-xl ring-4 sm:w-40 lg:w-44" />
       {reelRun ? (
         <motion.div
           animate={{ x: reelRun.targetX }}

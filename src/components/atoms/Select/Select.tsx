@@ -65,7 +65,7 @@ export function Select({
           position="popper"
           sideOffset={8}
         >
-          <SelectPrimitive.Viewport className="filter-options max-h-[18rem] space-y-1 overflow-y-auto overscroll-contain pr-1">
+          <SelectPrimitive.Viewport className="filter-options max-h-72 space-y-1 overflow-y-auto overscroll-contain pr-1">
             {options.map((option) => (
               <SelectPrimitive.Item
                 className="select-item data-[state=checked]:bg-primary/10 data-[state=checked]:text-foreground relative flex cursor-pointer items-center rounded-xl py-2.5 pr-10 pl-3 text-sm font-semibold transition-colors outline-none select-none"

@@ -24,7 +24,7 @@ export async function getUserDataDocument(
 
   const items = await db
     .select({
-      owned: collectionItems.owned,
+      wishlist: collectionItems.wishlist,
       bggId: games.bggId,
       name: games.name,
       description: games.description,
@@ -54,9 +54,9 @@ export async function getUserDataDocument(
     formatVersion: 1,
     exportedAt: new Date().toISOString(),
     profile,
-    items: items.map(({ owned, ...item }) => ({
+    items: items.map(({ wishlist, ...item }) => ({
       ...item,
-      location: owned ? "collection" : "wishlist",
+      location: wishlist ? "wishlist" : "collection",
     })),
   };
 }

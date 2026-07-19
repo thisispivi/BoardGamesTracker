@@ -40,7 +40,7 @@ export function AuditLogPanel({ initialPage }: AuditLogPanelProps): ReactNode {
     <>
       <div aria-busy={pending} className="relative min-h-32">
         <div
-          className={`filter-options max-h-[32rem] space-y-1 overflow-y-auto overscroll-contain pr-1 transition-opacity ${pending ? "opacity-35" : "opacity-100"}`}
+          className={`filter-options max-h-128 space-y-1 overflow-y-auto overscroll-contain pr-1 transition-opacity ${pending ? "opacity-35" : "opacity-100"}`}
         >
           {result.events.map((event) => (
             <div
