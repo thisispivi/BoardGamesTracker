@@ -3,8 +3,8 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 import { formatSchema, type UserDataFormat } from "@/core";
-import { env } from "@/env";
 import { writeAuditEvent } from "@/server/audit";
+import { hasTrustedOrigin } from "@/server/security/origin";
 import { getSession } from "@/server/session";
 import {
   getUserDataDocument,
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const session = await getSession();
   if (!session)
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  if (!hasSameOrigin(request)) {
+  if (!hasTrustedOrigin(request)) {
     return NextResponse.json({ error: "cross_origin" }, { status: 403 });
   }
   const declaredLength = Number(request.headers.get("content-length") ?? 0);
@@ -111,14 +111,4 @@ function formatFromFilename(filename: string): UserDataFormat | null {
   const extension = filename.toLowerCase().split(".").pop();
   const parsed = formatSchema.safeParse(extension);
   return parsed.success ? parsed.data : null;
-}
-
-/**
- * Rejects cross-site state changes using the configured app origin, since a
- * reverse-proxied deployment can make `request.nextUrl.origin` diverge from
- * the public origin the browser actually sent.
- */
-function hasSameOrigin(request: NextRequest): boolean {
-  const origin = request.headers.get("origin");
-  return !origin || origin === new URL(env.NEXT_PUBLIC_APP_URL).origin;
 }

@@ -23,6 +23,7 @@ import { discoverBoardGameImages } from "@/server/discovery/searxng";
 import { verifySelectionToken } from "@/server/discovery/selectionToken";
 import { downloadBggImage, downloadBggImages } from "@/server/images/bggImage";
 import { parseBggCollectionCsv } from "@/server/import/bggCsv";
+import { consumeRateLimit } from "@/server/security/rateLimit";
 import { requireUser } from "@/server/session";
 import { CLEAR_COLLECTION_CONFIRMATION } from "@/utils/collectionConfirmation";
 import { hasExpansionCategory } from "@/utils/gameTaxonomy";
@@ -115,6 +116,13 @@ export async function importBggCsvAction(
 ): Promise<CollectionActionState> {
   const session = await requireUser();
   const t = await getTranslations();
+  if (!consumeRateLimit(`importCsv:${session.user.id}`, 2, 600_000)) {
+    return {
+      success: false,
+      message: t("action.importRateLimited"),
+    };
+  }
+
   const file = formData.get("collection");
   if (
     !(file instanceof File) ||
@@ -282,6 +290,13 @@ export async function addGameAction(
 ): Promise<CollectionActionState> {
   const session = await requireUser();
   const t = await getTranslations();
+  if (!consumeRateLimit(`addGame:${session.user.id}`, 10, 60_000)) {
+    return {
+      success: false,
+      message: t("action.addRateLimited"),
+    };
+  }
+
   const token = z.string().max(4_000).safeParse(formData.get("selectionToken"));
   const destination = libraryDestinationSchema.safeParse(
     formData.get("destination") ?? "collection",
