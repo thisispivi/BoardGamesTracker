@@ -93,7 +93,7 @@ export default async function AdminPage() {
           </div>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] text-left text-sm">
+          <table className="w-full min-w-190 text-left text-sm">
             <thead className="bg-muted/60 text-muted-foreground text-xs tracking-wide uppercase">
               <tr>
                 <th className="px-6 py-3">{t("admin.user")}</th>

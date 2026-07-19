@@ -181,10 +181,15 @@
     "description": "Prepara il tavolo, filtra la libreria e gira la ruota."
   },
   "picker": {
-    "emptyTitle": "La ruota ha bisogno di giochi",
+    "emptyTitle": "Servono giochi tra cui scegliere",
     "emptyBody": "Aggiungi prima un gioco alla collezione, poi torna per la scelta.",
     "setTable": "Prepara il tavolo",
     "optional": "Ogni filtro è opzionale.",
+    "filters": "Filtri dei giochi",
+    "possibleGames": "{count, plural, one {# gioco possibile} other {# giochi possibili}}",
+    "viewPossibleGames": "Vedi tutte le copertine corrispondenti",
+    "possibleGamesTitle": "Giochi possibili",
+    "possibleGamesDescription": "{count, plural, =0 {Nessun gioco corrisponde ai filtri attuali.} one {Scegli direttamente il gioco corrispondente.} other {Sono disponibili # giochi con i filtri attuali.}}",
     "players": "Giocatori",
     "maxTime": "Tempo massimo",
     "any": "Qualsiasi",
@@ -205,9 +210,9 @@
     "excludeExpansions": "Escludi le espansioni",
     "favoritesOnly": "Solo preferiti",
     "tonight": "Il gioco di stasera",
-    "spinAgain": "Gira di nuovo",
+    "spinAgain": "Scegli di nuovo",
     "choosing": "Scelta in corso…",
-    "spin": "Gira la ruota",
+    "spin": "Avvia il carosello",
     "noFit": "Nessun gioco corrisponde. Riduci i filtri.",
     "match": "{count, plural, one {# gioco corrisponde} other {# giochi corrispondono}}"
   },

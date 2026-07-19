@@ -181,10 +181,15 @@
     "description": "Set the table, narrow the shelf, and give the wheel a spin."
   },
   "picker": {
-    "emptyTitle": "The wheel needs games",
+    "emptyTitle": "The picker needs games",
     "emptyBody": "Add a game to your collection first, then come back for the big decision.",
     "setTable": "Set the table",
     "optional": "Every filter is optional.",
+    "filters": "Game filters",
+    "possibleGames": "{count, plural, one {# possible game} other {# possible games}}",
+    "viewPossibleGames": "View every matching cover",
+    "possibleGamesTitle": "Possible games",
+    "possibleGamesDescription": "{count, plural, =0 {No games match the current filters.} one {Choose the matching game directly.} other {Browse all # games matching your filters.}}",
     "players": "Players",
     "maxTime": "Maximum time",
     "any": "Any",
@@ -205,9 +210,9 @@
     "excludeExpansions": "Exclude expansions",
     "favoritesOnly": "Favorites only",
     "tonight": "Tonight’s game",
-    "spinAgain": "Spin again",
+    "spinAgain": "Choose again",
     "choosing": "Choosing…",
-    "spin": "Spin the wheel",
+    "spin": "Start the reel",
     "noFit": "No game fits. Relax one of the filters.",
     "match": "{count, plural, one {# game matches} other {# games match}}"
   },

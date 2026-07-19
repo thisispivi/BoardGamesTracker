@@ -1,17 +1,26 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
+import * as Dialog from "@radix-ui/react-dialog";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useLocale, useTranslations } from "next-intl";
 import {
+  ChevronDown,
   Clock3,
   Dices,
+  Gauge,
   Heart,
+  LayoutGrid,
   ListFilter,
+  PackageX,
   RotateCcw,
+  Shapes,
   Sparkles,
+  Tags,
   Users,
+  X,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import type { LucideIcon } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
 
 import { GameArtwork } from "@/components/game-artwork";
 import { Button } from "@/components/ui/button";
@@ -25,11 +34,26 @@ import { filterGames, pickRandomGame } from "@/server/picker";
 import type { CollectionGame } from "@/components/game-card";
 import { useDurationFormatter } from "@/i18n/use-duration-formatter";
 
-/** Animated filter-and-spin experience for choosing a collection game. */
+type ReelGame = {
+  gameId: string;
+  imageUrl?: string | null;
+  name: string;
+};
+
+type ReelRun = {
+  id: number;
+  items: ReelGame[];
+  startX: number;
+  targetX: number;
+  winnerId: string;
+};
+
+/** Animated filter-and-reel experience for choosing a collection game. */
 export function GamePicker({ games }: { games: CollectionGame[] }) {
   const locale = useLocale();
   const t = useTranslations();
   const formatDuration = useDurationFormatter();
+  const reduceMotion = useReducedMotion();
   const [players, setPlayers] = useState(4);
   const [maxMinutes, setMaxMinutes] = useState(120);
   const [maxWeight, setMaxWeight] = useState(0);
@@ -37,9 +61,14 @@ export function GamePicker({ games }: { games: CollectionGame[] }) {
   const [mechanics, setMechanics] = useState<string[]>([]);
   const [themes, setThemes] = useState<string[]>([]);
   const [excludeExpansions, setExcludeExpansions] = useState(true);
-  const [rotation, setRotation] = useState(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [spinning, setSpinning] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [reelRun, setReelRun] = useState<ReelRun | null>(null);
+  const reelCardRef = useRef<HTMLDivElement>(null);
+  const reelStageRef = useRef<HTMLElement>(null);
+  const reelTrackRef = useRef<HTMLDivElement>(null);
+  const reelRunId = useRef(0);
   const filters = {
     players,
     maxMinutes,
@@ -78,25 +107,47 @@ export function GamePicker({ games }: { games: CollectionGame[] }) {
   const candidates = filterGames(pickable, filters);
   const selected = games.find((game) => game.gameId === selectedId) ?? null;
 
-  /** Spins the visual wheel before revealing a random eligible game. */
+  /** Runs a cover reel that decelerates onto a preselected eligible game. */
   function spin(): void {
     if (candidates.length === 0 || spinning) {
       return;
     }
 
+    const picked = pickRandomGame(pickable, filters);
+    if (!picked) return;
+
+    const { cardWidth, gap } = getReelMetrics(
+      reelCardRef.current,
+      reelTrackRef.current,
+    );
+    const { items, winnerIndex } = buildReelSequence(candidates, picked.gameId);
+
+    reelRunId.current += 1;
     setSelectedId(null);
     setSpinning(true);
-    setRotation((value) => value + 1440 + Math.floor(Math.random() * 360));
-    const picked = pickRandomGame(pickable, filters);
-    window.setTimeout(() => {
-      setSelectedId(picked?.gameId ?? null);
-      setSpinning(false);
-    }, 1700);
+    setReelRun({
+      id: reelRunId.current,
+      items,
+      startX: -cardWidth / 2,
+      targetX: -(winnerIndex * (cardWidth + gap) + cardWidth / 2),
+      winnerId: picked.gameId,
+    });
+  }
+
+  /** Reveals a manually chosen candidate and returns mobile users to the stage. */
+  function selectCandidate(gameId: string): void {
+    setSelectedId(gameId);
+    if (!window.matchMedia("(min-width: 1024px)").matches) {
+      reelStageRef.current?.scrollIntoView({
+        behavior: reduceMotion ? "auto" : "smooth",
+        block: "start",
+      });
+    }
   }
 
   if (games.length === 0) {
     return (
-      <div className="rounded-3xl border border-dashed p-16 text-center">
+      <div className="rounded-3xl border border-dashed p-8 text-center sm:p-16">
         <Dices className="text-primary mx-auto size-10" />
         <h2 className="font-display mt-5 text-2xl font-bold">
           {t("picker.emptyTitle")}
@@ -108,153 +159,158 @@ export function GamePicker({ games }: { games: CollectionGame[] }) {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
-      <aside className="bg-card shadow-soft rounded-3xl border p-6 sm:p-7">
-        <div className="mb-7 flex items-center gap-3">
-          <span className="bg-primary/10 text-primary grid size-10 place-items-center rounded-xl">
-            <Sparkles className="size-4" />
-          </span>
-          <div>
-            <h2 className="font-display text-xl font-bold">
-              {t("picker.setTable")}
-            </h2>
-            <p className="text-muted-foreground text-xs">
+      <aside className="bg-card shadow-soft order-2 rounded-3xl border p-4 sm:p-7 lg:order-1">
+        <button
+          type="button"
+          aria-expanded={filtersOpen}
+          onClick={() => setFiltersOpen((open) => !open)}
+          className="flex w-full items-center justify-between gap-4 rounded-2xl p-2 text-left lg:hidden"
+        >
+          <span>
+            <span className="font-display block text-lg font-bold">
+              {t("picker.filters")}
+            </span>
+            <span className="text-muted-foreground mt-0.5 block text-xs">
               {t("picker.optional")}
-            </p>
+            </span>
+          </span>
+          <span className="bg-muted grid size-9 shrink-0 place-items-center rounded-xl">
+            <ChevronDown
+              className={`size-4 transition-transform ${filtersOpen ? "rotate-180" : ""}`}
+            />
+          </span>
+        </button>
+        <div
+          className={`${filtersOpen ? "mt-5 block" : "hidden"} lg:mt-0 lg:block`}
+        >
+          <div className="mb-7 flex items-center gap-3">
+            <span className="bg-primary/10 text-primary grid size-10 place-items-center rounded-xl">
+              <Sparkles className="size-4" />
+            </span>
+            <div>
+              <h2 className="font-display text-xl font-bold">
+                {t("picker.setTable")}
+              </h2>
+              <p className="text-muted-foreground text-xs">
+                {t("picker.optional")}
+              </p>
+            </div>
           </div>
-        </div>
-        <div className="space-y-7">
-          <label className="block">
-            <span className="mb-3 flex items-center justify-between text-sm font-bold">
-              <span className="flex items-center gap-2">
-                <Users className="text-primary size-4" /> {t("picker.players")}
+          <div className="space-y-7">
+            <label className="block">
+              <FilterLabel icon={Users} label={t("picker.players")}>
+                <strong className="bg-muted rounded-full px-3 py-1 text-xs">
+                  {players}
+                </strong>
+              </FilterLabel>
+              <input
+                type="range"
+                min={1}
+                max={12}
+                value={players}
+                onChange={(event) => setPlayers(Number(event.target.value))}
+                className="w-full accent-(--primary)"
+              />
+            </label>
+            <label className="block">
+              <FilterLabel icon={Clock3} label={t("picker.maxTime")}>
+                <strong className="bg-muted rounded-full px-3 py-1 text-xs">
+                  {maxMinutes === 0
+                    ? t("picker.any")
+                    : formatDuration(maxMinutes)}
+                </strong>
+              </FilterLabel>
+              <input
+                type="range"
+                min={0}
+                max={240}
+                step={30}
+                value={maxMinutes}
+                onChange={(event) => setMaxMinutes(Number(event.target.value))}
+                className="w-full accent-(--primary)"
+              />
+            </label>
+            <div className="text-sm font-bold">
+              <FilterLabel icon={Gauge} label={t("picker.complexity")} />
+              <Select
+                ariaLabel={t("picker.complexity")}
+                value={String(maxWeight)}
+                onValueChange={(value) => setMaxWeight(Number(value))}
+                options={[
+                  { value: "0", label: t("picker.anyComplexity") },
+                  { value: "2", label: t("picker.light") },
+                  { value: "3", label: t("picker.medium") },
+                  { value: "4", label: t("picker.heavy") },
+                ]}
+              />
+            </div>
+            <div className="text-sm font-bold">
+              <FilterLabel icon={Shapes} label={t("picker.mechanics")} />
+              <MultiSelect
+                ariaLabel={t("picker.mechanics")}
+                values={mechanics}
+                onValueChange={setMechanics}
+                options={mechanicOptions}
+                placeholder={t("picker.allMechanics")}
+                searchPlaceholder={t("picker.searchMechanics")}
+                selectedSummary={t("picker.selectedFilters")}
+                clearLabel={t("picker.clearSelection")}
+                emptyLabel={t("picker.noFilterOptions")}
+              />
+            </div>
+            <div className="text-sm font-bold">
+              <FilterLabel icon={Tags} label={t("picker.themes")} />
+              <MultiSelect
+                ariaLabel={t("picker.themes")}
+                values={themes}
+                onValueChange={setThemes}
+                options={themeOptions}
+                placeholder={t("picker.allThemes")}
+                searchPlaceholder={t("picker.searchThemes")}
+                selectedSummary={t("picker.selectedFilters")}
+                clearLabel={t("picker.clearSelection")}
+                emptyLabel={t("picker.noFilterOptions")}
+              />
+            </div>
+            <label className="bg-muted/70 flex cursor-pointer items-center justify-between rounded-xl p-4 text-sm font-bold">
+              <span className="flex items-center gap-3">
+                <FilterIcon icon={Heart} tone="danger" />
+                {t("picker.favoritesOnly")}
               </span>
-              <strong className="bg-muted rounded-full px-3 py-1 text-xs">
-                {players}
-              </strong>
-            </span>
-            <input
-              type="range"
-              min={1}
-              max={12}
-              value={players}
-              onChange={(event) => setPlayers(Number(event.target.value))}
-              className="w-full accent-(--primary)"
-            />
-          </label>
-          <label className="block">
-            <span className="mb-3 flex items-center justify-between text-sm font-bold">
-              <span className="flex items-center gap-2">
-                <Clock3 className="text-primary size-4" /> {t("picker.maxTime")}
+              <input
+                type="checkbox"
+                checked={favoritesOnly}
+                onChange={(event) => setFavoritesOnly(event.target.checked)}
+                className="size-4 accent-(--primary)"
+              />
+            </label>
+            <label className="bg-muted/70 flex cursor-pointer items-center justify-between rounded-xl p-4 text-sm font-bold">
+              <span className="flex items-center gap-3">
+                <FilterIcon icon={PackageX} />
+                {t("picker.excludeExpansions")}
               </span>
-              <strong className="bg-muted rounded-full px-3 py-1 text-xs">
-                {maxMinutes === 0
-                  ? t("picker.any")
-                  : formatDuration(maxMinutes)}
-              </strong>
-            </span>
-            <input
-              type="range"
-              min={0}
-              max={240}
-              step={30}
-              value={maxMinutes}
-              onChange={(event) => setMaxMinutes(Number(event.target.value))}
-              className="w-full accent-(--primary)"
-            />
-          </label>
-          <div className="text-sm font-bold">
-            <span className="mb-3 block">{t("picker.complexity")}</span>
-            <Select
-              ariaLabel={t("picker.complexity")}
-              value={String(maxWeight)}
-              onValueChange={(value) => setMaxWeight(Number(value))}
-              options={[
-                { value: "0", label: t("picker.anyComplexity") },
-                { value: "2", label: t("picker.light") },
-                { value: "3", label: t("picker.medium") },
-                { value: "4", label: t("picker.heavy") },
-              ]}
-            />
-          </div>
-          <div className="space-y-3 text-sm font-bold">
-            <span className="flex items-center gap-2">
-              <ListFilter className="text-primary size-4" />{" "}
-              {t("picker.mechanics")}
-            </span>
-            <MultiSelect
-              ariaLabel={t("picker.mechanics")}
-              values={mechanics}
-              onValueChange={setMechanics}
-              options={mechanicOptions}
-              placeholder={t("picker.allMechanics")}
-              searchPlaceholder={t("picker.searchMechanics")}
-              selectedSummary={t("picker.selectedFilters")}
-              clearLabel={t("picker.clearSelection")}
-              emptyLabel={t("picker.noFilterOptions")}
-            />
-          </div>
-          <div className="space-y-3 text-sm font-bold">
-            <span className="block">{t("picker.themes")}</span>
-            <MultiSelect
-              ariaLabel={t("picker.themes")}
-              values={themes}
-              onValueChange={setThemes}
-              options={themeOptions}
-              placeholder={t("picker.allThemes")}
-              searchPlaceholder={t("picker.searchThemes")}
-              selectedSummary={t("picker.selectedFilters")}
-              clearLabel={t("picker.clearSelection")}
-              emptyLabel={t("picker.noFilterOptions")}
-            />
-          </div>
-          <label className="bg-muted/70 flex cursor-pointer items-center justify-between rounded-xl p-4 text-sm font-bold">
-            <span className="flex items-center gap-2">
-              <Heart className="text-danger size-4" />{" "}
-              {t("picker.favoritesOnly")}
-            </span>
-            <input
-              type="checkbox"
-              checked={favoritesOnly}
-              onChange={(event) => setFavoritesOnly(event.target.checked)}
-              className="size-4 accent-(--primary)"
-            />
-          </label>
-          <label className="bg-muted/70 flex cursor-pointer items-center justify-between rounded-xl p-4 text-sm font-bold">
-            <span>{t("picker.excludeExpansions")}</span>
-            <input
-              type="checkbox"
-              checked={excludeExpansions}
-              onChange={(event) => setExcludeExpansions(event.target.checked)}
-              className="size-4 accent-(--primary)"
-            />
-          </label>
-        </div>
-        <div className="mt-7 border-t pt-5">
-          <p className="text-center text-sm">
-            {t("picker.match", { count: candidates.length })}
-          </p>
-          <div className="filter-options mt-4 max-h-60 space-y-1 overflow-y-auto overscroll-contain pr-1">
-            {candidates.map((candidate) => (
-              <button
-                key={candidate.gameId}
-                type="button"
-                onClick={() => setSelectedId(candidate.gameId)}
-                className="hover:bg-muted flex w-full items-center gap-3 rounded-xl p-2 text-left text-xs font-semibold transition"
-              >
-                <GameArtwork
-                  name={candidate.name}
-                  imageUrl={candidate.imageUrl ?? null}
-                  className="size-10 shrink-0 rounded-lg"
-                />
-                <span className="truncate">{candidate.name}</span>
-              </button>
-            ))}
+              <input
+                type="checkbox"
+                checked={excludeExpansions}
+                onChange={(event) => setExcludeExpansions(event.target.checked)}
+                className="size-4 accent-(--primary)"
+              />
+            </label>
           </div>
         </div>
       </aside>
 
-      <section className="bg-card shadow-soft relative grid min-h-[570px] place-items-center overflow-hidden rounded-3xl border p-6">
+      <section
+        ref={reelStageRef}
+        className="bg-card shadow-soft relative order-1 grid min-h-[470px] min-w-0 scroll-mt-24 place-items-center overflow-hidden rounded-3xl border px-4 pt-20 pb-5 sm:min-h-[570px] sm:px-6 sm:pt-24 sm:pb-6 lg:order-2"
+      >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,color-mix(in_srgb,var(--primary)_17%,transparent),transparent_48%)] opacity-50" />
+        <div className="absolute inset-x-4 top-4 z-40 flex justify-center sm:inset-x-6 sm:top-6">
+          <PossibleGamesDialog
+            candidates={candidates}
+            onSelect={selectCandidate}
+          />
+        </div>
         <AnimatePresence mode="wait">
           {selected && !spinning ? (
             <motion.div
@@ -290,24 +346,24 @@ export function GamePicker({ games }: { games: CollectionGame[] }) {
             </motion.div>
           ) : (
             <motion.div
-              key="wheel"
-              className="relative z-10 text-center"
+              key="reel"
+              className="relative z-10 w-full min-w-0 text-center"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              <div className="relative mx-auto size-64 sm:size-80">
-                <span className="border-t-accent absolute top-[-14px] left-1/2 z-20 -translate-x-1/2 border-x-14 border-t-26 border-x-transparent drop-shadow" />
-                <motion.div
-                  animate={{ rotate: rotation }}
-                  transition={{ duration: 1.7, ease: [0.12, 0.7, 0.1, 1] }}
-                  className="border-card [container-type:inline-size] relative size-full rounded-full border-12 shadow-2xl [background:conic-gradient(var(--primary)_0_45deg,var(--accent)_45deg_90deg,#d8c269_90deg_135deg,#476f91_135deg_180deg,var(--primary)_180deg_225deg,var(--accent)_225deg_270deg,#d8c269_270deg_315deg,#476f91_315deg_360deg)]"
-                >
-                  <WheelLabels games={candidates} />
-                  <div className="border-card bg-background absolute inset-[28%] grid place-items-center rounded-full border-8">
-                    <Dices className="text-primary size-12" />
-                  </div>
-                </motion.div>
-              </div>
+              <CoverReel
+                candidates={candidates}
+                reelRun={reelRun}
+                spinning={spinning}
+                reduceMotion={reduceMotion ?? false}
+                cardRef={reelCardRef}
+                trackRef={reelTrackRef}
+                onComplete={() => {
+                  if (!reelRun || !spinning) return;
+                  setSelectedId(reelRun.winnerId);
+                  setSpinning(false);
+                }}
+              />
               <Button
                 type="button"
                 size="lg"
@@ -335,6 +391,248 @@ export function GamePicker({ games }: { games: CollectionGame[] }) {
       </section>
     </div>
   );
+}
+
+/** Shared icon-and-label treatment for every picker filter. */
+function FilterLabel({
+  children,
+  icon,
+  label,
+}: {
+  children?: React.ReactNode;
+  icon: LucideIcon;
+  label: string;
+}) {
+  return (
+    <span className="mb-3 flex items-center justify-between gap-3 text-sm font-bold">
+      <span className="flex items-center gap-3">
+        <FilterIcon icon={icon} />
+        {label}
+      </span>
+      {children}
+    </span>
+  );
+}
+
+/** Consistent compact icon tile used across filter rows. */
+function FilterIcon({
+  icon: Icon,
+  tone = "primary",
+}: {
+  icon: LucideIcon;
+  tone?: "danger" | "primary";
+}) {
+  return (
+    <span
+      className={`grid size-8 shrink-0 place-items-center rounded-lg ${tone === "danger" ? "bg-danger/10 text-danger" : "bg-primary/10 text-primary"}`}
+    >
+      <Icon className="size-3.5" />
+    </span>
+  );
+}
+
+/** Opens the complete eligible-game set as a responsive cover gallery. */
+function PossibleGamesDialog({
+  candidates,
+  onSelect,
+}: {
+  candidates: ReelGame[];
+  onSelect: (gameId: string) => void;
+}) {
+  const t = useTranslations();
+
+  return (
+    <Dialog.Root>
+      <Dialog.Trigger asChild>
+        <button
+          type="button"
+          className="bg-background/90 hover:border-primary/40 hover:bg-background group flex w-full max-w-sm items-center gap-3 rounded-2xl border px-3 py-2.5 text-left shadow-lg backdrop-blur-md transition sm:px-4"
+        >
+          <span className="bg-primary text-primary-foreground grid size-9 shrink-0 place-items-center rounded-xl shadow-sm">
+            <LayoutGrid className="size-4" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-sm font-bold">
+              {t("picker.possibleGames", { count: candidates.length })}
+            </span>
+            <span className="text-muted-foreground block truncate text-xs">
+              {t("picker.viewPossibleGames")}
+            </span>
+          </span>
+          <ChevronDown className="text-muted-foreground size-4 -rotate-90 transition-transform group-hover:translate-x-0.5" />
+        </button>
+      </Dialog.Trigger>
+      <Dialog.Portal>
+        <Dialog.Overlay className="edit-dialog-overlay fixed inset-0 z-90 bg-black/55 backdrop-blur-sm" />
+        <Dialog.Content className="edit-dialog-content bg-card fixed inset-x-0 bottom-0 z-91 flex max-h-[calc(100dvh-0.5rem)] flex-col overflow-hidden rounded-t-3xl border shadow-2xl focus:outline-none sm:top-1/2 sm:right-auto sm:bottom-auto sm:left-1/2 sm:max-h-[min(86vh,50rem)] sm:w-[min(calc(100vw-2rem),58rem)] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-3xl">
+          <div className="flex shrink-0 items-start justify-between gap-4 border-b p-5 sm:p-7">
+            <div className="flex min-w-0 items-center gap-4">
+              <span className="bg-primary/10 text-primary grid size-11 shrink-0 place-items-center rounded-2xl">
+                <LayoutGrid className="size-5" />
+              </span>
+              <div className="min-w-0">
+                <Dialog.Title className="font-display text-xl font-bold sm:text-2xl">
+                  {t("picker.possibleGamesTitle")}
+                </Dialog.Title>
+                <Dialog.Description className="text-muted-foreground mt-1 text-sm">
+                  {t("picker.possibleGamesDescription", {
+                    count: candidates.length,
+                  })}
+                </Dialog.Description>
+              </div>
+            </div>
+            <Dialog.Close asChild>
+              <button
+                type="button"
+                aria-label={t("common.close")}
+                className="hover:bg-muted grid size-10 shrink-0 place-items-center rounded-xl transition"
+              >
+                <X className="size-5" />
+              </button>
+            </Dialog.Close>
+          </div>
+          {candidates.length > 0 ? (
+            <div className="filter-options grid min-h-0 grid-cols-2 gap-3 overflow-y-auto overscroll-contain p-4 sm:grid-cols-3 sm:gap-4 sm:p-6 lg:grid-cols-4">
+              {candidates.map((candidate) => (
+                <Dialog.Close asChild key={candidate.gameId}>
+                  <button
+                    type="button"
+                    onClick={() => onSelect(candidate.gameId)}
+                    className="group/game hover:bg-muted focus-visible:ring-primary/30 min-w-0 rounded-2xl border p-2 text-left transition hover:-translate-y-0.5 hover:shadow-lg focus-visible:ring-4 focus-visible:outline-none sm:p-3"
+                  >
+                    <GameArtwork
+                      name={candidate.name}
+                      imageUrl={candidate.imageUrl ?? null}
+                      className="rounded-xl shadow-md transition group-hover/game:shadow-xl"
+                    />
+                    <span className="mt-3 line-clamp-2 block px-1 text-sm leading-tight font-bold">
+                      {candidate.name}
+                    </span>
+                  </button>
+                </Dialog.Close>
+              ))}
+            </div>
+          ) : (
+            <div className="grid min-h-52 place-items-center p-8 text-center">
+              <div>
+                <ListFilter className="text-muted-foreground mx-auto size-8" />
+                <p className="text-muted-foreground mt-3 text-sm">
+                  {t("picker.noFit")}
+                </p>
+              </div>
+            </div>
+          )}
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  );
+}
+
+/** Displays eligible covers and decelerates the active run beneath the marker. */
+function CoverReel({
+  candidates,
+  cardRef,
+  onComplete,
+  reduceMotion,
+  reelRun,
+  spinning,
+  trackRef,
+}: {
+  candidates: ReelGame[];
+  cardRef: React.RefObject<HTMLDivElement | null>;
+  onComplete: () => void;
+  reduceMotion: boolean;
+  reelRun: ReelRun | null;
+  spinning: boolean;
+  trackRef: React.RefObject<HTMLDivElement | null>;
+}) {
+  const idleItems = candidates.slice(0, 8);
+  const items = reelRun?.items ?? idleItems;
+  const cards = items.map((game, index) => (
+    <div
+      ref={index === 0 ? cardRef : undefined}
+      key={`${game.gameId}-${index}`}
+      className="w-28 shrink-0 sm:w-36 lg:w-40"
+    >
+      <GameArtwork
+        name={game.name}
+        imageUrl={game.imageUrl ?? null}
+        eager={index < 5}
+        className="ring-card shadow-lg ring-4"
+      />
+      <p className="mt-3 line-clamp-2 text-sm leading-tight font-bold">
+        {game.name}
+      </p>
+    </div>
+  ));
+
+  return (
+    <div className="relative mx-auto h-48 w-full max-w-3xl overflow-hidden sm:h-60">
+      <div className="from-card pointer-events-none absolute inset-y-0 left-0 z-20 w-12 bg-linear-to-r to-transparent sm:w-24" />
+      <div className="from-card pointer-events-none absolute inset-y-0 right-0 z-20 w-12 bg-linear-to-l to-transparent sm:w-24" />
+      <div className="bg-accent/10 ring-accent pointer-events-none absolute top-1/2 left-1/2 z-30 h-[calc(100%-0.75rem)] w-32 -translate-x-1/2 -translate-y-1/2 rounded-2xl border-3 border-[color:color-mix(in_srgb,var(--accent)_60%,transparent)] shadow-xl ring-4 sm:w-40 lg:w-44" />
+      {reelRun ? (
+        <motion.div
+          key={reelRun.id}
+          ref={trackRef}
+          className="absolute top-1/2 left-1/2 flex -translate-y-1/2 gap-3 sm:gap-4"
+          initial={{ x: reelRun.startX }}
+          animate={{ x: reelRun.targetX }}
+          transition={{
+            duration: reduceMotion ? 0.01 : 2.4,
+            ease: [0.12, 0.7, 0.1, 1],
+          }}
+          onAnimationComplete={onComplete}
+          aria-live="polite"
+          aria-busy={spinning}
+        >
+          {cards}
+        </motion.div>
+      ) : (
+        <div
+          ref={trackRef}
+          className="absolute top-1/2 left-1/2 flex -translate-x-14 -translate-y-1/2 gap-3 sm:-translate-x-18 sm:gap-4 lg:-translate-x-20"
+        >
+          {cards}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Creates a bounded reel with the selected game placed near its far end. */
+function buildReelSequence(
+  candidates: ReelGame[],
+  winnerId: string,
+): { items: ReelGame[]; winnerIndex: number } {
+  const itemCount = Math.max(20, Math.min(32, candidates.length * 4));
+  const winnerIndex = itemCount - 3;
+  const start = Math.floor(Math.random() * candidates.length);
+  const winner = candidates.find((game) => game.gameId === winnerId);
+  const items = Array.from(
+    { length: itemCount },
+    (_, index) => candidates[(start + index) % candidates.length]!,
+  );
+  if (winner) items[winnerIndex] = winner;
+  return { items, winnerIndex };
+}
+
+/** Reads the rendered responsive card step before starting an animation. */
+function getReelMetrics(
+  card: HTMLDivElement | null,
+  track: HTMLDivElement | null,
+): { cardWidth: number; gap: number } {
+  const wide = window.matchMedia("(min-width: 1024px)").matches;
+  const medium = window.matchMedia("(min-width: 640px)").matches;
+  return {
+    cardWidth:
+      card?.getBoundingClientRect().width ?? (wide ? 160 : medium ? 144 : 112),
+    gap: track
+      ? Number.parseFloat(window.getComputedStyle(track).columnGap)
+      : medium
+        ? 16
+        : 12,
+  };
 }
 
 /** Builds localized picker facets with occurrence counts for quick scanning. */
@@ -371,27 +669,4 @@ function pickerOptions(
   return [...options]
     .map(([value, option]) => ({ value, ...option }))
     .sort((left, right) => left.label.localeCompare(right.label, locale));
-}
-
-/** Places a readable sample of eligible titles directly inside the wheel. */
-function WheelLabels({ games }: { games: { gameId: string; name: string }[] }) {
-  const visible = games.slice(0, 8);
-  return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-full">
-      {visible.map((game, index) => {
-        const angle = (index / Math.max(visible.length, 1)) * 360;
-        return (
-          <span
-            key={game.gameId}
-            className="text-primary-foreground absolute top-1/2 left-1/2 line-clamp-2 w-[27cqw] text-center text-[clamp(0.5rem,3cqw,0.7rem)] leading-tight font-black drop-shadow-sm"
-            style={{
-              transform: `translate(-50%, -50%) rotate(${angle}deg) translateY(-36cqw) rotate(${-angle}deg)`,
-            }}
-          >
-            {game.name}
-          </span>
-        );
-      })}
-    </div>
-  );
 }
