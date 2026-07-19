@@ -2,10 +2,18 @@
 
 import { Gift, Info } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useId, useState } from "react";
+import { type ReactNode, useId, useState } from "react";
 
 import { Tooltip } from "@/components/atoms/Tooltip/Tooltip";
 import { cn } from "@/utils/cn";
+
+type GiftedPriceFieldProps = {
+  currency: string;
+  className?: string;
+  companionField?: React.ReactNode;
+  defaultGifted?: boolean;
+  defaultValue?: number;
+};
 
 /** Coupled gifted and price controls that always submit a consistent value pair. */
 export function GiftedPriceField({
@@ -14,13 +22,7 @@ export function GiftedPriceField({
   companionField,
   defaultGifted = false,
   defaultValue = 0,
-}: {
-  currency: string;
-  className?: string;
-  companionField?: React.ReactNode;
-  defaultGifted?: boolean;
-  defaultValue?: number;
-}) {
+}: GiftedPriceFieldProps): ReactNode {
   const [gifted, setGifted] = useState(defaultGifted);
   const giftedId = useId();
   const t = useTranslations();
@@ -28,7 +30,9 @@ export function GiftedPriceField({
   return (
     <fieldset className={cn("space-y-4", className)}>
       <legend className="sr-only">{t("game.giftedLong")}</legend>
-      <div className={cn("grid gap-4", companionField && "grid-cols-2")}>
+      <div
+        className={cn("grid gap-4", companionField ? "grid-cols-2" : undefined)}
+      >
         <label className="text-sm font-bold">
           <span className="mb-2 block">{t("edit.money", { currency })}</span>
           {gifted ? (

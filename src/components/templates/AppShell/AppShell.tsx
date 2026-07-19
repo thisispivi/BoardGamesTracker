@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import { Logo } from "@/components/atoms/Logo/Logo";
 import { LocaleSelect } from "@/components/molecules/LocaleSelect/LocaleSelect";
 import { SignOutButton } from "@/components/molecules/SignOutButton/SignOutButton";
@@ -15,7 +17,7 @@ type AppShellProps = {
 };
 
 /** Responsive navigation shell for signed-in screens. */
-export function AppShell({ children, user }: AppShellProps) {
+export function AppShell({ children, user }: AppShellProps): ReactNode {
   return (
     <div className="bg-background min-h-screen lg:grid lg:grid-cols-[260px_minmax(0,1fr)]">
       <aside className="bg-card sticky top-0 hidden h-screen flex-col border-r px-5 py-6 lg:flex">

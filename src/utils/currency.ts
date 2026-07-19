@@ -13,6 +13,7 @@ export const currencies = [
   "USD",
 ] as const;
 
+/** Supported ISO 4217 currency code. */
 export type Currency = (typeof currencies)[number];
 
 const currencySymbols: Record<Currency, string> = {

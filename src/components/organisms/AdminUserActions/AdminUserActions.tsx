@@ -2,6 +2,7 @@
 
 import { ShieldCheck, Trash2, UserRoundCheck, UserRoundX } from "lucide-react";
 import { useTranslations } from "next-intl";
+import type { ReactNode } from "react";
 
 import { ConfirmDialog } from "@/components/molecules/ConfirmDialog/ConfirmDialog";
 import {
@@ -12,14 +13,16 @@ import {
 
 type ManagedUser = { id: string; name: string; role: string; banned: boolean };
 
+type AdminUserActionsProps = {
+  user: ManagedUser;
+  isSelf: boolean;
+};
+
 /** Guarded administrator controls for one user record. */
 export function AdminUserActions({
   user,
   isSelf,
-}: {
-  user: ManagedUser;
-  isSelf: boolean;
-}) {
+}: AdminUserActionsProps): ReactNode {
   const t = useTranslations();
   if (isSelf) {
     return (

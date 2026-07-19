@@ -3,7 +3,7 @@
 import { LoaderCircle, Trash2, TriangleAlert, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useActionState, useEffect, useState } from "react";
+import { type ReactNode, useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/atoms/Button/Button";
@@ -14,7 +14,7 @@ import { CLEAR_COLLECTION_CONFIRMATION } from "@/utils/collectionConfirmation";
 const initialState: CollectionActionState = { success: false, message: "" };
 
 /** Destructive settings card for clearing the signed-in user's collection. */
-export function ClearCollectionCard() {
+export function ClearCollectionCard(): ReactNode {
   const t = useTranslations();
   const [open, setOpen] = useState(false);
   const [confirmation, setConfirmation] = useState("");

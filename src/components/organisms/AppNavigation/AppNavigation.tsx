@@ -15,23 +15,25 @@ import {
 import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 
 import { AppSpinner } from "@/components/atoms/AppSpinner/AppSpinner";
 import { Logo } from "@/components/atoms/Logo/Logo";
 import { SignOutButton } from "@/components/molecules/SignOutButton/SignOutButton";
 import { cn } from "@/utils/cn";
 
+type AppNavigationProps = {
+  isAdmin: boolean;
+  mobile?: boolean;
+  user?: { name: string; email: string };
+};
+
 /** Active navigation, mobile drawer, and session sign-out. */
 export function AppNavigation({
   isAdmin,
   mobile = false,
   user,
-}: {
-  isAdmin: boolean;
-  mobile?: boolean;
-  user?: { name: string; email: string };
-}) {
+}: AppNavigationProps): ReactNode {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const t = useTranslations();
@@ -134,7 +136,7 @@ export function AppNavigation({
 }
 
 /** Reserves a stable slot and appears only when a slow link is pending. */
-function NavigationPendingIndicator() {
+function NavigationPendingIndicator(): ReactNode {
   const { pending } = useLinkStatus();
   const t = useTranslations();
   return (

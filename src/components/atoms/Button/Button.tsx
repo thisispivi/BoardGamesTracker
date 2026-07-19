@@ -1,4 +1,5 @@
 import { cva, type VariantProps } from "class-variance-authority";
+import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 import { cn } from "@/utils/cn";
 
@@ -24,14 +25,16 @@ const buttonVariants = cva(
   },
 );
 
+type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
+  VariantProps<typeof buttonVariants>;
+
 /** Reusable button primitive with product variants. */
 export function Button({
   className,
   variant,
   size,
   ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement> &
-  VariantProps<typeof buttonVariants>) {
+}: ButtonProps): ReactNode {
   return (
     <button
       className={cn(buttonVariants({ variant, size }), className)}

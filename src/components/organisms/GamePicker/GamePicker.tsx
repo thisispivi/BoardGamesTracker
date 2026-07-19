@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useLocale, useTranslations } from "next-intl";
-import { useMemo, useRef, useState } from "react";
+import { type ReactNode, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/atoms/Button/Button";
 import { GameArtwork } from "@/components/atoms/GameArtwork/GameArtwork";
@@ -45,8 +45,10 @@ type ReelRun = {
   winnerId: string;
 };
 
+type GamePickerProps = { games: CollectionGame[] };
+
 /** Animated filter-and-reel experience for choosing a collection game. */
-export function GamePicker({ games }: { games: CollectionGame[] }) {
+export function GamePicker({ games }: GamePickerProps): ReactNode {
   const locale = useLocale();
   const t = useTranslations();
   const formatDuration = useDurationFormatter();
@@ -390,16 +392,14 @@ export function GamePicker({ games }: { games: CollectionGame[] }) {
   );
 }
 
-/** Shared icon-and-label treatment for every picker filter. */
-function FilterLabel({
-  children,
-  icon,
-  label,
-}: {
+type FilterLabelProps = {
   children?: React.ReactNode;
   icon: LucideIcon;
   label: string;
-}) {
+};
+
+/** Shared icon-and-label treatment for every picker filter. */
+function FilterLabel({ children, icon, label }: FilterLabelProps): ReactNode {
   return (
     <span className="mb-3 flex items-center justify-between gap-3 text-sm font-bold">
       <span className="flex items-center gap-3">
@@ -411,14 +411,16 @@ function FilterLabel({
   );
 }
 
+type FilterIconProps = {
+  icon: LucideIcon;
+  tone?: "danger" | "primary";
+};
+
 /** Consistent compact icon tile used across filter rows. */
 function FilterIcon({
   icon: Icon,
   tone = "primary",
-}: {
-  icon: LucideIcon;
-  tone?: "danger" | "primary";
-}) {
+}: FilterIconProps): ReactNode {
   return (
     <span
       className={`grid size-8 shrink-0 place-items-center rounded-lg ${tone === "danger" ? "bg-danger/10 text-danger" : "bg-primary/10 text-primary"}`}
@@ -428,14 +430,16 @@ function FilterIcon({
   );
 }
 
+type PossibleGamesDialogProps = {
+  candidates: ReelGame[];
+  onSelect: (gameId: string) => void;
+};
+
 /** Opens the complete eligible-game set as a responsive cover gallery. */
 function PossibleGamesDialog({
   candidates,
   onSelect,
-}: {
-  candidates: ReelGame[];
-  onSelect: (gameId: string) => void;
-}) {
+}: PossibleGamesDialogProps): ReactNode {
   const t = useTranslations();
 
   return (
@@ -525,6 +529,16 @@ function PossibleGamesDialog({
   );
 }
 
+type CoverReelProps = {
+  candidates: ReelGame[];
+  cardRef: React.RefObject<HTMLDivElement | null>;
+  onComplete: () => void;
+  reduceMotion: boolean;
+  reelRun: ReelRun | null;
+  spinning: boolean;
+  trackRef: React.RefObject<HTMLDivElement | null>;
+};
+
 /** Displays eligible covers and decelerates the active run beneath the marker. */
 function CoverReel({
   candidates,
@@ -534,15 +548,7 @@ function CoverReel({
   reelRun,
   spinning,
   trackRef,
-}: {
-  candidates: ReelGame[];
-  cardRef: React.RefObject<HTMLDivElement | null>;
-  onComplete: () => void;
-  reduceMotion: boolean;
-  reelRun: ReelRun | null;
-  spinning: boolean;
-  trackRef: React.RefObject<HTMLDivElement | null>;
-}) {
+}: CoverReelProps): ReactNode {
   const idleItems = candidates.slice(0, 8);
   const items = reelRun?.items ?? idleItems;
   const cards = items.map((game, index) => (

@@ -1,15 +1,19 @@
+import type { ReactNode } from "react";
+
+type PageHeaderProps = {
+  eyebrow: string;
+  title: string;
+  description: string;
+  action?: React.ReactNode;
+};
+
 /** Consistent title, eyebrow, description, and action region. */
 export function PageHeader({
   eyebrow,
   title,
   description,
   action,
-}: {
-  eyebrow: string;
-  title: string;
-  description: string;
-  action?: React.ReactNode;
-}) {
+}: PageHeaderProps): ReactNode {
   return (
     <header className="mb-8 flex flex-col gap-5 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
       <div className="max-w-3xl">

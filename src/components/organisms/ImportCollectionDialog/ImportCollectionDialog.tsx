@@ -3,7 +3,7 @@
 import { FileUp, LoaderCircle, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useActionState, useEffect, useState } from "react";
+import { type ReactNode, useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/atoms/Button/Button";
@@ -13,7 +13,7 @@ import { importBggCsvAction } from "@/server/actions/collection";
 const initialState: CollectionActionState = { success: false, message: "" };
 
 /** Dialog for securely importing an official BoardGameGeek CSV export. */
-export function ImportCollectionDialog() {
+export function ImportCollectionDialog(): ReactNode {
   const t = useTranslations();
   const [open, setOpen] = useState(false);
   const [state, action, importing] = useActionState(

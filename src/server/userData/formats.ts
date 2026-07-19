@@ -334,7 +334,7 @@ function flatToGame(row: FlatGame): PortableGame {
     bggId: requiredNumber(row.bggId),
     name: unprotectCell(row.name),
     description: unprotectCell(row.description),
-    imageUrl: row.imageUrl || null,
+    imageUrl: row.imageUrl === "" ? null : row.imageUrl,
     yearPublished: optionalNumber(row.yearPublished),
     minPlayers: requiredNumber(row.minPlayers),
     maxPlayers: requiredNumber(row.maxPlayers),

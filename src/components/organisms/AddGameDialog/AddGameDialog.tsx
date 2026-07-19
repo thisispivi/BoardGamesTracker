@@ -5,7 +5,7 @@ import { ArrowLeft, ExternalLink, Plus, Search, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useActionState, useEffect, useState } from "react";
+import { type ReactNode, useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { AppSpinner } from "@/components/atoms/AppSpinner/AppSpinner";
@@ -16,14 +16,16 @@ import { addGameAction } from "@/server/actions/collection";
 
 const initialState: CollectionActionState = { success: false, message: "" };
 
+type AddGameDialogProps = {
+  currency: string;
+  destination?: "collection" | "wishlist";
+};
+
 /** Debounced search dialog for adding a title or pasted BGG game URL. */
 export function AddGameDialog({
   currency,
   destination = "collection",
-}: {
-  currency: string;
-  destination?: "collection" | "wishlist";
-}) {
+}: AddGameDialogProps): ReactNode {
   const t = useTranslations();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -239,6 +241,15 @@ export function AddGameDialog({
   );
 }
 
+type SelectedGameFormProps = {
+  action: (formData: FormData) => void;
+  adding: boolean;
+  currency: string;
+  destination: "collection" | "wishlist";
+  onChooseAnother: () => void;
+  selected: GameDiscoveryResult;
+};
+
 /** Editable local details after a trusted discovery result has been selected. */
 function SelectedGameForm({
   action,
@@ -247,14 +258,7 @@ function SelectedGameForm({
   destination,
   onChooseAnother,
   selected,
-}: {
-  action: (formData: FormData) => void;
-  adding: boolean;
-  currency: string;
-  destination: "collection" | "wishlist";
-  onChooseAnother: () => void;
-  selected: GameDiscoveryResult;
-}) {
+}: SelectedGameFormProps): ReactNode {
   const t = useTranslations();
   return (
     <form action={action} className="space-y-5">
@@ -426,14 +430,13 @@ function SelectedGameForm({
   );
 }
 
-/** Consistent label wrapper for local game metadata inputs. */
-function Field({
-  children,
-  label,
-}: {
+type FieldProps = {
   children: React.ReactNode;
   label: string;
-}) {
+};
+
+/** Consistent label wrapper for local game metadata inputs. */
+function Field({ children, label }: FieldProps): ReactNode {
   return (
     <label className="block text-sm font-bold">
       <span className="mb-2 block">{label}</span>

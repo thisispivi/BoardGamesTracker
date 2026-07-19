@@ -1,6 +1,15 @@
 import Image from "next/image";
+import type { ReactNode } from "react";
 
 import { cn } from "@/utils/cn";
+
+type GameArtworkProps = {
+  eager?: boolean;
+  name: string;
+  imageUrl: string | null;
+  className?: string;
+  imageClassName?: string;
+};
 
 /** Responsive game-box artwork with a polished text fallback. */
 export function GameArtwork({
@@ -9,13 +18,7 @@ export function GameArtwork({
   imageUrl,
   className,
   imageClassName,
-}: {
-  eager?: boolean;
-  name: string;
-  imageUrl: string | null;
-  className?: string;
-  imageClassName?: string;
-}) {
+}: GameArtworkProps): ReactNode {
   if (imageUrl) {
     return (
       <div

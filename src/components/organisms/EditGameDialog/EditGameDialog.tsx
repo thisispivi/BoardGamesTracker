@@ -3,7 +3,7 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { LoaderCircle, Pencil, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useActionState, useEffect, useState } from "react";
+import { type ReactNode, useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/atoms/Button/Button";
@@ -13,14 +13,16 @@ import { updateCollectionItemAction } from "@/server/actions/collection";
 
 const initialState: CollectionActionState = { success: false, message: "" };
 
+type EditGameDialogProps = {
+  currency: string;
+  game: CollectionGame;
+};
+
 /** Modal editor for personal collection metadata and purchase spend. */
 export function EditGameDialog({
   currency,
   game,
-}: {
-  currency: string;
-  game: CollectionGame;
-}) {
+}: EditGameDialogProps): ReactNode {
   const [open, setOpen] = useState(false);
   const t = useTranslations();
   const [state, action, pending] = useActionState(

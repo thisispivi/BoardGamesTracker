@@ -2,9 +2,20 @@
 
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { Check, ChevronDown } from "lucide-react";
+import type { ReactNode } from "react";
 
 import type { SelectOption } from "@/core";
 import { cn } from "@/utils/cn";
+
+type SelectProps = {
+  ariaLabel: string;
+  className?: string;
+  defaultValue?: string;
+  name?: string;
+  onValueChange?: (value: string) => void;
+  options: SelectOption[];
+  value?: string;
+};
 
 /** Animated, theme-aware select control backed by Radix primitives. */
 export function Select({
@@ -15,15 +26,7 @@ export function Select({
   onValueChange,
   options,
   value,
-}: {
-  ariaLabel: string;
-  className?: string;
-  defaultValue?: string;
-  name?: string;
-  onValueChange?: (value: string) => void;
-  options: SelectOption[];
-  value?: string;
-}) {
+}: SelectProps): ReactNode {
   return (
     <SelectPrimitive.Root
       {...(defaultValue === undefined ? {} : { defaultValue })}

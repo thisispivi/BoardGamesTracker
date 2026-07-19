@@ -2,20 +2,22 @@
 
 import { ThemeProvider } from "next-themes";
 import { useTheme } from "next-themes";
-import { useEffect } from "react";
+import { type ReactNode, useEffect } from "react";
 import { Toaster } from "sonner";
 
 import type { AppTheme } from "@/core";
 import { isAppTheme, persistThemeCookie } from "@/utils/theme";
 
+type ProvidersProps = {
+  children: React.ReactNode;
+  initialTheme?: AppTheme | undefined;
+};
+
 /** Client-side application providers. */
 export function Providers({
   children,
   initialTheme,
-}: {
-  children: React.ReactNode;
-  initialTheme?: AppTheme | undefined;
-}) {
+}: ProvidersProps): ReactNode {
   return (
     <ThemeProvider
       attribute="class"
@@ -31,7 +33,7 @@ export function Providers({
 }
 
 /** Migrates the resolved next-themes value into the SSR-readable cookie. */
-function ThemeCookieSync() {
+function ThemeCookieSync(): ReactNode {
   const { resolvedTheme } = useTheme();
 
   useEffect(() => {

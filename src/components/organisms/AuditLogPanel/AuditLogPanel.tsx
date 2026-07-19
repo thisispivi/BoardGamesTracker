@@ -2,7 +2,7 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
-import { useState, useTransition } from "react";
+import { type ReactNode, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { AppSpinner } from "@/components/atoms/AppSpinner/AppSpinner";
@@ -10,8 +10,10 @@ import { Button } from "@/components/atoms/Button/Button";
 import type { AuditLogPage } from "@/core";
 import { getAuditLogPageAction } from "@/server/actions/admin";
 
+type AuditLogPanelProps = { initialPage: AuditLogPage };
+
 /** Paginated audit log that updates only its own scrollable result region. */
-export function AuditLogPanel({ initialPage }: { initialPage: AuditLogPage }) {
+export function AuditLogPanel({ initialPage }: AuditLogPanelProps): ReactNode {
   const format = useFormatter();
   const t = useTranslations();
   const [result, setResult] = useState(initialPage);

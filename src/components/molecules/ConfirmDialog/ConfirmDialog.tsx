@@ -2,8 +2,19 @@
 
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import { TriangleAlert } from "lucide-react";
+import type { ReactNode } from "react";
 
 import { Button } from "@/components/atoms/Button/Button";
+
+type ConfirmDialogProps = {
+  action: (formData: FormData) => Promise<void>;
+  cancelLabel: string;
+  confirmLabel: string;
+  description: string;
+  fields: Record<string, string>;
+  title: string;
+  trigger: React.ReactNode;
+};
 
 /** Animated in-app confirmation dialog for a server-side form action. */
 export function ConfirmDialog({
@@ -14,15 +25,7 @@ export function ConfirmDialog({
   fields,
   title,
   trigger,
-}: {
-  action: (formData: FormData) => Promise<void>;
-  cancelLabel: string;
-  confirmLabel: string;
-  description: string;
-  fields: Record<string, string>;
-  title: string;
-  trigger: React.ReactNode;
-}) {
+}: ConfirmDialogProps): ReactNode {
   return (
     <AlertDialog.Root>
       <AlertDialog.Trigger asChild>{trigger}</AlertDialog.Trigger>

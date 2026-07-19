@@ -2,22 +2,24 @@
 
 import { Eye, EyeOff, LoaderCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/atoms/Button/Button";
 import { authClient } from "@/utils/authClient";
+
+type AuthFormProps = {
+  initialMode: "login" | "signup";
+  allowSignUp: boolean;
+  bootstrapRequired: boolean;
+};
 
 /** Email/password login and registration form. */
 export function AuthForm({
   initialMode,
   allowSignUp,
   bootstrapRequired,
-}: {
-  initialMode: "login" | "signup";
-  allowSignUp: boolean;
-  bootstrapRequired: boolean;
-}) {
+}: AuthFormProps): ReactNode {
   const t = useTranslations("auth");
   const [mode, setMode] = useState(initialMode);
   const [showPassword, setShowPassword] = useState(false);

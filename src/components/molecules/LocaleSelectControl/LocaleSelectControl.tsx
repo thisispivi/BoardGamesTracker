@@ -4,7 +4,7 @@ import { Languages } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { Locale } from "next-intl";
 import { useTranslations } from "next-intl";
-import { useState, useTransition } from "react";
+import { type ReactNode, useState, useTransition } from "react";
 import { CircleFlag } from "react-circle-flags";
 
 import { Select } from "@/components/atoms/Select/Select";
@@ -15,12 +15,14 @@ const localeOptions = [
   { locale: "it" as const, country: "it", label: "Italiano" },
 ];
 
+type LocaleSelectControlProps = {
+  initialLocale: Locale;
+};
+
 /** Immediately persists language changes and displays round inline flags. */
 export function LocaleSelectControl({
   initialLocale,
-}: {
-  initialLocale: Locale;
-}) {
+}: LocaleSelectControlProps): ReactNode {
   const [locale, setLocale] = useState(initialLocale);
   const [pending, startTransition] = useTransition();
   const router = useRouter();

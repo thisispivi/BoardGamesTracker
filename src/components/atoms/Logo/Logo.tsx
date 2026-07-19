@@ -1,15 +1,15 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 import { cn } from "@/utils/cn";
 
-/** Board Games Tracker wordmark and compact geometric mark. */
-export function Logo({
-  compact = false,
-  className,
-}: {
+type LogoProps = {
   compact?: boolean;
   className?: string;
-}) {
+};
+
+/** Board Games Tracker wordmark and compact geometric mark. */
+export function Logo({ compact = false, className }: LogoProps): ReactNode {
   return (
     <Link
       className={cn(

@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useActionState, useEffect, useState } from "react";
+import { type ReactNode, useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/atoms/Button/Button";
@@ -25,14 +25,13 @@ import {
 
 const initialState: CollectionActionState = { success: false, message: "" };
 
-/** Purchase dialog that promotes one wishlist item into the owned collection. */
-function PurchaseDialog({
-  currency,
-  game,
-}: {
+type PurchaseDialogProps = {
   currency: string;
   game: CollectionGame;
-}) {
+};
+
+/** Purchase dialog that promotes one wishlist item into the owned collection. */
+function PurchaseDialog({ currency, game }: PurchaseDialogProps): ReactNode {
   const [open, setOpen] = useState(false);
   const [state, action, pending] = useActionState(
     moveWishlistToCollectionAction,
@@ -110,14 +109,13 @@ function PurchaseDialog({
   );
 }
 
-/** Square wishlist card with purchase, BGG, and removal actions. */
-export function WishlistCard({
-  currency,
-  game,
-}: {
+type WishlistCardProps = {
   currency: string;
   game: CollectionGame;
-}) {
+};
+
+/** Square wishlist card with purchase, BGG, and removal actions. */
+export function WishlistCard({ currency, game }: WishlistCardProps): ReactNode {
   const t = useTranslations();
   const tags = [...new Set([...game.categories, ...game.mechanics])].slice(
     0,

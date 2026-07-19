@@ -4,7 +4,10 @@ import taxonomy from "@/i18n/taxonomy/it.json";
 const bggCategoryLabels: Readonly<Record<string, string>> = taxonomy.category;
 const bggMechanicLabels: Readonly<Record<string, string>> = taxonomy.mechanic;
 
+/** Canonical BoardGameGeek category names. */
 export const bggCategories = Object.keys(bggCategoryLabels);
+
+/** Canonical BoardGameGeek mechanic names. */
 export const bggMechanics = Object.keys(bggMechanicLabels);
 
 const expansionCategories = new Set([

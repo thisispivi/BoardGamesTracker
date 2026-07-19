@@ -1,15 +1,15 @@
 "use client";
 
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
+import type { ReactNode } from "react";
 
-/** Accessible themed tooltip with consistent timing, spacing, and animation. */
-export function Tooltip({
-  children,
-  content,
-}: {
+type TooltipProps = {
   children: React.ReactElement;
   content: React.ReactNode;
-}) {
+};
+
+/** Accessible themed tooltip with consistent timing, spacing, and animation. */
+export function Tooltip({ children, content }: TooltipProps): ReactNode {
   return (
     <TooltipPrimitive.Provider delayDuration={250} skipDelayDuration={100}>
       <TooltipPrimitive.Root>

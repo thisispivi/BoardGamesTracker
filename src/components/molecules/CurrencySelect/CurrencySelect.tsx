@@ -2,19 +2,21 @@
 
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useState, useTransition } from "react";
+import { type ReactNode, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { Select } from "@/components/atoms/Select/Select";
 import { setCurrencyAction } from "@/server/actions/preferences";
 import { currencies, type Currency, getCurrencySymbol } from "@/utils/currency";
 
+type CurrencySelectProps = {
+  initialCurrency: string;
+};
+
 /** Immediately saves a supported ISO currency preference. */
 export function CurrencySelect({
   initialCurrency,
-}: {
-  initialCurrency: string;
-}) {
+}: CurrencySelectProps): ReactNode {
   const [currency, setCurrency] = useState(initialCurrency);
   const [pending, startTransition] = useTransition();
   const router = useRouter();

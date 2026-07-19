@@ -1,6 +1,7 @@
 "use client";
 
 import { useFormatter, useLocale, useTranslations } from "next-intl";
+import type { ReactNode } from "react";
 import {
   Bar,
   BarChart,
@@ -41,7 +42,7 @@ export function StatsCharts({
   currency,
   mechanics,
   mostExpensive,
-}: StatsChartsProps) {
+}: StatsChartsProps): ReactNode {
   const format = useFormatter();
   const locale = useLocale();
   const t = useTranslations();
@@ -198,14 +199,13 @@ export function StatsCharts({
 const axisTick = { fill: "var(--muted-foreground)", fontSize: 11 };
 const tooltipCursor = { fill: "var(--muted)", opacity: 0.5 };
 
-/** Consistent chart frame with a softly tinted plotting area. */
-function ChartCard({
-  children,
-  title,
-}: {
+type ChartCardProps = {
   children: React.ReactNode;
   title: string;
-}) {
+};
+
+/** Consistent chart frame with a softly tinted plotting area. */
+function ChartCard({ children, title }: ChartCardProps): ReactNode {
   return (
     <section className="bg-card shadow-soft overflow-hidden rounded-3xl border p-5 sm:p-7">
       <h2 className="font-display text-xl font-bold">{title}</h2>
@@ -216,16 +216,14 @@ function ChartCard({
   );
 }
 
-/** Ranked horizontal bars suited to long taxonomy labels. */
-function RankingCard({
-  title,
-  data,
-  gradientId,
-}: {
+type RankingCardProps = {
   title: string;
   data: CountDatum[];
   gradientId: string;
-}) {
+};
+
+/** Ranked horizontal bars suited to long taxonomy labels. */
+function RankingCard({ title, data, gradientId }: RankingCardProps): ReactNode {
   return (
     <ChartCard title={title}>
       {data.length ? (
@@ -281,18 +279,20 @@ function RankingCard({
   );
 }
 
+type ChartTooltipProps = {
+  active?: boolean;
+  label?: number | string;
+  payload?: readonly TooltipEntry[];
+  valueFormatter?: (value: number | string) => string;
+};
+
 /** Theme-aware tooltip shared by bars and the donut chart. */
 function ChartTooltip({
   active,
   label,
   payload,
   valueFormatter = String,
-}: {
-  active?: boolean;
-  label?: number | string;
-  payload?: readonly TooltipEntry[];
-  valueFormatter?: (value: number | string) => string;
-}) {
+}: ChartTooltipProps): ReactNode {
   const entry = payload?.[0];
   if (!active || entry?.value === undefined) return null;
   const name = entry.payload?.name ?? label;
@@ -318,7 +318,7 @@ function ChartTooltip({
 }
 
 /** Quiet grid lines that respect both application themes. */
-function ChartGrid() {
+function ChartGrid(): ReactNode {
   return (
     <CartesianGrid
       horizontal={false}
@@ -335,7 +335,7 @@ function truncate(value: string, maximum: number): string {
 }
 
 /** Localized empty state for chart panels without enough source data. */
-function EmptyChart() {
+function EmptyChart(): ReactNode {
   const t = useTranslations();
   return (
     <div className="text-muted-foreground grid h-full place-items-center text-sm">

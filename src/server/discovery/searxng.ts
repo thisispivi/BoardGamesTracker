@@ -119,7 +119,8 @@ export async function discoverBoardGameImages(
 export async function searchBoardGames(
   query: string,
 ): Promise<GameDiscoveryResult[]> {
-  const normalizedQuery = normalizeSearchText(query) || query.trim();
+  const normalized = normalizeSearchText(query);
+  const normalizedQuery = normalized === "" ? query.trim() : normalized;
   const [webResults, imageResults] = await Promise.all([
     requestResults(normalizedQuery),
     requestResults(normalizedQuery, "images").catch(() => []),

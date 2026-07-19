@@ -3,7 +3,7 @@
 import Fuse from "fuse.js";
 import { BookOpen, Heart, RotateCcw, Search } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { type ReactNode, useMemo, useState } from "react";
 
 import { MultiSelect } from "@/components/molecules/MultiSelect/MultiSelect";
 import { GameCard } from "@/components/organisms/GameCard/GameCard";
@@ -108,14 +108,16 @@ function facetOptions(
     .sort((left, right) => left.label.localeCompare(right.label, locale));
 }
 
+type CollectionBrowserProps = {
+  currency: string;
+  games: CollectionGame[];
+};
+
 /** Fuzzy collection search with base-game and expansion grouping. */
 export function CollectionBrowser({
   currency,
   games,
-}: {
-  currency: string;
-  games: CollectionGame[];
-}) {
+}: CollectionBrowserProps): ReactNode {
   const locale = useLocale();
   const t = useTranslations();
   const [query, setQuery] = useState("");

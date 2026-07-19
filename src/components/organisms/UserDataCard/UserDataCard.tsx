@@ -3,7 +3,7 @@
 import { Download, FileArchive, LoaderCircle, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import { toast } from "sonner";
 
 import { Button, buttonVariants } from "@/components/atoms/Button/Button";
@@ -13,7 +13,7 @@ import { cn } from "@/utils/cn";
 const formats = ["json", "csv", "xlsx", "sql"] as const;
 
 /** Export and restore controls for the current user's portable app data. */
-export function UserDataCard() {
+export function UserDataCard(): ReactNode {
   const [importing, setImporting] = useState(false);
   const router = useRouter();
   const t = useTranslations();

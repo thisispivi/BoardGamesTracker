@@ -9,6 +9,7 @@ import {
   Users,
 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
+import type { ReactNode } from "react";
 
 import { GameArtwork } from "@/components/atoms/GameArtwork/GameArtwork";
 import { ConfirmDialog } from "@/components/molecules/ConfirmDialog/ConfirmDialog";
@@ -21,8 +22,10 @@ import {
 } from "@/server/actions/collection";
 import { isExpansionCategory } from "@/utils/gameTaxonomy";
 
+type FavoriteControlProps = { game: CollectionGame };
+
 /** Favorite toggle shared by full collection cards. */
-function FavoriteControl({ game }: { game: CollectionGame }) {
+function FavoriteControl({ game }: FavoriteControlProps): ReactNode {
   const t = useTranslations();
   return (
     <form action={toggleFavoriteAction}>
@@ -41,8 +44,10 @@ function FavoriteControl({ game }: { game: CollectionGame }) {
   );
 }
 
+type RemoveControlProps = { game: CollectionGame };
+
 /** In-app removal confirmation shared by collection card variants. */
-function RemoveControl({ game }: { game: CollectionGame }) {
+function RemoveControl({ game }: RemoveControlProps): ReactNode {
   const t = useTranslations();
   return (
     <ConfirmDialog
@@ -65,16 +70,18 @@ function RemoveControl({ game }: { game: CollectionGame }) {
   );
 }
 
+type ArtworkLinkProps = {
+  eager?: boolean;
+  game: CollectionGame;
+  compact?: boolean;
+};
+
 /** Square artwork with a blurred, keyboard-accessible BGG hover action. */
 function ArtworkLink({
   eager = false,
   game,
   compact = false,
-}: {
-  eager?: boolean;
-  game: CollectionGame;
-  compact?: boolean;
-}) {
+}: ArtworkLinkProps): ReactNode {
   const t = useTranslations();
   return (
     <div className="group/art relative">
@@ -107,8 +114,10 @@ function ArtworkLink({
   );
 }
 
+type TaxonomyPillsProps = { game: CollectionGame };
+
 /** Shows a concise mix of scraped BGG categories and mechanics. */
-function TaxonomyPills({ game }: { game: CollectionGame }) {
+function TaxonomyPills({ game }: TaxonomyPillsProps): ReactNode {
   const categories = game.categories
     .filter((value) => !isExpansionCategory(value))
     .slice(0, 2)
@@ -147,6 +156,14 @@ function TaxonomyPills({ game }: { game: CollectionGame }) {
   );
 }
 
+type GameCardProps = {
+  compact?: boolean;
+  currency: string;
+  eager?: boolean;
+  expansions?: CollectionGame[];
+  game: CollectionGame;
+};
+
 /** Interactive board-game card with embedded, scrollable expansions. */
 export function GameCard({
   compact = false,
@@ -154,13 +171,7 @@ export function GameCard({
   eager = false,
   expansions = [],
   game,
-}: {
-  compact?: boolean;
-  currency: string;
-  eager?: boolean;
-  expansions?: CollectionGame[];
-  game: CollectionGame;
-}) {
+}: GameCardProps): ReactNode {
   const formatDuration = useDurationFormatter();
   const format = useFormatter();
   const t = useTranslations();
@@ -254,14 +265,13 @@ export function GameCard({
   );
 }
 
-/** Renders a recorded price or the gifted label without implying a zero price. */
-function CollectionCost({
-  currency,
-  game,
-}: {
+type CollectionCostProps = {
   currency: string;
   game: CollectionGame;
-}) {
+};
+
+/** Renders a recorded price or the gifted label without implying a zero price. */
+function CollectionCost({ currency, game }: CollectionCostProps): ReactNode {
   const format = useFormatter();
   const t = useTranslations();
   if (!game.gifted && game.moneySpent <= 0) return null;

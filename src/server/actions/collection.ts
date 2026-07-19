@@ -58,7 +58,7 @@ async function upsertGame(
   const values = {
     bggId: selection.bggId,
     name: metadata?.name ?? selection.name,
-    description: metadata?.description || details.description,
+    description: metadata?.description ?? details.description,
     imageUrl: sourceUrl,
     thumbnailUrl: sourceUrl,
     imageChecksum: image?.checksum ?? null,

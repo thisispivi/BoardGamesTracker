@@ -3,12 +3,13 @@
 import { Moon, Sun } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
+import type { ReactNode } from "react";
 
 import { Button } from "@/components/atoms/Button/Button";
 import { persistThemeCookie } from "@/utils/theme";
 
 /** Toggles the persisted light and dark color schemes. */
-export function ThemeToggle() {
+export function ThemeToggle(): ReactNode {
   const { resolvedTheme, setTheme } = useTheme();
   const t = useTranslations();
 

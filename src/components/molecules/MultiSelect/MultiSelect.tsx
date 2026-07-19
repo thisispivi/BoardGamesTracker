@@ -2,10 +2,23 @@
 
 import * as Popover from "@radix-ui/react-popover";
 import { Check, ChevronDown, Search, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { type ReactNode, useMemo, useState } from "react";
 
 import type { MultiSelectOption } from "@/core";
 import { cn } from "@/utils/cn";
+
+type MultiSelectProps = {
+  ariaLabel: string;
+  className?: string;
+  clearLabel: string;
+  emptyLabel: string;
+  onValueChange: (values: string[]) => void;
+  options: MultiSelectOption[];
+  placeholder: string;
+  searchPlaceholder: string;
+  selectedSummary: string;
+  values: string[];
+};
 
 /** Searchable, animated multi-select popover with a bounded scrollable option list. */
 export function MultiSelect({
@@ -19,18 +32,7 @@ export function MultiSelect({
   searchPlaceholder,
   selectedSummary,
   values,
-}: {
-  ariaLabel: string;
-  className?: string;
-  clearLabel: string;
-  emptyLabel: string;
-  onValueChange: (values: string[]) => void;
-  options: MultiSelectOption[];
-  placeholder: string;
-  searchPlaceholder: string;
-  selectedSummary: string;
-  values: string[];
-}) {
+}: MultiSelectProps): ReactNode {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const selected = useMemo(() => new Set(values), [values]);
