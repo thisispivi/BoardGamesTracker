@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { AddGameDialog } from "@/components/add-game-dialog";
+import { AddGameDialog } from "@/components/organisms/AddGameDialog/AddGameDialog";
 
 import messages from "../../../../../messages/en.json";
 

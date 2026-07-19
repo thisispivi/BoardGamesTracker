@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
-import { AuthForm } from "@/components/auth-form";
-import { LocaleSelect } from "@/components/locale-select";
-import { Logo } from "@/components/logo";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { Logo } from "@/components/atoms/Logo/Logo";
+import { LocaleSelect } from "@/components/molecules/LocaleSelect/LocaleSelect";
+import { ThemeToggle } from "@/components/molecules/ThemeToggle/ThemeToggle";
+import { AuthForm } from "@/components/organisms/AuthForm/AuthForm";
 import { env } from "@/env";
 import { isBootstrapRequired } from "@/server/bootstrap";
 import { getSession } from "@/server/session";

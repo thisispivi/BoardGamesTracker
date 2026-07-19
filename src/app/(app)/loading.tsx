@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 
-import { AppSpinner } from "@/components/ui/app-spinner";
+import { AppSpinner } from "@/components/atoms/AppSpinner/AppSpinner";
 
 /** Immediate fallback for navigation between authenticated pages. */
 export default function Loading() {

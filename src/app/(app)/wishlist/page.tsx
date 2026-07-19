@@ -2,9 +2,9 @@ import { Heart } from "lucide-react";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
-import { AddGameDialog } from "@/components/add-game-dialog";
-import { PageHeader } from "@/components/page-header";
-import { WishlistCard } from "@/components/wishlist-card";
+import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
+import { AddGameDialog } from "@/components/organisms/AddGameDialog/AddGameDialog";
+import { WishlistCard } from "@/components/organisms/WishlistCard/WishlistCard";
 import { getWishlist } from "@/server/collection";
 import { getUserPreferences } from "@/server/preferences";
 import { requireUser } from "@/server/session";

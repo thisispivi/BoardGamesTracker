@@ -2,8 +2,8 @@ import { ArrowRight, Banknote, BookOpen, Boxes, Heart } from "lucide-react";
 import Link from "next/link";
 import { getFormatter, getTranslations } from "next-intl/server";
 
-import { GameArtwork } from "@/components/game-artwork";
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/atoms/Button/Button";
+import { GameArtwork } from "@/components/atoms/GameArtwork/GameArtwork";
 import { cn } from "@/lib/utils";
 import { getCollection } from "@/server/collection";
 import { getUserPreferences } from "@/server/preferences";

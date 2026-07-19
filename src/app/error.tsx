@@ -4,7 +4,7 @@ import { RotateCcw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/atoms/Button/Button";
 
 /** Isolates unexpected render failures without leaking stack traces. */
 export default function ErrorBoundary({

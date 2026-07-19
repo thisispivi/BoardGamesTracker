@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
-import { Logo } from "@/components/logo";
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/atoms/Button/Button";
+import { Logo } from "@/components/atoms/Logo/Logo";
 
 /** Friendly application-wide 404 response. */
 export default async function NotFound() {

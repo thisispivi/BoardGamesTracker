@@ -3,9 +3,9 @@ import { Activity, BookOpen, Shield, Users } from "lucide-react";
 import type { Metadata } from "next";
 import { getFormatter, getTranslations } from "next-intl/server";
 
-import { AdminUserActions } from "@/components/admin-user-actions";
-import { AuditLogPanel } from "@/components/audit-log-panel";
-import { PageHeader } from "@/components/page-header";
+import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
+import { AdminUserActions } from "@/components/organisms/AdminUserActions/AdminUserActions";
+import { AuditLogPanel } from "@/components/organisms/AuditLogPanel/AuditLogPanel";
 import { getAuditLogPage } from "@/server/admin/audit-logs";
 import { db } from "@/server/db";
 import { collectionItems, user } from "@/server/db/schema";

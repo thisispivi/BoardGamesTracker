@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
-import { AddGameDialog } from "@/components/add-game-dialog";
-import { CollectionBrowser } from "@/components/collection-browser";
-import { PageHeader } from "@/components/page-header";
+import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
+import { AddGameDialog } from "@/components/organisms/AddGameDialog/AddGameDialog";
+import { CollectionBrowser } from "@/components/organisms/CollectionBrowser/CollectionBrowser";
 import { getCollection } from "@/server/collection";
 import { getUserPreferences } from "@/server/preferences";
 import { requireUser } from "@/server/session";

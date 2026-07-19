@@ -9,8 +9,8 @@ import {
 import type { Metadata } from "next";
 import { getFormatter, getTranslations } from "next-intl/server";
 
-import { PageHeader } from "@/components/page-header";
-import { StatsCharts } from "@/components/stats-charts";
+import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
+import { StatsCharts } from "@/components/organisms/StatsCharts/StatsCharts";
 import { calculateCollectionStats } from "@/lib/collection-stats";
 import { getCollection } from "@/server/collection";
 import { getUserPreferences } from "@/server/preferences";

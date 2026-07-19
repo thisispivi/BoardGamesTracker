@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
-import { GamePicker } from "@/components/game-picker";
-import { PageHeader } from "@/components/page-header";
+import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
+import { GamePicker } from "@/components/organisms/GamePicker/GamePicker";
 import { getCollection } from "@/server/collection";
 import { requireUser } from "@/server/session";
 

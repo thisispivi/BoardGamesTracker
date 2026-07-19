@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { describe, expect, it } from "vitest";
 
-import { MultiSelect } from "@/components/ui/multi-select";
+import { MultiSelect } from "@/components/molecules/MultiSelect/MultiSelect";
 
 const options = [
   { count: 12, label: "Cooperative Game", value: "cooperative" },

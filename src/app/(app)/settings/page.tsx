@@ -9,10 +9,10 @@ import {
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
-import { ClearCollectionCard } from "@/components/clear-collection-card";
-import { CurrencySelect } from "@/components/currency-select";
-import { PageHeader } from "@/components/page-header";
-import { UserDataCard } from "@/components/user-data-card";
+import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
+import { CurrencySelect } from "@/components/molecules/CurrencySelect/CurrencySelect";
+import { ClearCollectionCard } from "@/components/organisms/ClearCollectionCard/ClearCollectionCard";
+import { UserDataCard } from "@/components/organisms/UserDataCard/UserDataCard";
 import { getCollection } from "@/server/collection";
 import { getUserPreferences } from "@/server/preferences";
 import { requireUser } from "@/server/session";

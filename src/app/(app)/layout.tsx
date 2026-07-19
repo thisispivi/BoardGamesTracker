@@ -1,4 +1,4 @@
-import { AppShell } from "@/components/app-shell";
+import { AppShell } from "@/components/templates/AppShell/AppShell";
 import { requireUser } from "@/server/session";
 
 /** Authenticated product shell with server-validated authorization. */

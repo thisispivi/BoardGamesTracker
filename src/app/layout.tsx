@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 
-import { Providers } from "@/components/providers";
+import { Providers } from "@/components/templates/Providers/Providers";
 import { isAppTheme } from "@/lib/theme";
 
 /** Global metadata for search engines and browser integrations. */
