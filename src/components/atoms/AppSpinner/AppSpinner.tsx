@@ -7,7 +7,14 @@ type AppSpinnerProps = {
   label: string;
 };
 
-/** Brand-colored loading indicator with no visible status copy. */
+/**
+ * Brand-colored loading indicator with no visible status copy.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.className - The 'className' property.
+ * @param root0.label - The 'label' property.
+ * @returns The documented function result.
+ */
 export function AppSpinner({ className, label }: AppSpinnerProps): ReactNode {
   return (
     <span

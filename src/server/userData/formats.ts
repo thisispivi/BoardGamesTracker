@@ -34,7 +34,13 @@ const gameHeaders = [
 
 type FlatGame = Record<(typeof gameHeaders)[number], string>;
 
-/** Serializes canonical data into the user-selected portable format. */
+/**
+ * Serializes canonical data into the user-selected portable format.
+ *
+ * @param document - The portable user-data document.
+ * @param format - The requested data format.
+ * @returns The documented function result.
+ */
 export async function serializeUserData(
   document: UserDataDocument,
   format: UserDataFormat,
@@ -49,7 +55,13 @@ export async function serializeUserData(
   return new TextEncoder().encode(text);
 }
 
-/** Parses one supported export without evaluating uploaded code or SQL. */
+/**
+ * Parses one supported export without evaluating uploaded code or SQL.
+ *
+ * @param bytes - The serialized input bytes.
+ * @param format - The requested data format.
+ * @returns The documented function result.
+ */
 export async function parseUserData(
   bytes: Uint8Array,
   format: UserDataFormat,
@@ -65,7 +77,12 @@ export async function parseUserData(
   return userDataDocumentSchema.parse(raw);
 }
 
-/** Returns download metadata for one export format. */
+/**
+ * Returns download metadata for one export format.
+ *
+ * @param format - The requested data format.
+ * @returns The documented function result.
+ */
 export function getExportMetadata(format: UserDataFormat) {
   return {
     extension: format,
@@ -80,7 +97,11 @@ export function getExportMetadata(format: UserDataFormat) {
   };
 }
 
-/** Converts canonical data into a readable two-record-type CSV document. */
+/**
+ * Converts canonical data into a readable two-record-type CSV document.
+ *
+ * @param document - The portable user-data document.
+ */
 function serializeCsv(document: UserDataDocument): string {
   const headers = [
     "recordType",
@@ -115,7 +136,11 @@ function serializeCsv(document: UserDataDocument): string {
   return `\uFEFF${rows.map((row) => row.map(csvCell).join(",")).join("\r\n")}\r\n`;
 }
 
-/** Parses the application's flat CSV representation. */
+/**
+ * Parses the application's flat CSV representation.
+ *
+ * @param text - The 'text' value.
+ */
 function parseCsv(text: string): unknown {
   const rows = parse(text, {
     bom: true,
@@ -140,7 +165,11 @@ function parseCsv(text: string): unknown {
   );
 }
 
-/** Writes a styled, editable workbook with separate profile and game sheets. */
+/**
+ * Writes a styled, editable workbook with separate profile and game sheets.
+ *
+ * @param document - The portable user-data document.
+ */
 async function serializeXlsx(document: UserDataDocument): Promise<Uint8Array> {
   const workbook = new ExcelJS.Workbook();
   workbook.creator = "Board Games Tracker";
@@ -209,7 +238,11 @@ async function serializeXlsx(document: UserDataDocument): Promise<Uint8Array> {
   return new Uint8Array(output);
 }
 
-/** Reads the two-sheet Board Games Tracker workbook representation. */
+/**
+ * Reads the two-sheet Board Games Tracker workbook representation.
+ *
+ * @param bytes - The serialized input bytes.
+ */
 async function parseXlsx(bytes: Uint8Array): Promise<UserDataDocument> {
   const workbook = new ExcelJS.Workbook();
   const input = Buffer.from(bytes) as unknown as Parameters<
@@ -252,7 +285,11 @@ async function parseXlsx(bytes: Uint8Array): Promise<UserDataDocument> {
   );
 }
 
-/** Produces SQL-shaped text while retaining a strict, non-executable import path. */
+/**
+ * Produces SQL-shaped text while retaining a strict, non-executable import path.
+ *
+ * @param document - The portable user-data document.
+ */
 function serializeSql(document: UserDataDocument): string {
   const json = JSON.stringify(document).replaceAll("'", "''");
   return [
@@ -263,7 +300,11 @@ function serializeSql(document: UserDataDocument): string {
   ].join("\n");
 }
 
-/** Extracts the app's single escaped JSON literal and never executes SQL. */
+/**
+ * Extracts the app's single escaped JSON literal and never executes SQL.
+ *
+ * @param text - The 'text' value.
+ */
 function parseSql(text: string): unknown {
   const match =
     /INSERT\s+INTO\s+board_games_tracker_user_export\s*\(\s*payload_json\s*\)\s*VALUES\s*\(\s*'((?:''|[^'])*)'\s*\)\s*;/is.exec(
@@ -273,7 +314,11 @@ function parseSql(text: string): unknown {
   return JSON.parse(match[1].replaceAll("''", "'"));
 }
 
-/** Flattens arrays and nullable values for CSV and worksheet cells. */
+/**
+ * Flattens arrays and nullable values for CSV and worksheet cells.
+ *
+ * @param game - The 'game' value.
+ */
 function gameToFlatValues(game: PortableGame): string[] {
   return [
     game.location,
@@ -300,7 +345,11 @@ function gameToFlatValues(game: PortableGame): string[] {
   ];
 }
 
-/** Preserves numeric and Boolean cell types in editable XLSX exports. */
+/**
+ * Preserves numeric and Boolean cell types in editable XLSX exports.
+ *
+ * @param game - The 'game' value.
+ */
 function gameToWorksheetValues(game: PortableGame): unknown[] {
   return [
     game.location,
@@ -327,7 +376,11 @@ function gameToWorksheetValues(game: PortableGame): unknown[] {
   ];
 }
 
-/** Restores one flat game row into strongly typed primitive values. */
+/**
+ * Restores one flat game row into strongly typed primitive values.
+ *
+ * @param row - The 'row' value.
+ */
 function flatToGame(row: FlatGame): PortableGame {
   return {
     location: row.location as PortableGame["location"],
@@ -354,7 +407,14 @@ function flatToGame(row: FlatGame): PortableGame {
   };
 }
 
-/** Creates the shared raw document shape before final Zod validation. */
+/**
+ * Creates the shared raw document shape before final Zod validation.
+ *
+ * @param formatVersion - The 'formatVersion' value.
+ * @param exportedAt - The 'exportedAt' value.
+ * @param profile - The 'profile' value.
+ * @param items - The 'items' value.
+ */
 function buildDocument(
   formatVersion: string,
   exportedAt: string,
@@ -369,35 +429,59 @@ function buildDocument(
   };
 }
 
-/** Quotes a CSV cell and protects spreadsheet viewers from formula injection. */
+/**
+ * Quotes a CSV cell and protects spreadsheet viewers from formula injection.
+ *
+ * @param value - The value to inspect or transform.
+ */
 function csvCell(value: string): string {
   const safe = safeSpreadsheetText(value);
   return `"${safe.replaceAll('"', '""')}"`;
 }
 
-/** Prefixes text that spreadsheet programs could otherwise treat as a formula. */
+/**
+ * Prefixes text that spreadsheet programs could otherwise treat as a formula.
+ *
+ * @param value - The value to inspect or transform.
+ */
 function safeSpreadsheetText(value: string): string {
   return /^[=+\-@\t\r]/.test(value) ? `'${value}` : value;
 }
 
-/** Reverses the explicit formula-injection protection on trusted export fields. */
+/**
+ * Reverses the explicit formula-injection protection on trusted export fields.
+ *
+ * @param value - The value to inspect or transform.
+ */
 function unprotectCell(value: string): string {
   return /^'[=+\-@\t\r]/.test(value) ? value.slice(1) : value;
 }
 
-/** Parses a finite required number before bounded schema validation. */
+/**
+ * Parses a finite required number before bounded schema validation.
+ *
+ * @param value - The value to inspect or transform.
+ */
 function requiredNumber(value: string): number {
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) throw new Error("Invalid numeric value.");
   return parsed;
 }
 
-/** Parses an empty nullable number or delegates to the finite parser. */
+/**
+ * Parses an empty nullable number or delegates to the finite parser.
+ *
+ * @param value - The value to inspect or transform.
+ */
 function optionalNumber(value: string): number | null {
   return value === "" ? null : requiredNumber(value);
 }
 
-/** Parses JSON taxonomy arrays; the document schema validates every label. */
+/**
+ * Parses JSON taxonomy arrays; the document schema validates every label.
+ *
+ * @param value - The value to inspect or transform.
+ */
 function parseLabels(value: string): string[] {
   const parsed: unknown = JSON.parse(unprotectCell(value));
   if (!Array.isArray(parsed)) throw new Error("Invalid taxonomy list.");

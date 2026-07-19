@@ -8,7 +8,11 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { Providers } from "@/components/templates/Providers/Providers";
 import { isAppTheme } from "@/utils/theme";
 
-/** Global metadata for search engines and browser integrations. */
+/**
+ * Global metadata for search engines and browser integrations.
+ *
+ * @returns The documented function result.
+ */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
   return {
@@ -35,7 +39,13 @@ export const viewport: Viewport = {
   ],
 };
 
-/** Root document shell with locale, theme, and toast providers. */
+/**
+ * Root document shell with locale, theme, and toast providers.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.children - The 'children' property.
+ * @returns The documented function result.
+ */
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {

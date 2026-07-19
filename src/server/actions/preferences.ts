@@ -10,7 +10,12 @@ import { db } from "@/server/db";
 import { user } from "@/server/db/schema";
 import { requireUser } from "@/server/session";
 
-/** Persists a validated display locale in a same-site cookie. */
+/**
+ * Persists a validated display locale in a same-site cookie.
+ *
+ * @param formData - The submitted form data.
+ * @returns The documented function result.
+ */
 export async function setLocaleAction(formData: FormData): Promise<void> {
   const locale = String(formData.get("locale") ?? "");
   if (!isLocale(locale)) {
@@ -27,7 +32,12 @@ export async function setLocaleAction(formData: FormData): Promise<void> {
   revalidatePath("/", "layout");
 }
 
-/** Persists the signed-in user's ISO 4217 display currency. */
+/**
+ * Persists the signed-in user's ISO 4217 display currency.
+ *
+ * @param formData - The submitted form data.
+ * @returns The documented function result.
+ */
 export async function setCurrencyAction(formData: FormData): Promise<void> {
   const session = await requireUser();
   const parsed = currencySchema.safeParse(formData.get("currency"));

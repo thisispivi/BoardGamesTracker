@@ -6,7 +6,12 @@ import { auditLogs, user } from "@/server/db/schema";
 
 const auditLogPageSize = 20;
 
-/** Loads one bounded audit page and serializes its timestamps for the client. */
+/**
+ * Loads one bounded audit page and serializes its timestamps for the client.
+ *
+ * @param requestedPage - The 'requestedPage' value.
+ * @returns The documented function result.
+ */
 export async function getAuditLogPage(
   requestedPage: number,
 ): Promise<AuditLogPage> {

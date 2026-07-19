@@ -13,7 +13,11 @@ import { CLEAR_COLLECTION_CONFIRMATION } from "@/utils/collectionConfirmation";
 
 const initialState: CollectionActionState = { success: false, message: "" };
 
-/** Destructive settings card for clearing the signed-in user's collection. */
+/**
+ * Destructive settings card for clearing the signed-in user's collection.
+ *
+ * @returns The documented function result.
+ */
 export function ClearCollectionCard(): ReactNode {
   const t = useTranslations();
   const [open, setOpen] = useState(false);

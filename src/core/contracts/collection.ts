@@ -11,7 +11,13 @@ export const giftedSchema = z.preprocess(
   z.boolean(),
 );
 
-/** Creates a nullable, coerced integer contract within inclusive bounds. */
+/**
+ * Creates a nullable, coerced integer contract within inclusive bounds.
+ *
+ * @param minimum - The 'minimum' value.
+ * @param maximum - The 'maximum' value.
+ * @returns The documented function result.
+ */
 export function optionalInteger(minimum: number, maximum: number) {
   return z.preprocess(
     (value) => (value === "" || value === null ? null : value),

@@ -10,13 +10,23 @@ import { env } from "@/env";
 import { isBootstrapRequired } from "@/server/bootstrap";
 import { getSession } from "@/server/session";
 
-/** Authentication page metadata. */
+/**
+ * Authentication page metadata.
+ *
+ * @returns The documented function result.
+ */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("auth");
   return { title: t("metaTitle") };
 }
 
-/** Direct login and registration page. */
+/**
+ * Direct login and registration page.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.searchParams - The 'searchParams' property.
+ * @returns The documented function result.
+ */
 export default async function LoginPage({
   searchParams,
 }: {

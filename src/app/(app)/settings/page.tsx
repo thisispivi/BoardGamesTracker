@@ -17,13 +17,21 @@ import { getCollection } from "@/server/collection";
 import { getUserPreferences } from "@/server/preferences";
 import { requireUser } from "@/server/session";
 
-/** Settings page metadata. */
+/**
+ * Settings page metadata.
+ *
+ * @returns The documented function result.
+ */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
   return { title: t("settings.metaTitle") };
 }
 
-/** Account and session settings for the signed-in user. */
+/**
+ * Account and session settings for the signed-in user.
+ *
+ * @returns The documented function result.
+ */
 export default async function SettingsPage() {
   const session = await requireUser();
   const [preferences, t, collection] = await Promise.all([

@@ -13,7 +13,14 @@ type ProvidersProps = {
   initialTheme?: AppTheme | undefined;
 };
 
-/** Client-side application providers. */
+/**
+ * Client-side application providers.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.children - The 'children' property.
+ * @param root0.initialTheme - The 'initialTheme' property.
+ * @returns The documented function result.
+ */
 export function Providers({
   children,
   initialTheme,

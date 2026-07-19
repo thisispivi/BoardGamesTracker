@@ -8,7 +8,11 @@ import type { ReactNode } from "react";
 import { Button } from "@/components/atoms/Button/Button";
 import { persistThemeCookie } from "@/utils/theme";
 
-/** Toggles the persisted light and dark color schemes. */
+/**
+ * Toggles the persisted light and dark color schemes.
+ *
+ * @returns The documented function result.
+ */
 export function ThemeToggle(): ReactNode {
   const { resolvedTheme, setTheme } = useTheme();
   const t = useTranslations();

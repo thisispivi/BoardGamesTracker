@@ -24,7 +24,12 @@ import { isExpansionCategory } from "@/utils/gameTaxonomy";
 
 type FavoriteControlProps = { game: CollectionGame };
 
-/** Favorite toggle shared by full collection cards. */
+/**
+ * Favorite toggle shared by full collection cards.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.game - The 'game' property.
+ */
 function FavoriteControl({ game }: FavoriteControlProps): ReactNode {
   const t = useTranslations();
   return (
@@ -46,7 +51,12 @@ function FavoriteControl({ game }: FavoriteControlProps): ReactNode {
 
 type RemoveControlProps = { game: CollectionGame };
 
-/** In-app removal confirmation shared by collection card variants. */
+/**
+ * In-app removal confirmation shared by collection card variants.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.game - The 'game' property.
+ */
 function RemoveControl({ game }: RemoveControlProps): ReactNode {
   const t = useTranslations();
   return (
@@ -76,7 +86,14 @@ type ArtworkLinkProps = {
   compact?: boolean;
 };
 
-/** Square artwork with a blurred, keyboard-accessible BGG hover action. */
+/**
+ * Square artwork with a blurred, keyboard-accessible BGG hover action.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.eager - The 'eager' property.
+ * @param root0.game - The 'game' property.
+ * @param root0.compact - The 'compact' property.
+ */
 function ArtworkLink({
   eager = false,
   game,
@@ -116,7 +133,12 @@ function ArtworkLink({
 
 type TaxonomyPillsProps = { game: CollectionGame };
 
-/** Shows a concise mix of scraped BGG categories and mechanics. */
+/**
+ * Shows a concise mix of scraped BGG categories and mechanics.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.game - The 'game' property.
+ */
 function TaxonomyPills({ game }: TaxonomyPillsProps): ReactNode {
   const categories = game.categories
     .filter((value) => !isExpansionCategory(value))
@@ -164,7 +186,17 @@ type GameCardProps = {
   game: CollectionGame;
 };
 
-/** Interactive board-game card with embedded, scrollable expansions. */
+/**
+ * Interactive board-game card with embedded, scrollable expansions.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.compact - The 'compact' property.
+ * @param root0.currency - The 'currency' property.
+ * @param root0.eager - The 'eager' property.
+ * @param root0.expansions - The 'expansions' property.
+ * @param root0.game - The 'game' property.
+ * @returns The documented function result.
+ */
 export function GameCard({
   compact = false,
   currency,
@@ -270,7 +302,13 @@ type CollectionCostProps = {
   game: CollectionGame;
 };
 
-/** Renders a recorded price or the gifted label without implying a zero price. */
+/**
+ * Renders a recorded price or the gifted label without implying a zero price.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.currency - The 'currency' property.
+ * @param root0.game - The 'game' property.
+ */
 function CollectionCost({ currency, game }: CollectionCostProps): ReactNode {
   const format = useFormatter();
   const t = useTranslations();

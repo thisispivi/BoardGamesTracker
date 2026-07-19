@@ -9,7 +9,11 @@ import { getUserPreferences } from "@/server/preferences";
 import { requireUser } from "@/server/session";
 import { cn } from "@/utils/cn";
 
-/** Personalized collection summary without promotional hero content. */
+/**
+ * Personalized collection summary without promotional hero content.
+ *
+ * @returns The documented function result.
+ */
 export default async function DashboardPage() {
   const session = await requireUser();
   const [collection, preferences, format, t] = await Promise.all([

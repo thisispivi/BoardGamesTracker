@@ -1,7 +1,12 @@
 import type { CountDatum, StatGame } from "@/core";
 import { isExpansionCategory } from "@/utils/gameTaxonomy";
 
-/** Computes deterministic user-facing insights from owned collection data. */
+/**
+ * Computes deterministic user-facing insights from owned collection data.
+ *
+ * @param collection - The collection items to analyze.
+ * @returns The documented function result.
+ */
 export function calculateCollectionStats(collection: StatGame[]) {
   const priced = collection
     .filter((game) => game.moneySpent > 0 || game.gifted)
@@ -73,12 +78,20 @@ export function calculateCollectionStats(collection: StatGame[]) {
   };
 }
 
-/** Sums a list without leaking floating-point noise into serialized output. */
+/**
+ * Sums a list without leaking floating-point noise into serialized output.
+ *
+ * @param values - The values to process.
+ */
 function sum(values: number[]): number {
   return Number(values.reduce((total, value) => total + value, 0).toFixed(2));
 }
 
-/** Counts normalized labels and orders them by frequency then alphabetically. */
+/**
+ * Counts normalized labels and orders them by frequency then alphabetically.
+ *
+ * @param labels - The labels to count.
+ */
 function countLabels(labels: string[]): CountDatum[] {
   const counts = new Map<string, number>();
   for (const rawLabel of labels) {

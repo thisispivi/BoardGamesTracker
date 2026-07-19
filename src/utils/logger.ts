@@ -20,7 +20,14 @@ const blockedKeys = new Set([
   "authorization",
 ]);
 
-/** Writes structured, redacted application logs to standard output. */
+/**
+ * Writes structured, redacted application logs to standard output.
+ *
+ * @param level - The 'level' value.
+ * @param message - The 'message' value.
+ * @param context - The route or operation context.
+ * @returns The documented function result.
+ */
 export function log(
   level: LogLevel,
   message: string,

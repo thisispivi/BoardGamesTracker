@@ -13,12 +13,20 @@ const getCachedSession = cache(async () =>
   }),
 );
 
-/** Returns the fully validated session for the current request. */
+/**
+ * Returns the fully validated session for the current request.
+ *
+ * @returns The documented function result.
+ */
 export async function getSession() {
   return getCachedSession();
 }
 
-/** Requires an authenticated user and redirects anonymous visitors. */
+/**
+ * Requires an authenticated user and redirects anonymous visitors.
+ *
+ * @returns The documented function result.
+ */
 export async function requireUser() {
   const session = await getSession();
 
@@ -29,7 +37,11 @@ export async function requireUser() {
   return session;
 }
 
-/** Requires an administrator and redirects unauthorized users. */
+/**
+ * Requires an administrator and redirects unauthorized users.
+ *
+ * @returns The documented function result.
+ */
 export async function requireAdmin() {
   const session = await requireUser();
 

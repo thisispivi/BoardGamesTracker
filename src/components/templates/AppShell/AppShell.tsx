@@ -16,7 +16,14 @@ type AppShellProps = {
   };
 };
 
-/** Responsive navigation shell for signed-in screens. */
+/**
+ * Responsive navigation shell for signed-in screens.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.children - The 'children' property.
+ * @param root0.user - The 'user' property.
+ * @returns The documented function result.
+ */
 export function AppShell({ children, user }: AppShellProps): ReactNode {
   return (
     <div className="bg-background min-h-screen lg:grid lg:grid-cols-[260px_minmax(0,1fr)]">

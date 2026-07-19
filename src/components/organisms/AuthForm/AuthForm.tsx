@@ -14,7 +14,15 @@ type AuthFormProps = {
   bootstrapRequired: boolean;
 };
 
-/** Email/password login and registration form. */
+/**
+ * Email/password login and registration form.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.initialMode - The 'initialMode' property.
+ * @param root0.allowSignUp - The 'allowSignUp' property.
+ * @param root0.bootstrapRequired - The 'bootstrapRequired' property.
+ * @returns The documented function result.
+ */
 export function AuthForm({
   initialMode,
   allowSignUp,
@@ -25,7 +33,11 @@ export function AuthForm({
   const [showPassword, setShowPassword] = useState(false);
   const [pending, setPending] = useState(false);
 
-  /** Submits credentials through Better Auth without exposing secrets to server logs. */
+  /**
+   * Submits credentials through Better Auth without exposing secrets to server logs.
+   *
+   * @param event - The 'event' value.
+   */
   async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>,
   ): Promise<void> {

@@ -28,7 +28,15 @@ type AppNavigationProps = {
   user?: { name: string; email: string };
 };
 
-/** Active navigation, mobile drawer, and session sign-out. */
+/**
+ * Active navigation, mobile drawer, and session sign-out.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.isAdmin - The 'isAdmin' property.
+ * @param root0.mobile - The 'mobile' property.
+ * @param root0.user - The 'user' property.
+ * @returns The documented function result.
+ */
 export function AppNavigation({
   isAdmin,
   mobile = false,

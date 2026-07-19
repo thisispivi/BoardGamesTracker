@@ -18,7 +18,14 @@ type EditGameDialogProps = {
   game: CollectionGame;
 };
 
-/** Modal editor for personal collection metadata and purchase spend. */
+/**
+ * Modal editor for personal collection metadata and purchase spend.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.currency - The 'currency' property.
+ * @param root0.game - The 'game' property.
+ * @returns The documented function result.
+ */
 export function EditGameDialog({
   currency,
   game,

@@ -7,7 +7,11 @@ import type { ReactNode } from "react";
 
 import { authClient } from "@/utils/authClient";
 
-/** Revokes the current session from the account area. */
+/**
+ * Revokes the current session from the account area.
+ *
+ * @returns The documented function result.
+ */
 export function SignOutButton(): ReactNode {
   const router = useRouter();
   const t = useTranslations();

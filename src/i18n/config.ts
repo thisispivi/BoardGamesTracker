@@ -7,7 +7,12 @@ export const defaultLocale = "en" as const;
 /** Supported application locale. */
 export type AppLocale = (typeof locales)[number];
 
-/** Narrows an arbitrary value to a supported locale. */
+/**
+ * Narrows an arbitrary value to a supported locale.
+ *
+ * @param value - The value to inspect or transform.
+ * @returns The documented function result.
+ */
 export function isLocale(value: unknown): value is AppLocale {
   return typeof value === "string" && locales.includes(value as AppLocale);
 }

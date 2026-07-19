@@ -8,7 +8,14 @@ type LogoProps = {
   className?: string;
 };
 
-/** Board Games Tracker wordmark and compact geometric mark. */
+/**
+ * Board Games Tracker wordmark and compact geometric mark.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.compact - The 'compact' property.
+ * @param root0.className - The 'className' property.
+ * @returns The documented function result.
+ */
 export function Logo({ compact = false, className }: LogoProps): ReactNode {
   return (
     <Link

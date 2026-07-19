@@ -47,7 +47,13 @@ type ReelRun = {
 
 type GamePickerProps = { games: CollectionGame[] };
 
-/** Animated filter-and-reel experience for choosing a collection game. */
+/**
+ * Animated filter-and-reel experience for choosing a collection game.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.games - The 'games' property.
+ * @returns The documented function result.
+ */
 export function GamePicker({ games }: GamePickerProps): ReactNode {
   const locale = useLocale();
   const t = useTranslations();
@@ -133,7 +139,11 @@ export function GamePicker({ games }: GamePickerProps): ReactNode {
     });
   }
 
-  /** Reveals a manually chosen candidate and returns mobile users to the stage. */
+  /**
+   * Reveals a manually chosen candidate and returns mobile users to the stage.
+   *
+   * @param gameId - The 'gameId' value.
+   */
   function selectCandidate(gameId: string): void {
     setSelectedId(gameId);
     if (!window.matchMedia("(min-width: 1024px)").matches) {
@@ -398,7 +408,14 @@ type FilterLabelProps = {
   label: string;
 };
 
-/** Shared icon-and-label treatment for every picker filter. */
+/**
+ * Shared icon-and-label treatment for every picker filter.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.children - The 'children' property.
+ * @param root0.icon - The 'icon' property.
+ * @param root0.label - The 'label' property.
+ */
 function FilterLabel({ children, icon, label }: FilterLabelProps): ReactNode {
   return (
     <span className="mb-3 flex items-center justify-between gap-3 text-sm font-bold">
@@ -416,7 +433,13 @@ type FilterIconProps = {
   tone?: "danger" | "primary";
 };
 
-/** Consistent compact icon tile used across filter rows. */
+/**
+ * Consistent compact icon tile used across filter rows.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.icon - The 'icon' property.
+ * @param root0.tone - The 'tone' property.
+ */
 function FilterIcon({
   icon: Icon,
   tone = "primary",
@@ -435,7 +458,13 @@ type PossibleGamesDialogProps = {
   onSelect: (gameId: string) => void;
 };
 
-/** Opens the complete eligible-game set as a responsive cover gallery. */
+/**
+ * Opens the complete eligible-game set as a responsive cover gallery.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.candidates - The 'candidates' property.
+ * @param root0.onSelect - The 'onSelect' property.
+ */
 function PossibleGamesDialog({
   candidates,
   onSelect,
@@ -539,7 +568,18 @@ type CoverReelProps = {
   trackRef: React.RefObject<HTMLDivElement | null>;
 };
 
-/** Displays eligible covers and decelerates the active run beneath the marker. */
+/**
+ * Displays eligible covers and decelerates the active run beneath the marker.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.candidates - The 'candidates' property.
+ * @param root0.cardRef - The 'cardRef' property.
+ * @param root0.onComplete - The 'onComplete' property.
+ * @param root0.reduceMotion - The 'reduceMotion' property.
+ * @param root0.reelRun - The 'reelRun' property.
+ * @param root0.spinning - The 'spinning' property.
+ * @param root0.trackRef - The 'trackRef' property.
+ */
 function CoverReel({
   candidates,
   cardRef,
@@ -603,7 +643,12 @@ function CoverReel({
   );
 }
 
-/** Creates a bounded reel with the selected game placed near its far end. */
+/**
+ * Creates a bounded reel with the selected game placed near its far end.
+ *
+ * @param candidates - The 'candidates' value.
+ * @param winnerId - The 'winnerId' value.
+ */
 function buildReelSequence(
   candidates: ReelGame[],
   winnerId: string,
@@ -620,7 +665,12 @@ function buildReelSequence(
   return { items, winnerIndex };
 }
 
-/** Reads the rendered responsive card step before starting an animation. */
+/**
+ * Reads the rendered responsive card step before starting an animation.
+ *
+ * @param card - The 'card' value.
+ * @param track - The 'track' value.
+ */
 function getReelMetrics(
   card: HTMLDivElement | null,
   track: HTMLDivElement | null,
@@ -638,7 +688,13 @@ function getReelMetrics(
   };
 }
 
-/** Builds localized picker facets with occurrence counts for quick scanning. */
+/**
+ * Builds localized picker facets with occurrence counts for quick scanning.
+ *
+ * @param games - The candidate games.
+ * @param facet - The 'facet' value.
+ * @param locale - The 'locale' value.
+ */
 function pickerOptions(
   games: CollectionGame[],
   facet: "mechanic" | "theme",

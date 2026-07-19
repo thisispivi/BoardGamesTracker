@@ -5,7 +5,12 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { type GameSelection, selectionSchema } from "@/core";
 import { env } from "@/env";
 
-/** Creates an authenticated, short-lived token for a discovery result. */
+/**
+ * Creates an authenticated, short-lived token for a discovery result.
+ *
+ * @param selection - The game selection to sign.
+ * @returns The documented function result.
+ */
 export function createSelectionToken(selection: GameSelection): string {
   const payload = Buffer.from(
     JSON.stringify({
@@ -19,7 +24,12 @@ export function createSelectionToken(selection: GameSelection): string {
   return `${payload}.${signature}`;
 }
 
-/** Verifies and decodes an authenticated discovery selection. */
+/**
+ * Verifies and decodes an authenticated discovery selection.
+ *
+ * @param token - The signed selection token.
+ * @returns The documented function result.
+ */
 export function verifySelectionToken(token: string): GameSelection | null {
   const [payload, signature, extra] = token.split(".");
   if (!payload || !signature || extra) {

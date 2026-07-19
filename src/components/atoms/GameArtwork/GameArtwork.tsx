@@ -11,7 +11,17 @@ type GameArtworkProps = {
   imageClassName?: string;
 };
 
-/** Responsive game-box artwork with a polished text fallback. */
+/**
+ * Responsive game-box artwork with a polished text fallback.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.eager - The 'eager' property.
+ * @param root0.name - The 'name' property.
+ * @param root0.imageUrl - The 'imageUrl' property.
+ * @param root0.className - The 'className' property.
+ * @param root0.imageClassName - The 'imageClassName' property.
+ * @returns The documented function result.
+ */
 export function GameArtwork({
   eager = false,
   name,

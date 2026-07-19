@@ -6,13 +6,21 @@ import { GamePicker } from "@/components/organisms/GamePicker/GamePicker";
 import { getCollection } from "@/server/collection";
 import { requireUser } from "@/server/session";
 
-/** Game picker page metadata. */
+/**
+ * Game picker page metadata.
+ *
+ * @returns The documented function result.
+ */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
   return { title: t("play.metaTitle") };
 }
 
-/** Filtered, animated game-night randomizer. */
+/**
+ * Filtered, animated game-night randomizer.
+ *
+ * @returns The documented function result.
+ */
 export default async function PlayPage() {
   const session = await requireUser();
   const [collection, t] = await Promise.all([

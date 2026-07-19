@@ -13,7 +13,13 @@ type CurrencySelectProps = {
   initialCurrency: string;
 };
 
-/** Immediately saves a supported ISO currency preference. */
+/**
+ * Immediately saves a supported ISO currency preference.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.initialCurrency - The 'initialCurrency' property.
+ * @returns The documented function result.
+ */
 export function CurrencySelect({
   initialCurrency,
 }: CurrencySelectProps): ReactNode {

@@ -21,7 +21,14 @@ type AddGameDialogProps = {
   destination?: "collection" | "wishlist";
 };
 
-/** Debounced search dialog for adding a title or pasted BGG game URL. */
+/**
+ * Debounced search dialog for adding a title or pasted BGG game URL.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.currency - The 'currency' property.
+ * @param root0.destination - The 'destination' property.
+ * @returns The documented function result.
+ */
 export function AddGameDialog({
   currency,
   destination = "collection",
@@ -37,7 +44,11 @@ export function AddGameDialog({
   const [state, action, adding] = useActionState(addGameAction, initialState);
   const router = useRouter();
 
-  /** Resets ephemeral search state whenever the dialog is dismissed. */
+  /**
+   * Resets ephemeral search state whenever the dialog is dismissed.
+   *
+   * @param nextOpen - The 'nextOpen' value.
+   */
   function changeOpen(nextOpen: boolean): void {
     setOpen(nextOpen);
     if (!nextOpen) {
@@ -50,7 +61,11 @@ export function AddGameDialog({
     }
   }
 
-  /** Clears stale discovery state immediately while the user keeps typing. */
+  /**
+   * Clears stale discovery state immediately while the user keeps typing.
+   *
+   * @param nextQuery - The 'nextQuery' value.
+   */
   function changeQuery(nextQuery: string): void {
     setQuery(nextQuery);
     setResults([]);
@@ -250,7 +265,17 @@ type SelectedGameFormProps = {
   selected: GameDiscoveryResult;
 };
 
-/** Editable local details after a trusted discovery result has been selected. */
+/**
+ * Editable local details after a trusted discovery result has been selected.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.action - The 'action' property.
+ * @param root0.adding - The 'adding' property.
+ * @param root0.currency - The 'currency' property.
+ * @param root0.destination - The 'destination' property.
+ * @param root0.onChooseAnother - The 'onChooseAnother' property.
+ * @param root0.selected - The 'selected' property.
+ */
 function SelectedGameForm({
   action,
   adding,
@@ -435,7 +460,13 @@ type FieldProps = {
   label: string;
 };
 
-/** Consistent label wrapper for local game metadata inputs. */
+/**
+ * Consistent label wrapper for local game metadata inputs.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.children - The 'children' property.
+ * @param root0.label - The 'label' property.
+ */
 function Field({ children, label }: FieldProps): ReactNode {
   return (
     <label className="block text-sm font-bold">

@@ -10,7 +10,12 @@ const sweepIntervalMs = 60_000;
 const entries = new Map<string, RateLimitEntry>();
 let nextSweepAt = 0;
 
-/** Removes expired entries and, at capacity, the oldest remaining entries. */
+/**
+ * Removes expired entries and, at capacity, the oldest remaining entries.
+ *
+ * @param now - The 'now' value.
+ * @param enforceCapacity - The 'enforceCapacity' value.
+ */
 function sweepEntries(now: number, enforceCapacity: boolean): void {
   if (now < nextSweepAt && !enforceCapacity) {
     return;

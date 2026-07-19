@@ -5,7 +5,11 @@ import type { StoredGameImage } from "@/core";
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const allowedMimeTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
 
-/** Validates that a source points to the exact secure BGG image CDN. */
+/**
+ * Validates that a source points to the exact secure BGG image CDN.
+ *
+ * @param rawUrl - The 'rawUrl' value.
+ */
 function parseSourceUrl(rawUrl: string): URL {
   if (rawUrl.length > 2_000) {
     throw new Error("The image URL is too long.");
@@ -23,7 +27,11 @@ function parseSourceUrl(rawUrl: string): URL {
   return url;
 }
 
-/** Detects the supported image MIME type from trusted file signatures. */
+/**
+ * Detects the supported image MIME type from trusted file signatures.
+ *
+ * @param data - The 'data' value.
+ */
 function detectMimeType(data: Buffer): StoredGameImage["mimeType"] | null {
   if (
     data.length >= 3 &&
@@ -51,7 +59,11 @@ function detectMimeType(data: Buffer): StoredGameImage["mimeType"] | null {
   return null;
 }
 
-/** Reads a response body while enforcing the configured byte limit. */
+/**
+ * Reads a response body while enforcing the configured byte limit.
+ *
+ * @param response - The 'response' value.
+ */
 async function readBoundedBody(response: Response): Promise<Buffer> {
   if (!response.body) {
     throw new Error("The image response had no body.");
@@ -77,7 +89,12 @@ async function readBoundedBody(response: Response): Promise<Buffer> {
   return Buffer.concat(chunks, size);
 }
 
-/** Downloads and authenticates one bounded image from the BGG image CDN. */
+/**
+ * Downloads and authenticates one bounded image from the BGG image CDN.
+ *
+ * @param rawUrl - The 'rawUrl' value.
+ * @returns The documented function result.
+ */
 export async function downloadBggImage(
   rawUrl: string,
 ): Promise<StoredGameImage> {
@@ -122,7 +139,12 @@ export async function downloadBggImage(
   };
 }
 
-/** Downloads a bounded image map with limited outbound concurrency. */
+/**
+ * Downloads a bounded image map with limited outbound concurrency.
+ *
+ * @param sources - The 'sources' value.
+ * @returns The documented function result.
+ */
 export async function downloadBggImages(
   sources: Map<number, string>,
 ): Promise<Map<number, StoredGameImage>> {

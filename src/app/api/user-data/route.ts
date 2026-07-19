@@ -17,7 +17,12 @@ import {
 } from "@/server/userData/formats";
 const maxImportBytes = 10 * 1024 * 1024;
 
-/** Exports only the signed-in user's portable application data. */
+/**
+ * Exports only the signed-in user's portable application data.
+ *
+ * @param request - The incoming request.
+ * @returns The documented function result.
+ */
 export async function GET(request: NextRequest): Promise<Response> {
   const session = await getSession();
   if (!session)
@@ -50,7 +55,12 @@ export async function GET(request: NextRequest): Promise<Response> {
   });
 }
 
-/** Imports a validated Board Games Tracker export into the current account. */
+/**
+ * Imports a validated Board Games Tracker export into the current account.
+ *
+ * @param request - The incoming request.
+ * @returns The documented function result.
+ */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const session = await getSession();
   if (!session)
@@ -106,7 +116,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 }
 
-/** Maps an upload extension to a supported parser without trusting MIME types. */
+/**
+ * Maps an upload extension to a supported parser without trusting MIME types.
+ *
+ * @param filename - The 'filename' value.
+ */
 function formatFromFilename(filename: string): UserDataFormat | null {
   const extension = filename.toLowerCase().split(".").pop();
   const parsed = formatSchema.safeParse(extension);

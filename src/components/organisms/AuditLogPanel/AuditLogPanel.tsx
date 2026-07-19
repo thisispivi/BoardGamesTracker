@@ -12,7 +12,13 @@ import { getAuditLogPageAction } from "@/server/actions/admin";
 
 type AuditLogPanelProps = { initialPage: AuditLogPage };
 
-/** Paginated audit log that updates only its own scrollable result region. */
+/**
+ * Paginated audit log that updates only its own scrollable result region.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.initialPage - The 'initialPage' property.
+ * @returns The documented function result.
+ */
 export function AuditLogPanel({ initialPage }: AuditLogPanelProps): ReactNode {
   const format = useFormatter();
   const t = useTranslations();

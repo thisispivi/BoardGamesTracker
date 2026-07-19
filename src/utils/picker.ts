@@ -1,6 +1,12 @@
 import type { PickableGame, PickerFilters } from "@/core";
 
-/** Returns games satisfying every active game-night constraint. */
+/**
+ * Returns games satisfying every active game-night constraint.
+ *
+ * @param games - The candidate games.
+ * @param filters - The active picker filters.
+ * @returns The documented function result.
+ */
 export function filterGames(
   games: PickableGame[],
   filters: PickerFilters,
@@ -42,7 +48,14 @@ export function filterGames(
   });
 }
 
-/** Chooses an unbiased random game from the filtered candidate set. */
+/**
+ * Chooses an unbiased random game from the filtered candidate set.
+ *
+ * @param games - The candidate games.
+ * @param filters - The active picker filters.
+ * @param random - The 'random' value.
+ * @returns The documented function result.
+ */
 export function pickRandomGame(
   games: PickableGame[],
   filters: PickerFilters,

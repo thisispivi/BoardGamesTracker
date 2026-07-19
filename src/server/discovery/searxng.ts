@@ -15,7 +15,12 @@ import { normalizeSearchText } from "@/utils/search";
 type SearchResult =
   (typeof searxngResponseSchema)["_output"]["results"][number];
 
-/** Queries one SearXNG category and validates its untrusted JSON response. */
+/**
+ * Queries one SearXNG category and validates its untrusted JSON response.
+ *
+ * @param query - The search query.
+ * @param category - The 'category' value.
+ */
 async function requestResults(
   query: string,
   category?: "images",
@@ -44,7 +49,12 @@ async function requestResults(
   return parsed.data.results;
 }
 
-/** Resolves BGG-hosted artwork for a bounded set of exact game IDs. */
+/**
+ * Resolves BGG-hosted artwork for a bounded set of exact game IDs.
+ *
+ * @param candidates - The 'candidates' value.
+ * @returns The documented function result.
+ */
 export async function discoverBoardGameImages(
   candidates: Array<{ bggId: number; name: string }>,
 ): Promise<Map<number, string>> {
@@ -115,7 +125,12 @@ export async function discoverBoardGameImages(
   return images;
 }
 
-/** Discovers BGG game links without requesting or parsing BGG pages. */
+/**
+ * Discovers BGG game links without requesting or parsing BGG pages.
+ *
+ * @param query - The search query.
+ * @returns The documented function result.
+ */
 export async function searchBoardGames(
   query: string,
 ): Promise<GameDiscoveryResult[]> {

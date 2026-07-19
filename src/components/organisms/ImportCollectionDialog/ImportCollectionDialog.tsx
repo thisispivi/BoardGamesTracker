@@ -12,7 +12,11 @@ import { importBggCsvAction } from "@/server/actions/collection";
 
 const initialState: CollectionActionState = { success: false, message: "" };
 
-/** Dialog for securely importing an official BoardGameGeek CSV export. */
+/**
+ * Dialog for securely importing an official BoardGameGeek CSV export.
+ *
+ * @returns The documented function result.
+ */
 export function ImportCollectionDialog(): ReactNode {
   const t = useTranslations();
   const [open, setOpen] = useState(false);

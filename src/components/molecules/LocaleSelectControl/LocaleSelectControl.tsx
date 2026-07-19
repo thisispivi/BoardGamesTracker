@@ -19,7 +19,13 @@ type LocaleSelectControlProps = {
   initialLocale: Locale;
 };
 
-/** Immediately persists language changes and displays round inline flags. */
+/**
+ * Immediately persists language changes and displays round inline flags.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.initialLocale - The 'initialLocale' property.
+ * @returns The documented function result.
+ */
 export function LocaleSelectControl({
   initialLocale,
 }: LocaleSelectControlProps): ReactNode {

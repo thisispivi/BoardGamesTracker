@@ -8,7 +8,14 @@ type TooltipProps = {
   content: React.ReactNode;
 };
 
-/** Accessible themed tooltip with consistent timing, spacing, and animation. */
+/**
+ * Accessible themed tooltip with consistent timing, spacing, and animation.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.children - The 'children' property.
+ * @param root0.content - The 'content' property.
+ * @returns The documented function result.
+ */
 export function Tooltip({ children, content }: TooltipProps): ReactNode {
   return (
     <TooltipPrimitive.Provider delayDuration={250} skipDelayDuration={100}>

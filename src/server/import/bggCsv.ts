@@ -21,7 +21,13 @@ const requiredColumns = [
   "rating",
 ] as const;
 
-/** Parses a bounded integer field while rejecting malformed values. */
+/**
+ * Parses a bounded integer field while rejecting malformed values.
+ *
+ * @param value - The value to inspect or transform.
+ * @param minimum - The 'minimum' value.
+ * @param maximum - The 'maximum' value.
+ */
 function integer(
   value: string,
   minimum: number,
@@ -37,7 +43,14 @@ function integer(
     : null;
 }
 
-/** Parses a bounded decimal, treating zero as an unset value when requested. */
+/**
+ * Parses a bounded decimal, treating zero as an unset value when requested.
+ *
+ * @param value - The value to inspect or transform.
+ * @param minimum - The 'minimum' value.
+ * @param maximum - The 'maximum' value.
+ * @param zeroIsNull - The 'zeroIsNull' value.
+ */
 function decimal(
   value: string,
   minimum: number,
@@ -51,7 +64,11 @@ function decimal(
   return parsed >= minimum && parsed <= maximum ? parsed : null;
 }
 
-/** Converts one validated CSV object into the local game metadata shape. */
+/**
+ * Converts one validated CSV object into the local game metadata shape.
+ *
+ * @param row - The 'row' value.
+ */
 function normalizeRow(
   row: z.infer<typeof importedRowSchema>,
 ): ImportedBggGame | null {
@@ -108,7 +125,12 @@ function normalizeRow(
   };
 }
 
-/** Parses an official BGG CSV and returns only explicitly owned games. */
+/**
+ * Parses an official BGG CSV and returns only explicitly owned games.
+ *
+ * @param csv - The 'csv' value.
+ * @returns The documented function result.
+ */
 export function parseBggCollectionCsv(csv: string): BggCsvImport {
   const records = parse(csv, {
     bom: true,

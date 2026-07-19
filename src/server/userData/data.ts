@@ -6,7 +6,12 @@ import type { UserDataDocument } from "@/core";
 import { db } from "@/server/db";
 import { collectionItems, games, user } from "@/server/db/schema";
 
-/** Reads portable user data without exporting credentials, sessions, or audit logs. */
+/**
+ * Reads portable user data without exporting credentials, sessions, or audit logs.
+ *
+ * @param userId - The authenticated user identifier.
+ * @returns The documented function result.
+ */
 export async function getUserDataDocument(
   userId: string,
 ): Promise<UserDataDocument> {
@@ -56,7 +61,13 @@ export async function getUserDataDocument(
   };
 }
 
-/** Merges validated portable data into the current account and shared catalog. */
+/**
+ * Merges validated portable data into the current account and shared catalog.
+ *
+ * @param userId - The authenticated user identifier.
+ * @param document - The portable user-data document.
+ * @returns The documented function result.
+ */
 export async function importUserDataDocument(
   userId: string,
   document: UserDataDocument,

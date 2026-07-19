@@ -7,7 +7,16 @@ type PageHeaderProps = {
   action?: React.ReactNode;
 };
 
-/** Consistent title, eyebrow, description, and action region. */
+/**
+ * Consistent title, eyebrow, description, and action region.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.eyebrow - The 'eyebrow' property.
+ * @param root0.title - The 'title' property.
+ * @param root0.description - The 'description' property.
+ * @param root0.action - The 'action' property.
+ * @returns The documented function result.
+ */
 export function PageHeader({
   eyebrow,
   title,

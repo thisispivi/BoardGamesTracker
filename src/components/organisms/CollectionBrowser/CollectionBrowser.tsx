@@ -16,7 +16,12 @@ type CollectionGroup = {
   expansions: CollectionGame[];
 };
 
-/** Measures shared normalized title tokens for cautious expansion matching. */
+/**
+ * Measures shared normalized title tokens for cautious expansion matching.
+ *
+ * @param left - The 'left' value.
+ * @param right - The 'right' value.
+ */
 function tokenOverlap(left: string, right: string): number {
   const leftTokens = new Set(left.split(" "));
   const rightTokens = new Set(right.split(" "));
@@ -26,7 +31,11 @@ function tokenOverlap(left: string, right: string): number {
   );
 }
 
-/** Associates expansions with the most likely owned base game. */
+/**
+ * Associates expansions with the most likely owned base game.
+ *
+ * @param games - The candidate games.
+ */
 function groupCollection(games: CollectionGame[]): {
   groups: CollectionGroup[];
   ungrouped: CollectionGame[];
@@ -83,7 +92,13 @@ function groupCollection(games: CollectionGame[]): {
   };
 }
 
-/** Builds alphabetized facet options with per-game occurrence counts. */
+/**
+ * Builds alphabetized facet options with per-game occurrence counts.
+ *
+ * @param games - The candidate games.
+ * @param taxonomy - The 'taxonomy' value.
+ * @param locale - The 'locale' value.
+ */
 function facetOptions(
   games: CollectionGame[],
   taxonomy: "categories" | "mechanics",
@@ -113,7 +128,14 @@ type CollectionBrowserProps = {
   games: CollectionGame[];
 };
 
-/** Fuzzy collection search with base-game and expansion grouping. */
+/**
+ * Fuzzy collection search with base-game and expansion grouping.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.currency - The 'currency' property.
+ * @param root0.games - The 'games' property.
+ * @returns The documented function result.
+ */
 export function CollectionBrowser({
   currency,
   games,

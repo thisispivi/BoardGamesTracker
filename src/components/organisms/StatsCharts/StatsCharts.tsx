@@ -35,7 +35,17 @@ type TooltipEntry = {
   value?: number | string;
 };
 
-/** Responsive, accessible visual summaries for collection statistics. */
+/**
+ * Responsive, accessible visual summaries for collection statistics.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.categories - The 'categories' property.
+ * @param root0.complexity - The 'complexity' property.
+ * @param root0.currency - The 'currency' property.
+ * @param root0.mechanics - The 'mechanics' property.
+ * @param root0.mostExpensive - The 'mostExpensive' property.
+ * @returns The documented function result.
+ */
 export function StatsCharts({
   categories,
   complexity,
@@ -204,7 +214,13 @@ type ChartCardProps = {
   title: string;
 };
 
-/** Consistent chart frame with a softly tinted plotting area. */
+/**
+ * Consistent chart frame with a softly tinted plotting area.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.children - The 'children' property.
+ * @param root0.title - The 'title' property.
+ */
 function ChartCard({ children, title }: ChartCardProps): ReactNode {
   return (
     <section className="bg-card shadow-soft overflow-hidden rounded-3xl border p-5 sm:p-7">
@@ -222,7 +238,14 @@ type RankingCardProps = {
   gradientId: string;
 };
 
-/** Ranked horizontal bars suited to long taxonomy labels. */
+/**
+ * Ranked horizontal bars suited to long taxonomy labels.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.title - The 'title' property.
+ * @param root0.data - The 'data' property.
+ * @param root0.gradientId - The 'gradientId' property.
+ */
 function RankingCard({ title, data, gradientId }: RankingCardProps): ReactNode {
   return (
     <ChartCard title={title}>
@@ -286,7 +309,15 @@ type ChartTooltipProps = {
   valueFormatter?: (value: number | string) => string;
 };
 
-/** Theme-aware tooltip shared by bars and the donut chart. */
+/**
+ * Theme-aware tooltip shared by bars and the donut chart.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.active - The 'active' property.
+ * @param root0.label - The 'label' property.
+ * @param root0.payload - The 'payload' property.
+ * @param root0.valueFormatter - The 'valueFormatter' property.
+ */
 function ChartTooltip({
   active,
   label,
@@ -329,7 +360,12 @@ function ChartGrid(): ReactNode {
   );
 }
 
-/** Ellipsizes an axis label while the tooltip retains the complete title. */
+/**
+ * Ellipsizes an axis label while the tooltip retains the complete title.
+ *
+ * @param value - The value to inspect or transform.
+ * @param maximum - The 'maximum' value.
+ */
 function truncate(value: string, maximum: number): string {
   return value.length > maximum ? `${value.slice(0, maximum - 1)}…` : value;
 }

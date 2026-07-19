@@ -30,7 +30,11 @@ import { hasExpansionCategory } from "@/utils/gameTaxonomy";
 
 type LocalGameDetails = z.infer<typeof gameDetailsSchema>;
 
-/** Splits and deduplicates user-maintained taxonomy labels. */
+/**
+ * Splits and deduplicates user-maintained taxonomy labels.
+ *
+ * @param value - The value to inspect or transform.
+ */
 function parseLabels(value: string): string[] {
   return [
     ...new Set(
@@ -42,7 +46,13 @@ function parseLabels(value: string): string[] {
   ].slice(0, 50);
 }
 
-/** Inserts or refreshes user-supplied local metadata and returns the game ID. */
+/**
+ * Inserts or refreshes user-supplied local metadata and returns the game ID.
+ *
+ * @param selection - The game selection to sign.
+ * @param details - The 'details' value.
+ * @param metadata - The 'metadata' value.
+ */
 async function upsertGame(
   selection: GameSelection,
   details: LocalGameDetails,
@@ -109,7 +119,13 @@ async function upsertGame(
   return { id: record.id, imageCached: Boolean(image) };
 }
 
-/** Imports owned games from a bounded official BoardGameGeek CSV export. */
+/**
+ * Imports owned games from a bounded official BoardGameGeek CSV export.
+ *
+ * @param _previous - The previous server-action state.
+ * @param formData - The submitted form data.
+ * @returns The documented function result.
+ */
 export async function importBggCsvAction(
   _previous: CollectionActionState,
   formData: FormData,
@@ -283,7 +299,13 @@ export async function importBggCsvAction(
   };
 }
 
-/** Adds a discovered game with locally supplied picker metadata. */
+/**
+ * Adds a discovered game with locally supplied picker metadata.
+ *
+ * @param _previous - The previous server-action state.
+ * @param formData - The submitted form data.
+ * @returns The documented function result.
+ */
 export async function addGameAction(
   _previous: CollectionActionState,
   formData: FormData,
@@ -398,7 +420,13 @@ export async function addGameAction(
   };
 }
 
-/** Updates user-owned collection details without mutating shared game data. */
+/**
+ * Updates user-owned collection details without mutating shared game data.
+ *
+ * @param _previous - The previous server-action state.
+ * @param formData - The submitted form data.
+ * @returns The documented function result.
+ */
 export async function updateCollectionItemAction(
   _previous: CollectionActionState,
   formData: FormData,
@@ -462,7 +490,12 @@ export async function updateCollectionItemAction(
   };
 }
 
-/** Removes one owned item after verifying it belongs to the current user. */
+/**
+ * Removes one owned item after verifying it belongs to the current user.
+ *
+ * @param formData - The submitted form data.
+ * @returns The documented function result.
+ */
 export async function removeGameAction(formData: FormData): Promise<void> {
   const session = await requireUser();
   const itemId = itemIdSchema.parse(formData.get("itemId"));
@@ -491,7 +524,12 @@ export async function removeGameAction(formData: FormData): Promise<void> {
   revalidatePath("/stats");
 }
 
-/** Toggles a favorite after verifying collection ownership. */
+/**
+ * Toggles a favorite after verifying collection ownership.
+ *
+ * @param formData - The submitted form data.
+ * @returns The documented function result.
+ */
 export async function toggleFavoriteAction(formData: FormData): Promise<void> {
   const session = await requireUser();
   const itemId = itemIdSchema.parse(formData.get("itemId"));
@@ -511,7 +549,13 @@ export async function toggleFavoriteAction(formData: FormData): Promise<void> {
   revalidatePath("/play");
 }
 
-/** Moves a wished-for game into the owned collection with its purchase price. */
+/**
+ * Moves a wished-for game into the owned collection with its purchase price.
+ *
+ * @param _previous - The previous server-action state.
+ * @param formData - The submitted form data.
+ * @returns The documented function result.
+ */
 export async function moveWishlistToCollectionAction(
   _previous: CollectionActionState,
   formData: FormData,
@@ -585,7 +629,13 @@ export async function moveWishlistToCollectionAction(
   };
 }
 
-/** Permanently clears only owned entries, leaving the wishlist intact. */
+/**
+ * Permanently clears only owned entries, leaving the wishlist intact.
+ *
+ * @param _previous - The previous server-action state.
+ * @param formData - The submitted form data.
+ * @returns The documented function result.
+ */
 export async function clearCollectionAction(
   _previous: CollectionActionState,
   formData: FormData,

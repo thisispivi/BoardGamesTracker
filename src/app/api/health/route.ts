@@ -3,7 +3,12 @@ import { sql } from "drizzle-orm";
 import { env } from "@/env";
 import { db } from "@/server/db";
 
-/** Minimal orchestrator health check without sensitive diagnostics. */
+/**
+ * Minimal orchestrator health check without sensitive diagnostics.
+ *
+ * @param request - The incoming request.
+ * @returns The documented function result.
+ */
 export async function GET(request: Request): Promise<Response> {
   if (
     env.HEALTH_CHECK_TOKEN &&

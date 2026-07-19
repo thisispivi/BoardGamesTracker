@@ -11,13 +11,21 @@ import { db } from "@/server/db";
 import { collectionItems, user } from "@/server/db/schema";
 import { requireAdmin } from "@/server/session";
 
-/** Administrator page metadata. */
+/**
+ * Administrator page metadata.
+ *
+ * @returns The documented function result.
+ */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
   return { title: t("admin.metaTitle") };
 }
 
-/** User management, service health, collection, and audit console. */
+/**
+ * User management, service health, collection, and audit console.
+ *
+ * @returns The documented function result.
+ */
 export default async function AdminPage() {
   const [actor, t, format] = await Promise.all([
     requireAdmin(),

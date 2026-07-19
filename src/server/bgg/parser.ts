@@ -3,14 +3,24 @@ import { hasExpansionCategory } from "@/utils/gameTaxonomy";
 
 type UnknownRecord = Record<string, unknown>;
 
-/** Narrows untrusted JSON values to plain records. */
+/**
+ * Narrows untrusted JSON values to plain records.
+ *
+ * @param value - The value to inspect or transform.
+ */
 function record(value: unknown): UnknownRecord | null {
   return value !== null && typeof value === "object" && !Array.isArray(value)
     ? (value as UnknownRecord)
     : null;
 }
 
-/** Reads a bounded number from BGG's string-or-number fields. */
+/**
+ * Reads a bounded number from BGG's string-or-number fields.
+ *
+ * @param value - The value to inspect or transform.
+ * @param minimum - The 'minimum' value.
+ * @param maximum - The 'maximum' value.
+ */
 function boundedNumber(
   value: unknown,
   minimum: number,
@@ -25,7 +35,12 @@ function boundedNumber(
     : null;
 }
 
-/** Extracts unique approved names from one BGG credits link group. */
+/**
+ * Extracts unique approved names from one BGG credits link group.
+ *
+ * @param links - The 'links' value.
+ * @param key - The 'key' value.
+ */
 function linkNames(links: UnknownRecord, key: string): string[] {
   const entries = Array.isArray(links[key]) ? links[key] : [];
   const names = new Set<string>();
@@ -38,7 +53,11 @@ function linkNames(links: UnknownRecord, key: string): string[] {
   return [...names].slice(0, 50);
 }
 
-/** Converts BGG description markup to bounded plain text. */
+/**
+ * Converts BGG description markup to bounded plain text.
+ *
+ * @param value - The value to inspect or transform.
+ */
 function plainText(value: unknown): string {
   if (typeof value !== "string") return "";
   return value
@@ -54,7 +73,11 @@ function plainText(value: unknown): string {
     .slice(0, 10_000);
 }
 
-/** Accepts only artwork hosted on BGG's HTTPS image CDN. */
+/**
+ * Accepts only artwork hosted on BGG's HTTPS image CDN.
+ *
+ * @param value - The value to inspect or transform.
+ */
 function trustedImage(value: unknown): string | null {
   if (typeof value !== "string") return null;
   try {
@@ -67,7 +90,13 @@ function trustedImage(value: unknown): string | null {
   }
 }
 
-/** Parses the structured payload backing a public BGG game's credits page. */
+/**
+ * Parses the structured payload backing a public BGG game's credits page.
+ *
+ * @param payload - The 'payload' value.
+ * @param expectedBggId - The 'expectedBggId' value.
+ * @returns The documented function result.
+ */
 export function parseBggGeekItemPayload(
   payload: unknown,
   expectedBggId: number,

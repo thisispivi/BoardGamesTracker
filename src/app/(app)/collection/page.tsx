@@ -8,13 +8,21 @@ import { getCollection } from "@/server/collection";
 import { getUserPreferences } from "@/server/preferences";
 import { requireUser } from "@/server/session";
 
-/** Collection page metadata. */
+/**
+ * Collection page metadata.
+ *
+ * @returns The documented function result.
+ */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
   return { title: t("collection.metaTitle") };
 }
 
-/** Visual, searchable personal board-game collection. */
+/**
+ * Visual, searchable personal board-game collection.
+ *
+ * @returns The documented function result.
+ */
 export default async function CollectionPage() {
   const session = await requireUser();
   const [collection, preferences, t] = await Promise.all([

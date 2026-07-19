@@ -6,7 +6,14 @@ import { useEffect } from "react";
 
 import { Button } from "@/components/atoms/Button/Button";
 
-/** Isolates unexpected render failures without leaking stack traces. */
+/**
+ * Isolates unexpected render failures without leaking stack traces.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.error - The 'error' property.
+ * @param root0.reset - The 'reset' property.
+ * @returns The documented function result.
+ */
 export default function ErrorBoundary({
   error,
   reset,

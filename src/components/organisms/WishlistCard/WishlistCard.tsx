@@ -30,7 +30,13 @@ type PurchaseDialogProps = {
   game: CollectionGame;
 };
 
-/** Purchase dialog that promotes one wishlist item into the owned collection. */
+/**
+ * Purchase dialog that promotes one wishlist item into the owned collection.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.currency - The 'currency' property.
+ * @param root0.game - The 'game' property.
+ */
 function PurchaseDialog({ currency, game }: PurchaseDialogProps): ReactNode {
   const [open, setOpen] = useState(false);
   const [state, action, pending] = useActionState(
@@ -114,7 +120,14 @@ type WishlistCardProps = {
   game: CollectionGame;
 };
 
-/** Square wishlist card with purchase, BGG, and removal actions. */
+/**
+ * Square wishlist card with purchase, BGG, and removal actions.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.currency - The 'currency' property.
+ * @param root0.game - The 'game' property.
+ * @returns The documented function result.
+ */
 export function WishlistCard({ currency, game }: WishlistCardProps): ReactNode {
   const t = useTranslations();
   const tags = [...new Set([...game.categories, ...game.mechanics])].slice(

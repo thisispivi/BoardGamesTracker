@@ -16,13 +16,21 @@ import { getUserPreferences } from "@/server/preferences";
 import { requireUser } from "@/server/session";
 import { calculateCollectionStats } from "@/utils/collectionStats";
 
-/** Statistics page metadata. */
+/**
+ * Statistics page metadata.
+ *
+ * @returns The documented function result.
+ */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
   return { title: t("stats.metaTitle") };
 }
 
-/** Useful financial and taxonomy insights for the owned collection. */
+/**
+ * Useful financial and taxonomy insights for the owned collection.
+ *
+ * @returns The documented function result.
+ */
 export default async function StatsPage() {
   const session = await requireUser();
   const [collection, preferences, format, t] = await Promise.all([

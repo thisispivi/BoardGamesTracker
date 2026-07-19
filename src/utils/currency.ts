@@ -30,7 +30,12 @@ const currencySymbols: Record<Currency, string> = {
   USD: "$",
 };
 
-/** Returns the compact symbol shown beside a supported currency code. */
+/**
+ * Returns the compact symbol shown beside a supported currency code.
+ *
+ * @param currency - The 'currency' value.
+ * @returns The documented function result.
+ */
 export function getCurrencySymbol(currency: Currency): string {
   return currencySymbols[currency];
 }

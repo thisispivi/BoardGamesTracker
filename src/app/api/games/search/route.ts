@@ -8,7 +8,12 @@ import { consumeRateLimit } from "@/server/security/rateLimit";
 import { getSession } from "@/server/session";
 import { log } from "@/utils/logger";
 
-/** Discovers BoardGameGeek links for authenticated collection editors. */
+/**
+ * Discovers BoardGameGeek links for authenticated collection editors.
+ *
+ * @param request - The incoming request.
+ * @returns The documented function result.
+ */
 export async function GET(request: Request): Promise<Response> {
   const t = await getTranslations();
   const session = await getSession();

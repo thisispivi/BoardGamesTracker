@@ -15,7 +15,17 @@ type GiftedPriceFieldProps = {
   defaultValue?: number;
 };
 
-/** Coupled gifted and price controls that always submit a consistent value pair. */
+/**
+ * Coupled gifted and price controls that always submit a consistent value pair.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.currency - The 'currency' property.
+ * @param root0.className - The 'className' property.
+ * @param root0.companionField - The 'companionField' property.
+ * @param root0.defaultGifted - The 'defaultGifted' property.
+ * @param root0.defaultValue - The 'defaultValue' property.
+ * @returns The documented function result.
+ */
 export function GiftedPriceField({
   currency,
   className,

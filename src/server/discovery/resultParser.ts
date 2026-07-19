@@ -1,6 +1,11 @@
 import type { GameDiscoveryResult } from "@/core";
 
-/** Parses a canonical HTTPS BoardGameGeek game URL into its stable identity. */
+/**
+ * Parses a canonical HTTPS BoardGameGeek game URL into its stable identity.
+ *
+ * @param rawUrl - The 'rawUrl' value.
+ * @returns The documented function result.
+ */
 export function parseBoardGameUrl(
   rawUrl: string,
 ): { bggId: number; bggUrl: string } | null {
@@ -27,7 +32,13 @@ export function parseBoardGameUrl(
   }
 }
 
-/** Extracts a strict canonical BGG identity from a metasearch result. */
+/**
+ * Extracts a strict canonical BGG identity from a metasearch result.
+ *
+ * @param title - The 'title' value.
+ * @param rawUrl - The 'rawUrl' value.
+ * @returns The documented function result.
+ */
 export function parseBoardGameResult(
   title: string,
   rawUrl: string,
@@ -57,7 +68,13 @@ export function parseBoardGameResult(
   }
 }
 
-/** Accepts only BGG page-to-CDN image pairs returned by image discovery. */
+/**
+ * Accepts only BGG page-to-CDN image pairs returned by image discovery.
+ *
+ * @param pageUrl - The 'pageUrl' value.
+ * @param rawImageUrl - The 'rawImageUrl' value.
+ * @returns The documented function result.
+ */
 export function parseBoardGameImage(
   pageUrl: string,
   rawImageUrl: string,

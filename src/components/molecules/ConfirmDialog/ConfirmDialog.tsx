@@ -16,7 +16,19 @@ type ConfirmDialogProps = {
   trigger: React.ReactNode;
 };
 
-/** Animated in-app confirmation dialog for a server-side form action. */
+/**
+ * Animated in-app confirmation dialog for a server-side form action.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.action - The 'action' property.
+ * @param root0.cancelLabel - The 'cancelLabel' property.
+ * @param root0.confirmLabel - The 'confirmLabel' property.
+ * @param root0.description - The 'description' property.
+ * @param root0.fields - The 'fields' property.
+ * @param root0.title - The 'title' property.
+ * @param root0.trigger - The 'trigger' property.
+ * @returns The documented function result.
+ */
 export function ConfirmDialog({
   action,
   cancelLabel,

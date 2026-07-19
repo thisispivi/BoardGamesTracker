@@ -9,13 +9,21 @@ import { getWishlist } from "@/server/collection";
 import { getUserPreferences } from "@/server/preferences";
 import { requireUser } from "@/server/session";
 
-/** Wishlist page metadata. */
+/**
+ * Wishlist page metadata.
+ *
+ * @returns The documented function result.
+ */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
   return { title: t("wishlist.metaTitle") };
 }
 
-/** Games the signed-in user may want to buy later. */
+/**
+ * Games the signed-in user may want to buy later.
+ *
+ * @returns The documented function result.
+ */
 export default async function WishlistPage() {
   const session = await requireUser();
   const [wishlist, preferences, t] = await Promise.all([

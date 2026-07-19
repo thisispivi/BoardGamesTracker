@@ -18,7 +18,14 @@ type AdminUserActionsProps = {
   isSelf: boolean;
 };
 
-/** Guarded administrator controls for one user record. */
+/**
+ * Guarded administrator controls for one user record.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.user - The 'user' property.
+ * @param root0.isSelf - The 'isSelf' property.
+ * @returns The documented function result.
+ */
 export function AdminUserActions({
   user,
   isSelf,

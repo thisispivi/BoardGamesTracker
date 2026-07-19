@@ -17,7 +17,14 @@ const expansionCategories = new Set([
   "third-party expansion",
 ]);
 
-/** Returns a localized taxonomy label while preserving unknown imported values. */
+/**
+ * Returns a localized taxonomy label while preserving unknown imported values.
+ *
+ * @param value - The value to inspect or transform.
+ * @param taxonomy - The 'taxonomy' value.
+ * @param locale - The 'locale' value.
+ * @returns The documented function result.
+ */
 export function getTaxonomyLabel(
   value: string,
   taxonomy: "category" | "mechanic",
@@ -29,12 +36,22 @@ export function getTaxonomyLabel(
   return (labels as Readonly<Record<string, string>>)[value] ?? value;
 }
 
-/** Returns whether a BGG category represents an expansion rather than a base game. */
+/**
+ * Returns whether a BGG category represents an expansion rather than a base game.
+ *
+ * @param category - The 'category' value.
+ * @returns The documented function result.
+ */
 export function isExpansionCategory(category: string): boolean {
   return expansionCategories.has(category.trim().toLocaleLowerCase("en"));
 }
 
-/** Infers expansion status when BGG subtype metadata is unavailable. */
+/**
+ * Infers expansion status when BGG subtype metadata is unavailable.
+ *
+ * @param categories - The 'categories' value.
+ * @returns The documented function result.
+ */
 export function hasExpansionCategory(categories: readonly string[]): boolean {
   return categories.some(isExpansionCategory);
 }

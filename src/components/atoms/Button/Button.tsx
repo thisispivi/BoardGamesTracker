@@ -28,7 +28,15 @@ const buttonVariants = cva(
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
   VariantProps<typeof buttonVariants>;
 
-/** Reusable button primitive with product variants. */
+/**
+ * Reusable button primitive with product variants.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.className - The 'className' property.
+ * @param root0.variant - The 'variant' property.
+ * @param root0.size - The 'size' property.
+ * @returns The documented function result.
+ */
 export function Button({
   className,
   variant,

@@ -17,7 +17,19 @@ type SelectProps = {
   value?: string;
 };
 
-/** Animated, theme-aware select control backed by Radix primitives. */
+/**
+ * Animated, theme-aware select control backed by Radix primitives.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.ariaLabel - The 'ariaLabel' property.
+ * @param root0.className - The 'className' property.
+ * @param root0.defaultValue - The 'defaultValue' property.
+ * @param root0.name - The 'name' property.
+ * @param root0.onValueChange - The 'onValueChange' property.
+ * @param root0.options - The 'options' property.
+ * @param root0.value - The 'value' property.
+ * @returns The documented function result.
+ */
 export function Select({
   ariaLabel,
   className,

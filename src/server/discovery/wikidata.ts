@@ -2,7 +2,12 @@ import "server-only";
 
 import { wikidataResponseSchema } from "@/core";
 
-/** Retrieves open publication years keyed by BoardGameGeek ID from Wikidata. */
+/**
+ * Retrieves open publication years keyed by BoardGameGeek ID from Wikidata.
+ *
+ * @param bggIds - The BoardGameGeek identifiers.
+ * @returns The documented function result.
+ */
 export async function getWikidataYears(
   bggIds: number[],
 ): Promise<Map<number, number>> {

@@ -12,13 +12,21 @@ import { cn } from "@/utils/cn";
 
 const formats = ["json", "csv", "xlsx", "sql"] as const;
 
-/** Export and restore controls for the current user's portable app data. */
+/**
+ * Export and restore controls for the current user's portable app data.
+ *
+ * @returns The documented function result.
+ */
 export function UserDataCard(): ReactNode {
   const [importing, setImporting] = useState(false);
   const router = useRouter();
   const t = useTranslations();
 
-  /** Uploads a bounded portable export to the authenticated import endpoint. */
+  /**
+   * Uploads a bounded portable export to the authenticated import endpoint.
+   *
+   * @param event - The 'event' value.
+   */
   async function importData(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;

@@ -20,7 +20,22 @@ type MultiSelectProps = {
   values: string[];
 };
 
-/** Searchable, animated multi-select popover with a bounded scrollable option list. */
+/**
+ * Searchable, animated multi-select popover with a bounded scrollable option list.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.ariaLabel - The 'ariaLabel' property.
+ * @param root0.className - The 'className' property.
+ * @param root0.clearLabel - The 'clearLabel' property.
+ * @param root0.emptyLabel - The 'emptyLabel' property.
+ * @param root0.onValueChange - The 'onValueChange' property.
+ * @param root0.options - The 'options' property.
+ * @param root0.placeholder - The 'placeholder' property.
+ * @param root0.searchPlaceholder - The 'searchPlaceholder' property.
+ * @param root0.selectedSummary - The 'selectedSummary' property.
+ * @param root0.values - The 'values' property.
+ * @returns The documented function result.
+ */
 export function MultiSelect({
   ariaLabel,
   className,
@@ -54,7 +69,11 @@ export function MultiSelect({
           selectedSummary)
         : selectedSummary;
 
-  /** Toggles one facet while preserving the order of the available options. */
+  /**
+   * Toggles one facet while preserving the order of the available options.
+   *
+   * @param value - The value to inspect or transform.
+   */
   function toggleValue(value: string) {
     const next = new Set(values);
     if (next.has(value)) next.delete(value);

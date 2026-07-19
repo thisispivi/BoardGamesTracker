@@ -5,7 +5,12 @@ import { scrapeBggMetadata } from "@/server/bgg/scrape";
 import { parseBoardGameUrl } from "@/server/discovery/resultParser";
 import { createSelectionToken } from "@/server/discovery/selectionToken";
 
-/** Resolves a pasted BGG URL through the same trusted metadata path used on save. */
+/**
+ * Resolves a pasted BGG URL through the same trusted metadata path used on save.
+ *
+ * @param rawUrl - The 'rawUrl' value.
+ * @returns The documented function result.
+ */
 export async function discoverBoardGameByUrl(
   rawUrl: string,
 ): Promise<GameDiscoveryResult | null> {
