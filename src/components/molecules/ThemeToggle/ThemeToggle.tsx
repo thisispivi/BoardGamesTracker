@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/atoms/Button/Button";
-import { persistThemeCookie } from "@/lib/theme";
+import { persistThemeCookie } from "@/utils/theme";
 
 /** Toggles the persisted light and dark color schemes. */
 export function ThemeToggle() {

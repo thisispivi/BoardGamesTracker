@@ -27,9 +27,9 @@ import { GameArtwork } from "@/components/atoms/GameArtwork/GameArtwork";
 import { Select } from "@/components/atoms/Select/Select";
 import { MultiSelect } from "@/components/molecules/MultiSelect/MultiSelect";
 import type { CollectionGame, MultiSelectOption } from "@/core";
-import { useDurationFormatter } from "@/i18n/use-duration-formatter";
-import { getTaxonomyLabel, isExpansionCategory } from "@/lib/game-taxonomy";
-import { filterGames, pickRandomGame } from "@/server/picker";
+import { useDurationFormatter } from "@/hooks/useDurationFormatter";
+import { getTaxonomyLabel, isExpansionCategory } from "@/utils/gameTaxonomy";
+import { filterGames, pickRandomGame } from "@/utils/picker";
 
 type ReelGame = {
   gameId: string;

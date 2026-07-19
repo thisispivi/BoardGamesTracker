@@ -11,10 +11,10 @@ import { getFormatter, getTranslations } from "next-intl/server";
 
 import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
 import { StatsCharts } from "@/components/organisms/StatsCharts/StatsCharts";
-import { calculateCollectionStats } from "@/lib/collection-stats";
 import { getCollection } from "@/server/collection";
 import { getUserPreferences } from "@/server/preferences";
 import { requireUser } from "@/server/session";
+import { calculateCollectionStats } from "@/utils/collectionStats";
 
 /** Statistics page metadata. */
 export async function generateMetadata(): Promise<Metadata> {

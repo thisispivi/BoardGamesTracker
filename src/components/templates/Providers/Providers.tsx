@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { Toaster } from "sonner";
 
 import type { AppTheme } from "@/core";
-import { isAppTheme, persistThemeCookie } from "@/lib/theme";
+import { isAppTheme, persistThemeCookie } from "@/utils/theme";
 
 /** Client-side application providers. */
 export function Providers({

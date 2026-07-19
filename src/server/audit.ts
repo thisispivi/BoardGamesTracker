@@ -2,9 +2,9 @@ import "server-only";
 
 import { headers } from "next/headers";
 
-import { log } from "@/lib/logger";
 import { db } from "@/server/db";
 import { auditLogs } from "@/server/db/schema";
+import { log } from "@/utils/logger";
 
 type AuditInput = {
   actorId?: string;

@@ -14,12 +14,12 @@ import { GameArtwork } from "@/components/atoms/GameArtwork/GameArtwork";
 import { ConfirmDialog } from "@/components/molecules/ConfirmDialog/ConfirmDialog";
 import { EditGameDialog } from "@/components/organisms/EditGameDialog/EditGameDialog";
 import type { CollectionGame } from "@/core";
-import { useDurationFormatter } from "@/i18n/use-duration-formatter";
-import { isExpansionCategory } from "@/lib/game-taxonomy";
+import { useDurationFormatter } from "@/hooks/useDurationFormatter";
 import {
   removeGameAction,
   toggleFavoriteAction,
 } from "@/server/actions/collection";
+import { isExpansionCategory } from "@/utils/gameTaxonomy";
 
 /** Favorite toggle shared by full collection cards. */
 function FavoriteControl({ game }: { game: CollectionGame }) {

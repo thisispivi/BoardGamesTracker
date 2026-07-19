@@ -1,6 +1,6 @@
 import postgres from "postgres";
 
-import { downloadBggImages } from "../src/server/images/bgg-image";
+import { downloadBggImages } from "../src/server/images/bggImage";
 
 type ExistingGame = {
   bgg_id: number;

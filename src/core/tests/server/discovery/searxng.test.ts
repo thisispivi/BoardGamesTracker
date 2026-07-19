@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   parseBoardGameImage,
   parseBoardGameResult,
-} from "@/server/discovery/result-parser";
+} from "@/server/discovery/resultParser";
 
 describe("parseBoardGameResult", () => {
   /** Accepts canonical HTTPS game links and normalizes their metadata. */

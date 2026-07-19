@@ -6,8 +6,8 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { Select } from "@/components/atoms/Select/Select";
-import { currencies, type Currency, getCurrencySymbol } from "@/lib/currency";
 import { setCurrencyAction } from "@/server/actions/preferences";
+import { currencies, type Currency, getCurrencySymbol } from "@/utils/currency";
 
 /** Immediately saves a supported ISO currency preference. */
 export function CurrencySelect({

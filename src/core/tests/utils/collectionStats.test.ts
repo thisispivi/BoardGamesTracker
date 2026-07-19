@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { StatGame } from "@/core";
-import { calculateCollectionStats } from "@/lib/collection-stats";
+import { calculateCollectionStats } from "@/utils/collectionStats";
 
 const game = (overrides: Partial<StatGame>): StatGame => ({
   bggId: 1,

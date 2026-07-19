@@ -8,8 +8,8 @@ import { useMemo, useState } from "react";
 import { MultiSelect } from "@/components/molecules/MultiSelect/MultiSelect";
 import { GameCard } from "@/components/organisms/GameCard/GameCard";
 import type { CollectionGame, MultiSelectOption } from "@/core";
-import { getTaxonomyLabel } from "@/lib/game-taxonomy";
-import { normalizeSearchText } from "@/lib/search";
+import { getTaxonomyLabel } from "@/utils/gameTaxonomy";
+import { normalizeSearchText } from "@/utils/search";
 
 type CollectionGroup = {
   base: CollectionGame;

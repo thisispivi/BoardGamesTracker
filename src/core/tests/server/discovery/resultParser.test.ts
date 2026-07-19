@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { parseBoardGameUrl } from "@/server/discovery/result-parser";
+import { parseBoardGameUrl } from "@/server/discovery/resultParser";
 
 describe("BoardGameGeek URL parsing", () => {
   it("accepts canonical game URLs with an optional slug", () => {

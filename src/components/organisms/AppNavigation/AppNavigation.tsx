@@ -20,7 +20,7 @@ import { useState } from "react";
 import { AppSpinner } from "@/components/atoms/AppSpinner/AppSpinner";
 import { Logo } from "@/components/atoms/Logo/Logo";
 import { SignOutButton } from "@/components/molecules/SignOutButton/SignOutButton";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/cn";
 
 /** Active navigation, mobile drawer, and session sign-out. */
 export function AppNavigation({

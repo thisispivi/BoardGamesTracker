@@ -6,7 +6,7 @@ import { getFormatter, getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
 import { AdminUserActions } from "@/components/organisms/AdminUserActions/AdminUserActions";
 import { AuditLogPanel } from "@/components/organisms/AuditLogPanel/AuditLogPanel";
-import { getAuditLogPage } from "@/server/admin/audit-logs";
+import { getAuditLogPage } from "@/server/admin/auditLogs";
 import { db } from "@/server/db";
 import { collectionItems, user } from "@/server/db/schema";
 import { requireAdmin } from "@/server/session";

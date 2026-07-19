@@ -1,5 +1,5 @@
 import type { CountDatum, StatGame } from "@/core";
-import { isExpansionCategory } from "@/lib/game-taxonomy";
+import { isExpansionCategory } from "@/utils/gameTaxonomy";
 
 /** Computes deterministic user-facing insights from owned collection data. */
 export function calculateCollectionStats(collection: StatGame[]) {

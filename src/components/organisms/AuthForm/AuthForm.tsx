@@ -6,7 +6,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/atoms/Button/Button";
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/utils/authClient";
 
 /** Email/password login and registration form. */
 export function AuthForm({

@@ -4,13 +4,13 @@ import Fuse from "fuse.js";
 
 import { type GameDiscoveryResult, searxngResponseSchema } from "@/core";
 import { env } from "@/env";
-import { normalizeSearchText } from "@/lib/search";
 import {
   parseBoardGameImage,
   parseBoardGameResult,
-} from "@/server/discovery/result-parser";
-import { createSelectionToken } from "@/server/discovery/selection-token";
+} from "@/server/discovery/resultParser";
+import { createSelectionToken } from "@/server/discovery/selectionToken";
 import { getWikidataYears } from "@/server/discovery/wikidata";
+import { normalizeSearchText } from "@/utils/search";
 
 type SearchResult =
   (typeof searxngResponseSchema)["_output"]["results"][number];

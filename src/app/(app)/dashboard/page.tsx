@@ -4,10 +4,10 @@ import { getFormatter, getTranslations } from "next-intl/server";
 
 import { buttonVariants } from "@/components/atoms/Button/Button";
 import { GameArtwork } from "@/components/atoms/GameArtwork/GameArtwork";
-import { cn } from "@/lib/utils";
 import { getCollection } from "@/server/collection";
 import { getUserPreferences } from "@/server/preferences";
 import { requireUser } from "@/server/session";
+import { cn } from "@/utils/cn";
 
 /** Personalized collection summary without promotional hero content. */
 export default async function DashboardPage() {

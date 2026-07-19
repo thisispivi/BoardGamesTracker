@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/cn";
 
 /** Brand-colored loading indicator with no visible status copy. */
 export function AppSpinner({

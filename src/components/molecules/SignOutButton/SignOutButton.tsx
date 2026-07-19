@@ -4,7 +4,7 @@ import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/utils/authClient";
 
 /** Revokes the current session from the account area. */
 export function SignOutButton() {

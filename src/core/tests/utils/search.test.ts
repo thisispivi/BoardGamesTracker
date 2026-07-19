@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { normalizeSearchText } from "@/lib/search";
+import { normalizeSearchText } from "@/utils/search";
 
 describe("normalizeSearchText", () => {
   it("separates joined numbers and words", () => {

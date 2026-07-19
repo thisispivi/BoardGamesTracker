@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/cn";
 
 /** Board Games Tracker wordmark and compact geometric mark. */
 export function Logo({

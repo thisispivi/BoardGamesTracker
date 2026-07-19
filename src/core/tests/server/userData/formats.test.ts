@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { UserDataDocument, UserDataFormat } from "@/core";
-import { parseUserData, serializeUserData } from "@/server/user-data/formats";
+import { parseUserData, serializeUserData } from "@/server/userData/formats";
 
 const document: UserDataDocument = {
   formatVersion: 1,

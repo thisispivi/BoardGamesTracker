@@ -6,7 +6,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { Providers } from "@/components/templates/Providers/Providers";
-import { isAppTheme } from "@/lib/theme";
+import { isAppTheme } from "@/utils/theme";
 
 /** Global metadata for search engines and browser integrations. */
 export async function generateMetadata(): Promise<Metadata> {

@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { useId, useState } from "react";
 
 import { Tooltip } from "@/components/atoms/Tooltip/Tooltip";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/cn";
 
 /** Coupled gifted and price controls that always submit a consistent value pair. */
 export function GiftedPriceField({

@@ -8,7 +8,7 @@ import { toast } from "sonner";
 
 import { Button, buttonVariants } from "@/components/atoms/Button/Button";
 import { ImportCollectionDialog } from "@/components/organisms/ImportCollectionDialog/ImportCollectionDialog";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/cn";
 
 const formats = ["json", "csv", "xlsx", "sql"] as const;
 

@@ -17,4 +17,4 @@ export * from "@/core/typings/Theme";
 export * from "@/core/typings/Ui";
 export * from "@/core/typings/UserData";
 export type { AppLocale } from "@/i18n/config";
-export type { Currency } from "@/lib/currency";
+export type { Currency } from "@/utils/currency";

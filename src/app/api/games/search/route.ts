@@ -1,11 +1,11 @@
 import { getTranslations } from "next-intl/server";
 
 import { querySchema } from "@/core";
-import { log } from "@/lib/logger";
-import { discoverBoardGameByUrl } from "@/server/discovery/bgg-url";
-import { parseBoardGameUrl } from "@/server/discovery/result-parser";
+import { discoverBoardGameByUrl } from "@/server/discovery/bggUrl";
+import { parseBoardGameUrl } from "@/server/discovery/resultParser";
 import { searchBoardGames } from "@/server/discovery/searxng";
 import { getSession } from "@/server/session";
+import { log } from "@/utils/logger";
 
 const requests = new Map<string, { count: number; resetsAt: number }>();
 

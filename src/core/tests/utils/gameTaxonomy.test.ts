@@ -6,7 +6,7 @@ import {
   getTaxonomyLabel,
   hasExpansionCategory,
   isExpansionCategory,
-} from "@/lib/game-taxonomy";
+} from "@/utils/gameTaxonomy";
 
 describe("game taxonomy", () => {
   /** Recognizes BGG's current expansion categories and the legacy import label. */

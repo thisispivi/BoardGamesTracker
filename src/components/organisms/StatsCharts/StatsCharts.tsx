@@ -15,7 +15,7 @@ import {
 } from "recharts";
 
 import type { CountDatum } from "@/core";
-import { getTaxonomyLabel } from "@/lib/game-taxonomy";
+import { getTaxonomyLabel } from "@/utils/gameTaxonomy";
 
 const chartColors = ["var(--primary)", "var(--accent)", "#3f8fba", "#b86b8f"];
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { parseBggCollectionCsv } from "@/server/import/bgg-csv";
+import { parseBggCollectionCsv } from "@/server/import/bggCsv";
 
 const header = [
   "objectname",

@@ -1,5 +1,5 @@
 import type { BggMetadata } from "@/core";
-import { hasExpansionCategory } from "@/lib/game-taxonomy";
+import { hasExpansionCategory } from "@/utils/gameTaxonomy";
 
 type UnknownRecord = Record<string, unknown>;
 

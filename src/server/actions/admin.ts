@@ -10,7 +10,7 @@ import {
   roleSchema,
   userIdSchema,
 } from "@/core";
-import { getAuditLogPage } from "@/server/admin/audit-logs";
+import { getAuditLogPage } from "@/server/admin/auditLogs";
 import { writeAuditEvent } from "@/server/audit";
 import { db } from "@/server/db";
 import { session, user } from "@/server/db/schema";

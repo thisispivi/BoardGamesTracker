@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/cn";
 
 /** Responsive game-box artwork with a polished text fallback. */
 export function GameArtwork({

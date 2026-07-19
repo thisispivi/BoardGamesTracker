@@ -5,7 +5,7 @@ import { Check, ChevronDown, Search, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import type { MultiSelectOption } from "@/core";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/cn";
 
 /** Searchable, animated multi-select popover with a bounded scrollable option list. */
 export function MultiSelect({

@@ -15,17 +15,17 @@ import {
   itemIdSchema,
   libraryDestinationSchema,
 } from "@/core";
-import { CLEAR_COLLECTION_CONFIRMATION } from "@/lib/collection-confirmation";
-import { hasExpansionCategory } from "@/lib/game-taxonomy";
 import { writeAuditEvent } from "@/server/audit";
 import { scrapeBggMetadata } from "@/server/bgg/scrape";
 import { db } from "@/server/db";
 import { collectionItems, gameImages, games } from "@/server/db/schema";
 import { discoverBoardGameImages } from "@/server/discovery/searxng";
-import { verifySelectionToken } from "@/server/discovery/selection-token";
-import { downloadBggImage, downloadBggImages } from "@/server/images/bgg-image";
-import { parseBggCollectionCsv } from "@/server/import/bgg-csv";
+import { verifySelectionToken } from "@/server/discovery/selectionToken";
+import { downloadBggImage, downloadBggImages } from "@/server/images/bggImage";
+import { parseBggCollectionCsv } from "@/server/import/bggCsv";
 import { requireUser } from "@/server/session";
+import { CLEAR_COLLECTION_CONFIRMATION } from "@/utils/collectionConfirmation";
+import { hasExpansionCategory } from "@/utils/gameTaxonomy";
 
 type LocalGameDetails = z.infer<typeof gameDetailsSchema>;
 

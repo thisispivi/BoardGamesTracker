@@ -9,12 +9,12 @@ import { getSession } from "@/server/session";
 import {
   getUserDataDocument,
   importUserDataDocument,
-} from "@/server/user-data/data";
+} from "@/server/userData/data";
 import {
   getExportMetadata,
   parseUserData,
   serializeUserData,
-} from "@/server/user-data/formats";
+} from "@/server/userData/formats";
 const maxImportBytes = 10 * 1024 * 1024;
 
 /** Exports only the signed-in user's portable application data. */

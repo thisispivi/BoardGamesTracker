@@ -8,8 +8,8 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/atoms/Button/Button";
 import type { CollectionActionState } from "@/core";
-import { CLEAR_COLLECTION_CONFIRMATION } from "@/lib/collection-confirmation";
 import { clearCollectionAction } from "@/server/actions/collection";
+import { CLEAR_COLLECTION_CONFIRMATION } from "@/utils/collectionConfirmation";
 
 const initialState: CollectionActionState = { success: false, message: "" };
 
