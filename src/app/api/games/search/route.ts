@@ -1,13 +1,12 @@
 import { getTranslations } from "next-intl/server";
-import { z } from "zod";
 
+import { querySchema } from "@/core";
 import { log } from "@/lib/logger";
 import { discoverBoardGameByUrl } from "@/server/discovery/bgg-url";
 import { parseBoardGameUrl } from "@/server/discovery/result-parser";
 import { searchBoardGames } from "@/server/discovery/searxng";
 import { getSession } from "@/server/session";
 
-const querySchema = z.string().trim().min(3).max(500);
 const requests = new Map<string, { count: number; resetsAt: number }>();
 
 /** Applies a small per-user metasearch limit for a single-instance deployment. */

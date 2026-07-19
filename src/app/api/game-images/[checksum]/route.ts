@@ -1,10 +1,8 @@
 import { eq } from "drizzle-orm";
-import { z } from "zod";
 
+import { checksumSchema } from "@/core";
 import { db } from "@/server/db";
 import { gameImages } from "@/server/db/schema";
-
-const checksumSchema = z.string().regex(/^[a-f0-9]{64}$/);
 
 /** Serves immutable, content-addressed game artwork stored in PostgreSQL. */
 export async function GET(

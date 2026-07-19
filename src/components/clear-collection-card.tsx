@@ -7,11 +7,9 @@ import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import type { CollectionActionState } from "@/core";
 import { CLEAR_COLLECTION_CONFIRMATION } from "@/lib/collection-confirmation";
-import {
-  clearCollectionAction,
-  type CollectionActionState,
-} from "@/server/actions/collection";
+import { clearCollectionAction } from "@/server/actions/collection";
 
 const initialState: CollectionActionState = { success: false, message: "" };
 

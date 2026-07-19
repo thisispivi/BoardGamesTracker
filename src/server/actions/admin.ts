@@ -2,16 +2,19 @@
 
 import { count, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { z } from "zod";
 
-import { type AuditLogPage, getAuditLogPage } from "@/server/admin/audit-logs";
+import {
+  type AuditLogPage,
+  auditPageSchema,
+  bannedSchema,
+  roleSchema,
+  userIdSchema,
+} from "@/core";
+import { getAuditLogPage } from "@/server/admin/audit-logs";
 import { writeAuditEvent } from "@/server/audit";
 import { db } from "@/server/db";
 import { session, user } from "@/server/db/schema";
 import { requireAdmin } from "@/server/session";
-
-const userIdSchema = z.string().min(1).max(128);
-const auditPageSchema = z.number().int().positive().max(1_000_000);
 
 /** Returns an authorized audit page without navigating away from the console. */
 export async function getAuditLogPageAction(
@@ -52,7 +55,7 @@ async function assertManageableUser(
 export async function updateUserRoleAction(formData: FormData): Promise<void> {
   const actor = await requireAdmin();
   const targetId = userIdSchema.parse(formData.get("userId"));
-  const role = z.enum(["user", "admin"]).parse(formData.get("role"));
+  const role = roleSchema.parse(formData.get("role"));
   await assertManageableUser(actor.user.id, targetId);
   await db
     .update(user)
@@ -72,8 +75,7 @@ export async function updateUserRoleAction(formData: FormData): Promise<void> {
 export async function toggleUserBanAction(formData: FormData): Promise<void> {
   const actor = await requireAdmin();
   const targetId = userIdSchema.parse(formData.get("userId"));
-  const banned =
-    z.enum(["true", "false"]).parse(formData.get("banned")) === "true";
+  const banned = bannedSchema.parse(formData.get("banned")) === "true";
   await assertManageableUser(actor.user.id, targetId);
   await db
     .update(user)

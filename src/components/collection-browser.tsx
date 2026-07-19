@@ -5,11 +5,9 @@ import { BookOpen, Heart, RotateCcw, Search } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
-import { type CollectionGame, GameCard } from "@/components/game-card";
-import {
-  MultiSelect,
-  type MultiSelectOption,
-} from "@/components/ui/multi-select";
+import { GameCard } from "@/components/game-card";
+import { MultiSelect } from "@/components/ui/multi-select";
+import type { CollectionGame, MultiSelectOption } from "@/core";
 import { getTaxonomyLabel } from "@/lib/game-taxonomy";
 import { normalizeSearchText } from "@/lib/search";
 

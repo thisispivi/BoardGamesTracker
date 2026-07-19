@@ -1,22 +1,5 @@
+import type { BggMetadata } from "@/core";
 import { hasExpansionCategory } from "@/lib/game-taxonomy";
-
-export type BggMetadata = {
-  bggId: number;
-  bggRating: number | null;
-  categories: string[];
-  description: string;
-  families: string[];
-  imageUrl: string | null;
-  isExpansion: boolean;
-  maxPlayers: number;
-  maxPlaytime: number;
-  mechanics: string[];
-  minPlayers: number;
-  minPlaytime: number;
-  name: string;
-  weight: number | null;
-  yearPublished: number | null;
-};
 
 type UnknownRecord = Record<string, unknown>;
 

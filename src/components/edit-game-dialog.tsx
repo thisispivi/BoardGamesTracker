@@ -6,13 +6,10 @@ import { useTranslations } from "next-intl";
 import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import type { CollectionGame } from "@/components/game-card";
 import { GiftedPriceField } from "@/components/gifted-price-field";
 import { Button } from "@/components/ui/button";
-import {
-  type CollectionActionState,
-  updateCollectionItemAction,
-} from "@/server/actions/collection";
+import type { CollectionActionState, CollectionGame } from "@/core";
+import { updateCollectionItemAction } from "@/server/actions/collection";
 
 const initialState: CollectionActionState = { success: false, message: "" };
 

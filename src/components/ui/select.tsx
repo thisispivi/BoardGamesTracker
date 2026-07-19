@@ -3,12 +3,8 @@
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { Check, ChevronDown } from "lucide-react";
 
+import type { SelectOption } from "@/core";
 import { cn } from "@/lib/utils";
-
-export type SelectOption = {
-  label: React.ReactNode;
-  value: string;
-};
 
 /** Animated, theme-aware select control backed by Radix primitives. */
 export function Select({

@@ -1,4 +1,4 @@
-export type AppTheme = "dark" | "light";
+import type { AppTheme } from "@/core";
 
 /** Narrows persisted theme values to the two explicitly supported modes. */
 export function isAppTheme(value: string | undefined): value is AppTheme {

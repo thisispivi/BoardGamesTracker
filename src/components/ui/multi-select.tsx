@@ -4,14 +4,8 @@ import * as Popover from "@radix-ui/react-popover";
 import { Check, ChevronDown, Search, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import type { MultiSelectOption } from "@/core";
 import { cn } from "@/lib/utils";
-
-/** One searchable facet value and its optional collection occurrence count. */
-export type MultiSelectOption = {
-  count?: number;
-  label: string;
-  value: string;
-};
 
 /** Searchable, animated multi-select popover with a bounded scrollable option list. */
 export function MultiSelect({

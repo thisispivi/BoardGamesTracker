@@ -1,5 +1,11 @@
 import { parse } from "csv-parse/sync";
-import { z } from "zod";
+import type { z } from "zod";
+
+import {
+  type BggCsvImport,
+  type ImportedBggGame,
+  importedRowSchema,
+} from "@/core";
 
 const requiredColumns = [
   "objectname",
@@ -14,48 +20,6 @@ const requiredColumns = [
   "baverage",
   "rating",
 ] as const;
-
-const importedRowSchema = z.object({
-  avgweight: z.string(),
-  baverage: z.string(),
-  comment: z.string().optional().default(""),
-  itemtype: z.string().optional().default("standalone"),
-  maxplayers: z.string(),
-  maxplaytime: z.string(),
-  minplayers: z.string(),
-  minplaytime: z.string(),
-  numplays: z.string().optional().default("0"),
-  objectid: z.string(),
-  objectname: z.string(),
-  own: z.string(),
-  privatecomment: z.string().optional().default(""),
-  rating: z.string(),
-  yearpublished: z.string(),
-});
-
-/** Normalized owned game read from an official BGG collection export. */
-type ImportedBggGame = {
-  bggId: number;
-  bggRating: number | null;
-  categories: string[];
-  isExpansion: boolean;
-  maxPlayers: number;
-  maxPlaytime: number;
-  minPlayers: number;
-  minPlaytime: number;
-  name: string;
-  notes: string;
-  personalRating: number | null;
-  weight: number | null;
-  yearPublished: number | null;
-};
-
-/** Result summary for a validated BGG collection CSV. */
-export type BggCsvImport = {
-  games: ImportedBggGame[];
-  invalid: number;
-  skipped: number;
-};
 
 /** Parses a bounded integer field while rejecting malformed values. */
 function integer(

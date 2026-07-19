@@ -11,11 +11,8 @@ import { toast } from "sonner";
 import { GiftedPriceField } from "@/components/gifted-price-field";
 import { AppSpinner } from "@/components/ui/app-spinner";
 import { Button } from "@/components/ui/button";
-import {
-  addGameAction,
-  type CollectionActionState,
-} from "@/server/actions/collection";
-import type { GameDiscoveryResult } from "@/server/discovery/types";
+import type { CollectionActionState, GameDiscoveryResult } from "@/core";
+import { addGameAction } from "@/server/actions/collection";
 
 const initialState: CollectionActionState = { success: false, message: "" };
 

@@ -3,26 +3,12 @@
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
-import { z } from "zod";
 
+import { currencySchema } from "@/core";
 import { isLocale } from "@/i18n/config";
 import { db } from "@/server/db";
 import { user } from "@/server/db/schema";
 import { requireUser } from "@/server/session";
-
-const currencySchema = z.enum([
-  "AUD",
-  "CAD",
-  "CHF",
-  "CNY",
-  "EUR",
-  "GBP",
-  "JPY",
-  "NOK",
-  "PLN",
-  "SEK",
-  "USD",
-]);
 
 /** Persists a validated display locale in a same-site cookie. */
 export async function setLocaleAction(formData: FormData): Promise<void> {

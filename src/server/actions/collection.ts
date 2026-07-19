@@ -5,92 +5,29 @@ import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 
+import {
+  type BggMetadata,
+  type CollectionActionState,
+  editCollectionItemSchema,
+  gameDetailsSchema,
+  type GameSelection,
+  giftedSchema,
+  itemIdSchema,
+  libraryDestinationSchema,
+} from "@/core";
 import { CLEAR_COLLECTION_CONFIRMATION } from "@/lib/collection-confirmation";
 import { hasExpansionCategory } from "@/lib/game-taxonomy";
 import { writeAuditEvent } from "@/server/audit";
-import { type BggMetadata, scrapeBggMetadata } from "@/server/bgg/scrape";
+import { scrapeBggMetadata } from "@/server/bgg/scrape";
 import { db } from "@/server/db";
 import { collectionItems, gameImages, games } from "@/server/db/schema";
 import { discoverBoardGameImages } from "@/server/discovery/searxng";
 import { verifySelectionToken } from "@/server/discovery/selection-token";
-import type { GameSelection } from "@/server/discovery/types";
 import { downloadBggImage, downloadBggImages } from "@/server/images/bgg-image";
 import { parseBggCollectionCsv } from "@/server/import/bgg-csv";
 import { requireUser } from "@/server/session";
 
-/** Serializable result returned by collection mutations. */
-export type CollectionActionState = {
-  success: boolean;
-  message: string;
-};
-
-const itemIdSchema = z.uuid();
-const giftedSchema = z.preprocess((value) => value === "true", z.boolean());
-const optionalInteger = (minimum: number, maximum: number) =>
-  z.preprocess(
-    (value) => (value === "" || value === null ? null : value),
-    z.coerce.number().int().min(minimum).max(maximum).nullable(),
-  );
-const gameDetailsSchema = z
-  .object({
-    categories: z.string().trim().max(500),
-    families: z.string().trim().max(1_000),
-    description: z.string().trim().max(2_000),
-    imageUrl: z.preprocess(
-      (value) => (value === "" || value === null ? null : value),
-      z
-        .url()
-        .refine((value) => {
-          const url = new URL(value);
-          return (
-            url.protocol === "https:" && url.hostname === "cf.geekdo-images.com"
-          );
-        }, "Artwork must use the secure BoardGameGeek image host.")
-        .nullable(),
-    ),
-    maxPlayers: z.coerce.number().int().min(1).max(99),
-    maxPlaytime: z.coerce.number().int().min(1).max(10_000),
-    mechanics: z.string().trim().max(1_000),
-    minPlayers: z.coerce.number().int().min(1).max(99),
-    minPlaytime: z.coerce.number().int().min(0).max(10_000),
-    moneySpent: z.coerce.number().min(0).max(999_999_999.99),
-    gifted: giftedSchema,
-    weight: z.preprocess(
-      (value) => (value === "" || value === null ? null : value),
-      z.coerce.number().min(1).max(5).nullable(),
-    ),
-    yearPublished: optionalInteger(1800, 2200),
-  })
-  .refine((game) => game.maxPlayers >= game.minPlayers, {
-    message: "Maximum players cannot be lower than minimum players.",
-  })
-  .refine((game) => game.maxPlaytime >= game.minPlaytime, {
-    message: "Maximum duration cannot be lower than minimum duration.",
-  })
-  .transform((game) => ({
-    ...game,
-    moneySpent: game.gifted ? 0 : game.moneySpent,
-  }));
-
 type LocalGameDetails = z.infer<typeof gameDetailsSchema>;
-
-const editCollectionItemSchema = z
-  .object({
-    gifted: giftedSchema,
-    itemId: itemIdSchema,
-    moneySpent: z.coerce.number().min(0).max(999_999_999.99),
-    notes: z.string().trim().max(2_000),
-    personalRating: z.preprocess(
-      (value) => (value === "" || value === null ? null : value),
-      z.coerce.number().min(0).max(10).nullable(),
-    ),
-  })
-  .transform((item) => ({
-    ...item,
-    moneySpent: item.gifted ? 0 : item.moneySpent,
-  }));
-
-const libraryDestinationSchema = z.enum(["collection", "wishlist"]);
 
 /** Splits and deduplicates user-maintained taxonomy labels. */
 function parseLabels(value: string): string[] {

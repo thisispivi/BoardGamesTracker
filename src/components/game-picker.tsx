@@ -23,13 +23,10 @@ import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useRef, useState } from "react";
 
 import { GameArtwork } from "@/components/game-artwork";
-import type { CollectionGame } from "@/components/game-card";
 import { Button } from "@/components/ui/button";
-import {
-  MultiSelect,
-  type MultiSelectOption,
-} from "@/components/ui/multi-select";
+import { MultiSelect } from "@/components/ui/multi-select";
 import { Select } from "@/components/ui/select";
+import type { CollectionGame, MultiSelectOption } from "@/core";
 import { useDurationFormatter } from "@/i18n/use-duration-formatter";
 import { getTaxonomyLabel, isExpansionCategory } from "@/lib/game-taxonomy";
 import { filterGames, pickRandomGame } from "@/server/picker";

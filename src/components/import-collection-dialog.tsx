@@ -7,10 +7,8 @@ import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import {
-  type CollectionActionState,
-  importBggCsvAction,
-} from "@/server/actions/collection";
+import type { CollectionActionState } from "@/core";
+import { importBggCsvAction } from "@/server/actions/collection";
 
 const initialState: CollectionActionState = { success: false, message: "" };
 

@@ -5,7 +5,8 @@ import { useTheme } from "next-themes";
 import { useEffect } from "react";
 import { Toaster } from "sonner";
 
-import { type AppTheme, isAppTheme, persistThemeCookie } from "@/lib/theme";
+import type { AppTheme } from "@/core";
+import { isAppTheme, persistThemeCookie } from "@/lib/theme";
 
 /** Client-side application providers. */
 export function Providers({

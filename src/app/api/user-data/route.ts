@@ -1,8 +1,8 @@
 import { revalidatePath } from "next/cache";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { z } from "zod";
 
+import { formatSchema, type UserDataFormat } from "@/core";
 import { env } from "@/env";
 import { writeAuditEvent } from "@/server/audit";
 import { getSession } from "@/server/session";
@@ -15,9 +15,6 @@ import {
   parseUserData,
   serializeUserData,
 } from "@/server/user-data/formats";
-import type { UserDataFormat } from "@/server/user-data/schema";
-
-const formatSchema = z.enum(["json", "csv", "xlsx", "sql"]);
 const maxImportBytes = 10 * 1024 * 1024;
 
 /** Exports only the signed-in user's portable application data. */

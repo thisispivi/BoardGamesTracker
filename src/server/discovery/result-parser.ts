@@ -1,4 +1,4 @@
-import type { GameDiscoveryResult } from "@/server/discovery/types";
+import type { GameDiscoveryResult } from "@/core";
 
 /** Parses a canonical HTTPS BoardGameGeek game URL into its stable identity. */
 export function parseBoardGameUrl(

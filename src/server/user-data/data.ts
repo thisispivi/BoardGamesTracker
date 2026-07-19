@@ -2,9 +2,9 @@ import "server-only";
 
 import { eq, inArray, sql } from "drizzle-orm";
 
+import type { UserDataDocument } from "@/core";
 import { db } from "@/server/db";
 import { collectionItems, games, user } from "@/server/db/schema";
-import type { UserDataDocument } from "@/server/user-data/schema";
 
 /** Reads portable user data without exporting credentials, sessions, or audit logs. */
 export async function getUserDataDocument(

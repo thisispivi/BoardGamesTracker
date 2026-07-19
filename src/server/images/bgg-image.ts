@@ -1,16 +1,9 @@
 import { createHash } from "node:crypto";
 
+import type { StoredGameImage } from "@/core";
+
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const allowedMimeTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
-
-/** Validated BGG artwork ready for content-addressed persistence. */
-export type StoredGameImage = {
-  checksum: string;
-  data: Buffer;
-  mimeType: "image/jpeg" | "image/png" | "image/webp";
-  size: number;
-  sourceUrl: string;
-};
 
 /** Validates that a source points to the exact secure BGG image CDN. */
 function parseSourceUrl(rawUrl: string): URL {

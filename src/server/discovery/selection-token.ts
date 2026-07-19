@@ -2,26 +2,8 @@ import "server-only";
 
 import { createHmac, timingSafeEqual } from "node:crypto";
 
-import { z } from "zod";
-
+import { type GameSelection, selectionSchema } from "@/core";
 import { env } from "@/env";
-import type { GameSelection } from "@/server/discovery/types";
-
-const selectionSchema = z.object({
-  bggId: z.number().int().positive().max(10_000_000),
-  expiresAt: z.number().int().positive(),
-  imageUrl: z
-    .url()
-    .refine((value) => {
-      const url = new URL(value);
-      return (
-        url.protocol === "https:" && url.hostname === "cf.geekdo-images.com"
-      );
-    })
-    .nullable(),
-  name: z.string().trim().min(1).max(160),
-  yearPublished: z.number().int().min(1800).max(2200).nullable(),
-});
 
 /** Creates an authenticated, short-lived token for a discovery result. */
 export function createSelectionToken(selection: GameSelection): string {

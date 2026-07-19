@@ -14,12 +14,11 @@ import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { GameArtwork } from "@/components/game-artwork";
-import type { CollectionGame } from "@/components/game-card";
 import { GiftedPriceField } from "@/components/gifted-price-field";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import type { CollectionActionState, CollectionGame } from "@/core";
 import {
-  type CollectionActionState,
   moveWishlistToCollectionAction,
   removeGameAction,
 } from "@/server/actions/collection";

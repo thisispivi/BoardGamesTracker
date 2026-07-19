@@ -1,16 +1,11 @@
 import { z } from "zod";
 
-const labelSchema = z.string().trim().min(1).max(120);
-const optionalImageSchema = z
-  .url()
-  .refine((value) => {
-    const url = new URL(value);
-    return url.protocol === "https:" && url.hostname === "cf.geekdo-images.com";
-  })
-  .nullable();
+import { bggImageUrlSchema, labelSchema } from "@/core/contracts/shared";
+
+const optionalImageSchema = bggImageUrlSchema.nullable();
 
 /** One portable owned or wished-for board-game record. */
-const portableGameSchema = z
+export const portableGameSchema = z
   .object({
     location: z.enum(["collection", "wishlist"]),
     bggId: z.number().int().min(1).max(10_000_000),
@@ -72,7 +67,3 @@ export const userDataDocumentSchema = z
       seen.add(item.bggId);
     }
   });
-
-export type PortableGame = z.infer<typeof portableGameSchema>;
-export type UserDataDocument = z.infer<typeof userDataDocumentSchema>;
-export type UserDataFormat = "json" | "csv" | "xlsx" | "sql";

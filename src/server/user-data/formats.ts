@@ -6,7 +6,7 @@ import {
   type UserDataDocument,
   userDataDocumentSchema,
   type UserDataFormat,
-} from "@/server/user-data/schema";
+} from "@/core";
 
 const gameHeaders = [
   "location",

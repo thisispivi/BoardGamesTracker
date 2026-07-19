@@ -14,7 +14,7 @@ import {
   YAxis,
 } from "recharts";
 
-import type { CountDatum } from "@/lib/collection-stats";
+import type { CountDatum } from "@/core";
 import { getTaxonomyLabel } from "@/lib/game-taxonomy";
 
 const chartColors = ["var(--primary)", "var(--accent)", "#3f8fba", "#b86b8f"];

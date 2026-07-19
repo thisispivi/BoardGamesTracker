@@ -13,38 +13,13 @@ import { useFormatter, useTranslations } from "next-intl";
 import { EditGameDialog } from "@/components/edit-game-dialog";
 import { GameArtwork } from "@/components/game-artwork";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import type { CollectionGame } from "@/core";
 import { useDurationFormatter } from "@/i18n/use-duration-formatter";
 import { isExpansionCategory } from "@/lib/game-taxonomy";
 import {
   removeGameAction,
   toggleFavoriteAction,
 } from "@/server/actions/collection";
-
-/** Serialized collection game rendered by the browser. */
-export type CollectionGame = {
-  id: string;
-  favorite: boolean;
-  personalRating: number | null;
-  notes: string;
-  moneySpent: number;
-  gifted: boolean;
-  gameId: string;
-  bggId: number;
-  name: string;
-  imageUrl: string | null;
-  thumbnailUrl: string | null;
-  yearPublished: number | null;
-  minPlayers: number;
-  maxPlayers: number;
-  minPlaytime: number;
-  maxPlaytime: number;
-  weight: number | null;
-  bggRating: number | null;
-  isExpansion: boolean;
-  categories: string[];
-  mechanics: string[];
-  families: string[];
-};
 
 /** Favorite toggle shared by full collection cards. */
 function FavoriteControl({ game }: { game: CollectionGame }) {

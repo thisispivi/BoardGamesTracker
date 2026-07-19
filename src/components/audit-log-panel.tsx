@@ -7,8 +7,8 @@ import { toast } from "sonner";
 
 import { AppSpinner } from "@/components/ui/app-spinner";
 import { Button } from "@/components/ui/button";
+import type { AuditLogPage } from "@/core";
 import { getAuditLogPageAction } from "@/server/actions/admin";
-import type { AuditLogPage } from "@/server/admin/audit-logs";
 
 /** Paginated audit log that updates only its own scrollable result region. */
 export function AuditLogPanel({ initialPage }: { initialPage: AuditLogPage }) {

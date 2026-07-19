@@ -1,23 +1,10 @@
 import { count, desc, eq } from "drizzle-orm";
 
+import type { AuditLogPage } from "@/core";
 import { db } from "@/server/db";
 import { auditLogs, user } from "@/server/db/schema";
 
 const auditLogPageSize = 20;
-
-type AuditLogEvent = {
-  action: string;
-  actorName: string | null;
-  createdAt: string;
-  id: string;
-  targetType: string;
-};
-
-export type AuditLogPage = {
-  events: AuditLogEvent[];
-  page: number;
-  pages: number;
-};
 
 /** Loads one bounded audit page and serializes its timestamps for the client. */
 export async function getAuditLogPage(

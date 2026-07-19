@@ -1,9 +1,10 @@
 import "server-only";
 
+import type { BggMetadata } from "@/core";
 import { hasExpansionCategory } from "@/lib/game-taxonomy";
-import { type BggMetadata, parseBggGeekItemPayload } from "@/server/bgg/parser";
+import { parseBggGeekItemPayload } from "@/server/bgg/parser";
 
-export type { BggMetadata } from "@/server/bgg/parser";
+export type { BggMetadata } from "@/core";
 
 /** Decodes the small HTML entity subset used in metadata attributes. */
 function decodeHtml(value: string): string {
