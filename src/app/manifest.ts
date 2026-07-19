@@ -8,7 +8,7 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Board Games Tracker",
-    short_name: "Games Tracker",
+    short_name: "Board Games Tracker",
     description:
       "A secure, self-hosted board-game collection and game-night picker.",
     start_url: "/",
