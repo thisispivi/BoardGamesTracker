@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import english from "../../messages/en.json";
-import italian from "../../messages/it.json";
+import english from "../../../../messages/en.json";
+import italian from "../../../../messages/it.json";
 
 type MessageTree = { [key: string]: MessageTree | string };
 

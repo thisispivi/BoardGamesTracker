@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { AddGameDialog } from "@/components/add-game-dialog";
 
-import messages from "../../messages/en.json";
+import messages from "../../../../../messages/en.json";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ refresh: vi.fn() }),
