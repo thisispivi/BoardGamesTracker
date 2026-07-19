@@ -5,7 +5,12 @@ import { and, asc, eq } from "drizzle-orm";
 import { db } from "@/server/db";
 import { collectionItems, games } from "@/server/db/schema";
 
-/** Fetches one user library location with normalized game metadata. */
+/**
+ * Fetches one user library location with normalized game metadata.
+ *
+ * @param userId - The authenticated user identifier.
+ * @param location - The 'location' value.
+ */
 async function getLibraryItems(userId: string, location: "owned" | "wishlist") {
   const collection = await db
     .select({
@@ -57,12 +62,22 @@ async function getLibraryItems(userId: string, location: "owned" | "wishlist") {
   });
 }
 
-/** Fetches a user's owned board-game collection. */
+/**
+ * Fetches a user's owned board-game collection.
+ *
+ * @param userId - The authenticated user identifier.
+ * @returns The documented function result.
+ */
 export function getCollection(userId: string) {
   return getLibraryItems(userId, "owned");
 }
 
-/** Fetches a user's games saved for a future purchase. */
+/**
+ * Fetches a user's games saved for a future purchase.
+ *
+ * @param userId - The authenticated user identifier.
+ * @returns The documented function result.
+ */
 export function getWishlist(userId: string) {
   return getLibraryItems(userId, "wishlist");
 }

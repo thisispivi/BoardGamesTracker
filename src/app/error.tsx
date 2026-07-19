@@ -1,12 +1,19 @@
 "use client";
 
 import { RotateCcw } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 
-import { Button } from "@/components/ui/button";
-import { useTranslations } from "next-intl";
+import { Button } from "@/components/atoms/Button/Button";
 
-/** Isolates unexpected render failures without leaking stack traces. */
+/**
+ * Isolates unexpected render failures without leaking stack traces.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.error - The 'error' property.
+ * @param root0.reset - The 'reset' property.
+ * @returns The documented function result.
+ */
 export default function ErrorBoundary({
   error,
   reset,
@@ -29,7 +36,7 @@ export default function ErrorBoundary({
           {t("error.title")}
         </h1>
         <p className="text-muted-foreground mt-4">{t("error.body")}</p>
-        <Button type="button" size="lg" onClick={reset} className="mt-7">
+        <Button className="mt-7" onClick={reset} size="lg" type="button">
           <RotateCcw className="size-4" /> {t("error.retry")}
         </Button>
       </div>

@@ -1,21 +1,29 @@
 import { Heart } from "lucide-react";
 import type { Metadata } from "next";
-
-import { AddGameDialog } from "@/components/add-game-dialog";
-import { PageHeader } from "@/components/page-header";
-import { WishlistCard } from "@/components/wishlist-card";
 import { getTranslations } from "next-intl/server";
+
+import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
+import { AddGameDialog } from "@/components/organisms/AddGameDialog/AddGameDialog";
+import { WishlistCard } from "@/components/organisms/WishlistCard/WishlistCard";
 import { getWishlist } from "@/server/collection";
 import { getUserPreferences } from "@/server/preferences";
 import { requireUser } from "@/server/session";
 
-/** Wishlist page metadata. */
+/**
+ * Wishlist page metadata.
+ *
+ * @returns The documented function result.
+ */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
   return { title: t("wishlist.metaTitle") };
 }
 
-/** Games the signed-in user may want to buy later. */
+/**
+ * Games the signed-in user may want to buy later.
+ *
+ * @returns The documented function result.
+ */
 export default async function WishlistPage() {
   const session = await requireUser();
   const [wishlist, preferences, t] = await Promise.all([
@@ -27,23 +35,23 @@ export default async function WishlistPage() {
   return (
     <>
       <PageHeader
-        eyebrow={t("wishlist.eyebrow")}
-        title={t("wishlist.title")}
-        description={t("wishlist.count", { count: wishlist.length })}
         action={
           <AddGameDialog
             currency={preferences.currency}
             destination="wishlist"
           />
         }
+        description={t("wishlist.count", { count: wishlist.length })}
+        eyebrow={t("wishlist.eyebrow")}
+        title={t("wishlist.title")}
       />
       {wishlist.length > 0 ? (
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
           {wishlist.map((game) => (
             <WishlistCard
-              key={game.id}
-              game={game}
               currency={preferences.currency}
+              game={game}
+              key={game.id}
             />
           ))}
         </div>

@@ -1,0 +1,489 @@
+import { parse } from "csv-parse/sync";
+import ExcelJS from "exceljs";
+
+import {
+  type PortableGame,
+  type UserDataDocument,
+  userDataDocumentSchema,
+  type UserDataFormat,
+} from "@/core";
+
+const gameHeaders = [
+  "location",
+  "bggId",
+  "name",
+  "description",
+  "imageUrl",
+  "yearPublished",
+  "minPlayers",
+  "maxPlayers",
+  "minPlaytime",
+  "maxPlaytime",
+  "weight",
+  "bggRating",
+  "isExpansion",
+  "categories",
+  "mechanics",
+  "families",
+  "favorite",
+  "personalRating",
+  "notes",
+  "moneySpent",
+  "gifted",
+] as const;
+
+type FlatGame = Record<(typeof gameHeaders)[number], string>;
+
+/**
+ * Serializes canonical data into the user-selected portable format.
+ *
+ * @param document - The portable user-data document.
+ * @param format - The requested data format.
+ * @returns The documented function result.
+ */
+export async function serializeUserData(
+  document: UserDataDocument,
+  format: UserDataFormat,
+): Promise<Uint8Array> {
+  if (format === "xlsx") return serializeXlsx(document);
+  const text =
+    format === "json"
+      ? JSON.stringify(document, null, 2)
+      : format === "csv"
+        ? serializeCsv(document)
+        : serializeSql(document);
+  return new TextEncoder().encode(text);
+}
+
+/**
+ * Parses one supported export without evaluating uploaded code or SQL.
+ *
+ * @param bytes - The serialized input bytes.
+ * @param format - The requested data format.
+ * @returns The documented function result.
+ */
+export async function parseUserData(
+  bytes: Uint8Array,
+  format: UserDataFormat,
+): Promise<UserDataDocument> {
+  if (format === "xlsx") return parseXlsx(bytes);
+  const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+  const raw =
+    format === "json"
+      ? JSON.parse(text)
+      : format === "csv"
+        ? parseCsv(text)
+        : parseSql(text);
+  return userDataDocumentSchema.parse(raw);
+}
+
+/**
+ * Returns download metadata for one export format.
+ *
+ * @param format - The requested data format.
+ * @returns The documented function result.
+ */
+export function getExportMetadata(format: UserDataFormat) {
+  return {
+    extension: format,
+    contentType:
+      format === "json"
+        ? "application/json; charset=utf-8"
+        : format === "csv"
+          ? "text/csv; charset=utf-8"
+          : format === "xlsx"
+            ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            : "application/sql; charset=utf-8",
+  };
+}
+
+/**
+ * Converts canonical data into a readable two-record-type CSV document.
+ *
+ * @param document - The portable user-data document.
+ */
+function serializeCsv(document: UserDataDocument): string {
+  const headers = [
+    "recordType",
+    "formatVersion",
+    "exportedAt",
+    "profileName",
+    "profileEmail",
+    "profileCurrency",
+    ...gameHeaders,
+  ];
+  const rows: string[][] = [
+    headers,
+    [
+      "profile",
+      String(document.formatVersion),
+      document.exportedAt,
+      document.profile.name,
+      document.profile.email,
+      document.profile.currency,
+      ...gameHeaders.map(() => ""),
+    ],
+    ...document.items.map((item) => [
+      "game",
+      String(document.formatVersion),
+      document.exportedAt,
+      "",
+      "",
+      "",
+      ...gameToFlatValues(item),
+    ]),
+  ];
+  return `\uFEFF${rows.map((row) => row.map(csvCell).join(",")).join("\r\n")}\r\n`;
+}
+
+/**
+ * Parses the application's flat CSV representation.
+ *
+ * @param text - The 'text' value.
+ */
+function parseCsv(text: string): unknown {
+  const rows = parse(text, {
+    bom: true,
+    columns: true,
+    max_record_size: 100_000,
+    relax_column_count: false,
+    skip_empty_lines: true,
+  }) as Record<string, string>[];
+  const profile = rows.find((row) => row.recordType === "profile");
+  if (!profile || rows.length > 2_001) throw new Error("Invalid CSV export.");
+  return buildDocument(
+    profile.formatVersion ?? "",
+    profile.exportedAt ?? "",
+    {
+      name: unprotectCell(profile.profileName ?? ""),
+      email: unprotectCell(profile.profileEmail ?? ""),
+      currency: profile.profileCurrency ?? "",
+    },
+    rows
+      .filter((row) => row.recordType === "game")
+      .map((row) => flatToGame(row as FlatGame)),
+  );
+}
+
+/**
+ * Writes a styled, editable workbook with separate profile and game sheets.
+ *
+ * @param document - The portable user-data document.
+ */
+async function serializeXlsx(document: UserDataDocument): Promise<Uint8Array> {
+  const workbook = new ExcelJS.Workbook();
+  workbook.creator = "Board Games Tracker";
+  workbook.created = new Date(document.exportedAt);
+  const profile = workbook.addWorksheet("Profile", {
+    views: [{ showGridLines: false }],
+  });
+  profile.addRows([
+    ["Board Games Tracker user data export", ""],
+    ["Format version", document.formatVersion],
+    ["Exported at", document.exportedAt],
+    ["Name", safeSpreadsheetText(document.profile.name)],
+    ["Email", safeSpreadsheetText(document.profile.email)],
+    ["Currency", document.profile.currency],
+  ]);
+  profile.mergeCells("A1:B1");
+  profile.columns = [{ width: 24 }, { width: 48 }];
+  profile.getRow(1).height = 30;
+  profile.getRow(1).font = {
+    bold: true,
+    color: { argb: "FFFFFFFF" },
+    size: 16,
+  };
+  profile.getRow(1).fill = {
+    type: "pattern",
+    pattern: "solid",
+    fgColor: { argb: "FF5B4BDB" },
+  };
+  for (let row = 2; row <= 6; row += 1) {
+    profile.getCell(row, 1).font = { bold: true };
+  }
+
+  const gamesSheet = workbook.addWorksheet("Games", {
+    views: [{ state: "frozen", ySplit: 1, showGridLines: false }],
+  });
+  gamesSheet.addRow([...gameHeaders]);
+  for (const item of document.items) {
+    const row = gamesSheet.addRow(gameToWorksheetValues(item));
+    row.getCell(1).dataValidation = {
+      type: "list",
+      allowBlank: false,
+      formulae: ['"collection,wishlist"'],
+    };
+  }
+  gamesSheet.autoFilter = `A1:T${Math.max(1, document.items.length + 1)}`;
+  gamesSheet.getRow(1).height = 28;
+  gamesSheet.getRow(1).font = { bold: true, color: { argb: "FFFFFFFF" } };
+  gamesSheet.getRow(1).fill = {
+    type: "pattern",
+    pattern: "solid",
+    fgColor: { argb: "FF5B4BDB" },
+  };
+  const widths = [
+    14, 10, 30, 44, 42, 14, 11, 11, 13, 13, 10, 11, 12, 34, 34, 34, 10, 14, 38,
+    14,
+  ];
+  widths.forEach((width, index) => {
+    gamesSheet.getColumn(index + 1).width = width;
+  });
+  gamesSheet.getColumn(20).numFmt = "0.00";
+  gamesSheet.getColumn(18).numFmt = "0.0";
+  gamesSheet.eachRow((row, rowNumber) => {
+    if (rowNumber > 1) row.alignment = { vertical: "top", wrapText: false };
+  });
+  const output = await workbook.xlsx.writeBuffer();
+  return new Uint8Array(output);
+}
+
+/**
+ * Reads the two-sheet Board Games Tracker workbook representation.
+ *
+ * @param bytes - The serialized input bytes.
+ */
+async function parseXlsx(bytes: Uint8Array): Promise<UserDataDocument> {
+  const workbook = new ExcelJS.Workbook();
+  const input = Buffer.from(bytes) as unknown as Parameters<
+    typeof workbook.xlsx.load
+  >[0];
+  await workbook.xlsx.load(input);
+  const profile = workbook.getWorksheet("Profile");
+  const gamesSheet = workbook.getWorksheet("Games");
+  if (!profile || !gamesSheet)
+    throw new Error("Required worksheets are missing.");
+  const headers = gamesSheet.getRow(1).values;
+  if (
+    !Array.isArray(headers) ||
+    gameHeaders.some((header, index) => String(headers[index + 1]) !== header)
+  ) {
+    throw new Error("Invalid Games worksheet.");
+  }
+  const items: PortableGame[] = [];
+  gamesSheet.eachRow((row, rowNumber) => {
+    if (rowNumber === 1) return;
+    const flat = Object.fromEntries(
+      gameHeaders.map((header, index) => [
+        header,
+        unprotectCell(row.getCell(index + 1).text),
+      ]),
+    ) as FlatGame;
+    if (flat.bggId) items.push(flatToGame(flat));
+  });
+  return userDataDocumentSchema.parse(
+    buildDocument(
+      profile.getCell("B2").text,
+      profile.getCell("B3").text,
+      {
+        name: unprotectCell(profile.getCell("B4").text),
+        email: unprotectCell(profile.getCell("B5").text),
+        currency: profile.getCell("B6").text,
+      },
+      items,
+    ),
+  );
+}
+
+/**
+ * Produces SQL-shaped text while retaining a strict, non-executable import path.
+ *
+ * @param document - The portable user-data document.
+ */
+function serializeSql(document: UserDataDocument): string {
+  const json = JSON.stringify(document).replaceAll("'", "''");
+  return [
+    "-- Board Games Tracker user data export. Import this through app settings; do not execute it directly.",
+    "CREATE TABLE IF NOT EXISTS board_games_tracker_user_export (payload_json text NOT NULL);",
+    `INSERT INTO board_games_tracker_user_export (payload_json) VALUES ('${json}');`,
+    "",
+  ].join("\n");
+}
+
+/**
+ * Extracts the app's single escaped JSON literal and never executes SQL.
+ *
+ * @param text - The 'text' value.
+ */
+function parseSql(text: string): unknown {
+  const match =
+    /INSERT\s+INTO\s+board_games_tracker_user_export\s*\(\s*payload_json\s*\)\s*VALUES\s*\(\s*'((?:''|[^'])*)'\s*\)\s*;/is.exec(
+      text,
+    );
+  if (!match?.[1]) throw new Error("Invalid Board Games Tracker SQL export.");
+  return JSON.parse(match[1].replaceAll("''", "'"));
+}
+
+/**
+ * Flattens arrays and nullable values for CSV and worksheet cells.
+ *
+ * @param game - The 'game' value.
+ */
+function gameToFlatValues(game: PortableGame): string[] {
+  return [
+    game.location,
+    String(game.bggId),
+    safeSpreadsheetText(game.name),
+    safeSpreadsheetText(game.description),
+    game.imageUrl ?? "",
+    game.yearPublished === null ? "" : String(game.yearPublished),
+    String(game.minPlayers),
+    String(game.maxPlayers),
+    String(game.minPlaytime),
+    String(game.maxPlaytime),
+    game.weight === null ? "" : String(game.weight),
+    game.bggRating === null ? "" : String(game.bggRating),
+    String(game.isExpansion),
+    safeSpreadsheetText(JSON.stringify(game.categories)),
+    safeSpreadsheetText(JSON.stringify(game.mechanics)),
+    safeSpreadsheetText(JSON.stringify(game.families)),
+    String(game.favorite),
+    game.personalRating === null ? "" : String(game.personalRating),
+    safeSpreadsheetText(game.notes),
+    String(game.moneySpent),
+    String(game.gifted),
+  ];
+}
+
+/**
+ * Preserves numeric and Boolean cell types in editable XLSX exports.
+ *
+ * @param game - The 'game' value.
+ */
+function gameToWorksheetValues(game: PortableGame): unknown[] {
+  return [
+    game.location,
+    game.bggId,
+    safeSpreadsheetText(game.name),
+    safeSpreadsheetText(game.description),
+    game.imageUrl ?? "",
+    game.yearPublished,
+    game.minPlayers,
+    game.maxPlayers,
+    game.minPlaytime,
+    game.maxPlaytime,
+    game.weight,
+    game.bggRating,
+    game.isExpansion,
+    safeSpreadsheetText(JSON.stringify(game.categories)),
+    safeSpreadsheetText(JSON.stringify(game.mechanics)),
+    safeSpreadsheetText(JSON.stringify(game.families)),
+    game.favorite,
+    game.personalRating,
+    safeSpreadsheetText(game.notes),
+    game.moneySpent,
+    game.gifted,
+  ];
+}
+
+/**
+ * Restores one flat game row into strongly typed primitive values.
+ *
+ * @param row - The 'row' value.
+ */
+function flatToGame(row: FlatGame): PortableGame {
+  return {
+    location: row.location as PortableGame["location"],
+    bggId: requiredNumber(row.bggId),
+    name: unprotectCell(row.name),
+    description: unprotectCell(row.description),
+    imageUrl: row.imageUrl === "" ? null : row.imageUrl,
+    yearPublished: optionalNumber(row.yearPublished),
+    minPlayers: requiredNumber(row.minPlayers),
+    maxPlayers: requiredNumber(row.maxPlayers),
+    minPlaytime: requiredNumber(row.minPlaytime),
+    maxPlaytime: requiredNumber(row.maxPlaytime),
+    weight: optionalNumber(row.weight),
+    bggRating: optionalNumber(row.bggRating),
+    isExpansion: row.isExpansion === "true",
+    categories: parseLabels(row.categories),
+    mechanics: parseLabels(row.mechanics),
+    families: parseLabels(row.families),
+    favorite: row.favorite === "true",
+    personalRating: optionalNumber(row.personalRating),
+    notes: unprotectCell(row.notes),
+    moneySpent: requiredNumber(row.moneySpent),
+    gifted: row.gifted === "true",
+  };
+}
+
+/**
+ * Creates the shared raw document shape before final Zod validation.
+ *
+ * @param formatVersion - The 'formatVersion' value.
+ * @param exportedAt - The 'exportedAt' value.
+ * @param profile - The 'profile' value.
+ * @param items - The 'items' value.
+ */
+function buildDocument(
+  formatVersion: string,
+  exportedAt: string,
+  profile: UserDataDocument["profile"],
+  items: PortableGame[],
+) {
+  return {
+    formatVersion: requiredNumber(formatVersion),
+    exportedAt,
+    profile,
+    items,
+  };
+}
+
+/**
+ * Quotes a CSV cell and protects spreadsheet viewers from formula injection.
+ *
+ * @param value - The value to inspect or transform.
+ */
+function csvCell(value: string): string {
+  const safe = safeSpreadsheetText(value);
+  return `"${safe.replaceAll('"', '""')}"`;
+}
+
+/**
+ * Prefixes text that spreadsheet programs could otherwise treat as a formula.
+ *
+ * @param value - The value to inspect or transform.
+ */
+function safeSpreadsheetText(value: string): string {
+  return /^[=+\-@\t\r]/.test(value) ? `'${value}` : value;
+}
+
+/**
+ * Reverses the explicit formula-injection protection on trusted export fields.
+ *
+ * @param value - The value to inspect or transform.
+ */
+function unprotectCell(value: string): string {
+  return /^'[=+\-@\t\r]/.test(value) ? value.slice(1) : value;
+}
+
+/**
+ * Parses a finite required number before bounded schema validation.
+ *
+ * @param value - The value to inspect or transform.
+ */
+function requiredNumber(value: string): number {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) throw new Error("Invalid numeric value.");
+  return parsed;
+}
+
+/**
+ * Parses an empty nullable number or delegates to the finite parser.
+ *
+ * @param value - The value to inspect or transform.
+ */
+function optionalNumber(value: string): number | null {
+  return value === "" ? null : requiredNumber(value);
+}
+
+/**
+ * Parses JSON taxonomy arrays; the document schema validates every label.
+ *
+ * @param value - The value to inspect or transform.
+ */
+function parseLabels(value: string): string[] {
+  const parsed: unknown = JSON.parse(unprotectCell(value));
+  if (!Array.isArray(parsed)) throw new Error("Invalid taxonomy list.");
+  return parsed as string[];
+}

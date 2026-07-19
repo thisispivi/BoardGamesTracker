@@ -12,7 +12,12 @@ const protectedPrefixes = [
   "/admin",
 ];
 
-/** Applies optimistic auth redirects and a nonce-based security policy. */
+/**
+ * Applies optimistic auth redirects and a nonce-based security policy.
+ *
+ * @param request - The incoming request.
+ * @returns The documented function result.
+ */
 export function proxy(request: NextRequest): NextResponse {
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   const isDevelopment = process.env.NODE_ENV === "development";

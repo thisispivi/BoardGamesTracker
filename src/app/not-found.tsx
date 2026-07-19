@@ -1,10 +1,14 @@
 import Link from "next/link";
-
-import { Logo } from "@/components/logo";
-import { buttonVariants } from "@/components/ui/button";
 import { getTranslations } from "next-intl/server";
 
-/** Friendly application-wide 404 response. */
+import { buttonVariants } from "@/components/atoms/Button/Button";
+import { Logo } from "@/components/atoms/Logo/Logo";
+
+/**
+ * Friendly application-wide 404 response.
+ *
+ * @returns The documented function result.
+ */
 export default async function NotFound() {
   const t = await getTranslations();
   return (
@@ -18,7 +22,7 @@ export default async function NotFound() {
           {t("notFound.title")}
         </h1>
         <p className="text-muted-foreground mt-5">{t("notFound.body")}</p>
-        <Link href="/" className={`${buttonVariants({ size: "lg" })} mt-8`}>
+        <Link className={`${buttonVariants({ size: "lg" })} mt-8`} href="/">
           {t("notFound.home")}
         </Link>
       </div>

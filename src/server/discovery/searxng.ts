@@ -1,37 +1,26 @@
 import "server-only";
 
 import Fuse from "fuse.js";
-import { z } from "zod";
 
+import { type GameDiscoveryResult, searxngResponseSchema } from "@/core";
 import { env } from "@/env";
-import { normalizeSearchText } from "@/lib/search";
 import {
   parseBoardGameImage,
   parseBoardGameResult,
-} from "@/server/discovery/result-parser";
-import { createSelectionToken } from "@/server/discovery/selection-token";
-import type { GameDiscoveryResult } from "@/server/discovery/types";
+} from "@/server/discovery/resultParser";
+import { createSelectionToken } from "@/server/discovery/selectionToken";
 import { getWikidataYears } from "@/server/discovery/wikidata";
+import { normalizeSearchText } from "@/utils/search";
 
-const responseSchema = z.object({
-  results: z
-    .array(
-      z.object({
-        img_src: z
-          .string()
-          .max(2_000)
-          .nullish()
-          .transform((value) => value ?? ""),
-        title: z.string().max(500),
-        url: z.string().max(2_000),
-      }),
-    )
-    .default([]),
-});
+type SearchResult =
+  (typeof searxngResponseSchema)["_output"]["results"][number];
 
-type SearchResult = z.infer<typeof responseSchema>["results"][number];
-
-/** Queries one SearXNG category and validates its untrusted JSON response. */
+/**
+ * Queries one SearXNG category and validates its untrusted JSON response.
+ *
+ * @param query - The search query.
+ * @param category - The 'category' value.
+ */
 async function requestResults(
   query: string,
   category?: "images",
@@ -53,14 +42,19 @@ async function requestResults(
     throw new Error(`SearXNG returned ${response.status}.`);
   }
 
-  const parsed = responseSchema.safeParse(await response.json());
+  const parsed = searxngResponseSchema.safeParse(await response.json());
   if (!parsed.success) {
     throw new Error("SearXNG returned an invalid response.");
   }
   return parsed.data.results;
 }
 
-/** Resolves BGG-hosted artwork for a bounded set of exact game IDs. */
+/**
+ * Resolves BGG-hosted artwork for a bounded set of exact game IDs.
+ *
+ * @param candidates - The 'candidates' value.
+ * @returns The documented function result.
+ */
 export async function discoverBoardGameImages(
   candidates: Array<{ bggId: number; name: string }>,
 ): Promise<Map<number, string>> {
@@ -131,11 +125,17 @@ export async function discoverBoardGameImages(
   return images;
 }
 
-/** Discovers BGG game links without requesting or parsing BGG pages. */
+/**
+ * Discovers BGG game links without requesting or parsing BGG pages.
+ *
+ * @param query - The search query.
+ * @returns The documented function result.
+ */
 export async function searchBoardGames(
   query: string,
 ): Promise<GameDiscoveryResult[]> {
-  const normalizedQuery = normalizeSearchText(query) || query.trim();
+  const normalized = normalizeSearchText(query);
+  const normalizedQuery = normalized === "" ? query.trim() : normalized;
   const [webResults, imageResults] = await Promise.all([
     requestResults(normalizedQuery),
     requestResults(normalizedQuery, "images").catch(() => []),

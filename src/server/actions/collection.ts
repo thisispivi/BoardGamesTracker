@@ -2,97 +2,39 @@
 
 import { and, eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { z } from "zod";
 import { getTranslations } from "next-intl/server";
-import { hasExpansionCategory } from "@/lib/game-taxonomy";
-import { CLEAR_COLLECTION_CONFIRMATION } from "@/lib/collection-confirmation";
+import { z } from "zod";
 
-import { db } from "@/server/db";
-import { scrapeBggMetadata, type BggMetadata } from "@/server/bgg/scrape";
-import { collectionItems, gameImages, games } from "@/server/db/schema";
-import { verifySelectionToken } from "@/server/discovery/selection-token";
-import { discoverBoardGameImages } from "@/server/discovery/searxng";
-import type { GameSelection } from "@/server/discovery/types";
-import { downloadBggImage, downloadBggImages } from "@/server/images/bgg-image";
-import { parseBggCollectionCsv } from "@/server/import/bgg-csv";
-import { requireUser } from "@/server/session";
+import {
+  type BggMetadata,
+  type CollectionActionState,
+  editCollectionItemSchema,
+  gameDetailsSchema,
+  type GameSelection,
+  giftedSchema,
+  itemIdSchema,
+  libraryDestinationSchema,
+} from "@/core";
 import { writeAuditEvent } from "@/server/audit";
-
-/** Serializable result returned by collection mutations. */
-export type CollectionActionState = {
-  success: boolean;
-  message: string;
-};
-
-const itemIdSchema = z.uuid();
-const giftedSchema = z.preprocess((value) => value === "true", z.boolean());
-const optionalInteger = (minimum: number, maximum: number) =>
-  z.preprocess(
-    (value) => (value === "" || value === null ? null : value),
-    z.coerce.number().int().min(minimum).max(maximum).nullable(),
-  );
-const gameDetailsSchema = z
-  .object({
-    categories: z.string().trim().max(500),
-    families: z.string().trim().max(1_000),
-    description: z.string().trim().max(2_000),
-    imageUrl: z.preprocess(
-      (value) => (value === "" || value === null ? null : value),
-      z
-        .url()
-        .refine((value) => {
-          const url = new URL(value);
-          return (
-            url.protocol === "https:" && url.hostname === "cf.geekdo-images.com"
-          );
-        }, "Artwork must use the secure BoardGameGeek image host.")
-        .nullable(),
-    ),
-    maxPlayers: z.coerce.number().int().min(1).max(99),
-    maxPlaytime: z.coerce.number().int().min(1).max(10_000),
-    mechanics: z.string().trim().max(1_000),
-    minPlayers: z.coerce.number().int().min(1).max(99),
-    minPlaytime: z.coerce.number().int().min(0).max(10_000),
-    moneySpent: z.coerce.number().min(0).max(999_999_999.99),
-    gifted: giftedSchema,
-    weight: z.preprocess(
-      (value) => (value === "" || value === null ? null : value),
-      z.coerce.number().min(1).max(5).nullable(),
-    ),
-    yearPublished: optionalInteger(1800, 2200),
-  })
-  .refine((game) => game.maxPlayers >= game.minPlayers, {
-    message: "Maximum players cannot be lower than minimum players.",
-  })
-  .refine((game) => game.maxPlaytime >= game.minPlaytime, {
-    message: "Maximum duration cannot be lower than minimum duration.",
-  })
-  .transform((game) => ({
-    ...game,
-    moneySpent: game.gifted ? 0 : game.moneySpent,
-  }));
+import { scrapeBggMetadata } from "@/server/bgg/scrape";
+import { db } from "@/server/db";
+import { collectionItems, gameImages, games } from "@/server/db/schema";
+import { discoverBoardGameImages } from "@/server/discovery/searxng";
+import { verifySelectionToken } from "@/server/discovery/selectionToken";
+import { downloadBggImage, downloadBggImages } from "@/server/images/bggImage";
+import { parseBggCollectionCsv } from "@/server/import/bggCsv";
+import { consumeRateLimit } from "@/server/security/rateLimit";
+import { requireUser } from "@/server/session";
+import { CLEAR_COLLECTION_CONFIRMATION } from "@/utils/collectionConfirmation";
+import { hasExpansionCategory } from "@/utils/gameTaxonomy";
 
 type LocalGameDetails = z.infer<typeof gameDetailsSchema>;
 
-const editCollectionItemSchema = z
-  .object({
-    gifted: giftedSchema,
-    itemId: itemIdSchema,
-    moneySpent: z.coerce.number().min(0).max(999_999_999.99),
-    notes: z.string().trim().max(2_000),
-    personalRating: z.preprocess(
-      (value) => (value === "" || value === null ? null : value),
-      z.coerce.number().min(0).max(10).nullable(),
-    ),
-  })
-  .transform((item) => ({
-    ...item,
-    moneySpent: item.gifted ? 0 : item.moneySpent,
-  }));
-
-const libraryDestinationSchema = z.enum(["collection", "wishlist"]);
-
-/** Splits and deduplicates user-maintained taxonomy labels. */
+/**
+ * Splits and deduplicates user-maintained taxonomy labels.
+ *
+ * @param value - The value to inspect or transform.
+ */
 function parseLabels(value: string): string[] {
   return [
     ...new Set(
@@ -104,7 +46,13 @@ function parseLabels(value: string): string[] {
   ].slice(0, 50);
 }
 
-/** Inserts or refreshes user-supplied local metadata and returns the game ID. */
+/**
+ * Inserts or refreshes user-supplied local metadata and returns the game ID.
+ *
+ * @param selection - The game selection to sign.
+ * @param details - The 'details' value.
+ * @param metadata - The 'metadata' value.
+ */
 async function upsertGame(
   selection: GameSelection,
   details: LocalGameDetails,
@@ -121,7 +69,7 @@ async function upsertGame(
   const values = {
     bggId: selection.bggId,
     name: metadata?.name ?? selection.name,
-    description: metadata?.description || details.description,
+    description: metadata?.description ?? details.description,
     imageUrl: sourceUrl,
     thumbnailUrl: sourceUrl,
     imageChecksum: image?.checksum ?? null,
@@ -171,13 +119,26 @@ async function upsertGame(
   return { id: record.id, imageCached: Boolean(image) };
 }
 
-/** Imports owned games from a bounded official BoardGameGeek CSV export. */
+/**
+ * Imports owned games from a bounded official BoardGameGeek CSV export.
+ *
+ * @param _previous - The previous server-action state.
+ * @param formData - The submitted form data.
+ * @returns The documented function result.
+ */
 export async function importBggCsvAction(
   _previous: CollectionActionState,
   formData: FormData,
 ): Promise<CollectionActionState> {
   const session = await requireUser();
   const t = await getTranslations();
+  if (!consumeRateLimit(`importCsv:${session.user.id}`, 2, 600_000)) {
+    return {
+      success: false,
+      message: t("action.importRateLimited"),
+    };
+  }
+
   const file = formData.get("collection");
   if (
     !(file instanceof File) ||
@@ -338,13 +299,26 @@ export async function importBggCsvAction(
   };
 }
 
-/** Adds a discovered game with locally supplied picker metadata. */
+/**
+ * Adds a discovered game with locally supplied picker metadata.
+ *
+ * @param _previous - The previous server-action state.
+ * @param formData - The submitted form data.
+ * @returns The documented function result.
+ */
 export async function addGameAction(
   _previous: CollectionActionState,
   formData: FormData,
 ): Promise<CollectionActionState> {
   const session = await requireUser();
   const t = await getTranslations();
+  if (!consumeRateLimit(`addGame:${session.user.id}`, 10, 60_000)) {
+    return {
+      success: false,
+      message: t("action.addRateLimited"),
+    };
+  }
+
   const token = z.string().max(4_000).safeParse(formData.get("selectionToken"));
   const destination = libraryDestinationSchema.safeParse(
     formData.get("destination") ?? "collection",
@@ -446,7 +420,13 @@ export async function addGameAction(
   };
 }
 
-/** Updates user-owned collection details without mutating shared game data. */
+/**
+ * Updates user-owned collection details without mutating shared game data.
+ *
+ * @param _previous - The previous server-action state.
+ * @param formData - The submitted form data.
+ * @returns The documented function result.
+ */
 export async function updateCollectionItemAction(
   _previous: CollectionActionState,
   formData: FormData,
@@ -510,7 +490,12 @@ export async function updateCollectionItemAction(
   };
 }
 
-/** Removes one owned item after verifying it belongs to the current user. */
+/**
+ * Removes one owned item after verifying it belongs to the current user.
+ *
+ * @param formData - The submitted form data.
+ * @returns The documented function result.
+ */
 export async function removeGameAction(formData: FormData): Promise<void> {
   const session = await requireUser();
   const itemId = itemIdSchema.parse(formData.get("itemId"));
@@ -539,7 +524,12 @@ export async function removeGameAction(formData: FormData): Promise<void> {
   revalidatePath("/stats");
 }
 
-/** Toggles a favorite after verifying collection ownership. */
+/**
+ * Toggles a favorite after verifying collection ownership.
+ *
+ * @param formData - The submitted form data.
+ * @returns The documented function result.
+ */
 export async function toggleFavoriteAction(formData: FormData): Promise<void> {
   const session = await requireUser();
   const itemId = itemIdSchema.parse(formData.get("itemId"));
@@ -559,7 +549,13 @@ export async function toggleFavoriteAction(formData: FormData): Promise<void> {
   revalidatePath("/play");
 }
 
-/** Moves a wished-for game into the owned collection with its purchase price. */
+/**
+ * Moves a wished-for game into the owned collection with its purchase price.
+ *
+ * @param _previous - The previous server-action state.
+ * @param formData - The submitted form data.
+ * @returns The documented function result.
+ */
 export async function moveWishlistToCollectionAction(
   _previous: CollectionActionState,
   formData: FormData,
@@ -633,7 +629,13 @@ export async function moveWishlistToCollectionAction(
   };
 }
 
-/** Permanently clears only owned entries, leaving the wishlist intact. */
+/**
+ * Permanently clears only owned entries, leaving the wishlist intact.
+ *
+ * @param _previous - The previous server-action state.
+ * @param formData - The submitted form data.
+ * @returns The documented function result.
+ */
 export async function clearCollectionAction(
   _previous: CollectionActionState,
   formData: FormData,

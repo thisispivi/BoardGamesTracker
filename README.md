@@ -113,17 +113,18 @@ Selected artwork is downloaded only from the exact HTTPS `cf.geekdo-images.com` 
 
 ## Environment
 
-| Variable              | Required    | Purpose                                                         |
-| --------------------- | ----------- | --------------------------------------------------------------- |
-| `DATABASE_URL`        | Yes         | PostgreSQL connection URL                                       |
-| `BETTER_AUTH_SECRET`  | Yes         | High-entropy session/encryption secret, at least 32 characters  |
-| `BETTER_AUTH_URL`     | Yes         | Exact server origin; no trailing path                           |
-| `NEXT_PUBLIC_APP_URL` | Yes         | Exact browser-visible origin                                    |
-| `ADMIN_EMAIL`         | No          | Optional email promoted when additional registration is enabled |
-| `ALLOW_SIGN_UP`       | No          | Allows accounts after bootstrap; secure default is `false`      |
-| `LOG_LEVEL`           | No          | `debug`, `info`, `warn`, or `error`; defaults to `info`         |
-| `SEARXNG_URL`         | Yes         | Private SearXNG origin used for server-side discovery           |
-| `SEARXNG_SECRET`      | Docker only | Independent high-entropy secret for the bundled SearXNG         |
+| Variable              | Required    | Purpose                                                        |
+| --------------------- | ----------- | -------------------------------------------------------------- |
+| `DATABASE_URL`        | Yes         | PostgreSQL connection URL                                      |
+| `BETTER_AUTH_SECRET`  | Yes         | High-entropy session/encryption secret, at least 32 characters |
+| `BETTER_AUTH_URL`     | Yes         | Exact server origin; no trailing path                          |
+| `NEXT_PUBLIC_APP_URL` | Yes         | Exact browser-visible origin                                   |
+| `ADMIN_EMAIL`         | No          | Registration email promoted to admin; unset after bootstrap    |
+| `ALLOW_SIGN_UP`       | No          | Allows accounts after bootstrap; secure default is `false`     |
+| `HEALTH_CHECK_TOKEN`  | No          | Bearer token protecting the database-backed health probe       |
+| `LOG_LEVEL`           | No          | `debug`, `info`, `warn`, or `error`; defaults to `info`        |
+| `SEARXNG_URL`         | Yes         | Private SearXNG origin used for server-side discovery          |
+| `SEARXNG_SECRET`      | Docker only | Independent high-entropy secret for the bundled SearXNG        |
 
 `BETTER_AUTH_URL` and `NEXT_PUBLIC_APP_URL` must match the deployed origin. A mismatch is intentionally rejected by trusted-origin and cookie protections.
 
@@ -157,12 +158,13 @@ BoardGamesTracker/
 ├── scripts/                  # Migration and artwork-cache utilities
 ├── searxng/                  # Private metasearch configuration
 ├── src/
-│   ├── app/                  # Next.js routes, layouts, metadata, and handlers
-│   ├── components/           # Feature components and shared UI controls
-│   ├── i18n/                 # Request config, locale rules, domain catalogs, and catalog tests
-│   ├── lib/                  # Taxonomy access, search, currency, and statistics
-│   ├── server/               # Auth, data access, actions, discovery, and imports
-│   └── test/                 # Shared Vitest setup
+│   ├── app/                  # Routing-only Next.js pages, layouts, and handlers
+│   ├── components/           # Atomic Design atoms, molecules, organisms, and templates
+│   ├── core/                 # Isomorphic contracts, domain typings, and every test
+│   ├── hooks/                # Reusable client hooks
+│   ├── i18n/                 # Request config, locale rules, and domain catalogs
+│   ├── server/               # Auth, data access, actions, discovery, imports, and security
+│   └── utils/                # Client-safe taxonomy, search, picker, currency, and statistics
 ├── docker-compose.yml        # App, PostgreSQL, and SearXNG production stack
 ├── drizzle.config.ts         # Typed migration configuration
 └── package.json              # Runtime dependencies and quality commands
@@ -176,11 +178,12 @@ Pages remain server-rendered by default. Interactive behavior is isolated in foc
 - Every private page validates the full database-backed session. The proxy cookie check is only an early redirect optimization.
 - Collection mutations include the acting user ID in their database predicate. Admin mutations require a live admin session and protect the acting/final admin.
 - User-data imports are same-origin, size-limited, schema-validated, and never execute uploaded SQL. Exports are private, uncached, and omit authentication data.
+- Expensive discovery and collection-import actions use bounded per-user rate limits. Multi-instance deployments should replace the documented per-instance limiter with a shared store.
 - A restrictive CSP, HSTS in production, anti-framing, MIME sniffing protection, referrer controls, and feature restrictions are applied centrally.
 - Metasearch responses are treated as untrusted input. Only strict BGG game URLs are accepted, and short-lived signed selection tokens prevent client-side identity tampering.
 - Remote artwork is restricted to the BGG image CDN, bounded while streaming, verified by file signature, hashed, and served from PostgreSQL through immutable same-origin URLs.
 - Application logs use JSON and drop common credential fields. Durable audit records capture actor, action, target, time, and request IP without passwords or cookies.
-- The runtime container is non-root, the database is not published to the host, and health output contains no internal diagnostics.
+- The runtime container is non-root, the database is not published to the host, and the optionally bearer-protected health output contains no internal diagnostics.
 
 See [SECURITY.md](SECURITY.md) for reporting and operating guidance.
 

@@ -1,0 +1,71 @@
+import "server-only";
+
+type RateLimitEntry = {
+  count: number;
+  resetsAt: number;
+};
+
+const maxEntries = 10_000;
+const sweepIntervalMs = 60_000;
+const entries = new Map<string, RateLimitEntry>();
+let nextSweepAt = 0;
+
+/**
+ * Removes expired entries and, at capacity, the oldest remaining entries.
+ *
+ * @param now - The 'now' value.
+ * @param enforceCapacity - The 'enforceCapacity' value.
+ */
+function sweepEntries(now: number, enforceCapacity: boolean): void {
+  if (now < nextSweepAt && !enforceCapacity) {
+    return;
+  }
+
+  for (const [key, entry] of entries) {
+    if (entry.resetsAt <= now) {
+      entries.delete(key);
+    }
+  }
+  nextSweepAt = now + sweepIntervalMs;
+
+  while (entries.size >= maxEntries) {
+    const oldestKey = entries.keys().next().value as string | undefined;
+    if (oldestKey === undefined) {
+      return;
+    }
+    entries.delete(oldestKey);
+  }
+}
+
+/**
+ * Consumes one allowance from an in-memory fixed-window rate limit.
+ *
+ * This limiter is intentionally per application instance. Multi-instance
+ * deployments need a shared rate-limit store to enforce a global limit.
+ *
+ * @param key - Stable actor and operation identifier.
+ * @param limit - Maximum accepted operations in the window.
+ * @param windowMs - Fixed-window duration in milliseconds.
+ * @returns Whether the operation remains within its limit.
+ */
+export function consumeRateLimit(
+  key: string,
+  limit: number,
+  windowMs: number,
+): boolean {
+  if (key === "" || limit < 1 || windowMs < 1) {
+    return false;
+  }
+
+  const now = Date.now();
+  const current = entries.get(key);
+  if (!current || current.resetsAt <= now) {
+    sweepEntries(now, !current && entries.size >= maxEntries);
+    entries.delete(key);
+    entries.set(key, { count: 1, resetsAt: now + windowMs });
+    return true;
+  }
+
+  current.count += 1;
+  return current.count <= limit;
+}

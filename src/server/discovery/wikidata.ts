@@ -1,19 +1,13 @@
 import "server-only";
 
-import { z } from "zod";
+import { wikidataResponseSchema } from "@/core";
 
-const responseSchema = z.object({
-  results: z.object({
-    bindings: z.array(
-      z.object({
-        bggId: z.object({ value: z.string() }),
-        date: z.object({ value: z.string() }).optional(),
-      }),
-    ),
-  }),
-});
-
-/** Retrieves open publication years keyed by BoardGameGeek ID from Wikidata. */
+/**
+ * Retrieves open publication years keyed by BoardGameGeek ID from Wikidata.
+ *
+ * @param bggIds - The BoardGameGeek identifiers.
+ * @returns The documented function result.
+ */
 export async function getWikidataYears(
   bggIds: number[],
 ): Promise<Map<number, number>> {
@@ -47,7 +41,7 @@ export async function getWikidataYears(
     return new Map();
   }
 
-  const parsed = responseSchema.safeParse(await response.json());
+  const parsed = wikidataResponseSchema.safeParse(await response.json());
   if (!parsed.success) {
     return new Map();
   }

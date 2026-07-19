@@ -3,21 +3,29 @@ import { Activity, BookOpen, Shield, Users } from "lucide-react";
 import type { Metadata } from "next";
 import { getFormatter, getTranslations } from "next-intl/server";
 
-import { AuditLogPanel } from "@/components/audit-log-panel";
-import { AdminUserActions } from "@/components/admin-user-actions";
-import { PageHeader } from "@/components/page-header";
+import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
+import { AdminUserActions } from "@/components/organisms/AdminUserActions/AdminUserActions";
+import { AuditLogPanel } from "@/components/organisms/AuditLogPanel/AuditLogPanel";
+import { getAuditLogPage } from "@/server/admin/auditLogs";
 import { db } from "@/server/db";
 import { collectionItems, user } from "@/server/db/schema";
-import { getAuditLogPage } from "@/server/admin/audit-logs";
 import { requireAdmin } from "@/server/session";
 
-/** Administrator page metadata. */
+/**
+ * Administrator page metadata.
+ *
+ * @returns The documented function result.
+ */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
   return { title: t("admin.metaTitle") };
 }
 
-/** User management, service health, collection, and audit console. */
+/**
+ * User management, service health, collection, and audit console.
+ *
+ * @returns The documented function result.
+ */
 export default async function AdminPage() {
   const [actor, t, format] = await Promise.all([
     requireAdmin(),
@@ -47,9 +55,9 @@ export default async function AdminPage() {
   return (
     <>
       <PageHeader
+        description={t("admin.description")}
         eyebrow={t("admin.eyebrow")}
         title={t("admin.title")}
-        description={t("admin.description")}
       />
       <section className="mb-7 grid gap-3 sm:grid-cols-3">
         {[
@@ -70,8 +78,8 @@ export default async function AdminPage() {
           },
         ].map((stat) => (
           <article
-            key={stat.label}
             className="bg-card shadow-soft rounded-xl border p-5"
+            key={stat.label}
           >
             <stat.icon className="text-primary mb-5 size-5" />
             <p className="font-display text-2xl font-bold">{stat.value}</p>
@@ -93,7 +101,7 @@ export default async function AdminPage() {
           </div>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] text-left text-sm">
+          <table className="w-full min-w-190 text-left text-sm">
             <thead className="bg-muted/60 text-muted-foreground text-xs tracking-wide uppercase">
               <tr>
                 <th className="px-6 py-3">{t("admin.user")}</th>
@@ -129,8 +137,8 @@ export default async function AdminPage() {
                   </td>
                   <td className="px-6 py-4">
                     <AdminUserActions
-                      user={record}
                       isSelf={record.id === actor.user.id}
+                      user={record}
                     />
                   </td>
                 </tr>

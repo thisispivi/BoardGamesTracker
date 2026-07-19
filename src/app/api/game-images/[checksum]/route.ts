@@ -1,12 +1,17 @@
 import { eq } from "drizzle-orm";
-import { z } from "zod";
 
+import { checksumSchema } from "@/core";
 import { db } from "@/server/db";
 import { gameImages } from "@/server/db/schema";
 
-const checksumSchema = z.string().regex(/^[a-f0-9]{64}$/);
-
-/** Serves immutable, content-addressed game artwork stored in PostgreSQL. */
+/**
+ * Serves immutable, content-addressed game artwork stored in PostgreSQL.
+ *
+ * @param request - The incoming request.
+ * @param context - The route or operation context.
+ * @param context.params - The resolved route parameters.
+ * @returns The documented function result.
+ */
 export async function GET(
   request: Request,
   context: { params: Promise<{ checksum: string }> },

@@ -1,20 +1,28 @@
 import type { Metadata } from "next";
-
-import { AddGameDialog } from "@/components/add-game-dialog";
-import { CollectionBrowser } from "@/components/collection-browser";
-import { PageHeader } from "@/components/page-header";
 import { getTranslations } from "next-intl/server";
+
+import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
+import { AddGameDialog } from "@/components/organisms/AddGameDialog/AddGameDialog";
+import { CollectionBrowser } from "@/components/organisms/CollectionBrowser/CollectionBrowser";
 import { getCollection } from "@/server/collection";
 import { getUserPreferences } from "@/server/preferences";
 import { requireUser } from "@/server/session";
 
-/** Collection page metadata. */
+/**
+ * Collection page metadata.
+ *
+ * @returns The documented function result.
+ */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
   return { title: t("collection.metaTitle") };
 }
 
-/** Visual, searchable personal board-game collection. */
+/**
+ * Visual, searchable personal board-game collection.
+ *
+ * @returns The documented function result.
+ */
 export default async function CollectionPage() {
   const session = await requireUser();
   const [collection, preferences, t] = await Promise.all([
@@ -26,12 +34,12 @@ export default async function CollectionPage() {
   return (
     <>
       <PageHeader
+        action={<AddGameDialog currency={preferences.currency} />}
+        description={t("collection.count", { count: collection.length })}
         eyebrow={t("collection.eyebrow")}
         title={t("collection.title")}
-        description={t("collection.count", { count: collection.length })}
-        action={<AddGameDialog currency={preferences.currency} />}
       />
-      <CollectionBrowser games={collection} currency={preferences.currency} />
+      <CollectionBrowser currency={preferences.currency} games={collection} />
     </>
   );
 }

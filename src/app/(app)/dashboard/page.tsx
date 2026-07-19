@@ -2,14 +2,18 @@ import { ArrowRight, Banknote, BookOpen, Boxes, Heart } from "lucide-react";
 import Link from "next/link";
 import { getFormatter, getTranslations } from "next-intl/server";
 
-import { GameArtwork } from "@/components/game-artwork";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/atoms/Button/Button";
+import { GameArtwork } from "@/components/atoms/GameArtwork/GameArtwork";
 import { getCollection } from "@/server/collection";
 import { getUserPreferences } from "@/server/preferences";
 import { requireUser } from "@/server/session";
+import { cn } from "@/utils/cn";
 
-/** Personalized collection summary without promotional hero content. */
+/**
+ * Personalized collection summary without promotional hero content.
+ *
+ * @returns The documented function result.
+ */
 export default async function DashboardPage() {
   const session = await requireUser();
   const [collection, preferences, format, t] = await Promise.all([
@@ -43,8 +47,8 @@ export default async function DashboardPage() {
           </p>
         </div>
         <Link
-          href="/collection"
           className="text-primary hover:bg-primary/10 flex w-fit items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition"
+          href="/collection"
         >
           {t("dashboard.openCollection")} <ArrowRight className="size-4" />
         </Link>
@@ -70,8 +74,8 @@ export default async function DashboardPage() {
           },
         ].map((stat, index) => (
           <article
-            key={stat.label}
             className="bg-card shadow-soft hover:border-primary/35 group rounded-2xl border p-5 transition duration-300 hover:-translate-y-1"
+            key={stat.label}
             style={{ animationDelay: `${index * 60}ms` }}
           >
             <span className="bg-primary/10 text-primary grid size-10 place-items-center rounded-xl transition duration-300 group-hover:scale-105 group-hover:rotate-3">
@@ -98,8 +102,8 @@ export default async function DashboardPage() {
             </h2>
           </div>
           <Link
-            href="/collection"
             className="text-primary flex items-center gap-2 text-sm font-bold"
+            href="/collection"
           >
             {t("dashboard.viewAll")} <ArrowRight className="size-4" />
           </Link>
@@ -108,15 +112,15 @@ export default async function DashboardPage() {
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4 xl:grid-cols-6">
             {games.slice(0, 6).map((item, index) => (
               <Link
-                key={item.id}
-                href="/collection"
                 className="group bg-background min-w-0 rounded-2xl border p-2 transition duration-300 hover:-translate-y-1 hover:shadow-xl"
+                href="/collection"
+                key={item.id}
               >
                 <GameArtwork
-                  eager={index < 2}
-                  name={item.name}
-                  imageUrl={item.imageUrl}
                   className="rounded-md"
+                  eager={index < 2}
+                  imageUrl={item.imageUrl}
+                  name={item.name}
                 />
                 <h3 className="mt-3 truncate px-1 text-sm font-bold">
                   {item.name}
@@ -137,8 +141,8 @@ export default async function DashboardPage() {
               {t("dashboard.emptyBody")}
             </p>
             <Link
-              href="/collection"
               className={cn(buttonVariants({ size: "sm" }), "mt-5")}
+              href="/collection"
             >
               {t("dashboard.addFirst")}
             </Link>

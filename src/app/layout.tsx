@@ -1,14 +1,18 @@
+import "./globals.css";
+
 import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 
-import { Providers } from "@/components/providers";
-import { isAppTheme } from "@/lib/theme";
+import { Providers } from "@/components/templates/Providers/Providers";
+import { isAppTheme } from "@/utils/theme";
 
-import "./globals.css";
-
-/** Global metadata for search engines and browser integrations. */
+/**
+ * Global metadata for search engines and browser integrations.
+ *
+ * @returns The documented function result.
+ */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
   return {
@@ -35,7 +39,13 @@ export const viewport: Viewport = {
   ],
 };
 
-/** Root document shell with locale, theme, and toast providers. */
+/**
+ * Root document shell with locale, theme, and toast providers.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.children - The 'children' property.
+ * @returns The documented function result.
+ */
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -46,11 +56,11 @@ export default async function RootLayout({
 
   return (
     <html
-      lang={locale}
       className={theme === "dark" ? "dark" : undefined}
+      data-scroll-behavior="smooth"
+      lang={locale}
       style={theme ? { colorScheme: theme } : undefined}
       suppressHydrationWarning
-      data-scroll-behavior="smooth"
     >
       <body>
         <NextIntlClientProvider>

@@ -2,21 +2,31 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
-import { AuthForm } from "@/components/auth-form";
-import { LocaleSelect } from "@/components/locale-select";
-import { Logo } from "@/components/logo";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { Logo } from "@/components/atoms/Logo/Logo";
+import { LocaleSelect } from "@/components/molecules/LocaleSelect/LocaleSelect";
+import { ThemeToggle } from "@/components/molecules/ThemeToggle/ThemeToggle";
+import { AuthForm } from "@/components/organisms/AuthForm/AuthForm";
+import { env } from "@/env";
 import { isBootstrapRequired } from "@/server/bootstrap";
 import { getSession } from "@/server/session";
-import { env } from "@/env";
 
-/** Authentication page metadata. */
+/**
+ * Authentication page metadata.
+ *
+ * @returns The documented function result.
+ */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("auth");
   return { title: t("metaTitle") };
 }
 
-/** Direct login and registration page. */
+/**
+ * Direct login and registration page.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.searchParams - The 'searchParams' property.
+ * @returns The documented function result.
+ */
 export default async function LoginPage({
   searchParams,
 }: {
@@ -48,9 +58,9 @@ export default async function LoginPage({
         </div>
         <div className="bg-card shadow-soft rounded-3xl border p-6 sm:p-8">
           <AuthForm
-            initialMode={mode}
             allowSignUp={allowSignUp}
             bootstrapRequired={bootstrapRequired}
+            initialMode={mode}
           />
         </div>
       </section>

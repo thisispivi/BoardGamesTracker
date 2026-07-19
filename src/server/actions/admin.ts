@@ -2,18 +2,26 @@
 
 import { count, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { z } from "zod";
 
+import {
+  type AuditLogPage,
+  auditPageSchema,
+  bannedSchema,
+  roleSchema,
+  userIdSchema,
+} from "@/core";
+import { getAuditLogPage } from "@/server/admin/auditLogs";
 import { writeAuditEvent } from "@/server/audit";
-import { getAuditLogPage, type AuditLogPage } from "@/server/admin/audit-logs";
 import { db } from "@/server/db";
 import { session, user } from "@/server/db/schema";
 import { requireAdmin } from "@/server/session";
 
-const userIdSchema = z.string().min(1).max(128);
-const auditPageSchema = z.number().int().positive().max(1_000_000);
-
-/** Returns an authorized audit page without navigating away from the console. */
+/**
+ * Returns an authorized audit page without navigating away from the console.
+ *
+ * @param page - The 'page' value.
+ * @returns The documented function result.
+ */
 export async function getAuditLogPageAction(
   page: number,
 ): Promise<AuditLogPage> {
@@ -21,7 +29,12 @@ export async function getAuditLogPageAction(
   return getAuditLogPage(auditPageSchema.parse(page));
 }
 
-/** Prevents destructive changes to the acting admin and final administrator. */
+/**
+ * Prevents destructive changes to the acting admin and final administrator.
+ *
+ * @param actorId - The 'actorId' value.
+ * @param targetId - The 'targetId' value.
+ */
 async function assertManageableUser(
   actorId: string,
   targetId: string,
@@ -48,11 +61,16 @@ async function assertManageableUser(
   }
 }
 
-/** Changes a user's role with last-admin protection. */
+/**
+ * Changes a user's role with last-admin protection.
+ *
+ * @param formData - The submitted form data.
+ * @returns The documented function result.
+ */
 export async function updateUserRoleAction(formData: FormData): Promise<void> {
   const actor = await requireAdmin();
   const targetId = userIdSchema.parse(formData.get("userId"));
-  const role = z.enum(["user", "admin"]).parse(formData.get("role"));
+  const role = roleSchema.parse(formData.get("role"));
   await assertManageableUser(actor.user.id, targetId);
   await db
     .update(user)
@@ -68,12 +86,16 @@ export async function updateUserRoleAction(formData: FormData): Promise<void> {
   revalidatePath("/admin");
 }
 
-/** Bans or restores a user and revokes active sessions when banning. */
+/**
+ * Bans or restores a user and revokes active sessions when banning.
+ *
+ * @param formData - The submitted form data.
+ * @returns The documented function result.
+ */
 export async function toggleUserBanAction(formData: FormData): Promise<void> {
   const actor = await requireAdmin();
   const targetId = userIdSchema.parse(formData.get("userId"));
-  const banned =
-    z.enum(["true", "false"]).parse(formData.get("banned")) === "true";
+  const banned = bannedSchema.parse(formData.get("banned")) === "true";
   await assertManageableUser(actor.user.id, targetId);
   await db
     .update(user)
@@ -95,7 +117,12 @@ export async function toggleUserBanAction(formData: FormData): Promise<void> {
   revalidatePath("/admin");
 }
 
-/** Permanently removes a user and all cascade-owned data. */
+/**
+ * Permanently removes a user and all cascade-owned data.
+ *
+ * @param formData - The submitted form data.
+ * @returns The documented function result.
+ */
 export async function deleteUserAction(formData: FormData): Promise<void> {
   const actor = await requireAdmin();
   const targetId = userIdSchema.parse(formData.get("userId"));

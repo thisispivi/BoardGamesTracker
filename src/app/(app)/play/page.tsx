@@ -1,18 +1,26 @@
 import type { Metadata } from "next";
-
-import { GamePicker } from "@/components/game-picker";
-import { PageHeader } from "@/components/page-header";
 import { getTranslations } from "next-intl/server";
+
+import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
+import { GamePicker } from "@/components/organisms/GamePicker/GamePicker";
 import { getCollection } from "@/server/collection";
 import { requireUser } from "@/server/session";
 
-/** Game picker page metadata. */
+/**
+ * Game picker page metadata.
+ *
+ * @returns The documented function result.
+ */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
   return { title: t("play.metaTitle") };
 }
 
-/** Filtered, animated game-night randomizer. */
+/**
+ * Filtered, animated game-night randomizer.
+ *
+ * @returns The documented function result.
+ */
 export default async function PlayPage() {
   const session = await requireUser();
   const [collection, t] = await Promise.all([
@@ -23,9 +31,9 @@ export default async function PlayPage() {
   return (
     <>
       <PageHeader
+        description={t("play.description")}
         eyebrow={t("play.eyebrow")}
         title={t("play.title")}
-        description={t("play.description")}
       />
       <GamePicker games={collection} />
     </>

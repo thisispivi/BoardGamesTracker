@@ -1,11 +1,16 @@
 import "server-only";
 
-import { hasExpansionCategory } from "@/lib/game-taxonomy";
-import { parseBggGeekItemPayload, type BggMetadata } from "@/server/bgg/parser";
+import type { BggMetadata } from "@/core";
+import { parseBggGeekItemPayload } from "@/server/bgg/parser";
+import { hasExpansionCategory } from "@/utils/gameTaxonomy";
 
-export type { BggMetadata } from "@/server/bgg/parser";
+export type { BggMetadata } from "@/core";
 
-/** Decodes the small HTML entity subset used in metadata attributes. */
+/**
+ * Decodes the small HTML entity subset used in metadata attributes.
+ *
+ * @param value - The value to inspect or transform.
+ */
 function decodeHtml(value: string): string {
   return value
     .replaceAll("&quot;", '"')
@@ -15,7 +20,14 @@ function decodeHtml(value: string): string {
     .replaceAll("&gt;", ">");
 }
 
-/** Returns the first bounded finite number matched in public page data. */
+/**
+ * Returns the first bounded finite number matched in public page data.
+ *
+ * @param html - The 'html' value.
+ * @param keys - The 'keys' value.
+ * @param minimum - The 'minimum' value.
+ * @param maximum - The 'maximum' value.
+ */
 function pageNumber(
   html: string,
   keys: string[],
@@ -37,7 +49,12 @@ function pageNumber(
   return null;
 }
 
-/** Reads a content attribute from a standard metadata tag. */
+/**
+ * Reads a content attribute from a standard metadata tag.
+ *
+ * @param html - The 'html' value.
+ * @param property - The 'property' value.
+ */
 function metaContent(html: string, property: string): string | null {
   const escaped = property.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const forward = html.match(
@@ -56,7 +73,12 @@ function metaContent(html: string, property: string): string | null {
   return value ? decodeHtml(value).trim() : null;
 }
 
-/** Extracts unique labels from embedded public BGG taxonomy objects. */
+/**
+ * Extracts unique labels from embedded public BGG taxonomy objects.
+ *
+ * @param html - The 'html' value.
+ * @param type - The 'type' value.
+ */
 function taxonomy(html: string, type: string): string[] {
   const normalized = decodeHtml(html);
   const values = new Set<string>();
@@ -84,7 +106,11 @@ function taxonomy(html: string, type: string): string[] {
   return [...values].slice(0, 50);
 }
 
-/** Accepts only artwork from BGG's public image CDN. */
+/**
+ * Accepts only artwork from BGG's public image CDN.
+ *
+ * @param value - The value to inspect or transform.
+ */
 function trustedImage(value: string | null): string | null {
   if (!value) return null;
   try {
@@ -97,7 +123,11 @@ function trustedImage(value: string | null): string | null {
   }
 }
 
-/** Reads the structured data backing one public BGG credits page. */
+/**
+ * Reads the structured data backing one public BGG credits page.
+ *
+ * @param bggId - The BoardGameGeek identifier.
+ */
 async function scrapeCredits(bggId: number): Promise<BggMetadata | null> {
   const url = new URL("https://boardgamegeek.com/api/geekitems");
   url.searchParams.set("objectid", String(bggId));
@@ -123,7 +153,11 @@ async function scrapeCredits(bggId: number): Promise<BggMetadata | null> {
   return parseBggGeekItemPayload(JSON.parse(body) as unknown, bggId);
 }
 
-/** Falls back to metadata embedded in one public BGG game page. */
+/**
+ * Falls back to metadata embedded in one public BGG game page.
+ *
+ * @param bggId - The BoardGameGeek identifier.
+ */
 async function scrapeHtmlPage(bggId: number): Promise<BggMetadata | null> {
   const response = await fetch(`https://boardgamegeek.com/boardgame/${bggId}`, {
     headers: {
@@ -153,6 +187,7 @@ async function scrapeHtmlPage(bggId: number): Promise<BggMetadata | null> {
     .trim();
   if (!name) return null;
 
+  const titleYear = rawTitle?.match(/\(((?:18|19|20)\d{2})\)/)?.[1];
   const description =
     metaContent(html, "og:description") ??
     metaContent(html, "description") ??
@@ -177,11 +212,15 @@ async function scrapeHtmlPage(bggId: number): Promise<BggMetadata | null> {
     weight: pageNumber(html, ["averageweight", "averageWeight"], 0, 5),
     yearPublished:
       pageNumber(html, ["yearpublished", "yearPublished"], 1800, 2200) ??
-      (Number(rawTitle?.match(/\(((?:18|19|20)\d{2})\)/)?.[1] ?? 0) || null),
+      (titleYear ? Number(titleYear) : null),
   };
 }
 
-/** Scrapes one game's credits data, with public HTML as a soft fallback. */
+/**
+ * Scrapes one game's credits data, with public HTML as a soft fallback.
+ *
+ * @param bggId - The BoardGameGeek identifier.
+ */
 async function scrapePage(bggId: number): Promise<BggMetadata | null> {
   return (
     (await scrapeCredits(bggId).catch(() => null)) ??
@@ -189,7 +228,12 @@ async function scrapePage(bggId: number): Promise<BggMetadata | null> {
   );
 }
 
-/** Best-effort, low-concurrency scrape of public BGG pages with soft failure. */
+/**
+ * Best-effort, low-concurrency scrape of public BGG pages with soft failure.
+ *
+ * @param ids - The 'ids' value.
+ * @returns The documented function result.
+ */
 export async function scrapeBggMetadata(
   ids: number[],
 ): Promise<Map<number, BggMetadata>> {

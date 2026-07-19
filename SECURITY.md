@@ -15,6 +15,8 @@ Only the latest release on the default branch receives security updates.
 - Terminate TLS at a maintained reverse proxy and never expose production over plain HTTP.
 - Generate unique database and Better Auth secrets; store them in a secret manager, not the repository.
 - Keep `ALLOW_SIGN_UP=false` in production except during a controlled additional-registration window. An empty installation permits exactly the first administrator setup, so complete bootstrap from a trusted network before exposing it publicly.
+- Treat `ADMIN_EMAIL` as a temporary bootstrap credential: every successful registration matching it becomes an administrator. Unset it after creating the intended account, especially before enabling `ALLOW_SIGN_UP=true`.
+- Set `HEALTH_CHECK_TOKEN` to protect the database-backed health probe, and configure the orchestrator to send it as a bearer token.
 - Restrict inbound traffic to the application port and keep PostgreSQL on a private network.
 - Configure log retention and access controls. Audit events can contain user IDs and request IP addresses.
 - Back up and test restore procedures before every upgrade.

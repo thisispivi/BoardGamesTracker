@@ -9,20 +9,28 @@ import {
 import type { Metadata } from "next";
 import { getFormatter, getTranslations } from "next-intl/server";
 
-import { PageHeader } from "@/components/page-header";
-import { StatsCharts } from "@/components/stats-charts";
-import { calculateCollectionStats } from "@/lib/collection-stats";
+import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
+import { StatsCharts } from "@/components/organisms/StatsCharts/StatsCharts";
 import { getCollection } from "@/server/collection";
 import { getUserPreferences } from "@/server/preferences";
 import { requireUser } from "@/server/session";
+import { calculateCollectionStats } from "@/utils/collectionStats";
 
-/** Statistics page metadata. */
+/**
+ * Statistics page metadata.
+ *
+ * @returns The documented function result.
+ */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
   return { title: t("stats.metaTitle") };
 }
 
-/** Useful financial and taxonomy insights for the owned collection. */
+/**
+ * Useful financial and taxonomy insights for the owned collection.
+ *
+ * @returns The documented function result.
+ */
 export default async function StatsPage() {
   const session = await requireUser();
   const [collection, preferences, format, t] = await Promise.all([
@@ -84,15 +92,15 @@ export default async function StatsPage() {
   return (
     <>
       <PageHeader
+        description={t("stats.description")}
         eyebrow={t("stats.eyebrow")}
         title={t("stats.title")}
-        description={t("stats.description")}
       />
       <section className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-3 2xl:grid-cols-6">
         {cards.map((card) => (
           <article
-            key={card.label}
             className="bg-card shadow-soft min-w-0 rounded-2xl border p-5"
+            key={card.label}
           >
             <card.icon className="text-primary size-5" />
             <p className="font-display mt-5 truncate text-2xl font-bold">

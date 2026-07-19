@@ -2,9 +2,9 @@ import "server-only";
 
 import { headers } from "next/headers";
 
-import { log } from "@/lib/logger";
 import { db } from "@/server/db";
 import { auditLogs } from "@/server/db/schema";
+import { log } from "@/utils/logger";
 
 type AuditInput = {
   actorId?: string;
@@ -14,7 +14,12 @@ type AuditInput = {
   metadata?: Record<string, string | number | boolean | null>;
 };
 
-/** Persists a security-relevant administrative or user event. */
+/**
+ * Persists a security-relevant administrative or user event.
+ *
+ * @param input - The 'input' value.
+ * @returns The documented function result.
+ */
 export async function writeAuditEvent(input: AuditInput): Promise<void> {
   const requestHeaders = await headers();
   const forwardedFor = requestHeaders

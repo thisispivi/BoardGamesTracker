@@ -1,26 +1,28 @@
 import { revalidatePath } from "next/cache";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { z } from "zod";
 
-import { env } from "@/env";
+import { formatSchema, type UserDataFormat } from "@/core";
 import { writeAuditEvent } from "@/server/audit";
+import { hasTrustedOrigin } from "@/server/security/origin";
 import { getSession } from "@/server/session";
 import {
   getUserDataDocument,
   importUserDataDocument,
-} from "@/server/user-data/data";
+} from "@/server/userData/data";
 import {
   getExportMetadata,
   parseUserData,
   serializeUserData,
-} from "@/server/user-data/formats";
-import type { UserDataFormat } from "@/server/user-data/schema";
-
-const formatSchema = z.enum(["json", "csv", "xlsx", "sql"]);
+} from "@/server/userData/formats";
 const maxImportBytes = 10 * 1024 * 1024;
 
-/** Exports only the signed-in user's portable application data. */
+/**
+ * Exports only the signed-in user's portable application data.
+ *
+ * @param request - The incoming request.
+ * @returns The documented function result.
+ */
 export async function GET(request: NextRequest): Promise<Response> {
   const session = await getSession();
   if (!session)
@@ -53,12 +55,17 @@ export async function GET(request: NextRequest): Promise<Response> {
   });
 }
 
-/** Imports a validated Board Games Tracker export into the current account. */
+/**
+ * Imports a validated Board Games Tracker export into the current account.
+ *
+ * @param request - The incoming request.
+ * @returns The documented function result.
+ */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const session = await getSession();
   if (!session)
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  if (!hasSameOrigin(request)) {
+  if (!hasTrustedOrigin(request)) {
     return NextResponse.json({ error: "cross_origin" }, { status: 403 });
   }
   const declaredLength = Number(request.headers.get("content-length") ?? 0);
@@ -109,19 +116,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 }
 
-/** Maps an upload extension to a supported parser without trusting MIME types. */
+/**
+ * Maps an upload extension to a supported parser without trusting MIME types.
+ *
+ * @param filename - The 'filename' value.
+ */
 function formatFromFilename(filename: string): UserDataFormat | null {
   const extension = filename.toLowerCase().split(".").pop();
   const parsed = formatSchema.safeParse(extension);
   return parsed.success ? parsed.data : null;
-}
-
-/**
- * Rejects cross-site state changes using the configured app origin, since a
- * reverse-proxied deployment can make `request.nextUrl.origin` diverge from
- * the public origin the browser actually sent.
- */
-function hasSameOrigin(request: NextRequest): boolean {
-  const origin = request.headers.get("origin");
-  return !origin || origin === new URL(env.NEXT_PUBLIC_APP_URL).origin;
 }

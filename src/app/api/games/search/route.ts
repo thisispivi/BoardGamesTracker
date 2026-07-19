@@ -1,35 +1,26 @@
-import { z } from "zod";
-
-import { log } from "@/lib/logger";
 import { getTranslations } from "next-intl/server";
-import { discoverBoardGameByUrl } from "@/server/discovery/bgg-url";
-import { parseBoardGameUrl } from "@/server/discovery/result-parser";
+
+import { querySchema } from "@/core";
+import { discoverBoardGameByUrl } from "@/server/discovery/bggUrl";
+import { parseBoardGameUrl } from "@/server/discovery/resultParser";
 import { searchBoardGames } from "@/server/discovery/searxng";
+import { consumeRateLimit } from "@/server/security/rateLimit";
 import { getSession } from "@/server/session";
+import { log } from "@/utils/logger";
 
-const querySchema = z.string().trim().min(3).max(500);
-const requests = new Map<string, { count: number; resetsAt: number }>();
-
-/** Applies a small per-user metasearch limit for a single-instance deployment. */
-function isRateLimited(userId: string): boolean {
-  const now = Date.now();
-  const current = requests.get(userId);
-  if (!current || current.resetsAt <= now) {
-    requests.set(userId, { count: 1, resetsAt: now + 60_000 });
-    return false;
-  }
-  current.count += 1;
-  return current.count > 20;
-}
-
-/** Discovers BoardGameGeek links for authenticated collection editors. */
+/**
+ * Discovers BoardGameGeek links for authenticated collection editors.
+ *
+ * @param request - The incoming request.
+ * @returns The documented function result.
+ */
 export async function GET(request: Request): Promise<Response> {
   const t = await getTranslations();
   const session = await getSession();
   if (!session) {
     return Response.json({ error: t("search.unauthorized") }, { status: 401 });
   }
-  if (isRateLimited(session.user.id)) {
+  if (!consumeRateLimit(`search:${session.user.id}`, 20, 60_000)) {
     return Response.json({ error: t("search.tooMany") }, { status: 429 });
   }
 
