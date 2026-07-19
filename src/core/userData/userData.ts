@@ -3,7 +3,7 @@ import type { z } from "zod";
 import type {
   portableGameSchema,
   userDataDocumentSchema,
-} from "@/core/contracts/userData";
+} from "@/core/userData/userData.contract";
 
 /** One portable owned or wished-for board-game record. */
 export type PortableGame = z.infer<typeof portableGameSchema>;

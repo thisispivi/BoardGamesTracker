@@ -2,8 +2,8 @@ import { render, screen } from "@testing-library/react";
 import { NextIntlClientProvider, useTranslations } from "next-intl";
 import { describe, expect, it } from "vitest";
 
-import english from "../../../../messages/en.json";
-import italian from "../../../../messages/it.json";
+import english from "./en.json";
+import italian from "./it.json";
 
 function MessageProbe({ count, minutes }: { count: number; minutes: number }) {
   const t = useTranslations();

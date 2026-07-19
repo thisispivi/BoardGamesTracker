@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { bggImageUrlSchema } from "@/core/contracts/shared";
+import { bggImageUrlSchema } from "@/core/shared/shared.contract";
 
 /** Validates the payload authenticated by a game-selection token. */
 export const selectionSchema = z.object({

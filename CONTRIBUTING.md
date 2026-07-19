@@ -4,7 +4,7 @@ Thank you for improving Board Games Tracker.
 
 1. Create a focused branch from `main`.
 2. Install with `pnpm install --frozen-lockfile` and copy `.env.example` to `.env.local`.
-3. Add or update tests under `src/core/tests/`, mirroring the source area they cover.
+3. Add or update `fileName.test.ts(x)` beside the source file it covers.
 4. Run `pnpm check` and `pnpm build`.
 5. Describe user impact, schema changes, screenshots, and security considerations in the pull request.
 

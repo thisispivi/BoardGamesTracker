@@ -15,8 +15,8 @@ export default defineConfig({
       reporter: ["text", "html"],
     },
     environment: "jsdom",
-    include: ["src/core/tests/**/*.test.{ts,tsx}"],
-    setupFiles: ["./src/core/tests/setup.ts"],
+    include: ["src/**/*.test.{ts,tsx}", "messages/**/*.test.{ts,tsx}"],
+    setupFiles: ["./src/test/setup.ts"],
     testTimeout: 10_000,
   },
 });

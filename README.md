@@ -160,7 +160,7 @@ BoardGamesTracker/
 ├── src/
 │   ├── app/                  # Routing-only Next.js pages, layouts, and handlers
 │   ├── components/           # Atomic Design atoms, molecules, organisms, and templates
-│   ├── core/                 # Isomorphic contracts, domain typings, and every test
+│   ├── core/                 # Isomorphic domain folders with colocated contracts and types
 │   ├── hooks/                # Reusable client hooks
 │   ├── i18n/                 # Request config, locale rules, and domain catalogs
 │   ├── server/               # Auth, data access, actions, discovery, imports, and security
@@ -171,6 +171,8 @@ BoardGamesTracker/
 ```
 
 Pages remain server-rendered by default. Interactive behavior is isolated in focused Client Components, while reusable filtering, validation, and formatting live outside route files.
+
+Core domains use `fileName.contract.ts` for Zod boundaries and `fileName.ts` for domain types or behavior. Tests use `fileName.test.ts(x)` beside the implementation they exercise; message-catalog tests live with the catalogs in `messages/`.
 
 ## Security model
 

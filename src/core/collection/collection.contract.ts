@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { bggImageUrlSchema } from "@/core/contracts/shared";
+import { bggImageUrlSchema } from "@/core/shared/shared.contract";
 
 /** Validates a collection-item identifier. */
 export const itemIdSchema = z.uuid();

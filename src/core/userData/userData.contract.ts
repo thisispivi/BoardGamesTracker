@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { bggImageUrlSchema, labelSchema } from "@/core/contracts/shared";
+import { bggImageUrlSchema, labelSchema } from "@/core/shared/shared.contract";
 
 const optionalImageSchema = bggImageUrlSchema.nullable();
 

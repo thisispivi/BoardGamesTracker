@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -19,16 +20,21 @@ type LogoProps = {
 export function Logo({ compact = false, className }: LogoProps): ReactNode {
   return (
     <Link
+      aria-label={compact ? "Board Games Tracker" : undefined}
       className={cn(
         "font-display inline-flex items-center gap-3 font-bold tracking-tight",
         className,
       )}
       href="/"
     >
-      <span className="bg-primary text-primary-foreground relative grid size-10 rotate-3 place-items-center rounded-[14px] shadow-sm">
-        <span className="absolute top-2 size-2.5 rounded-full bg-current" />
-        <span className="mt-2 text-lg leading-none">T</span>
-      </span>
+      <Image
+        alt=""
+        aria-hidden="true"
+        className="size-10 shrink-0 drop-shadow-sm"
+        height={64}
+        src="/logo.svg"
+        width={64}
+      />
       {!compact ? (
         <span className="text-base whitespace-nowrap">Board Games Tracker</span>
       ) : null}
