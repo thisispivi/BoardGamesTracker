@@ -26,7 +26,6 @@ export async function generateMetadata(): Promise<Metadata> {
     description: t("app.description"),
     applicationName: "Board Games Tracker",
     robots: { index: true, follow: true },
-    icons: { icon: { type: "image/svg+xml", url: "/logo.svg" } },
   };
 }
 

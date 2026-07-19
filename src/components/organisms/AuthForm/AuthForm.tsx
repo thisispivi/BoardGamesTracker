@@ -59,15 +59,13 @@ export function AuthForm({
       return;
     }
 
-    // A full navigation ensures the freshly written session cookie is present
-    // before the protected route and its proxy guard are evaluated.
     window.location.assign("/dashboard");
   }
 
   return (
     <>
-      <div className="mb-8">
-        <h1 className="font-display text-3xl font-bold tracking-tight">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
           {bootstrapRequired
             ? t("bootstrapTitle")
             : mode === "login"

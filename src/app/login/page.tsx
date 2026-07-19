@@ -47,23 +47,29 @@ export default async function LoginPage({
       : "login";
 
   return (
-    <main className="noise relative grid min-h-screen place-items-center p-5 sm:p-8">
-      <div className="absolute top-5 right-5 flex items-center gap-3 sm:top-8 sm:right-8">
-        <LocaleSelect />
-        <ThemeToggle />
+    <main className="auth-background relative min-h-dvh overflow-x-hidden">
+      <div
+        aria-hidden="true"
+        className="noise pointer-events-none absolute inset-0 opacity-60"
+      />
+      <div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-md flex-col px-4 py-4 sm:justify-center sm:px-0 sm:py-8">
+        <div className="flex justify-end gap-3 sm:fixed sm:top-8 sm:right-8">
+          <LocaleSelect />
+          <ThemeToggle />
+        </div>
+        <section className="my-auto py-5 sm:py-8">
+          <div className="mb-6 flex justify-center sm:mb-8">
+            <Logo />
+          </div>
+          <div className="bg-card/95 shadow-soft rounded-3xl border p-5 backdrop-blur-xl sm:p-8">
+            <AuthForm
+              allowSignUp={allowSignUp}
+              bootstrapRequired={bootstrapRequired}
+              initialMode={mode}
+            />
+          </div>
+        </section>
       </div>
-      <section className="w-full max-w-md">
-        <div className="mb-8 flex justify-center">
-          <Logo />
-        </div>
-        <div className="bg-card shadow-soft rounded-3xl border p-6 sm:p-8">
-          <AuthForm
-            allowSignUp={allowSignUp}
-            bootstrapRequired={bootstrapRequired}
-            initialMode={mode}
-          />
-        </div>
-      </section>
     </main>
   );
 }
