@@ -40,7 +40,7 @@ export function ConfirmDialog({
           </AlertDialog.Description>
           <form action={action} className="mt-7 flex justify-end gap-2">
             {Object.entries(fields).map(([name, value]) => (
-              <input key={name} type="hidden" name={name} value={value} />
+              <input key={name} name={name} type="hidden" value={value} />
             ))}
             <AlertDialog.Cancel asChild>
               <Button type="button" variant="secondary">

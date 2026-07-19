@@ -3,12 +3,12 @@ import { Activity, BookOpen, Shield, Users } from "lucide-react";
 import type { Metadata } from "next";
 import { getFormatter, getTranslations } from "next-intl/server";
 
-import { AuditLogPanel } from "@/components/audit-log-panel";
 import { AdminUserActions } from "@/components/admin-user-actions";
+import { AuditLogPanel } from "@/components/audit-log-panel";
 import { PageHeader } from "@/components/page-header";
+import { getAuditLogPage } from "@/server/admin/audit-logs";
 import { db } from "@/server/db";
 import { collectionItems, user } from "@/server/db/schema";
-import { getAuditLogPage } from "@/server/admin/audit-logs";
 import { requireAdmin } from "@/server/session";
 
 /** Administrator page metadata. */
@@ -47,9 +47,9 @@ export default async function AdminPage() {
   return (
     <>
       <PageHeader
+        description={t("admin.description")}
         eyebrow={t("admin.eyebrow")}
         title={t("admin.title")}
-        description={t("admin.description")}
       />
       <section className="mb-7 grid gap-3 sm:grid-cols-3">
         {[
@@ -70,8 +70,8 @@ export default async function AdminPage() {
           },
         ].map((stat) => (
           <article
-            key={stat.label}
             className="bg-card shadow-soft rounded-xl border p-5"
+            key={stat.label}
           >
             <stat.icon className="text-primary mb-5 size-5" />
             <p className="font-display text-2xl font-bold">{stat.value}</p>
@@ -129,8 +129,8 @@ export default async function AdminPage() {
                   </td>
                   <td className="px-6 py-4">
                     <AdminUserActions
-                      user={record}
                       isSelf={record.id === actor.user.id}
+                      user={record}
                     />
                   </td>
                 </tr>

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
 import { GamePicker } from "@/components/game-picker";
 import { PageHeader } from "@/components/page-header";
-import { getTranslations } from "next-intl/server";
 import { getCollection } from "@/server/collection";
 import { requireUser } from "@/server/session";
 
@@ -23,9 +23,9 @@ export default async function PlayPage() {
   return (
     <>
       <PageHeader
+        description={t("play.description")}
         eyebrow={t("play.eyebrow")}
         title={t("play.title")}
-        description={t("play.description")}
       />
       <GamePicker games={collection} />
     </>

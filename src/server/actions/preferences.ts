@@ -1,14 +1,14 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
+import { z } from "zod";
 
 import { isLocale } from "@/i18n/config";
 import { db } from "@/server/db";
 import { user } from "@/server/db/schema";
 import { requireUser } from "@/server/session";
-import { eq } from "drizzle-orm";
-import { z } from "zod";
 
 const currencySchema = z.enum([
   "AUD",

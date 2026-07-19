@@ -5,7 +5,7 @@ import { BookOpen, Heart, RotateCcw, Search } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
-import { GameCard, type CollectionGame } from "@/components/game-card";
+import { type CollectionGame, GameCard } from "@/components/game-card";
 import {
   MultiSelect,
   type MultiSelectOption,
@@ -188,66 +188,66 @@ export function CollectionBrowser({
           <span className="sr-only">{t("collection.searchLabel")}</span>
           <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
           <input
+            className="bg-muted/60 focus:ring-primary/20 h-11 w-full rounded-xl pr-4 pl-10 text-sm transition focus:ring-4 focus:outline-none"
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder={t("collection.searchPlaceholder")}
             type="search"
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            className="bg-muted/60 focus:ring-primary/20 h-11 w-full rounded-xl pr-4 pl-10 text-sm transition focus:ring-4 focus:outline-none"
-            placeholder={t("collection.searchPlaceholder")}
           />
         </label>
         <MultiSelect
           ariaLabel={t("collection.categoryFilter")}
-          values={categories}
+          clearLabel={t("collection.clearSelection")}
+          emptyLabel={t("collection.noFilterOptions")}
           onValueChange={setCategories}
           options={categoryOptions}
           placeholder={t("collection.allCategories")}
           searchPlaceholder={t("collection.searchCategories")}
           selectedSummary={t("collection.selectedFilters")}
-          clearLabel={t("collection.clearSelection")}
-          emptyLabel={t("collection.noFilterOptions")}
+          values={categories}
         />
         <MultiSelect
           ariaLabel={t("collection.mechanicFilter")}
-          values={mechanics}
+          clearLabel={t("collection.clearSelection")}
+          emptyLabel={t("collection.noFilterOptions")}
           onValueChange={setMechanics}
           options={mechanicOptions}
           placeholder={t("collection.allMechanics")}
           searchPlaceholder={t("collection.searchMechanics")}
           selectedSummary={t("collection.selectedFilters")}
-          clearLabel={t("collection.clearSelection")}
-          emptyLabel={t("collection.noFilterOptions")}
+          values={mechanics}
         />
         <div className="flex items-center gap-2">
           <button
-            type="button"
             aria-pressed={favoritesOnly}
-            onClick={() => setFavoritesOnly((value) => !value)}
             className={`flex h-11 flex-1 items-center justify-center gap-2 rounded-xl border px-3 text-xs font-bold whitespace-nowrap transition lg:flex-none ${favoritesOnly ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+            onClick={() => setFavoritesOnly((value) => !value)}
+            type="button"
           >
             <Heart
               className={`size-4 ${favoritesOnly ? "fill-current" : ""}`}
             />
             {t("collection.favorites")}
           </button>
-          {hasFilters && (
+          {hasFilters ? (
             <button
-              type="button"
+              aria-label={t("collection.clearFilters")}
+              className="hover:bg-muted grid size-11 shrink-0 place-items-center rounded-xl border transition"
               onClick={() => {
                 setQuery("");
                 setFavoritesOnly(false);
                 setCategories([]);
                 setMechanics([]);
               }}
-              aria-label={t("collection.clearFilters")}
-              className="hover:bg-muted grid size-11 shrink-0 place-items-center rounded-xl border transition"
+              type="button"
             >
               <RotateCcw className="size-4" />
             </button>
-          )}
+          ) : null}
         </div>
       </div>
 
-      {visible.length > 0 && (
+      {visible.length > 0 ? (
         <section>
           <div className="mb-5 flex items-end justify-between gap-4">
             <div>
@@ -267,18 +267,18 @@ export function CollectionBrowser({
           <div className="grid items-start gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {grouped.groups.map((group, index) => (
               <GameCard
-                key={group.base.id}
-                game={group.base}
-                expansions={group.expansions}
-                eager={index < 3}
                 currency={currency}
+                eager={index < 3}
+                expansions={group.expansions}
+                game={group.base}
+                key={group.base.id}
               />
             ))}
           </div>
         </section>
-      )}
+      ) : null}
 
-      {grouped.ungrouped.length > 0 && (
+      {grouped.ungrouped.length > 0 ? (
         <section className="mt-12">
           <div className="mb-5">
             <p className="text-accent text-xs font-bold tracking-widest uppercase">
@@ -294,24 +294,24 @@ export function CollectionBrowser({
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {grouped.ungrouped.map((expansion) => (
               <GameCard
-                key={expansion.id}
-                game={expansion}
                 compact
                 currency={currency}
+                game={expansion}
+                key={expansion.id}
               />
             ))}
           </div>
         </section>
-      )}
+      ) : null}
 
-      {visible.length === 0 && (
+      {visible.length === 0 ? (
         <div className="rounded-3xl border border-dashed py-20 text-center">
           <Search className="text-primary mx-auto size-7" />
           <p className="text-muted-foreground mt-4">
             {t("collection.noMatches")}
           </p>
         </div>
-      )}
+      ) : null}
     </>
   );
 }

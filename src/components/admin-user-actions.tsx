@@ -1,9 +1,9 @@
 "use client";
 
 import { ShieldCheck, Trash2, UserRoundCheck, UserRoundX } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { useTranslations } from "next-intl";
 import {
   deleteUserAction,
   toggleUserBanAction,
@@ -32,29 +32,29 @@ export function AdminUserActions({
   return (
     <div className="flex justify-end gap-1">
       <form action={updateUserRoleAction}>
-        <input type="hidden" name="userId" value={user.id} />
+        <input name="userId" type="hidden" value={user.id} />
         <input
-          type="hidden"
           name="role"
+          type="hidden"
           value={user.role === "admin" ? "user" : "admin"}
         />
         <button
-          type="submit"
+          className="text-muted-foreground hover:bg-muted hover:text-primary rounded-lg p-2"
           title={
             user.role === "admin" ? t("admin.removeRole") : t("admin.makeAdmin")
           }
-          className="text-muted-foreground hover:bg-muted hover:text-primary rounded-lg p-2"
+          type="submit"
         >
           <ShieldCheck className="size-4" />
         </button>
       </form>
       <form action={toggleUserBanAction}>
-        <input type="hidden" name="userId" value={user.id} />
-        <input type="hidden" name="banned" value={String(!user.banned)} />
+        <input name="userId" type="hidden" value={user.id} />
+        <input name="banned" type="hidden" value={String(!user.banned)} />
         <button
-          type="submit"
-          title={user.banned ? t("admin.restore") : t("admin.ban")}
           className="text-muted-foreground hover:bg-muted hover:text-danger rounded-lg p-2"
+          title={user.banned ? t("admin.restore") : t("admin.ban")}
+          type="submit"
         >
           {user.banned ? (
             <UserRoundCheck className="size-4" />
@@ -65,16 +65,16 @@ export function AdminUserActions({
       </form>
       <ConfirmDialog
         action={deleteUserAction}
-        title={t("admin.deleteTitle", { name: user.name })}
-        description={t("admin.deleteBody")}
-        confirmLabel={t("admin.delete")}
         cancelLabel={t("common.cancel")}
+        confirmLabel={t("admin.delete")}
+        description={t("admin.deleteBody")}
         fields={{ userId: user.id }}
+        title={t("admin.deleteTitle", { name: user.name })}
         trigger={
           <button
-            type="button"
-            title={t("admin.delete")}
             className="text-muted-foreground hover:bg-danger/10 hover:text-danger rounded-lg p-2"
+            title={t("admin.delete")}
+            type="button"
           >
             <Trash2 className="size-4" />
           </button>

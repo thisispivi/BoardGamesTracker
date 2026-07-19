@@ -1,3 +1,5 @@
+import "./globals.css";
+
 import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
@@ -5,8 +7,6 @@ import { getLocale, getTranslations } from "next-intl/server";
 
 import { Providers } from "@/components/providers";
 import { isAppTheme } from "@/lib/theme";
-
-import "./globals.css";
 
 /** Global metadata for search engines and browser integrations. */
 export async function generateMetadata(): Promise<Metadata> {
@@ -46,11 +46,11 @@ export default async function RootLayout({
 
   return (
     <html
-      lang={locale}
       className={theme === "dark" ? "dark" : undefined}
+      data-scroll-behavior="smooth"
+      lang={locale}
       style={theme ? { colorScheme: theme } : undefined}
       suppressHydrationWarning
-      data-scroll-behavior="smooth"
     >
       <body>
         <NextIntlClientProvider>

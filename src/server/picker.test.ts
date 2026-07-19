@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import {
   filterGames,
-  pickRandomGame,
   type PickableGame,
+  pickRandomGame,
 } from "@/server/picker";
 
 const games: PickableGame[] = [

@@ -7,8 +7,8 @@ import { toast } from "sonner";
 
 import { AppSpinner } from "@/components/ui/app-spinner";
 import { Button } from "@/components/ui/button";
-import type { AuditLogPage } from "@/server/admin/audit-logs";
 import { getAuditLogPageAction } from "@/server/actions/admin";
+import type { AuditLogPage } from "@/server/admin/audit-logs";
 
 /** Paginated audit log that updates only its own scrollable result region. */
 export function AuditLogPanel({ initialPage }: { initialPage: AuditLogPage }) {
@@ -30,14 +30,14 @@ export function AuditLogPanel({ initialPage }: { initialPage: AuditLogPage }) {
 
   return (
     <>
-      <div className="relative min-h-32" aria-busy={pending}>
+      <div aria-busy={pending} className="relative min-h-32">
         <div
           className={`filter-options max-h-[32rem] space-y-1 overflow-y-auto overscroll-contain pr-1 transition-opacity ${pending ? "opacity-35" : "opacity-100"}`}
         >
           {result.events.map((event) => (
             <div
-              key={event.id}
               className="hover:bg-muted/60 grid gap-1 rounded-xl px-3 py-3 text-sm sm:grid-cols-[1fr_180px] sm:items-center"
+              key={event.id}
             >
               <div>
                 <strong>{event.action}</strong>
@@ -53,32 +53,32 @@ export function AuditLogPanel({ initialPage }: { initialPage: AuditLogPage }) {
               </time>
             </div>
           ))}
-          {result.events.length === 0 && (
+          {result.events.length === 0 ? (
             <p className="text-muted-foreground py-8 text-center text-sm">
               {t("admin.noEvents")}
             </p>
-          )}
+          ) : null}
         </div>
-        {pending && (
+        {pending ? (
           <div className="bg-card/72 absolute inset-0 grid place-items-center rounded-2xl backdrop-blur-[2px]">
             <div className="text-primary flex flex-col items-center gap-3 text-sm font-bold">
               <AppSpinner className="size-7" label={t("admin.loading")} />
               <span>{t("admin.loading")}</span>
             </div>
           </div>
-        )}
+        ) : null}
       </div>
       <nav
-        className="mt-5 flex items-center justify-between gap-4 border-t pt-5"
         aria-label={t("admin.trail")}
+        className="mt-5 flex items-center justify-between gap-4 border-t pt-5"
       >
         <Button
-          type="button"
-          variant="secondary"
-          size="sm"
           className="min-w-0 px-2 sm:min-w-28 sm:px-3"
           disabled={pending || result.page <= 1}
           onClick={() => loadPage(result.page - 1)}
+          size="sm"
+          type="button"
+          variant="secondary"
         >
           <ChevronLeft className="size-4" /> {t("admin.previous")}
         </Button>
@@ -89,12 +89,12 @@ export function AuditLogPanel({ initialPage }: { initialPage: AuditLogPage }) {
           })}
         </p>
         <Button
-          type="button"
-          variant="secondary"
-          size="sm"
           className="min-w-0 px-2 sm:min-w-28 sm:px-3"
           disabled={pending || result.page >= result.pages}
           onClick={() => loadPage(result.page + 1)}
+          size="sm"
+          type="button"
+          variant="secondary"
         >
           {t("admin.next")} <ChevronRight className="size-4" />
         </Button>

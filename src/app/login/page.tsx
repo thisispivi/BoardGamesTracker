@@ -6,9 +6,9 @@ import { AuthForm } from "@/components/auth-form";
 import { LocaleSelect } from "@/components/locale-select";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { env } from "@/env";
 import { isBootstrapRequired } from "@/server/bootstrap";
 import { getSession } from "@/server/session";
-import { env } from "@/env";
 
 /** Authentication page metadata. */
 export async function generateMetadata(): Promise<Metadata> {
@@ -48,9 +48,9 @@ export default async function LoginPage({
         </div>
         <div className="bg-card shadow-soft rounded-3xl border p-6 sm:p-8">
           <AuthForm
-            initialMode={mode}
             allowSignUp={allowSignUp}
             bootstrapRequired={bootstrapRequired}
+            initialMode={mode}
           />
         </div>
       </section>

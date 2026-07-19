@@ -10,9 +10,9 @@ export function AppSpinner({
 }) {
   return (
     <span
-      role="status"
       aria-label={label}
       className={cn("app-spinner", className)}
+      role="status"
     />
   );
 }

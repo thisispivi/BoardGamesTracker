@@ -13,8 +13,8 @@ import { useFormatter, useTranslations } from "next-intl";
 import { EditGameDialog } from "@/components/edit-game-dialog";
 import { GameArtwork } from "@/components/game-artwork";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { isExpansionCategory } from "@/lib/game-taxonomy";
 import { useDurationFormatter } from "@/i18n/use-duration-formatter";
+import { isExpansionCategory } from "@/lib/game-taxonomy";
 import {
   removeGameAction,
   toggleFavoriteAction,
@@ -51,14 +51,14 @@ function FavoriteControl({ game }: { game: CollectionGame }) {
   const t = useTranslations();
   return (
     <form action={toggleFavoriteAction}>
-      <input type="hidden" name="itemId" value={game.id} />
-      <input type="hidden" name="favorite" value={String(!game.favorite)} />
+      <input name="itemId" type="hidden" value={game.id} />
+      <input name="favorite" type="hidden" value={String(!game.favorite)} />
       <button
-        type="submit"
         aria-label={
           game.favorite ? t("game.removeFavorite") : t("game.addFavorite")
         }
         className={`grid size-9 place-items-center rounded-full shadow-sm backdrop-blur transition ${game.favorite ? "bg-accent text-accent-foreground" : "bg-card/90 text-muted-foreground hover:text-danger"}`}
+        type="submit"
       >
         <Heart className={`size-4 ${game.favorite ? "fill-current" : ""}`} />
       </button>
@@ -72,16 +72,16 @@ function RemoveControl({ game }: { game: CollectionGame }) {
   return (
     <ConfirmDialog
       action={removeGameAction}
-      title={t("game.removeTitle", { name: game.name })}
-      description={t("game.removeBody")}
-      confirmLabel={t("game.remove")}
       cancelLabel={t("common.cancel")}
+      confirmLabel={t("game.remove")}
+      description={t("game.removeBody")}
       fields={{ itemId: game.id }}
+      title={t("game.removeTitle", { name: game.name })}
       trigger={
         <button
-          type="button"
           aria-label={t("game.removeAria", { name: game.name })}
           className="text-muted-foreground hover:bg-danger/10 hover:text-danger rounded-lg p-2 transition"
+          type="button"
         >
           <Trash2 className="size-4" />
         </button>
@@ -104,28 +104,28 @@ function ArtworkLink({
   return (
     <div className="group/art relative">
       <GameArtwork
-        eager={eager}
-        name={game.name}
-        imageUrl={game.imageUrl}
         className={
           compact
             ? "size-14 shrink-0 rounded-[0.75rem] sm:size-16"
             : "rounded-[1.2rem]"
         }
+        eager={eager}
         imageClassName="transition duration-300 group-hover/art:scale-105 group-hover/art:blur-sm group-focus-within/art:scale-105 group-focus-within/art:blur-sm"
+        imageUrl={game.imageUrl}
+        name={game.name}
       />
       <a
-        href={`https://boardgamegeek.com/boardgame/${game.bggId}`}
-        target="_blank"
-        rel="noopener noreferrer"
         aria-label={t("game.openBggAria", { name: game.name })}
         className={`absolute inset-0 grid place-items-center rounded-[inherit] bg-black/35 opacity-0 transition duration-200 group-focus-within/art:opacity-100 group-hover/art:opacity-100 ${compact ? "p-1" : "p-4"}`}
+        href={`https://boardgamegeek.com/boardgame/${game.bggId}`}
+        rel="noopener noreferrer"
+        target="_blank"
       >
         <span
           className={`flex items-center gap-2 rounded-full bg-white text-sm font-bold text-slate-950 shadow-lg ${compact ? "p-2" : "px-4 py-2.5"}`}
         >
           <LinkIcon className="size-4" />
-          {!compact && t("game.openBgg")}
+          {!compact ? t("game.openBgg") : null}
         </span>
       </a>
     </div>
@@ -156,18 +156,18 @@ function TaxonomyPills({ game }: { game: CollectionGame }) {
     <div className="mt-3 flex flex-wrap gap-1.5">
       {tags.map((tag) => (
         <span
-          key={tag.label}
           className={`max-w-full truncate rounded-full px-2.5 py-1 text-[0.68rem] font-semibold ${tag.mechanic ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}
+          key={tag.label}
           title={tag.label}
         >
           {tag.label}
         </span>
       ))}
-      {total > tags.length && (
+      {total > tags.length ? (
         <span className="bg-muted text-muted-foreground rounded-full px-2.5 py-1 text-[0.68rem] font-semibold">
           +{total - tags.length}
         </span>
-      )}
+      ) : null}
     </div>
   );
 }
@@ -197,7 +197,7 @@ export function GameCard({
           <h3 className="line-clamp-2 text-sm font-bold">{game.name}</h3>
           <p className="text-muted-foreground mt-1 text-xs">
             {game.yearPublished ?? t("common.yearUnknown")}
-            <CollectionCost game={game} currency={currency} />
+            <CollectionCost currency={currency} game={game} />
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-0.5">
@@ -224,10 +224,10 @@ export function GameCard({
             </h2>
             <p className="text-muted-foreground mt-1 text-xs">
               {game.yearPublished ?? t("common.yearUnknown")}
-              <CollectionCost game={game} currency={currency} />
+              <CollectionCost currency={currency} game={game} />
             </p>
           </div>
-          {game.bggRating !== null && (
+          {game.bggRating !== null ? (
             <span className="bg-muted flex shrink-0 items-center gap-1 rounded-full px-2 py-1 text-xs font-bold">
               <Star className="fill-accent text-accent size-3" />
               {format.number(game.bggRating, {
@@ -235,7 +235,7 @@ export function GameCard({
                 maximumFractionDigits: 1,
               })}
             </span>
-          )}
+          ) : null}
         </div>
         <TaxonomyPills game={game} />
         <div className="text-muted-foreground mt-4 flex min-w-0 items-center border-t pt-3 text-xs">
@@ -256,7 +256,7 @@ export function GameCard({
             <RemoveControl game={game} />
           </div>
         </div>
-        {expansions.length > 0 && (
+        {expansions.length > 0 ? (
           <section className="mt-4 border-t pt-3">
             <div className="text-muted-foreground flex items-center justify-between gap-2 px-2 pb-1 text-xs font-bold">
               <span>{t("game.expansions")}</span>
@@ -265,15 +265,15 @@ export function GameCard({
             <div className="max-h-52 space-y-1 overflow-y-auto overscroll-contain pr-1">
               {expansions.map((expansion) => (
                 <GameCard
-                  key={expansion.id}
-                  game={expansion}
                   compact
                   currency={currency}
+                  game={expansion}
+                  key={expansion.id}
                 />
               ))}
             </div>
           </section>
-        )}
+        ) : null}
       </div>
     </article>
   );

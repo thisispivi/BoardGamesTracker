@@ -1,8 +1,7 @@
 "use client";
 
 import * as Dialog from "@radix-ui/react-dialog";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { useLocale, useTranslations } from "next-intl";
+import type { LucideIcon } from "lucide-react";
 import {
   ChevronDown,
   Clock3,
@@ -19,20 +18,21 @@ import {
   Users,
   X,
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useRef, useState } from "react";
 
 import { GameArtwork } from "@/components/game-artwork";
+import type { CollectionGame } from "@/components/game-card";
 import { Button } from "@/components/ui/button";
 import {
   MultiSelect,
   type MultiSelectOption,
 } from "@/components/ui/multi-select";
 import { Select } from "@/components/ui/select";
+import { useDurationFormatter } from "@/i18n/use-duration-formatter";
 import { getTaxonomyLabel, isExpansionCategory } from "@/lib/game-taxonomy";
 import { filterGames, pickRandomGame } from "@/server/picker";
-import type { CollectionGame } from "@/components/game-card";
-import { useDurationFormatter } from "@/i18n/use-duration-formatter";
 
 type ReelGame = {
   gameId: string;
@@ -161,10 +161,10 @@ export function GamePicker({ games }: { games: CollectionGame[] }) {
     <div className="grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
       <aside className="bg-card shadow-soft order-2 rounded-3xl border p-4 sm:p-7 lg:order-1">
         <button
-          type="button"
           aria-expanded={filtersOpen}
-          onClick={() => setFiltersOpen((open) => !open)}
           className="flex w-full items-center justify-between gap-4 rounded-2xl p-2 text-left lg:hidden"
+          onClick={() => setFiltersOpen((open) => !open)}
+          type="button"
         >
           <span>
             <span className="font-display block text-lg font-bold">
@@ -204,12 +204,12 @@ export function GamePicker({ games }: { games: CollectionGame[] }) {
                 </strong>
               </FilterLabel>
               <input
-                type="range"
-                min={1}
-                max={12}
-                value={players}
-                onChange={(event) => setPlayers(Number(event.target.value))}
                 className="w-full accent-(--primary)"
+                max={12}
+                min={1}
+                onChange={(event) => setPlayers(Number(event.target.value))}
+                type="range"
+                value={players}
               />
             </label>
             <label className="block">
@@ -221,20 +221,19 @@ export function GamePicker({ games }: { games: CollectionGame[] }) {
                 </strong>
               </FilterLabel>
               <input
-                type="range"
-                min={0}
-                max={240}
-                step={30}
-                value={maxMinutes}
-                onChange={(event) => setMaxMinutes(Number(event.target.value))}
                 className="w-full accent-(--primary)"
+                max={240}
+                min={0}
+                onChange={(event) => setMaxMinutes(Number(event.target.value))}
+                step={30}
+                type="range"
+                value={maxMinutes}
               />
             </label>
             <div className="text-sm font-bold">
               <FilterLabel icon={Gauge} label={t("picker.complexity")} />
               <Select
                 ariaLabel={t("picker.complexity")}
-                value={String(maxWeight)}
                 onValueChange={(value) => setMaxWeight(Number(value))}
                 options={[
                   { value: "0", label: t("picker.anyComplexity") },
@@ -242,34 +241,35 @@ export function GamePicker({ games }: { games: CollectionGame[] }) {
                   { value: "3", label: t("picker.medium") },
                   { value: "4", label: t("picker.heavy") },
                 ]}
+                value={String(maxWeight)}
               />
             </div>
             <div className="text-sm font-bold">
               <FilterLabel icon={Shapes} label={t("picker.mechanics")} />
               <MultiSelect
                 ariaLabel={t("picker.mechanics")}
-                values={mechanics}
+                clearLabel={t("picker.clearSelection")}
+                emptyLabel={t("picker.noFilterOptions")}
                 onValueChange={setMechanics}
                 options={mechanicOptions}
                 placeholder={t("picker.allMechanics")}
                 searchPlaceholder={t("picker.searchMechanics")}
                 selectedSummary={t("picker.selectedFilters")}
-                clearLabel={t("picker.clearSelection")}
-                emptyLabel={t("picker.noFilterOptions")}
+                values={mechanics}
               />
             </div>
             <div className="text-sm font-bold">
               <FilterLabel icon={Tags} label={t("picker.themes")} />
               <MultiSelect
                 ariaLabel={t("picker.themes")}
-                values={themes}
+                clearLabel={t("picker.clearSelection")}
+                emptyLabel={t("picker.noFilterOptions")}
                 onValueChange={setThemes}
                 options={themeOptions}
                 placeholder={t("picker.allThemes")}
                 searchPlaceholder={t("picker.searchThemes")}
                 selectedSummary={t("picker.selectedFilters")}
-                clearLabel={t("picker.clearSelection")}
-                emptyLabel={t("picker.noFilterOptions")}
+                values={themes}
               />
             </div>
             <label className="bg-muted/70 flex cursor-pointer items-center justify-between rounded-xl p-4 text-sm font-bold">
@@ -278,10 +278,10 @@ export function GamePicker({ games }: { games: CollectionGame[] }) {
                 {t("picker.favoritesOnly")}
               </span>
               <input
-                type="checkbox"
                 checked={favoritesOnly}
-                onChange={(event) => setFavoritesOnly(event.target.checked)}
                 className="size-4 accent-(--primary)"
+                onChange={(event) => setFavoritesOnly(event.target.checked)}
+                type="checkbox"
               />
             </label>
             <label className="bg-muted/70 flex cursor-pointer items-center justify-between rounded-xl p-4 text-sm font-bold">
@@ -290,10 +290,10 @@ export function GamePicker({ games }: { games: CollectionGame[] }) {
                 {t("picker.excludeExpansions")}
               </span>
               <input
-                type="checkbox"
                 checked={excludeExpansions}
-                onChange={(event) => setExcludeExpansions(event.target.checked)}
                 className="size-4 accent-(--primary)"
+                onChange={(event) => setExcludeExpansions(event.target.checked)}
+                type="checkbox"
               />
             </label>
           </div>
@@ -301,8 +301,8 @@ export function GamePicker({ games }: { games: CollectionGame[] }) {
       </aside>
 
       <section
-        ref={reelStageRef}
         className="bg-card shadow-soft relative order-1 grid min-h-[470px] min-w-0 scroll-mt-24 place-items-center overflow-hidden rounded-3xl border px-4 pt-20 pb-5 sm:min-h-[570px] sm:px-6 sm:pt-24 sm:pb-6 lg:order-2"
+        ref={reelStageRef}
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,color-mix(in_srgb,var(--primary)_17%,transparent),transparent_48%)] opacity-50" />
         <div className="absolute inset-x-4 top-4 z-40 flex justify-center sm:inset-x-6 sm:top-6">
@@ -314,19 +314,19 @@ export function GamePicker({ games }: { games: CollectionGame[] }) {
         <AnimatePresence mode="wait">
           {selected && !spinning ? (
             <motion.div
-              key={selected.id}
-              initial={{ opacity: 0, scale: 0.85, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9 }}
               className="relative z-10 w-full max-w-sm text-center"
+              exit={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.85, y: 20 }}
+              key={selected.id}
             >
               <p className="text-accent mb-4 text-xs font-bold tracking-[0.2em] uppercase">
                 {t("picker.tonight")}
               </p>
               <GameArtwork
-                name={selected.name}
-                imageUrl={selected.imageUrl}
                 className="shadow-2xl"
+                imageUrl={selected.imageUrl}
+                name={selected.name}
               />
               <h2 className="font-display mt-6 text-3xl font-bold">
                 {selected.name}
@@ -336,40 +336,40 @@ export function GamePicker({ games }: { games: CollectionGame[] }) {
                 {t("common.players")} · {formatDuration(selected.maxPlaytime)}
               </p>
               <Button
+                className="mt-6"
+                onClick={spin}
                 type="button"
                 variant="secondary"
-                onClick={spin}
-                className="mt-6"
               >
                 <RotateCcw className="size-4" /> {t("picker.spinAgain")}
               </Button>
             </motion.div>
           ) : (
             <motion.div
-              key="reel"
+              animate={{ opacity: 1 }}
               className="relative z-10 w-full min-w-0 text-center"
               initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              key="reel"
             >
               <CoverReel
                 candidates={candidates}
-                reelRun={reelRun}
-                spinning={spinning}
-                reduceMotion={reduceMotion ?? false}
                 cardRef={reelCardRef}
-                trackRef={reelTrackRef}
                 onComplete={() => {
                   if (!reelRun || !spinning) return;
                   setSelectedId(reelRun.winnerId);
                   setSpinning(false);
                 }}
+                reduceMotion={reduceMotion ?? false}
+                reelRun={reelRun}
+                spinning={spinning}
+                trackRef={reelTrackRef}
               />
               <Button
-                type="button"
-                size="lg"
-                onClick={spin}
-                disabled={spinning || candidates.length === 0}
                 className="mt-10 min-w-48"
+                disabled={spinning || candidates.length === 0}
+                onClick={spin}
+                size="lg"
+                type="button"
               >
                 {spinning ? (
                   <>
@@ -382,9 +382,9 @@ export function GamePicker({ games }: { games: CollectionGame[] }) {
                   </>
                 )}
               </Button>
-              {candidates.length === 0 && (
+              {candidates.length === 0 ? (
                 <p className="text-danger mt-4 text-sm">{t("picker.noFit")}</p>
-              )}
+              ) : null}
             </motion.div>
           )}
         </AnimatePresence>
@@ -445,8 +445,8 @@ function PossibleGamesDialog({
     <Dialog.Root>
       <Dialog.Trigger asChild>
         <button
-          type="button"
           className="bg-background/90 hover:border-primary/40 hover:bg-background group flex w-full max-w-sm items-center gap-3 rounded-2xl border px-3 py-2.5 text-left shadow-lg backdrop-blur-md transition sm:px-4"
+          type="button"
         >
           <span className="bg-primary text-primary-foreground grid size-9 shrink-0 place-items-center rounded-xl shadow-sm">
             <LayoutGrid className="size-4" />
@@ -483,9 +483,9 @@ function PossibleGamesDialog({
             </div>
             <Dialog.Close asChild>
               <button
-                type="button"
                 aria-label={t("common.close")}
                 className="hover:bg-muted grid size-10 shrink-0 place-items-center rounded-xl transition"
+                type="button"
               >
                 <X className="size-5" />
               </button>
@@ -496,14 +496,14 @@ function PossibleGamesDialog({
               {candidates.map((candidate) => (
                 <Dialog.Close asChild key={candidate.gameId}>
                   <button
-                    type="button"
-                    onClick={() => onSelect(candidate.gameId)}
                     className="group/game hover:bg-muted focus-visible:ring-primary/30 min-w-0 rounded-2xl border p-2 text-left transition hover:-translate-y-0.5 hover:shadow-lg focus-visible:ring-4 focus-visible:outline-none sm:p-3"
+                    onClick={() => onSelect(candidate.gameId)}
+                    type="button"
                   >
                     <GameArtwork
-                      name={candidate.name}
-                      imageUrl={candidate.imageUrl ?? null}
                       className="rounded-xl shadow-md transition group-hover/game:shadow-xl"
+                      imageUrl={candidate.imageUrl ?? null}
+                      name={candidate.name}
                     />
                     <span className="mt-3 line-clamp-2 block px-1 text-sm leading-tight font-bold">
                       {candidate.name}
@@ -550,15 +550,15 @@ function CoverReel({
   const items = reelRun?.items ?? idleItems;
   const cards = items.map((game, index) => (
     <div
-      ref={index === 0 ? cardRef : undefined}
-      key={`${game.gameId}-${index}`}
       className="w-28 shrink-0 sm:w-36 lg:w-40"
+      key={`${game.gameId}-${index}`}
+      ref={index === 0 ? cardRef : undefined}
     >
       <GameArtwork
-        name={game.name}
-        imageUrl={game.imageUrl ?? null}
-        eager={index < 5}
         className="ring-card shadow-lg ring-4"
+        eager={index < 5}
+        imageUrl={game.imageUrl ?? null}
+        name={game.name}
       />
       <p className="mt-3 line-clamp-2 text-sm leading-tight font-bold">
         {game.name}
@@ -573,25 +573,25 @@ function CoverReel({
       <div className="bg-accent/10 ring-accent pointer-events-none absolute top-1/2 left-1/2 z-30 h-[calc(100%-0.75rem)] w-32 -translate-x-1/2 -translate-y-1/2 rounded-2xl border-3 border-[color:color-mix(in_srgb,var(--accent)_60%,transparent)] shadow-xl ring-4 sm:w-40 lg:w-44" />
       {reelRun ? (
         <motion.div
-          key={reelRun.id}
-          ref={trackRef}
+          animate={{ x: reelRun.targetX }}
+          aria-busy={spinning}
+          aria-live="polite"
           className="absolute top-1/2 left-1/2 flex -translate-y-1/2 gap-3 sm:gap-4"
           initial={{ x: reelRun.startX }}
-          animate={{ x: reelRun.targetX }}
+          key={reelRun.id}
+          onAnimationComplete={onComplete}
+          ref={trackRef}
           transition={{
             duration: reduceMotion ? 0.01 : 2.4,
             ease: [0.12, 0.7, 0.1, 1],
           }}
-          onAnimationComplete={onComplete}
-          aria-live="polite"
-          aria-busy={spinning}
         >
           {cards}
         </motion.div>
       ) : (
         <div
-          ref={trackRef}
           className="absolute top-1/2 left-1/2 flex -translate-x-14 -translate-y-1/2 gap-3 sm:-translate-x-18 sm:gap-4 lg:-translate-x-20"
+          ref={trackRef}
         >
           {cards}
         </div>

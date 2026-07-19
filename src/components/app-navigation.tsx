@@ -15,10 +15,10 @@ import {
 } from "lucide-react";
 import Link, { useLinkStatus } from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Logo } from "@/components/logo";
-import { useTranslations } from "next-intl";
 import { AppSpinner } from "@/components/ui/app-spinner";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
@@ -50,26 +50,26 @@ export function AppNavigation({
 
   const content = (
     <nav
+      aria-label={t("nav.primary")}
       className={cn(
         "space-y-1",
         mobile ? "mt-4 min-h-0 flex-1 overflow-y-auto py-2 pr-1" : "mt-12",
       )}
-      aria-label={t("nav.primary")}
     >
       {links.map((link) => {
         const active =
           pathname === link.href || pathname.startsWith(`${link.href}/`);
         return (
           <Link
-            key={link.href}
-            href={link.href}
-            onClick={() => setOpen(false)}
             className={cn(
               "flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold transition",
               active
                 ? "bg-primary text-primary-foreground shadow-sm"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground",
             )}
+            href={link.href}
+            key={link.href}
+            onClick={() => setOpen(false)}
           >
             <link.icon className="size-4.5" />
             <span className="min-w-0 flex-1 truncate">{link.label}</span>
@@ -85,12 +85,12 @@ export function AppNavigation({
   }
 
   return (
-    <Dialog.Root open={open} onOpenChange={setOpen}>
+    <Dialog.Root onOpenChange={setOpen} open={open}>
       <Dialog.Trigger asChild>
         <button
-          type="button"
           aria-label={t("nav.open")}
           className="bg-card hover:bg-muted grid size-11 place-items-center rounded-xl border shadow-sm transition"
+          type="button"
         >
           <Menu className="size-5" />
         </button>
@@ -103,16 +103,16 @@ export function AppNavigation({
             <Logo />
             <Dialog.Close asChild>
               <button
-                type="button"
                 aria-label={t("nav.close")}
                 className="hover:bg-muted grid size-10 place-items-center rounded-xl transition"
+                type="button"
               >
                 <X className="size-5" />
               </button>
             </Dialog.Close>
           </div>
           {content}
-          {user && (
+          {user ? (
             <div className="mt-5 shrink-0 border-t pt-5">
               <div className="flex items-center gap-3">
                 <span className="bg-primary text-primary-foreground grid size-11 shrink-0 place-items-center rounded-xl text-sm font-bold">
@@ -127,7 +127,7 @@ export function AppNavigation({
               </div>
               <SignOutButton />
             </div>
-          )}
+          ) : null}
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
@@ -140,11 +140,11 @@ function NavigationPendingIndicator() {
   const t = useTranslations();
   return (
     <AppSpinner
-      label={t("common.loading")}
       className={cn(
         "nav-pending-spinner size-4 shrink-0",
         pending && "is-pending",
       )}
+      label={t("common.loading")}
     />
   );
 }
@@ -162,9 +162,9 @@ export function SignOutButton() {
 
   return (
     <button
-      type="button"
-      onClick={signOut}
       className="text-muted-foreground hover:bg-danger/10 hover:text-danger mt-3 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition"
+      onClick={signOut}
+      type="button"
     >
       <LogOut className="size-4.5" />
       {t("navigation.logout")}

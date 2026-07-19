@@ -1,10 +1,10 @@
 "use client";
 
 import { Moon, Sun } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
-import { useTranslations } from "next-intl";
 import { persistThemeCookie } from "@/lib/theme";
 
 /** Toggles the persisted light and dark color schemes. */
@@ -20,11 +20,11 @@ export function ThemeToggle() {
 
   return (
     <Button
-      type="button"
-      variant="ghost"
-      size="icon"
       aria-label={t("theme.toggle")}
       onClick={toggleTheme}
+      size="icon"
+      type="button"
+      variant="ghost"
     >
       <Sun className="hidden size-4 dark:block" />
       <Moon className="size-4 dark:hidden" />

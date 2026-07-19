@@ -49,17 +49,17 @@ export function Select({
       </SelectPrimitive.Trigger>
       <SelectPrimitive.Portal>
         <SelectPrimitive.Content
+          className="select-content bg-card z-80 max-h-[min(19rem,var(--radix-select-content-available-height))] min-w-(--radix-select-trigger-width) overflow-hidden rounded-2xl border p-1.5 shadow-2xl"
+          collisionPadding={12}
           position="popper"
           sideOffset={8}
-          collisionPadding={12}
-          className="select-content bg-card z-80 max-h-[min(19rem,var(--radix-select-content-available-height))] min-w-(--radix-select-trigger-width) overflow-hidden rounded-2xl border p-1.5 shadow-2xl"
         >
           <SelectPrimitive.Viewport className="filter-options max-h-[18rem] space-y-1 overflow-y-auto overscroll-contain pr-1">
             {options.map((option) => (
               <SelectPrimitive.Item
+                className="select-item data-[state=checked]:bg-primary/10 data-[state=checked]:text-foreground relative flex cursor-pointer items-center rounded-xl py-2.5 pr-10 pl-3 text-sm font-semibold transition-colors outline-none select-none"
                 key={option.value}
                 value={option.value}
-                className="select-item data-[state=checked]:bg-primary/10 data-[state=checked]:text-foreground relative flex cursor-pointer items-center rounded-xl py-2.5 pr-10 pl-3 text-sm font-semibold transition-colors outline-none select-none"
               >
                 <SelectPrimitive.ItemText>
                   {option.label}

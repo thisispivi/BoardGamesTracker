@@ -68,53 +68,53 @@ export function AuthForm({
               : t("signUpDescription")}
         </p>
       </div>
-      <form method="post" onSubmit={handleSubmit} className="space-y-5">
-        {mode === "signup" && (
+      <form className="space-y-5" method="post" onSubmit={handleSubmit}>
+        {mode === "signup" ? (
           <label className="block text-sm font-semibold">
             {t("name")}
             <input
-              name="name"
               autoComplete="name"
-              required
-              minLength={2}
-              maxLength={80}
               className="bg-card mt-2 h-12 w-full rounded-xl border px-4 font-normal"
+              maxLength={80}
+              minLength={2}
+              name="name"
               placeholder={t("namePlaceholder")}
+              required
             />
           </label>
-        )}
+        ) : null}
         <label className="block text-sm font-semibold">
           {t("email")}
           <input
-            name="email"
-            type="email"
             autoComplete="email"
-            required
-            maxLength={254}
             className="bg-card mt-2 h-12 w-full rounded-xl border px-4 font-normal"
+            maxLength={254}
+            name="email"
             placeholder={t("emailPlaceholder")}
+            required
+            type="email"
           />
         </label>
         <label className="block text-sm font-semibold">
           {t("password")}
           <span className="relative mt-2 block">
             <input
-              name="password"
-              type={showPassword ? "text" : "password"}
               autoComplete={
                 mode === "signup" ? "new-password" : "current-password"
               }
-              required
-              minLength={12}
-              maxLength={128}
               className="bg-card h-12 w-full rounded-xl border px-4 pr-12 font-normal"
+              maxLength={128}
+              minLength={12}
+              name="password"
               placeholder={t("passwordPlaceholder")}
+              required
+              type={showPassword ? "text" : "password"}
             />
             <button
-              type="button"
-              onClick={() => setShowPassword((value) => !value)}
-              className="text-muted-foreground absolute top-1/2 right-3 -translate-y-1/2 rounded-lg p-2"
               aria-label={showPassword ? t("hidePassword") : t("showPassword")}
+              className="text-muted-foreground absolute top-1/2 right-3 -translate-y-1/2 rounded-lg p-2"
+              onClick={() => setShowPassword((value) => !value)}
+              type="button"
             >
               {showPassword ? (
                 <EyeOff className="size-4" />
@@ -124,30 +124,30 @@ export function AuthForm({
             </button>
           </span>
         </label>
-        {mode === "signup" && (
+        {mode === "signup" ? (
           <p className="text-muted-foreground text-xs leading-5">
             {t("passwordHelp")}
           </p>
-        )}
-        <Button type="submit" size="lg" className="w-full" disabled={pending}>
-          {pending && <LoaderCircle className="size-4 animate-spin" />}
+        ) : null}
+        <Button className="w-full" disabled={pending} size="lg" type="submit">
+          {pending ? <LoaderCircle className="size-4 animate-spin" /> : null}
           {mode === "login" ? t("signIn") : t("createAccount")}
         </Button>
       </form>
-      {allowSignUp && !bootstrapRequired && (
+      {allowSignUp && !bootstrapRequired ? (
         <p className="text-muted-foreground mt-7 text-center text-sm">
           {mode === "login" ? t("needAccount") : t("haveAccount")}{" "}
           <button
-            type="button"
             className="text-primary font-bold hover:underline"
             onClick={() =>
               setMode((value) => (value === "login" ? "signup" : "login"))
             }
+            type="button"
           >
             {mode === "login" ? t("createAccount") : t("signIn")}
           </button>
         </p>
-      )}
+      ) : null}
     </>
   );
 }

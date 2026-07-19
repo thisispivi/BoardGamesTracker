@@ -1,7 +1,7 @@
+import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 
 import { log } from "@/lib/logger";
-import { getTranslations } from "next-intl/server";
 import { discoverBoardGameByUrl } from "@/server/discovery/bgg-url";
 import { parseBoardGameUrl } from "@/server/discovery/result-parser";
 import { searchBoardGames } from "@/server/discovery/searxng";

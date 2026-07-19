@@ -2,6 +2,7 @@ import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 import jsdoc from "eslint-plugin-jsdoc";
+import simpleImportSort from "eslint-plugin-simple-import-sort";
 
 const eslintConfig = defineConfig([
   ...nextVitals,
@@ -28,6 +29,22 @@ const eslintConfig = defineConfig([
       "jsdoc/require-param": "off",
       "jsdoc/require-returns": "off",
       "jsdoc/tag-lines": ["error", "any", { startLines: 1 }],
+    },
+  },
+  {
+    plugins: { "simple-import-sort": simpleImportSort },
+    rules: {
+      "import/order": "off",
+      "react/destructuring-assignment": [
+        "error",
+        "always",
+        { destructureInSignature: "always" },
+      ],
+      "react/jsx-no-leaked-render": ["error", { validStrategies: ["ternary"] }],
+      "react/jsx-sort-props": ["error", { ignoreCase: true }],
+      "react/self-closing-comp": "error",
+      "simple-import-sort/exports": "error",
+      "simple-import-sort/imports": "error",
     },
   },
   // Override default ignores of eslint-config-next.

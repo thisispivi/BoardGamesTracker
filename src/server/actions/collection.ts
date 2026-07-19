@@ -2,21 +2,21 @@
 
 import { and, eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { z } from "zod";
 import { getTranslations } from "next-intl/server";
-import { hasExpansionCategory } from "@/lib/game-taxonomy";
-import { CLEAR_COLLECTION_CONFIRMATION } from "@/lib/collection-confirmation";
+import { z } from "zod";
 
+import { CLEAR_COLLECTION_CONFIRMATION } from "@/lib/collection-confirmation";
+import { hasExpansionCategory } from "@/lib/game-taxonomy";
+import { writeAuditEvent } from "@/server/audit";
+import { type BggMetadata, scrapeBggMetadata } from "@/server/bgg/scrape";
 import { db } from "@/server/db";
-import { scrapeBggMetadata, type BggMetadata } from "@/server/bgg/scrape";
 import { collectionItems, gameImages, games } from "@/server/db/schema";
-import { verifySelectionToken } from "@/server/discovery/selection-token";
 import { discoverBoardGameImages } from "@/server/discovery/searxng";
+import { verifySelectionToken } from "@/server/discovery/selection-token";
 import type { GameSelection } from "@/server/discovery/types";
 import { downloadBggImage, downloadBggImages } from "@/server/images/bgg-image";
 import { parseBggCollectionCsv } from "@/server/import/bgg-csv";
 import { requireUser } from "@/server/session";
-import { writeAuditEvent } from "@/server/audit";
 
 /** Serializable result returned by collection mutations. */
 export type CollectionActionState = {

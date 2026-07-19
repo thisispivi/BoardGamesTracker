@@ -25,12 +25,12 @@ export function GameArtwork({
         )}
       >
         <Image
-          src={imageUrl}
           alt={`${name} box art`}
+          className={cn("object-cover", imageClassName)}
           fill
           loading={eager ? "eager" : "lazy"}
           sizes="(max-width: 768px) 50vw, 20vw"
-          className={cn("object-cover", imageClassName)}
+          src={imageUrl}
         />
       </div>
     );

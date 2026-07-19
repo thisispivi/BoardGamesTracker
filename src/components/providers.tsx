@@ -2,10 +2,10 @@
 
 import { ThemeProvider } from "next-themes";
 import { useTheme } from "next-themes";
-import { Toaster } from "sonner";
 import { useEffect } from "react";
+import { Toaster } from "sonner";
 
-import { isAppTheme, persistThemeCookie, type AppTheme } from "@/lib/theme";
+import { type AppTheme, isAppTheme, persistThemeCookie } from "@/lib/theme";
 
 /** Client-side application providers. */
 export function Providers({
@@ -19,12 +19,12 @@ export function Providers({
     <ThemeProvider
       attribute="class"
       defaultTheme={initialTheme ?? "system"}
-      enableSystem
       disableTransitionOnChange
+      enableSystem
     >
       <ThemeCookieSync />
       {children}
-      <Toaster richColors position="bottom-right" />
+      <Toaster position="bottom-right" richColors />
     </ThemeProvider>
   );
 }

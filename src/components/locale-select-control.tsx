@@ -1,13 +1,13 @@
 "use client";
 
 import { Languages } from "lucide-react";
-import type { Locale } from "next-intl";
 import { useRouter } from "next/navigation";
+import type { Locale } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { CircleFlag } from "react-circle-flags";
 
 import { Select } from "@/components/ui/select";
-import { useTranslations } from "next-intl";
 import { setLocaleAction } from "@/server/actions/preferences";
 
 const localeOptions = [
@@ -39,28 +39,28 @@ export function LocaleSelectControl({
 
   return (
     <div
-      className="text-muted-foreground flex min-w-0 items-center gap-1 text-sm"
       aria-busy={pending}
+      className="text-muted-foreground flex min-w-0 items-center gap-1 text-sm"
     >
-      <Languages className="size-4 shrink-0" aria-hidden="true" />
+      <Languages aria-hidden="true" className="size-4 shrink-0" />
       <Select
-        value={locale}
-        onValueChange={changeLocale}
         ariaLabel={t("locale.language")}
         className="h-9 min-w-32 border-0 bg-transparent px-2 shadow-none"
+        onValueChange={changeLocale}
         options={localeOptions.map((option) => ({
           value: option.locale,
           label: (
             <span className="flex items-center gap-2">
               <CircleFlag
-                countryCode={option.country}
                 alt=""
                 className="size-5"
+                countryCode={option.country}
               />
               <span>{option.label}</span>
             </span>
           ),
         }))}
+        value={locale}
       />
     </div>
   );

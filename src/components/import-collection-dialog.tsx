@@ -2,14 +2,14 @@
 
 import { FileUp, LoaderCircle, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { useTranslations } from "next-intl";
 import {
-  importBggCsvAction,
   type CollectionActionState,
+  importBggCsvAction,
 } from "@/server/actions/collection";
 
 const initialState: CollectionActionState = { success: false, message: "" };
@@ -39,20 +39,20 @@ export function ImportCollectionDialog() {
 
   return (
     <>
-      <Button type="button" variant="secondary" onClick={() => setOpen(true)}>
+      <Button onClick={() => setOpen(true)} type="button" variant="secondary">
         <FileUp className="size-4" /> {t("import.button")}
       </Button>
-      {open && (
+      {open ? (
         <div
           className="modal-overlay fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm"
           onMouseDown={() => setOpen(false)}
         >
           <section
+            aria-labelledby="import-collection-title"
+            aria-modal="true"
             className="modal-content bg-card w-full max-w-lg rounded-3xl border p-6 shadow-2xl sm:p-8"
             onMouseDown={(event) => event.stopPropagation()}
-            aria-modal="true"
             role="dialog"
-            aria-labelledby="import-collection-title"
           >
             <div className="flex items-start justify-between gap-5">
               <div>
@@ -60,8 +60,8 @@ export function ImportCollectionDialog() {
                   {t("import.eyebrow")}
                 </p>
                 <h2
-                  id="import-collection-title"
                   className="font-display mt-1 text-2xl font-bold"
+                  id="import-collection-title"
                 >
                   {t("import.title")}
                 </h2>
@@ -70,10 +70,10 @@ export function ImportCollectionDialog() {
                 </p>
               </div>
               <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="hover:bg-muted rounded-full p-2"
                 aria-label={t("common.close")}
+                className="hover:bg-muted rounded-full p-2"
+                onClick={() => setOpen(false)}
+                type="button"
               >
                 <X className="size-5" />
               </button>
@@ -83,18 +83,18 @@ export function ImportCollectionDialog() {
               <label className="block text-sm font-bold">
                 <span className="mb-2 block">{t("import.file")}</span>
                 <input
-                  name="collection"
-                  type="file"
                   accept=".csv,text/csv"
-                  required
                   className="file:bg-primary file:text-primary-foreground bg-background w-full rounded-xl border p-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:px-4 file:py-2 file:font-bold"
+                  name="collection"
+                  required
+                  type="file"
                 />
               </label>
               <div className="bg-muted/60 text-muted-foreground rounded-xl p-4 text-xs leading-5">
                 {t("import.limit")}
               </div>
               <div className="flex justify-end border-t pt-5">
-                <Button type="submit" disabled={importing}>
+                <Button disabled={importing} type="submit">
                   {importing ? (
                     <LoaderCircle className="size-4 animate-spin" />
                   ) : (
@@ -106,7 +106,7 @@ export function ImportCollectionDialog() {
             </form>
           </section>
         </div>
-      )}
+      ) : null}
     </>
   );
 }

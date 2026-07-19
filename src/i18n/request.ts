@@ -1,7 +1,8 @@
 import { cookies } from "next/headers";
 import { getRequestConfig } from "next-intl/server";
 
-import { defaultLocale, isLocale, type AppLocale } from "@/i18n/config";
+import { type AppLocale, defaultLocale, isLocale } from "@/i18n/config";
+
 import type englishMessages from "../../messages/en.json";
 
 type Messages = typeof englishMessages;

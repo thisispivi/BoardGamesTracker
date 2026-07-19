@@ -1,10 +1,10 @@
 import { Heart } from "lucide-react";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
 import { AddGameDialog } from "@/components/add-game-dialog";
 import { PageHeader } from "@/components/page-header";
 import { WishlistCard } from "@/components/wishlist-card";
-import { getTranslations } from "next-intl/server";
 import { getWishlist } from "@/server/collection";
 import { getUserPreferences } from "@/server/preferences";
 import { requireUser } from "@/server/session";
@@ -27,23 +27,23 @@ export default async function WishlistPage() {
   return (
     <>
       <PageHeader
-        eyebrow={t("wishlist.eyebrow")}
-        title={t("wishlist.title")}
-        description={t("wishlist.count", { count: wishlist.length })}
         action={
           <AddGameDialog
             currency={preferences.currency}
             destination="wishlist"
           />
         }
+        description={t("wishlist.count", { count: wishlist.length })}
+        eyebrow={t("wishlist.eyebrow")}
+        title={t("wishlist.title")}
       />
       {wishlist.length > 0 ? (
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
           {wishlist.map((game) => (
             <WishlistCard
-              key={game.id}
-              game={game}
               currency={preferences.currency}
+              game={game}
+              key={game.id}
             />
           ))}
         </div>

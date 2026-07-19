@@ -1,5 +1,6 @@
 "use client";
 
+import { useFormatter, useLocale, useTranslations } from "next-intl";
 import {
   Bar,
   BarChart,
@@ -12,7 +13,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { useFormatter, useLocale, useTranslations } from "next-intl";
 
 import type { CountDatum } from "@/lib/collection-stats";
 import { getTaxonomyLabel } from "@/lib/game-taxonomy";
@@ -68,49 +68,49 @@ export function StatsCharts({
     <div className="grid gap-5 xl:grid-cols-2">
       <ChartCard title={t("stats.expensiveChart")}>
         {mostExpensive.length ? (
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer height="100%" width="100%">
             <BarChart
               data={mostExpensive}
               layout="vertical"
               margin={{ left: 8, right: 12 }}
             >
               <defs>
-                <linearGradient id="purchase-bars" x1="0" y1="0" x2="1" y2="0">
+                <linearGradient id="purchase-bars" x1="0" x2="1" y1="0" y2="0">
                   <stop offset="0%" stopColor="var(--primary)" />
                   <stop offset="100%" stopColor="var(--accent)" />
                 </linearGradient>
               </defs>
               <ChartGrid />
               <XAxis
-                type="number"
                 axisLine={false}
-                tickLine={false}
                 tick={axisTick}
                 tickFormatter={formatCurrency}
+                tickLine={false}
+                type="number"
               />
               <YAxis
-                dataKey="name"
-                type="category"
-                width={140}
                 axisLine={false}
-                tickLine={false}
+                dataKey="name"
                 tick={axisTick}
                 tickFormatter={(value: string) => truncate(value, 23)}
+                tickLine={false}
+                type="category"
+                width={140}
               />
               <Tooltip
-                cursor={tooltipCursor}
-                isAnimationActive={false}
                 content={
                   <ChartTooltip
                     valueFormatter={(value) => formatCurrency(Number(value))}
                   />
                 }
+                cursor={tooltipCursor}
+                isAnimationActive={false}
               />
               <Bar
                 dataKey="value"
                 fill="url(#purchase-bars)"
-                radius={[0, 9, 9, 0]}
                 maxBarSize={28}
+                radius={[0, 9, 9, 0]}
               />
             </BarChart>
           </ResponsiveContainer>
@@ -123,33 +123,33 @@ export function StatsCharts({
         {complexityData.some((datum) => datum.value > 0) ? (
           <div className="flex h-full min-h-0 flex-col">
             <div className="min-h-0 flex-1">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer height="100%" width="100%">
                 <PieChart>
                   <Pie
+                    cornerRadius={9}
                     data={complexityData}
                     dataKey="value"
-                    nameKey="name"
                     innerRadius="48%"
+                    minAngle={3}
+                    nameKey="name"
                     outerRadius="76%"
                     paddingAngle={4}
-                    minAngle={3}
-                    cornerRadius={9}
                     stroke="var(--card)"
                     strokeWidth={3}
                   >
                     {complexityData.map((datum, index) => (
                       <Cell
-                        key={datum.name}
                         fill={
                           chartColors[index % chartColors.length] ??
                           "var(--primary)"
                         }
+                        key={datum.name}
                       />
                     ))}
                   </Pie>
                   <Tooltip
-                    isAnimationActive={false}
                     content={<ChartTooltip />}
+                    isAnimationActive={false}
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -157,8 +157,8 @@ export function StatsCharts({
             <ul className="flex shrink-0 flex-wrap justify-center gap-x-5 gap-y-2 px-2 pt-2 pb-1">
               {complexityData.map((datum, index) => (
                 <li
-                  key={datum.name}
                   className="text-muted-foreground flex items-center gap-2 text-xs"
+                  key={datum.name}
                 >
                   <span
                     className="size-2 rounded-full"
@@ -182,14 +182,14 @@ export function StatsCharts({
       </ChartCard>
 
       <RankingCard
-        title={t("stats.categoriesChart")}
         data={categoryData}
         gradientId="category-bars"
+        title={t("stats.categoriesChart")}
       />
       <RankingCard
-        title={t("stats.mechanicsChart")}
         data={mechanicData}
         gradientId="mechanic-bars"
+        title={t("stats.mechanicsChart")}
       />
     </div>
   );
@@ -229,14 +229,14 @@ function RankingCard({
   return (
     <ChartCard title={title}>
       {data.length ? (
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer height="100%" width="100%">
           <BarChart
             data={data}
             layout="vertical"
             margin={{ left: 8, right: 12 }}
           >
             <defs>
-              <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="0">
+              <linearGradient id={gradientId} x1="0" x2="1" y1="0" y2="0">
                 <stop offset="0%" stopColor="var(--primary)" />
                 <stop
                   offset="100%"
@@ -246,31 +246,31 @@ function RankingCard({
             </defs>
             <ChartGrid />
             <XAxis
-              type="number"
               allowDecimals={false}
               axisLine={false}
-              tickLine={false}
               tick={axisTick}
+              tickLine={false}
+              type="number"
             />
             <YAxis
-              dataKey="name"
-              type="category"
-              width={144}
               axisLine={false}
-              tickLine={false}
+              dataKey="name"
               tick={axisTick}
               tickFormatter={(value: string) => truncate(value, 24)}
+              tickLine={false}
+              type="category"
+              width={144}
             />
             <Tooltip
+              content={<ChartTooltip />}
               cursor={tooltipCursor}
               isAnimationActive={false}
-              content={<ChartTooltip />}
             />
             <Bar
               dataKey="value"
               fill={`url(#${gradientId})`}
-              radius={[0, 9, 9, 0]}
               maxBarSize={25}
+              radius={[0, 9, 9, 0]}
             />
           </BarChart>
         </ResponsiveContainer>
@@ -299,11 +299,11 @@ function ChartTooltip({
 
   return (
     <div className="bg-card/95 min-w-36 rounded-xl border p-3 shadow-2xl backdrop-blur-md">
-      {name !== undefined && (
+      {name !== undefined ? (
         <p className="text-muted-foreground max-w-56 text-xs leading-4">
           {name}
         </p>
-      )}
+      ) : null}
       <div className="mt-1.5 flex items-center gap-2">
         <span
           className="size-2.5 rounded-full"
@@ -321,10 +321,10 @@ function ChartTooltip({
 function ChartGrid() {
   return (
     <CartesianGrid
-      stroke="var(--border)"
-      strokeDasharray="4 5"
       horizontal={false}
       opacity={0.75}
+      stroke="var(--border)"
+      strokeDasharray="4 5"
     />
   );
 }

@@ -1,12 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { Select } from "@/components/ui/select";
-import { useTranslations } from "next-intl";
-import { currencies, getCurrencySymbol, type Currency } from "@/lib/currency";
+import { currencies, type Currency, getCurrencySymbol } from "@/lib/currency";
 import { setCurrencyAction } from "@/server/actions/preferences";
 
 /** Immediately saves a supported ISO currency preference. */
@@ -33,10 +33,9 @@ export function CurrencySelect({
   }
 
   return (
-    <div className="w-full sm:max-w-sm" aria-busy={pending}>
+    <div aria-busy={pending} className="w-full sm:max-w-sm">
       <Select
         ariaLabel={t("settings.currency")}
-        value={currency}
         onValueChange={changeCurrency}
         options={currencies.map((value) => ({
           value,
@@ -49,6 +48,7 @@ export function CurrencySelect({
             </span>
           ),
         }))}
+        value={currency}
       />
     </div>
   );

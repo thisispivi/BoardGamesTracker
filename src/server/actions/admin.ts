@@ -4,8 +4,8 @@ import { count, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
+import { type AuditLogPage, getAuditLogPage } from "@/server/admin/audit-logs";
 import { writeAuditEvent } from "@/server/audit";
-import { getAuditLogPage, type AuditLogPage } from "@/server/admin/audit-logs";
 import { db } from "@/server/db";
 import { session, user } from "@/server/db/schema";
 import { requireAdmin } from "@/server/session";

@@ -9,13 +9,13 @@ import {
   X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import type { CollectionGame } from "@/components/game-card";
 import { GameArtwork } from "@/components/game-artwork";
+import type { CollectionGame } from "@/components/game-card";
 import { GiftedPriceField } from "@/components/gifted-price-field";
-import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
@@ -55,9 +55,9 @@ function PurchaseDialog({
   }, [router, state]);
 
   return (
-    <Dialog.Root open={open} onOpenChange={setOpen}>
+    <Dialog.Root onOpenChange={setOpen} open={open}>
       <Dialog.Trigger asChild>
-        <Button type="button" size="sm" className="flex-1">
+        <Button className="flex-1" size="sm" type="button">
           <ShoppingBag className="size-4" /> {t("wishlist.purchased")}
         </Button>
       </Dialog.Trigger>
@@ -75,16 +75,16 @@ function PurchaseDialog({
             </div>
             <Dialog.Close asChild>
               <button
-                type="button"
-                className="hover:bg-muted shrink-0 rounded-full p-2 transition"
                 aria-label={t("common.close")}
+                className="hover:bg-muted shrink-0 rounded-full p-2 transition"
+                type="button"
               >
                 <X className="size-5" />
               </button>
             </Dialog.Close>
           </div>
           <form action={action} className="mt-6 space-y-5">
-            <input type="hidden" name="itemId" value={game.id} />
+            <input name="itemId" type="hidden" value={game.id} />
             <GiftedPriceField currency={currency} />
             <p className="text-muted-foreground text-sm leading-6">
               {t("wishlist.purchaseBody")}
@@ -95,7 +95,7 @@ function PurchaseDialog({
                   {t("common.cancel")}
                 </Button>
               </Dialog.Close>
-              <Button type="submit" disabled={pending}>
+              <Button disabled={pending} type="submit">
                 {pending ? (
                   <LoaderCircle className="size-4 animate-spin" />
                 ) : (
@@ -129,17 +129,17 @@ export function WishlistCard({
     <article className="bg-card shadow-soft rounded-3xl border p-3">
       <div className="group relative overflow-hidden rounded-[1.2rem]">
         <GameArtwork
-          name={game.name}
-          imageUrl={game.imageUrl}
           className="rounded-[1.2rem]"
           imageClassName="transition duration-300 group-hover:scale-105 group-hover:blur-sm group-focus-within:scale-105 group-focus-within:blur-sm"
+          imageUrl={game.imageUrl}
+          name={game.name}
         />
         <a
-          href={`https://boardgamegeek.com/boardgame/${game.bggId}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="absolute inset-0 grid place-items-center bg-black/35 opacity-0 transition group-focus-within:opacity-100 group-hover:opacity-100"
           aria-label={t("game.openBggAria", { name: game.name })}
+          className="absolute inset-0 grid place-items-center bg-black/35 opacity-0 transition group-focus-within:opacity-100 group-hover:opacity-100"
+          href={`https://boardgamegeek.com/boardgame/${game.bggId}`}
+          rel="noopener noreferrer"
+          target="_blank"
         >
           <span className="flex items-center gap-2 rounded-full bg-white px-4 py-2.5 text-sm font-bold text-slate-950 shadow-lg">
             <ExternalLink className="size-4" /> {t("game.openBgg")}
@@ -153,33 +153,33 @@ export function WishlistCard({
         <p className="text-muted-foreground mt-1 text-xs">
           {game.yearPublished ?? t("common.yearUnknown")}
         </p>
-        {tags.length > 0 && (
+        {tags.length > 0 ? (
           <div className="mt-3 flex flex-wrap gap-1.5">
             {tags.map((tag) => (
               <span
-                key={tag}
                 className="bg-muted text-muted-foreground max-w-full truncate rounded-full px-2.5 py-1 text-[0.68rem] font-semibold"
+                key={tag}
               >
                 {tag}
               </span>
             ))}
           </div>
-        )}
+        ) : null}
         <div className="mt-4 flex items-center gap-2 border-t pt-3">
           <PurchaseDialog currency={currency} game={game} />
           <ConfirmDialog
             action={removeGameAction}
-            title={t("wishlist.removeTitle", { name: game.name })}
-            description={t("wishlist.removeBody")}
-            confirmLabel={t("wishlist.remove")}
             cancelLabel={t("common.cancel")}
+            confirmLabel={t("wishlist.remove")}
+            description={t("wishlist.removeBody")}
             fields={{ itemId: game.id }}
+            title={t("wishlist.removeTitle", { name: game.name })}
             trigger={
               <Button
-                type="button"
-                size="icon"
-                variant="secondary"
                 aria-label={t("wishlist.removeTitle", { name: game.name })}
+                size="icon"
+                type="button"
+                variant="secondary"
               >
                 <Trash2 className="size-4" />
               </Button>

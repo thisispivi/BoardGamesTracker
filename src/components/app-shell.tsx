@@ -1,6 +1,6 @@
+import { AppNavigation, SignOutButton } from "@/components/app-navigation";
 import { LocaleSelect } from "@/components/locale-select";
 import { Logo } from "@/components/logo";
-import { AppNavigation, SignOutButton } from "@/components/app-navigation";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 type AppShellProps = {

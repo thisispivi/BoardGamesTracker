@@ -4,8 +4,8 @@ import ExcelJS from "exceljs";
 import {
   type PortableGame,
   type UserDataDocument,
-  type UserDataFormat,
   userDataDocumentSchema,
+  type UserDataFormat,
 } from "@/server/user-data/schema";
 
 const gameHeaders = [

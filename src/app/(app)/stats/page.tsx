@@ -84,15 +84,15 @@ export default async function StatsPage() {
   return (
     <>
       <PageHeader
+        description={t("stats.description")}
         eyebrow={t("stats.eyebrow")}
         title={t("stats.title")}
-        description={t("stats.description")}
       />
       <section className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-3 2xl:grid-cols-6">
         {cards.map((card) => (
           <article
-            key={card.label}
             className="bg-card shadow-soft min-w-0 rounded-2xl border p-5"
+            key={card.label}
           >
             <card.icon className="text-primary size-5" />
             <p className="font-display mt-5 truncate text-2xl font-bold">

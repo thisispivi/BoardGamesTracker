@@ -7,15 +7,15 @@ import {
   UserRound,
 } from "lucide-react";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
 import { ClearCollectionCard } from "@/components/clear-collection-card";
 import { CurrencySelect } from "@/components/currency-select";
 import { PageHeader } from "@/components/page-header";
 import { UserDataCard } from "@/components/user-data-card";
-import { getTranslations } from "next-intl/server";
-import { requireUser } from "@/server/session";
-import { getUserPreferences } from "@/server/preferences";
 import { getCollection } from "@/server/collection";
+import { getUserPreferences } from "@/server/preferences";
+import { requireUser } from "@/server/session";
 
 /** Settings page metadata. */
 export async function generateMetadata(): Promise<Metadata> {
@@ -58,15 +58,15 @@ export default async function SettingsPage() {
   return (
     <>
       <PageHeader
+        description={t("settings.description")}
         eyebrow={t("settings.eyebrow")}
         title={t("settings.title")}
-        description={t("settings.description")}
       />
       <div className="grid items-stretch gap-5 lg:grid-cols-2">
         <section className="bg-card shadow-soft relative overflow-hidden rounded-4xl border p-6 sm:p-8 lg:col-span-2">
           <div
-            className="bg-primary/8 pointer-events-none absolute -top-20 -right-16 size-72 rounded-full blur-3xl"
             aria-hidden="true"
+            className="bg-primary/8 pointer-events-none absolute -top-20 -right-16 size-72 rounded-full blur-3xl"
           />
           <div className="relative flex flex-col gap-7">
             <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-start">
@@ -93,8 +93,8 @@ export default async function SettingsPage() {
             <div className="grid grid-cols-3 gap-2 sm:gap-3">
               {collectionFacts.map((fact) => (
                 <article
-                  key={fact.label}
                   className="bg-background/75 rounded-2xl border p-3 backdrop-blur sm:p-4"
+                  key={fact.label}
                 >
                   <fact.icon className="text-primary size-4" />
                   <p className="font-display mt-4 text-2xl font-bold tabular-nums">
@@ -114,8 +114,8 @@ export default async function SettingsPage() {
         </section>
         <section className="bg-card shadow-soft relative overflow-hidden rounded-3xl border p-6 sm:p-8">
           <div
-            className="bg-primary/7 absolute -right-12 -bottom-16 size-56 rounded-full blur-2xl"
             aria-hidden="true"
+            className="bg-primary/7 absolute -right-12 -bottom-16 size-56 rounded-full blur-2xl"
           />
           <div className="relative flex h-full flex-col justify-between gap-7">
             <div className="flex items-start gap-4">

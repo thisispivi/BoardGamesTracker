@@ -1,7 +1,7 @@
 import "server-only";
 
 import { hasExpansionCategory } from "@/lib/game-taxonomy";
-import { parseBggGeekItemPayload, type BggMetadata } from "@/server/bgg/parser";
+import { type BggMetadata, parseBggGeekItemPayload } from "@/server/bgg/parser";
 
 export type { BggMetadata } from "@/server/bgg/parser";
 

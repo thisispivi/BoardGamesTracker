@@ -4,13 +4,13 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { ArrowLeft, ExternalLink, Plus, Search, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import { useTranslations } from "next-intl";
 import { GiftedPriceField } from "@/components/gifted-price-field";
-import { Button } from "@/components/ui/button";
 import { AppSpinner } from "@/components/ui/app-spinner";
+import { Button } from "@/components/ui/button";
 import {
   addGameAction,
   type CollectionActionState,
@@ -117,7 +117,7 @@ export function AddGameDialog({
   }, [open, query, selected]);
 
   return (
-    <Dialog.Root open={open} onOpenChange={changeOpen}>
+    <Dialog.Root onOpenChange={changeOpen} open={open}>
       <Dialog.Trigger asChild>
         <Button type="button">
           <Plus className="size-4" />
@@ -141,9 +141,9 @@ export function AddGameDialog({
             </div>
             <Dialog.Close asChild>
               <button
-                type="button"
-                className="hover:bg-muted grid size-10 shrink-0 place-items-center rounded-full transition"
                 aria-label={t("common.close")}
+                className="hover:bg-muted grid size-10 shrink-0 place-items-center rounded-full transition"
+                type="button"
               >
                 <X className="size-5" />
               </button>
@@ -157,8 +157,8 @@ export function AddGameDialog({
                 adding={adding}
                 currency={currency}
                 destination={destination}
-                selected={selected}
                 onChooseAnother={() => setSelected(null)}
+                selected={selected}
               />
             ) : (
               <div>
@@ -166,38 +166,38 @@ export function AddGameDialog({
                   <span className="sr-only">{t("add.gameTitle")}</span>
                   <Search className="text-muted-foreground absolute top-1/2 left-4 size-4 -translate-y-1/2" />
                   <input
-                    value={query}
-                    onChange={(event) => changeQuery(event.target.value)}
-                    minLength={3}
-                    maxLength={500}
                     autoFocus
                     className="bg-background focus:ring-primary/20 h-12 w-full rounded-xl border pr-12 pl-11 transition focus:ring-4 focus:outline-none"
+                    maxLength={500}
+                    minLength={3}
+                    onChange={(event) => changeQuery(event.target.value)}
                     placeholder={t("add.searchPlaceholder")}
+                    value={query}
                   />
-                  {searching && (
+                  {searching ? (
                     <AppSpinner
                       className="absolute top-[calc(50%-0.5rem)] right-4 size-4"
                       label={t("common.loading")}
                     />
-                  )}
+                  ) : null}
                 </label>
 
-                <div className="mt-5 space-y-2" aria-live="polite">
+                <div aria-live="polite" className="mt-5 space-y-2">
                   {results.map((result) => (
                     <button
-                      key={result.bggId}
-                      type="button"
-                      onClick={() => setSelected(result)}
                       className="hover:bg-muted/60 focus:ring-primary/20 flex w-full items-center gap-4 rounded-2xl border p-3 text-left transition focus:ring-4 focus:outline-none"
+                      key={result.bggId}
+                      onClick={() => setSelected(result)}
+                      type="button"
                     >
                       <span className="bg-muted relative grid size-16 shrink-0 place-items-center overflow-hidden rounded-xl">
                         {result.imageUrl ? (
                           <Image
-                            src={result.imageUrl}
                             alt=""
+                            className="object-cover"
                             fill
                             sizes="64px"
-                            className="object-cover"
+                            src={result.imageUrl}
                           />
                         ) : (
                           <span className="text-primary font-display text-lg font-bold">
@@ -217,21 +217,21 @@ export function AddGameDialog({
                       </span>
                     </button>
                   ))}
-                  {!searching && searchError && (
+                  {!searching && searchError ? (
                     <p className="text-danger py-8 text-center text-sm">
                       {searchError === "unavailable"
                         ? t("add.unavailable")
                         : searchError}
                     </p>
-                  )}
+                  ) : null}
                   {!searching &&
-                    !searchError &&
-                    hasSearched &&
-                    results.length === 0 && (
-                      <p className="text-muted-foreground py-8 text-center text-sm">
-                        {t("add.resultsHint")}
-                      </p>
-                    )}
+                  !searchError &&
+                  hasSearched &&
+                  results.length === 0 ? (
+                    <p className="text-muted-foreground py-8 text-center text-sm">
+                      {t("add.resultsHint")}
+                    </p>
+                  ) : null}
                 </div>
               </div>
             )}
@@ -261,25 +261,25 @@ function SelectedGameForm({
   const t = useTranslations();
   return (
     <form action={action} className="space-y-5">
-      <input type="hidden" name="destination" value={destination} />
+      <input name="destination" type="hidden" value={destination} />
       <input
-        type="hidden"
         name="selectionToken"
+        type="hidden"
         value={selected.selectionToken}
       />
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4">
         <button
-          type="button"
-          onClick={onChooseAnother}
           className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm font-bold"
+          onClick={onChooseAnother}
+          type="button"
         >
           <ArrowLeft className="size-4" /> {t("add.chooseAnother")}
         </button>
         <a
-          href={selected.bggUrl}
-          target="_blank"
-          rel="noreferrer"
           className="text-primary flex items-center gap-2 text-sm font-bold hover:underline"
+          href={selected.bggUrl}
+          rel="noreferrer"
+          target="_blank"
         >
           {t("add.viewBgg")} <ExternalLink className="size-4" />
         </a>
@@ -288,136 +288,141 @@ function SelectedGameForm({
       <div className="grid gap-4 sm:grid-cols-3">
         <Field label={t("add.year")}>
           <input
-            name="yearPublished"
-            type="number"
-            min={1800}
-            max={2200}
-            defaultValue={selected.yearPublished ?? ""}
             className="field-input"
+            defaultValue={selected.yearPublished ?? ""}
+            max={2200}
+            min={1800}
+            name="yearPublished"
             placeholder="2019"
+            type="number"
           />
         </Field>
         <Field label={t("add.minPlayers")}>
           <input
-            name="minPlayers"
-            type="number"
-            min={1}
-            max={99}
-            defaultValue={1}
-            required
             className="field-input"
+            defaultValue={1}
+            max={99}
+            min={1}
+            name="minPlayers"
+            required
+            type="number"
           />
         </Field>
         <Field label={t("add.maxPlayers")}>
           <input
-            name="maxPlayers"
-            type="number"
-            min={1}
-            max={99}
-            defaultValue={4}
-            required
             className="field-input"
+            defaultValue={4}
+            max={99}
+            min={1}
+            name="maxPlayers"
+            required
+            type="number"
           />
         </Field>
         <Field label={t("add.minMinutes")}>
           <input
-            name="minPlaytime"
-            type="number"
-            min={0}
-            max={10_000}
-            defaultValue={30}
-            required
             className="field-input"
+            defaultValue={30}
+            max={10_000}
+            min={0}
+            name="minPlaytime"
+            required
+            type="number"
           />
         </Field>
         <Field label={t("add.maxMinutes")}>
           <input
-            name="maxPlaytime"
-            type="number"
-            min={1}
-            max={10_000}
-            defaultValue={60}
-            required
             className="field-input"
+            defaultValue={60}
+            max={10_000}
+            min={1}
+            name="maxPlaytime"
+            required
+            type="number"
           />
         </Field>
         <Field label={t("add.complexity")}>
           <input
-            name="weight"
-            type="number"
-            min={1}
-            max={5}
-            step={0.1}
-            defaultValue={2.5}
             className="field-input"
+            defaultValue={2.5}
+            max={5}
+            min={1}
+            name="weight"
+            step={0.1}
+            type="number"
           />
         </Field>
         {destination === "collection" ? (
           <GiftedPriceField className="sm:col-span-3" currency={currency} />
         ) : (
           <>
-            <input type="hidden" name="moneySpent" value="0" />
-            <input type="hidden" name="gifted" value="false" />
+            <input name="moneySpent" type="hidden" value="0" />
+            <input name="gifted" type="hidden" value="false" />
           </>
         )}
       </div>
 
       <Field label={t("add.categories")}>
         <input
-          name="categories"
-          maxLength={500}
           className="field-input"
+          maxLength={500}
+          name="categories"
           placeholder={t("add.categoriesPlaceholder")}
         />
       </Field>
       <Field label={t("add.mechanics")}>
         <input
-          name="mechanics"
-          maxLength={1_000}
           className="field-input"
+          maxLength={1_000}
+          name="mechanics"
           placeholder={t("add.mechanicsPlaceholder")}
         />
       </Field>
       <Field label={t("add.families")}>
         <input
-          name="families"
-          maxLength={1_000}
           className="field-input"
+          maxLength={1_000}
+          name="families"
           placeholder={t("add.familiesPlaceholder")}
         />
       </Field>
       <Field label={t("add.artwork")}>
         <input
-          name="imageUrl"
-          type="url"
-          maxLength={2_000}
-          defaultValue={selected.imageUrl ?? ""}
           className="field-input"
+          defaultValue={selected.imageUrl ?? ""}
+          maxLength={2_000}
+          name="imageUrl"
           placeholder="https://cf.geekdo-images.com/..."
+          type="url"
         />
       </Field>
       <Field label={t("add.description")}>
         <textarea
-          name="description"
-          maxLength={2_000}
-          rows={3}
           className="field-input min-h-24 py-3"
+          maxLength={2_000}
+          name="description"
           placeholder={t("add.descriptionPlaceholder")}
+          rows={3}
         />
       </Field>
       <div className="flex justify-end border-t pt-5">
         <Button
-          type="submit"
-          disabled={adding}
           aria-label={adding ? t("common.loading") : undefined}
+          disabled={adding}
+          type="submit"
         >
           {adding ? (
             <AppSpinner className="size-4" label={t("common.loading")} />
           ) : (
             <Plus className="size-4" />
           )}
-          {!adding &&
-            t(destination === "wishlist" ? "wishlist.addSubmit" : "add.submit")}
+          {!adding
+            ? t(
+                destination === "wishlist"
+                  ? "wishlist.addSubmit"
+                  : "add.submit",
+              )
+            : null}
         </Button>
       </div>
     </form>

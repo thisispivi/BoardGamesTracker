@@ -2,11 +2,11 @@
 
 import { Download, FileArchive, LoaderCircle, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { ImportCollectionDialog } from "@/components/import-collection-dialog";
-import { useTranslations } from "next-intl";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -74,12 +74,12 @@ export function UserDataCard() {
           <div className="mt-4 grid grid-cols-2 gap-2">
             {formats.map((format) => (
               <a
-                key={format}
-                href={`/api/user-data?format=${format}`}
-                download
                 className={cn(
                   buttonVariants({ variant: "secondary", size: "sm" }),
                 )}
+                download
+                href={`/api/user-data?format=${format}`}
+                key={format}
               >
                 <Download className="size-4" /> {format.toUpperCase()}
               </a>
@@ -87,7 +87,7 @@ export function UserDataCard() {
           </div>
         </div>
 
-        <form onSubmit={importData} className="rounded-2xl border p-5">
+        <form className="rounded-2xl border p-5" onSubmit={importData}>
           <h3 className="font-bold">{t("data.importTitle")}</h3>
           <p className="text-muted-foreground mt-1 text-sm leading-6">
             {t("data.importBody")}
@@ -95,14 +95,14 @@ export function UserDataCard() {
           <label className="mt-4 block text-sm font-bold">
             <span className="sr-only">{t("data.file")}</span>
             <input
-              name="file"
-              type="file"
               accept=".json,.csv,.xlsx,.sql,application/json,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/sql"
-              required
               className="file:bg-primary file:text-primary-foreground bg-background w-full cursor-pointer rounded-xl border p-2 text-sm file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:px-3 file:py-2 file:font-bold"
+              name="file"
+              required
+              type="file"
             />
           </label>
-          <Button type="submit" size="sm" disabled={importing} className="mt-4">
+          <Button className="mt-4" disabled={importing} size="sm" type="submit">
             {importing ? (
               <LoaderCircle className="size-4 animate-spin" />
             ) : (

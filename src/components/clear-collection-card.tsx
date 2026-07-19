@@ -2,11 +2,11 @@
 
 import { LoaderCircle, Trash2, TriangleAlert, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { useTranslations } from "next-intl";
 import { CLEAR_COLLECTION_CONFIRMATION } from "@/lib/collection-confirmation";
 import {
   clearCollectionAction,
@@ -59,26 +59,26 @@ export function ClearCollectionCard() {
           </div>
         </div>
         <Button
-          type="button"
-          variant="danger"
           className="w-full shrink-0 sm:w-fit"
           onClick={() => setOpen(true)}
+          type="button"
+          variant="danger"
         >
           <Trash2 className="size-4" /> {t("clear.deleteAll")}
         </Button>
       </div>
 
-      {open && (
+      {open ? (
         <div
           className="modal-overlay fixed inset-0 z-50 grid place-items-center bg-black/50 p-4 backdrop-blur-sm"
           onMouseDown={() => setOpen(false)}
         >
           <section
+            aria-labelledby="clear-collection-title"
+            aria-modal="true"
             className="modal-content bg-card w-full max-w-lg rounded-3xl border border-red-500/30 p-6 shadow-2xl sm:p-8"
             onMouseDown={(event) => event.stopPropagation()}
-            aria-modal="true"
             role="dialog"
-            aria-labelledby="clear-collection-title"
           >
             <div className="flex items-start justify-between gap-5">
               <div>
@@ -86,17 +86,17 @@ export function ClearCollectionCard() {
                   {t("clear.eyebrow")}
                 </p>
                 <h2
-                  id="clear-collection-title"
                   className="font-display mt-1 text-2xl font-bold"
+                  id="clear-collection-title"
                 >
                   {t("clear.modalTitle")}
                 </h2>
               </div>
               <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="hover:bg-muted rounded-full p-2"
                 aria-label={t("common.close")}
+                className="hover:bg-muted rounded-full p-2"
+                onClick={() => setOpen(false)}
+                type="button"
               >
                 <X className="size-5" />
               </button>
@@ -111,30 +111,30 @@ export function ClearCollectionCard() {
               <label className="block text-sm font-bold">
                 <span className="mb-2 block">{t("clear.confirmation")}</span>
                 <input
-                  name="confirmation"
-                  value={confirmation}
-                  onChange={(event) => setConfirmation(event.target.value)}
                   autoComplete="off"
-                  spellCheck={false}
-                  required
                   className="field-input"
+                  name="confirmation"
+                  onChange={(event) => setConfirmation(event.target.value)}
                   placeholder={CLEAR_COLLECTION_CONFIRMATION}
+                  required
+                  spellCheck={false}
+                  value={confirmation}
                 />
               </label>
               <div className="flex flex-wrap justify-end gap-2 border-t pt-5">
                 <Button
+                  onClick={() => setOpen(false)}
                   type="button"
                   variant="secondary"
-                  onClick={() => setOpen(false)}
                 >
                   {t("common.cancel")}
                 </Button>
                 <Button
-                  type="submit"
-                  variant="danger"
                   disabled={
                     clearing || confirmation !== CLEAR_COLLECTION_CONFIRMATION
                   }
+                  type="submit"
+                  variant="danger"
                 >
                   {clearing ? (
                     <LoaderCircle className="size-4 animate-spin" />
@@ -147,7 +147,7 @@ export function ClearCollectionCard() {
             </form>
           </section>
         </div>
-      )}
+      ) : null}
     </section>
   );
 }
