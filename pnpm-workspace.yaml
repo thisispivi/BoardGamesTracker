@@ -29,6 +29,9 @@ minimumReleaseAgeExclude:
   - "@next/eslint-plugin-next@16.2.12"
   - eslint-config-next@16.2.12
   - eslint-plugin-jsdoc@63.3.0
+  # Dependabot update reviewed in PR #7; this exact-version exception lets
+  # the vetted release proceed without weakening the policy generally.
+  - "@testing-library/jest-dom@7.0.0"
   - lint-staged@17.1.0
 overrides:
   exceljs>uuid: 11.1.1
