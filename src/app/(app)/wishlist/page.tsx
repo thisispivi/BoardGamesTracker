@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 
 import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
 import { AddGameDialog } from "@/components/organisms/AddGameDialog/AddGameDialog";
-import { WishlistCard } from "@/components/organisms/WishlistCard/WishlistCard";
+import { WishlistBrowser } from "@/components/organisms/WishlistBrowser/WishlistBrowser";
 import { getWishlist } from "@/server/collection";
 import { getUserPreferences } from "@/server/preferences";
 import { requireUser } from "@/server/session";
@@ -46,15 +46,7 @@ export default async function WishlistPage() {
         title={t("wishlist.title")}
       />
       {wishlist.length > 0 ? (
-        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-          {wishlist.map((game) => (
-            <WishlistCard
-              currency={preferences.currency}
-              game={game}
-              key={game.id}
-            />
-          ))}
-        </div>
+        <WishlistBrowser currency={preferences.currency} games={wishlist} />
       ) : (
         <section className="bg-card rounded-3xl border border-dashed p-12 text-center">
           <Heart className="text-primary mx-auto size-9" />
