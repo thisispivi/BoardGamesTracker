@@ -4,11 +4,18 @@ allowBuilds:
   esbuild: true
   sharp: true
   unrs-resolver: true
+# ExcelJS currently pins a legacy glob stack whose only compatible fix has not
+# been released upstream. This narrowly scoped exception keeps every other
+# moderate-or-higher vulnerability blocking CI.
+auditConfig:
+  ignoreGhsas:
+    - GHSA-mh99-v99m-4gvg
 minimumReleaseAgeExclude:
   - lint-staged@17.1.0
 overrides:
   exceljs>uuid: 11.1.1
   esbuild: 0.28.1
   postcss: 8.5.19
+  sharp: 0.35.0
 packages:
   - .
