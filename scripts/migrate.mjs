@@ -20,4 +20,18 @@ async function runMigrations() {
   }
 }
 
-await runMigrations();
+// ponytail: retry loop instead of a wait-for-postgres entrypoint script. Docker's
+// restart policy ignores depends_on health, so a restarted app can outrace the DB.
+// 10 tries x 3s covers normal startup; raise if the DB does slow crash recovery.
+for (let attempt = 1; ; attempt++) {
+  try {
+    await runMigrations();
+    break;
+  } catch (error) {
+    if (attempt >= 10 || !process.env.DATABASE_URL) throw error;
+    console.warn(
+      `Database not ready (attempt ${attempt}/10): ${error.cause?.message ?? error.message}`,
+    );
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+  }
+}
