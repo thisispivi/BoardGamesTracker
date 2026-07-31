@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { querySchema } from "@/core";
 import { discoverBoardGameByUrl } from "@/server/discovery/bggUrl";
 import { parseBoardGameUrl } from "@/server/discovery/resultParser";
-import { searchBoardGames } from "@/server/discovery/searxng";
+import { searchBoardGames } from "@/server/discovery/search";
 import { consumeRateLimit } from "@/server/security/rateLimit";
 import { getSession } from "@/server/session";
 import { log } from "@/utils/logger";

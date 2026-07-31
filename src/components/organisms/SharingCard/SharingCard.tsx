@@ -1,54 +1,119 @@
 "use client";
 
-import { Check, Copy, Share2 } from "lucide-react";
-import Link from "next/link";
+import { Check, Copy, RefreshCw, Share2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { type ReactNode, useState, useTransition } from "react";
 import { toast } from "sonner";
 
-import { setSharingAction } from "@/server/actions/preferences";
+import {
+  regenerateShareTokenAction,
+  setSharingAction,
+} from "@/server/actions/preferences";
+
+type SharingState = {
+  collection: boolean;
+  prices: boolean;
+  wishlist: boolean;
+};
 
 type SharingCardProps = {
+  appUrl: string;
   shareCollection: boolean;
   sharePrices: boolean;
-  shareUrl: string;
+  shareToken: string | null;
+  shareWishlist: boolean;
+};
+
+type ShareToggleProps = {
+  checked: boolean;
+  description: string;
+  disabled?: boolean;
+  label: string;
+  onChange: (checked: boolean) => void;
 };
 
 /**
- * Opt-in controls for publishing a collection and its recorded prices.
+ * One labelled sharing switch with its explanatory help text.
  *
  * @param root0 - Component or function properties.
+ * @param root0.checked - The 'checked' property.
+ * @param root0.description - The 'description' property.
+ * @param root0.disabled - The 'disabled' property.
+ * @param root0.label - The 'label' property.
+ * @param root0.onChange - The 'onChange' property.
+ * @returns The documented function result.
+ */
+function ShareToggle({
+  checked,
+  description,
+  disabled = false,
+  label,
+  onChange,
+}: ShareToggleProps): ReactNode {
+  return (
+    <label
+      className={`flex items-start gap-3 rounded-2xl border p-4 transition ${disabled ? "opacity-55" : "hover:bg-muted/50 cursor-pointer"}`}
+    >
+      <input
+        checked={checked}
+        className="accent-primary mt-0.5 size-4 shrink-0"
+        disabled={disabled}
+        onChange={(event) => onChange(event.target.checked)}
+        type="checkbox"
+      />
+      <span className="min-w-0">
+        <span className="block text-sm font-bold">{label}</span>
+        <span className="text-muted-foreground block text-xs leading-5">
+          {description}
+        </span>
+      </span>
+    </label>
+  );
+}
+
+/**
+ * Opt-in controls for publishing a collection, a wishlist, and their prices.
+ *
+ * @param root0 - Component or function properties.
+ * @param root0.appUrl - The 'appUrl' property.
  * @param root0.shareCollection - The 'shareCollection' property.
  * @param root0.sharePrices - The 'sharePrices' property.
- * @param root0.shareUrl - The 'shareUrl' property.
+ * @param root0.shareToken - The 'shareToken' property.
+ * @param root0.shareWishlist - The 'shareWishlist' property.
  * @returns The documented function result.
  */
 export function SharingCard({
+  appUrl,
   shareCollection,
   sharePrices,
-  shareUrl,
+  shareToken,
+  shareWishlist,
 }: SharingCardProps): ReactNode {
-  const [shared, setShared] = useState(shareCollection);
-  const [prices, setPrices] = useState(sharePrices);
+  const [sharing, setSharing] = useState<SharingState>({
+    collection: shareCollection,
+    prices: sharePrices,
+    wishlist: shareWishlist,
+  });
   const [copied, setCopied] = useState(false);
   const [pending, startTransition] = useTransition();
   const router = useRouter();
   const t = useTranslations();
+  const shareUrl = shareToken ? `${appUrl}/share/${shareToken}` : "";
+  const sharesAnything = sharing.collection || sharing.wishlist;
 
   /**
-   * Saves both flags together so price sharing can never outlive sharing.
+   * Saves every switch together so prices can never outlive what they describe.
    *
-   * @param nextShared - Whether the collection is published at all.
-   * @param nextPrices - Whether recorded prices are included.
+   * @param next - The switch positions to persist.
    */
-  function save(nextShared: boolean, nextPrices: boolean): void {
-    const pricesShared = nextShared && nextPrices;
-    setShared(nextShared);
-    setPrices(pricesShared);
+  function save(next: SharingState): void {
+    const prices = (next.collection || next.wishlist) && next.prices;
+    setSharing({ ...next, prices });
     const formData = new FormData();
-    if (nextShared) formData.set("shareCollection", "on");
-    if (pricesShared) formData.set("sharePrices", "on");
+    if (next.collection) formData.set("shareCollection", "on");
+    if (next.wishlist) formData.set("shareWishlist", "on");
+    if (prices) formData.set("sharePrices", "on");
     startTransition(async () => {
       await setSharingAction(formData);
       router.refresh();
@@ -56,7 +121,16 @@ export function SharingCard({
     });
   }
 
-  /** Copies the sharing link, falling back silently on denied clipboards. */
+  /** Rotates the token, invalidating every link already handed out. */
+  function regenerate(): void {
+    startTransition(async () => {
+      await regenerateShareTokenAction();
+      router.refresh();
+      toast.success(t("sharing.regenerated"));
+    });
+  }
+
+  /** Copies the sharing link, reporting a denied clipboard rather than failing. */
   function copyLink(): void {
     void navigator.clipboard
       .writeText(shareUrl)
@@ -74,9 +148,9 @@ export function SharingCard({
     >
       <div
         aria-hidden="true"
-        className="bg-primary/7 absolute -top-16 -right-12 size-56 rounded-full blur-2xl"
+        className="bg-primary/7 pointer-events-none absolute -top-16 -right-12 size-56 rounded-full blur-2xl"
       />
-      <div className="relative flex h-full flex-col gap-6">
+      <div className="relative flex flex-col gap-6">
         <div className="flex items-start gap-4">
           <span className="bg-primary/10 text-primary grid size-12 shrink-0 place-items-center rounded-2xl">
             <Share2 className="size-5" />
@@ -91,68 +165,59 @@ export function SharingCard({
           </div>
         </div>
 
-        <div className="space-y-3">
-          <label className="hover:bg-muted/50 flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition">
-            <input
-              checked={shared}
-              className="accent-primary mt-0.5 size-4 shrink-0"
-              onChange={(event) => save(event.target.checked, prices)}
-              type="checkbox"
-            />
-            <span className="min-w-0">
-              <span className="block text-sm font-bold">
-                {t("sharing.shareCollection")}
-              </span>
-              <span className="text-muted-foreground block text-xs leading-5">
-                {t("sharing.shareCollectionHelp")}
-              </span>
-            </span>
-          </label>
-
-          <label
-            className={`flex items-start gap-3 rounded-2xl border p-4 transition ${shared ? "hover:bg-muted/50 cursor-pointer" : "opacity-55"}`}
-          >
-            <input
-              checked={prices}
-              className="accent-primary mt-0.5 size-4 shrink-0"
-              disabled={!shared}
-              onChange={(event) => save(shared, event.target.checked)}
-              type="checkbox"
-            />
-            <span className="min-w-0">
-              <span className="block text-sm font-bold">
-                {t("sharing.sharePrices")}
-              </span>
-              <span className="text-muted-foreground block text-xs leading-5">
-                {t("sharing.sharePricesHelp")}
-              </span>
-            </span>
-          </label>
+        <div className="grid gap-3 lg:grid-cols-3">
+          <ShareToggle
+            checked={sharing.collection}
+            description={t("sharing.shareCollectionHelp")}
+            label={t("sharing.shareCollection")}
+            onChange={(checked) => save({ ...sharing, collection: checked })}
+          />
+          <ShareToggle
+            checked={sharing.wishlist}
+            description={t("sharing.shareWishlistHelp")}
+            label={t("sharing.shareWishlist")}
+            onChange={(checked) => save({ ...sharing, wishlist: checked })}
+          />
+          <ShareToggle
+            checked={sharing.prices}
+            description={t("sharing.sharePricesHelp")}
+            disabled={!sharesAnything}
+            label={t("sharing.sharePrices")}
+            onChange={(checked) => save({ ...sharing, prices: checked })}
+          />
         </div>
 
-        {shared ? (
-          <div className="mt-auto flex flex-wrap items-center gap-2 border-t pt-5">
-            <code className="bg-muted min-w-0 flex-1 truncate rounded-xl px-3 py-2 text-xs">
-              {shareUrl}
-            </code>
-            <button
-              className="hover:bg-muted flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-bold transition"
-              onClick={copyLink}
-              type="button"
-            >
-              {copied ? (
-                <Check className="size-3.5" />
-              ) : (
-                <Copy className="size-3.5" />
-              )}
-              {copied ? t("sharing.copied") : t("sharing.copy")}
-            </button>
-            <Link
-              className="text-primary px-2 py-2 text-xs font-bold hover:underline"
-              href="/share"
-            >
-              {t("sharing.browse")}
-            </Link>
+        {sharesAnything && shareUrl ? (
+          <div className="flex flex-col gap-3 border-t pt-5">
+            <p className="text-muted-foreground text-xs leading-5">
+              {t("sharing.linkWarning")}
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <code className="bg-muted min-w-0 flex-1 truncate rounded-xl px-3 py-2 text-xs">
+                {shareUrl}
+              </code>
+              <button
+                className="hover:bg-muted flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-bold transition"
+                onClick={copyLink}
+                type="button"
+              >
+                {copied ? (
+                  <Check className="size-3.5" />
+                ) : (
+                  <Copy className="size-3.5" />
+                )}
+                {copied ? t("sharing.copied") : t("sharing.copy")}
+              </button>
+              <button
+                className="hover:bg-muted flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-bold transition"
+                disabled={pending}
+                onClick={regenerate}
+                type="button"
+              >
+                <RefreshCw className="size-3.5" />
+                {t("sharing.regenerate")}
+              </button>
+            </div>
           </div>
         ) : null}
       </div>

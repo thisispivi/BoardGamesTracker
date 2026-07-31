@@ -16,15 +16,3 @@ export const searxngResponseSchema = z.object({
     )
     .default([]),
 });
-
-/** Validates the untrusted SPARQL result payload returned by Wikidata. */
-export const wikidataResponseSchema = z.object({
-  results: z.object({
-    bindings: z.array(
-      z.object({
-        bggId: z.object({ value: z.string() }),
-        date: z.object({ value: z.string() }).optional(),
-      }),
-    ),
-  }),
-});

@@ -7,8 +7,7 @@
     "stats": "Stats",
     "settings": "Settings",
     "admin": "Admin",
-    "logout": "Sign out",
-    "share": "Shared"
+    "logout": "Sign out"
   },
   "app": {
     "description": "Your self-hosted board-game shelf and game-night picker."
@@ -33,6 +32,19 @@
     "needAccount": "Need an account?",
     "haveAccount": "Already have an account?",
     "failure": "Authentication failed. Please try again."
+  },
+  "reset": {
+    "metaTitle": "Reset password",
+    "eyebrow": "Account recovery",
+    "title": "Choose a new password",
+    "body": "This link was issued by an administrator. Setting a new password signs you out everywhere else.",
+    "newPassword": "New password",
+    "submit": "Set new password",
+    "done": "Password updated. You can sign in now.",
+    "invalid": "This link is no longer valid. Ask an administrator for a new one.",
+    "expired": "This link has expired or has already been used. Ask an administrator for a new one.",
+    "tooMany": "Too many attempts. Try again later.",
+    "backToLogin": "Back to sign in"
   },
   "common": {
     "cancel": "Cancel",
@@ -235,25 +247,25 @@
     "libraryGifts": "Gifts"
   },
   "sharing": {
-    "metaTitle": "Shared collections",
+    "metaTitle": "Shared library",
     "eyebrow": "Sharing",
-    "title": "Share your collection",
-    "body": "Publish your shelf to other members of this instance. Nothing is shared until you turn it on.",
+    "title": "Share your library",
+    "body": "Publish your collection or wishlist as a private link. Anyone with the link can view it, no account needed. Nothing is shared until you turn it on.",
     "shareCollection": "Share my collection",
-    "shareCollectionHelp": "Signed-in members can browse your owned games. Your wishlist and notes stay private.",
+    "shareCollectionHelp": "Publish the games you own.",
     "sharePrices": "Include prices",
     "sharePricesHelp": "Show what you paid and which games were gifts. Off by default.",
     "updated": "Sharing preferences saved",
     "copy": "Copy link",
     "copied": "Copied",
     "copyFailed": "The link could not be copied",
-    "browse": "Browse shared collections",
-    "directoryTitle": "Shared collections",
-    "directoryBody": "Collections other members have chosen to share.",
-    "ownerTitle": "{name}'s collection",
-    "backToDirectory": "All shared",
-    "emptyTitle": "Nothing shared yet",
-    "emptyBody": "When another member shares their collection it will show up here."
+    "ownerTitle": "{name}'s library",
+    "shareWishlist": "Share my wishlist",
+    "shareWishlistHelp": "Publish the games you are hoping for.",
+    "linkWarning": "Treat this link like a password: anyone who has it can view what you share. Regenerate it to revoke every link you have handed out.",
+    "regenerate": "Regenerate",
+    "regenerated": "New link generated. The previous link no longer works.",
+    "publicBody": "A library shared by its owner. Read-only."
   },
   "wishlist": {
     "metaTitle": "Wishlist",
@@ -325,7 +337,10 @@
     "warning": "This cannot be undone. Type {confirmation} below to confirm. Shared game information and cached covers remain available to other users.",
     "confirmation": "Confirmation",
     "deleting": "Deleting…",
-    "submit": "Delete entire collection"
+    "submit": "Delete entire collection",
+    "wishlistTitle": "Clear wishlist",
+    "wishlistBody": "Permanently remove every game from your wishlist. Your collection is left untouched. This cannot be undone.",
+    "wishlistModalTitle": "Delete the whole wishlist?"
   },
   "admin": {
     "metaTitle": "Administration",
@@ -361,7 +376,10 @@
     "loading": "Loading audit events…",
     "loadError": "The audit events could not be loaded.",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "resetPassword": "Issue password reset link",
+    "resetHint": "Send this one-time link to the account owner. It expires in one hour and stops working once used.",
+    "resetFailed": "The reset link could not be created"
   },
   "error": {
     "eyebrow": "Unexpected move",

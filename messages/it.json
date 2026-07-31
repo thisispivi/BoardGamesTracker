@@ -7,8 +7,7 @@
     "stats": "Statistiche",
     "settings": "Impostazioni",
     "admin": "Amministrazione",
-    "logout": "Esci",
-    "share": "Condivise"
+    "logout": "Esci"
   },
   "app": {
     "description": "La tua libreria di giochi da tavolo e selettore per le serate di gioco."
@@ -33,6 +32,19 @@
     "needAccount": "Non hai un account?",
     "haveAccount": "Hai già un account?",
     "failure": "Autenticazione non riuscita. Riprova."
+  },
+  "reset": {
+    "metaTitle": "Reimposta password",
+    "eyebrow": "Recupero account",
+    "title": "Scegli una nuova password",
+    "body": "Questo link è stato generato da un amministratore. Impostando una nuova password verrai disconnesso da ogni altro dispositivo.",
+    "newPassword": "Nuova password",
+    "submit": "Imposta la nuova password",
+    "done": "Password aggiornata. Ora puoi accedere.",
+    "invalid": "Questo link non è più valido. Chiedi un nuovo link a un amministratore.",
+    "expired": "Questo link è scaduto o è già stato usato. Chiedi un nuovo link a un amministratore.",
+    "tooMany": "Troppi tentativi. Riprova più tardi.",
+    "backToLogin": "Torna all'accesso"
   },
   "common": {
     "cancel": "Annulla",
@@ -235,25 +247,25 @@
     "libraryGifts": "Regali"
   },
   "sharing": {
-    "metaTitle": "Collezioni condivise",
+    "metaTitle": "Libreria condivisa",
     "eyebrow": "Condivisione",
-    "title": "Condividi la tua collezione",
-    "body": "Pubblica la tua libreria per gli altri membri di questa istanza. Nulla viene condiviso finché non lo attivi.",
+    "title": "Condividi la tua libreria",
+    "body": "Pubblica la tua collezione o la lista dei desideri come link privato. Chi ha il link può vederla, senza account. Nulla viene condiviso finché non lo attivi.",
     "shareCollection": "Condividi la mia collezione",
-    "shareCollectionHelp": "I membri autenticati possono sfogliare i giochi che possiedi. Lista dei desideri e note restano private.",
+    "shareCollectionHelp": "Pubblica i giochi che possiedi.",
     "sharePrices": "Includi i prezzi",
     "sharePricesHelp": "Mostra quanto hai speso e quali giochi sono regali. Disattivato di default.",
     "updated": "Preferenze di condivisione salvate",
     "copy": "Copia link",
     "copied": "Copiato",
     "copyFailed": "Non è stato possibile copiare il link",
-    "browse": "Sfoglia le collezioni condivise",
-    "directoryTitle": "Collezioni condivise",
-    "directoryBody": "Collezioni che altri membri hanno scelto di condividere.",
-    "ownerTitle": "Collezione di {name}",
-    "backToDirectory": "Tutte le condivise",
-    "emptyTitle": "Ancora nessuna condivisione",
-    "emptyBody": "Quando un altro membro condivide la sua collezione la troverai qui."
+    "ownerTitle": "Libreria di {name}",
+    "shareWishlist": "Condividi la mia lista dei desideri",
+    "shareWishlistHelp": "Pubblica i giochi che desideri.",
+    "linkWarning": "Tratta questo link come una password: chiunque lo possieda può vedere ciò che condividi. Rigeneralo per revocare tutti i link già distribuiti.",
+    "regenerate": "Rigenera",
+    "regenerated": "Nuovo link generato. Il link precedente non funziona più.",
+    "publicBody": "Una libreria condivisa dal proprietario. Sola lettura."
   },
   "wishlist": {
     "metaTitle": "Lista desideri",
@@ -325,7 +337,10 @@
     "warning": "L’azione è irreversibile. Digita {confirmation} qui sotto per confermare. Le informazioni condivise e le copertine restano disponibili agli altri utenti.",
     "confirmation": "Conferma",
     "deleting": "Eliminazione…",
-    "submit": "Elimina l’intera collezione"
+    "submit": "Elimina l’intera collezione",
+    "wishlistTitle": "Svuota la lista dei desideri",
+    "wishlistBody": "Rimuovi definitivamente ogni gioco dalla lista dei desideri. La collezione resta invariata. L'operazione non è reversibile.",
+    "wishlistModalTitle": "Eliminare tutta la lista dei desideri?"
   },
   "admin": {
     "metaTitle": "Amministrazione",
@@ -361,7 +376,10 @@
     "loading": "Caricamento eventi di audit…",
     "loadError": "Impossibile caricare gli eventi di audit.",
     "previous": "Precedente",
-    "next": "Successiva"
+    "next": "Successiva",
+    "resetPassword": "Genera link di reimpostazione password",
+    "resetHint": "Invia questo link monouso al proprietario dell'account. Scade dopo un'ora e smette di funzionare una volta usato.",
+    "resetFailed": "Non è stato possibile creare il link di reimpostazione"
   },
   "error": {
     "eyebrow": "Mossa imprevista",

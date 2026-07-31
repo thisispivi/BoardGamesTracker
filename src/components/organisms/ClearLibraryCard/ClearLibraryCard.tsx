@@ -8,25 +8,35 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/atoms/Button/Button";
 import type { CollectionActionState } from "@/core";
-import { clearCollectionAction } from "@/server/actions/collection";
+import { clearLibraryAction } from "@/server/actions/collection";
 import { CLEAR_COLLECTION_CONFIRMATION } from "@/utils/collectionConfirmation";
 
 const initialState: CollectionActionState = { success: false, message: "" };
 
+type ClearLibraryCardProps = {
+  library: "collection" | "wishlist";
+};
+
 /**
- * Destructive settings card for clearing the signed-in user's collection.
+ * Destructive settings card for clearing one of the signed-in user's libraries.
  *
+ * @param root0 - Component or function properties.
+ * @param root0.library - The 'library' property.
  * @returns The documented function result.
  */
-export function ClearCollectionCard(): ReactNode {
+export function ClearLibraryCard({
+  library,
+}: ClearLibraryCardProps): ReactNode {
   const t = useTranslations();
   const [open, setOpen] = useState(false);
   const [confirmation, setConfirmation] = useState("");
   const [state, action, clearing] = useActionState(
-    clearCollectionAction,
+    clearLibraryAction,
     initialState,
   );
   const router = useRouter();
+  const isWishlist = library === "wishlist";
+  const titleId = `clear-${library}-title`;
 
   useEffect(() => {
     if (!state.message) {
@@ -53,10 +63,10 @@ export function ClearCollectionCard(): ReactNode {
           </span>
           <div>
             <h2 className="font-display text-xl font-bold">
-              {t("clear.title")}
+              {t(isWishlist ? "clear.wishlistTitle" : "clear.title")}
             </h2>
             <p className="text-muted-foreground mt-1 max-w-xl text-sm leading-6">
-              {t("clear.body")}
+              {t(isWishlist ? "clear.wishlistBody" : "clear.body")}
             </p>
           </div>
         </div>
@@ -76,7 +86,7 @@ export function ClearCollectionCard(): ReactNode {
           onMouseDown={() => setOpen(false)}
         >
           <section
-            aria-labelledby="clear-collection-title"
+            aria-labelledby={titleId}
             aria-modal="true"
             className="modal-content bg-card w-full max-w-lg rounded-3xl border border-red-500/30 p-6 shadow-2xl sm:p-8"
             onMouseDown={(event) => event.stopPropagation()}
@@ -89,9 +99,13 @@ export function ClearCollectionCard(): ReactNode {
                 </p>
                 <h2
                   className="font-display mt-1 text-2xl font-bold"
-                  id="clear-collection-title"
+                  id={titleId}
                 >
-                  {t("clear.modalTitle")}
+                  {t(
+                    isWishlist
+                      ? "clear.wishlistModalTitle"
+                      : "clear.modalTitle",
+                  )}
                 </h2>
               </div>
               <button
@@ -110,6 +124,7 @@ export function ClearCollectionCard(): ReactNode {
               })}
             </p>
             <form action={action} className="mt-6 space-y-5">
+              <input name="library" type="hidden" value={library} />
               <label className="block text-sm font-bold">
                 <span className="mb-2 block">{t("clear.confirmation")}</span>
                 <input

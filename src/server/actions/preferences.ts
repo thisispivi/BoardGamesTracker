@@ -10,6 +10,7 @@ import { writeAuditEvent } from "@/server/audit";
 import { db } from "@/server/db";
 import { user } from "@/server/db/schema";
 import { requireUser } from "@/server/session";
+import { createShareToken } from "@/server/sharing";
 
 /**
  * Persists a validated display locale in a same-site cookie.
@@ -55,10 +56,11 @@ export async function setCurrencyAction(formData: FormData): Promise<void> {
 }
 
 /**
- * Persists whether the signed-in user shares their collection, and its prices.
+ * Persists which libraries the signed-in user shares, and whether prices show.
  *
- * Unchecked checkboxes are absent from the payload, so both flags are read as
- * explicit booleans and price sharing is forced off whenever sharing is off.
+ * Unchecked checkboxes are absent from the payload, so every flag is read as an
+ * explicit boolean. Enabling sharing mints a token when the account has none;
+ * turning everything off clears it, which permanently breaks any old link.
  *
  * @param formData - The submitted form data.
  * @returns The documented function result.
@@ -68,14 +70,29 @@ export async function setSharingAction(formData: FormData): Promise<void> {
   const parsed = sharingSchema.safeParse({
     shareCollection: formData.get("shareCollection") === "on",
     sharePrices: formData.get("sharePrices") === "on",
+    shareWishlist: formData.get("shareWishlist") === "on",
   });
   if (!parsed.success) {
     return;
   }
 
+  const sharesAnything =
+    parsed.data.shareCollection || parsed.data.shareWishlist;
+  const [current] = await db
+    .select({ shareToken: user.shareToken })
+    .from(user)
+    .where(eq(user.id, session.user.id))
+    .limit(1);
+
   await db
     .update(user)
-    .set({ ...parsed.data, updatedAt: new Date() })
+    .set({
+      ...parsed.data,
+      shareToken: sharesAnything
+        ? (current?.shareToken ?? createShareToken())
+        : null,
+      updatedAt: new Date(),
+    })
     .where(eq(user.id, session.user.id));
   await writeAuditEvent({
     actorId: session.user.id,
@@ -85,5 +102,29 @@ export async function setSharingAction(formData: FormData): Promise<void> {
     metadata: parsed.data,
   });
   revalidatePath("/settings");
-  revalidatePath("/share");
+}
+
+/**
+ * Replaces the share token, revoking every link handed out so far.
+ *
+ * @returns The documented function result.
+ */
+export async function regenerateShareTokenAction(): Promise<void> {
+  const session = await requireUser();
+  const [updated] = await db
+    .update(user)
+    .set({ shareToken: createShareToken(), updatedAt: new Date() })
+    .where(eq(user.id, session.user.id))
+    .returning({ id: user.id });
+  if (!updated) {
+    return;
+  }
+
+  await writeAuditEvent({
+    actorId: session.user.id,
+    action: "settings.share_token_rotated",
+    targetType: "user",
+    targetId: session.user.id,
+  });
+  revalidatePath("/settings");
 }

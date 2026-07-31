@@ -9,7 +9,7 @@ import { user } from "@/server/db/schema";
  * Reads settings that are not part of Better Auth's public session shape.
  *
  * @param userId - The authenticated user identifier.
- * @returns The user's display currency and collection-sharing preferences.
+ * @returns The user's display currency and library-sharing preferences.
  */
 export async function getUserPreferences(userId: string) {
   const [preferences] = await db
@@ -17,6 +17,8 @@ export async function getUserPreferences(userId: string) {
       currency: user.currency,
       shareCollection: user.shareCollection,
       sharePrices: user.sharePrices,
+      shareToken: user.shareToken,
+      shareWishlist: user.shareWishlist,
     })
     .from(user)
     .where(eq(user.id, userId))
@@ -26,5 +28,7 @@ export async function getUserPreferences(userId: string) {
     currency: preferences?.currency ?? "EUR",
     shareCollection: preferences?.shareCollection ?? false,
     sharePrices: preferences?.sharePrices ?? false,
+    shareToken: preferences?.shareToken ?? null,
+    shareWishlist: preferences?.shareWishlist ?? false,
   };
 }

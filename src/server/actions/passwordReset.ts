@@ -1,0 +1,48 @@
+"use server";
+
+import { getTranslations } from "next-intl/server";
+
+import { type CollectionActionState, newPasswordSchema } from "@/core";
+import { writeAuditEvent } from "@/server/audit";
+import {
+  applyPasswordReset,
+  verifyPasswordResetToken,
+} from "@/server/auth/passwordReset";
+import { consumeRateLimit } from "@/server/security/rateLimit";
+
+/**
+ * Completes an administrator-issued password reset for an anonymous visitor.
+ *
+ * The signed token is the only authorization, so it is verified before the
+ * password is read, and every failure returns the same message so the form
+ * cannot be used to discover which links or accounts exist.
+ *
+ * @param _previous - The previous server-action state.
+ * @param formData - The submitted form data.
+ * @returns The documented function result.
+ */
+export async function resetPasswordAction(
+  _previous: CollectionActionState,
+  formData: FormData,
+): Promise<CollectionActionState> {
+  const t = await getTranslations();
+  const token = String(formData.get("token") ?? "").slice(0, 4_000);
+  if (!consumeRateLimit(`passwordReset:${token.slice(0, 64)}`, 5, 600_000)) {
+    return { success: false, message: t("reset.tooMany") };
+  }
+
+  const userId = await verifyPasswordResetToken(token);
+  const password = newPasswordSchema.safeParse(formData.get("password"));
+  if (!userId || !password.success) {
+    return { success: false, message: t("reset.invalid") };
+  }
+
+  await applyPasswordReset(userId, password.data);
+  await writeAuditEvent({
+    actorId: userId,
+    action: "auth.password_reset_completed",
+    targetType: "user",
+    targetId: userId,
+  });
+  return { success: true, message: t("reset.done") };
+}
