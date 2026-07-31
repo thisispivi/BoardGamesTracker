@@ -377,9 +377,9 @@
     "loadError": "Impossibile caricare gli eventi di audit.",
     "previous": "Precedente",
     "next": "Successiva",
-    "resetPassword": "Genera link di reimpostazione password",
-    "resetHint": "Invia questo link monouso al proprietario dell'account. Scade dopo un'ora e smette di funzionare una volta usato.",
-    "resetFailed": "Non è stato possibile creare il link di reimpostazione"
+    "resetPassword": "Copia link di reimpostazione password",
+    "resetFailed": "Non è stato possibile creare il link di reimpostazione",
+    "resetCopied": "Link copiato. Scade dopo un'ora e funziona una sola volta."
   },
   "error": {
     "eyebrow": "Mossa imprevista",

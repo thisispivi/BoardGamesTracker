@@ -73,4 +73,37 @@ describe("searchBoardGames", () => {
 
     expect(fetchMock.mock.calls.length).toBeGreaterThan(afterFirst);
   });
+
+  it("still finds a precise match ranked far down the engine results", async () => {
+    // The wanted edition sits at position 20, well past the returned page size.
+    const results = [
+      ...Array.from({ length: 19 }, (_, index) => ({
+        title: `Ticket to Ride: Filler ${index} (2010) | BoardGameGeek`,
+        url: `https://boardgamegeek.com/boardgame/${1000 + index}/filler-${index}`,
+        img_src: "",
+      })),
+      {
+        title: "Ticket to Ride: Northern Lights (2022) | BoardGameGeek",
+        url: "https://boardgamegeek.com/boardgame/366835/ticket-to-ride-northern-lights",
+        img_src: "",
+      },
+    ];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: URL | string) => ({
+        ok: true,
+        status: 200,
+        headers: new Headers({ "content-type": "application/json" }),
+        json: async () =>
+          String(input).includes("searxng.test")
+            ? { results }
+            : { results: [] },
+        text: async () => "",
+      })),
+    );
+
+    const found = await searchBoardGames("ticket to ride northern lights");
+
+    expect(found.map((game) => game.bggId)).toContain(366835);
+  });
 });

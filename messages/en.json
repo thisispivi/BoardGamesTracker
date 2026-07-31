@@ -377,9 +377,9 @@
     "loadError": "The audit events could not be loaded.",
     "previous": "Previous",
     "next": "Next",
-    "resetPassword": "Issue password reset link",
-    "resetHint": "Send this one-time link to the account owner. It expires in one hour and stops working once used.",
-    "resetFailed": "The reset link could not be created"
+    "resetPassword": "Copy password reset link",
+    "resetFailed": "The reset link could not be created",
+    "resetCopied": "Reset link copied. It expires in one hour and works once."
   },
   "error": {
     "eyebrow": "Unexpected move",

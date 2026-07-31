@@ -16,6 +16,16 @@ type SearchResult =
 const maxResults = 8;
 
 /**
+ * How many links are collected before ranking.
+ *
+ * Engines order by page relevance, not by title match, so a precise query like
+ * "ticket to ride northern lights" can put the wanted edition well below the
+ * generic ones. Ranking has to see a wide pool or the right game is discarded
+ * before it is ever scored.
+ */
+const maxCandidates = 40;
+
+/**
  * Queries one SearXNG category and validates its untrusted JSON response.
  *
  * @param query - The search query.
@@ -146,7 +156,7 @@ export async function searchViaSearxng(
     if (game && !discovered.has(game.bggId)) {
       discovered.set(game.bggId, game);
     }
-    if (discovered.size >= maxResults) {
+    if (discovered.size >= maxCandidates) {
       break;
     }
   }

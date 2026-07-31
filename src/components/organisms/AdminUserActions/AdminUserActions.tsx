@@ -1,7 +1,9 @@
 "use client";
 
 import {
+  Check,
   KeyRound,
+  LoaderCircle,
   ShieldCheck,
   Trash2,
   UserRoundCheck,
@@ -39,16 +41,25 @@ export function AdminUserActions({
   isSelf,
 }: AdminUserActionsProps): ReactNode {
   const t = useTranslations();
-  const [resetLink, setResetLink] = useState("");
+  const [copied, setCopied] = useState(false);
   const [issuing, startIssuing] = useTransition();
 
-  /** Requests a fresh reset link and shows it for the admin to pass along. */
-  function issueResetLink(): void {
+  /**
+   * Issues a reset link and puts it straight on the clipboard.
+   *
+   * The link is a credential, so it is never rendered: it goes to the clipboard
+   * and nowhere else, which also keeps it off any shoulder-surfer's screen.
+   */
+  function copyResetLink(): void {
     const formData = new FormData();
     formData.set("userId", user.id);
     startIssuing(async () => {
       try {
-        setResetLink(await createPasswordResetLinkAction(formData));
+        const link = await createPasswordResetLinkAction(formData);
+        await navigator.clipboard.writeText(link);
+        setCopied(true);
+        toast.success(t("admin.resetCopied"));
+        window.setTimeout(() => setCopied(false), 2_000);
       } catch {
         toast.error(t("admin.resetFailed"));
       }
@@ -64,79 +75,72 @@ export function AdminUserActions({
   }
 
   return (
-    <div className="flex flex-col items-end gap-2">
-      {resetLink ? (
-        <div className="w-full max-w-md rounded-xl border p-2 text-left">
-          <p className="text-muted-foreground mb-1 text-[0.68rem] leading-4">
-            {t("admin.resetHint")}
-          </p>
-          <code className="bg-muted block w-full overflow-x-auto rounded-lg px-2 py-1 text-[0.68rem] break-all">
-            {resetLink}
-          </code>
-        </div>
-      ) : null}
-      <div className="flex justify-end gap-1">
-        <button
-          className="text-muted-foreground hover:bg-muted hover:text-primary rounded-lg p-2 disabled:opacity-50"
-          disabled={issuing}
-          onClick={issueResetLink}
-          title={t("admin.resetPassword")}
-          type="button"
-        >
+    <div className="flex justify-end gap-1">
+      <button
+        aria-label={t("admin.resetPassword")}
+        className={`rounded-lg p-2 transition disabled:opacity-50 ${copied ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-primary"}`}
+        disabled={issuing}
+        onClick={copyResetLink}
+        title={t("admin.resetPassword")}
+        type="button"
+      >
+        {issuing ? (
+          <LoaderCircle className="size-4 animate-spin" />
+        ) : copied ? (
+          <Check className="size-4" />
+        ) : (
           <KeyRound className="size-4" />
-        </button>
-        <form action={updateUserRoleAction}>
-          <input name="userId" type="hidden" value={user.id} />
-          <input
-            name="role"
-            type="hidden"
-            value={user.role === "admin" ? "user" : "admin"}
-          />
-          <button
-            className="text-muted-foreground hover:bg-muted hover:text-primary rounded-lg p-2"
-            title={
-              user.role === "admin"
-                ? t("admin.removeRole")
-                : t("admin.makeAdmin")
-            }
-            type="submit"
-          >
-            <ShieldCheck className="size-4" />
-          </button>
-        </form>
-        <form action={toggleUserBanAction}>
-          <input name="userId" type="hidden" value={user.id} />
-          <input name="banned" type="hidden" value={String(!user.banned)} />
-          <button
-            className="text-muted-foreground hover:bg-muted hover:text-danger rounded-lg p-2"
-            title={user.banned ? t("admin.restore") : t("admin.ban")}
-            type="submit"
-          >
-            {user.banned ? (
-              <UserRoundCheck className="size-4" />
-            ) : (
-              <UserRoundX className="size-4" />
-            )}
-          </button>
-        </form>
-        <ConfirmDialog
-          action={deleteUserAction}
-          cancelLabel={t("common.cancel")}
-          confirmLabel={t("admin.delete")}
-          description={t("admin.deleteBody")}
-          fields={{ userId: user.id }}
-          title={t("admin.deleteTitle", { name: user.name })}
-          trigger={
-            <button
-              className="text-muted-foreground hover:bg-danger/10 hover:text-danger rounded-lg p-2"
-              title={t("admin.delete")}
-              type="button"
-            >
-              <Trash2 className="size-4" />
-            </button>
-          }
+        )}
+      </button>
+      <form action={updateUserRoleAction}>
+        <input name="userId" type="hidden" value={user.id} />
+        <input
+          name="role"
+          type="hidden"
+          value={user.role === "admin" ? "user" : "admin"}
         />
-      </div>
+        <button
+          className="text-muted-foreground hover:bg-muted hover:text-primary rounded-lg p-2"
+          title={
+            user.role === "admin" ? t("admin.removeRole") : t("admin.makeAdmin")
+          }
+          type="submit"
+        >
+          <ShieldCheck className="size-4" />
+        </button>
+      </form>
+      <form action={toggleUserBanAction}>
+        <input name="userId" type="hidden" value={user.id} />
+        <input name="banned" type="hidden" value={String(!user.banned)} />
+        <button
+          className="text-muted-foreground hover:bg-muted hover:text-danger rounded-lg p-2"
+          title={user.banned ? t("admin.restore") : t("admin.ban")}
+          type="submit"
+        >
+          {user.banned ? (
+            <UserRoundCheck className="size-4" />
+          ) : (
+            <UserRoundX className="size-4" />
+          )}
+        </button>
+      </form>
+      <ConfirmDialog
+        action={deleteUserAction}
+        cancelLabel={t("common.cancel")}
+        confirmLabel={t("admin.delete")}
+        description={t("admin.deleteBody")}
+        fields={{ userId: user.id }}
+        title={t("admin.deleteTitle", { name: user.name })}
+        trigger={
+          <button
+            className="text-muted-foreground hover:bg-danger/10 hover:text-danger rounded-lg p-2"
+            title={t("admin.delete")}
+            type="button"
+          >
+            <Trash2 className="size-4" />
+          </button>
+        }
+      />
     </div>
   );
 }
