@@ -2,32 +2,19 @@ import "server-only";
 
 import Fuse from "fuse.js";
 
-import { type GameDiscoveryResult, searxngResponseSchema } from "@/core";
+import { searxngResponseSchema } from "@/core";
 import { env } from "@/env";
+import type { DiscoveredGame } from "@/server/discovery/bggSearch";
 import {
   parseBoardGameImage,
   parseBoardGameResult,
 } from "@/server/discovery/resultParser";
-import { createSelectionToken } from "@/server/discovery/selectionToken";
-import { getWikidataYears } from "@/server/discovery/wikidata";
-import { normalizeSearchText } from "@/utils/search";
-import { TtlCache } from "@/utils/ttlCache";
 
 type SearchResult =
   (typeof searxngResponseSchema)["_output"]["results"][number];
 
-type DiscoveredGame = Omit<GameDiscoveryResult, "selectionToken">;
-
-/** Maximum discovery results enriched and returned to the client. */
+/** Maximum fallback results returned to the caller. */
 const maxResults = 8;
-
-/**
- * Cached unsigned results keyed by normalized query.
- *
- * Selection tokens are excluded and re-signed on read, so a cache hit never
- * hands out a token closer to expiry than a miss.
- */
-const searchCache = new TtlCache<DiscoveredGame[]>(10 * 60_000, 300);
 
 /**
  * Queries one SearXNG category and validates its untrusted JSON response.
@@ -141,18 +128,19 @@ export async function discoverBoardGameImages(
 }
 
 /**
- * Discovers BGG links for a query without requesting or parsing BGG pages.
+ * Finds BGG game links through the configured metasearch service.
+ *
+ * This is the fallback path used only when BoardGameGeek's own search is
+ * unavailable, so it stays deliberately simple: links and titles only, with
+ * artwork and expansion status filled in later from BGG metadata.
  *
  * @param normalizedQuery - The normalized, non-empty search term.
- * @returns The ranked and enriched games, without selection tokens.
+ * @returns The ranked candidates, without artwork.
  */
-async function discoverGames(
+export async function searchViaSearxng(
   normalizedQuery: string,
 ): Promise<DiscoveredGame[]> {
-  const [webResults, imageResults] = await Promise.all([
-    requestResults(normalizedQuery),
-    requestResults(normalizedQuery, "images").catch(() => []),
-  ]);
+  const webResults = await requestResults(normalizedQuery);
   const discovered = new Map<number, DiscoveredGame>();
   for (const result of webResults) {
     const game = parseBoardGameResult(result.title, result.url);
@@ -164,13 +152,6 @@ async function discoverGames(
     }
   }
 
-  const images = new Map<number, string>();
-  for (const result of imageResults) {
-    const image = parseBoardGameImage(result.url, result.img_src);
-    if (image && !images.has(image.bggId)) {
-      images.set(image.bggId, image.imageUrl);
-    }
-  }
   const games = [...discovered.values()];
   const ranked = new Fuse(games, {
     keys: ["name"],
@@ -180,71 +161,5 @@ async function discoverGames(
   })
     .search(normalizedQuery)
     .map((result) => result.item);
-  const orderedGames = (ranked.length > 0 ? ranked : games).slice(
-    0,
-    maxResults,
-  );
-
-  const [fallbackImages, years] = await Promise.all([
-    discoverBoardGameImages(
-      orderedGames
-        .filter((game) => !images.has(game.bggId))
-        .map((game) => ({ bggId: game.bggId, name: game.name })),
-    ).catch(() => new Map<number, string>()),
-    getWikidataYears(orderedGames.map((game) => game.bggId)).catch(
-      () => new Map<number, number>(),
-    ),
-  ]);
-  for (const [bggId, imageUrl] of fallbackImages) {
-    images.set(bggId, imageUrl);
-  }
-
-  return orderedGames.map((game) => ({
-    ...game,
-    imageUrl: images.get(game.bggId) ?? null,
-    yearPublished: game.yearPublished ?? years.get(game.bggId) ?? null,
-  }));
-}
-
-/**
- * Reports whether a result set is worth caching.
- *
- * A non-empty result set in which nothing resolved artwork is the signature of
- * a failed or throttled image lookup rather than a genuine answer, and caching
- * it would keep serving pictureless results long after the cause cleared.
- *
- * @param games - The freshly discovered games.
- * @returns Whether the results may be stored.
- */
-function isCacheable(games: DiscoveredGame[]): boolean {
-  return games.length === 0 || games.some((game) => game.imageUrl !== null);
-}
-
-/**
- * Searches BoardGameGeek games, serving repeated queries from a short cache.
- *
- * @param query - The raw search term.
- * @returns The signed discovery results ready for the client.
- */
-export async function searchBoardGames(
-  query: string,
-): Promise<GameDiscoveryResult[]> {
-  const normalized = normalizeSearchText(query);
-  const normalizedQuery = normalized === "" ? query.trim() : normalized;
-  const cached = searchCache.get(normalizedQuery);
-  const games = cached ?? (await discoverGames(normalizedQuery));
-  if (!cached && isCacheable(games)) {
-    searchCache.set(normalizedQuery, games);
-  }
-
-  return games.map((game) => ({
-    ...game,
-    selectionToken: createSelectionToken({
-      bggId: game.bggId,
-      imageUrl: game.imageUrl,
-      isExpansion: game.isExpansion,
-      name: game.name,
-      yearPublished: game.yearPublished,
-    }),
-  }));
+  return (ranked.length > 0 ? ranked : games).slice(0, maxResults);
 }

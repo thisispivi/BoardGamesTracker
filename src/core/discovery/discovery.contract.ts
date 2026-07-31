@@ -17,14 +17,17 @@ export const searxngResponseSchema = z.object({
     .default([]),
 });
 
-/** Validates the untrusted SPARQL result payload returned by Wikidata. */
-export const wikidataResponseSchema = z.object({
-  results: z.object({
-    bindings: z.array(
+/** Validates the untrusted item payload returned by BoardGameGeek search. */
+export const bggSearchResponseSchema = z.object({
+  items: z
+    .array(
       z.object({
-        bggId: z.object({ value: z.string() }),
-        date: z.object({ value: z.string() }).optional(),
+        href: z.string().max(2_000).nullish(),
+        name: z.string().max(300).nullish(),
+        objectid: z.union([z.string(), z.number()]),
+        objecttype: z.string().max(60).nullish(),
+        yearpublished: z.union([z.string(), z.number()]).nullish(),
       }),
-    ),
-  }),
+    )
+    .default([]),
 });
