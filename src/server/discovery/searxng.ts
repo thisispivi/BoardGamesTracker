@@ -11,19 +11,36 @@ import {
 import { createSelectionToken } from "@/server/discovery/selectionToken";
 import { getWikidataYears } from "@/server/discovery/wikidata";
 import { normalizeSearchText } from "@/utils/search";
+import { TtlCache } from "@/utils/ttlCache";
 
 type SearchResult =
   (typeof searxngResponseSchema)["_output"]["results"][number];
+
+type DiscoveredGame = Omit<GameDiscoveryResult, "selectionToken">;
+
+/** Maximum discovery results enriched and returned to the client. */
+const maxResults = 8;
+
+/**
+ * Cached unsigned results keyed by normalized query.
+ *
+ * Selection tokens are excluded and re-signed on read, so a cache hit never
+ * hands out a token closer to expiry than a miss.
+ */
+const searchCache = new TtlCache<DiscoveredGame[]>(10 * 60_000, 300);
 
 /**
  * Queries one SearXNG category and validates its untrusted JSON response.
  *
  * @param query - The search query.
- * @param category - The 'category' value.
+ * @param category - The optional SearXNG category to restrict results to.
+ * @param timeoutMs - Abort budget for the upstream request.
+ * @returns The validated result list.
  */
 async function requestResults(
   query: string,
   category?: "images",
+  timeoutMs = 10_000,
 ): Promise<SearchResult[]> {
   const endpoint = new URL("/search", env.SEARXNG_URL);
   endpoint.searchParams.set("q", `site:boardgamegeek.com/boardgame ${query}`);
@@ -36,7 +53,7 @@ async function requestResults(
   const response = await fetch(endpoint, {
     headers: { Accept: "application/json" },
     cache: "no-store",
-    signal: AbortSignal.timeout(10_000),
+    signal: AbortSignal.timeout(timeoutMs),
   });
   if (!response.ok) {
     throw new Error(`SearXNG returned ${response.status}.`);
@@ -52,8 +69,8 @@ async function requestResults(
 /**
  * Resolves BGG-hosted artwork for a bounded set of exact game IDs.
  *
- * @param candidates - The 'candidates' value.
- * @returns The documented function result.
+ * @param candidates - The games needing artwork, by ID and name.
+ * @returns Artwork URLs keyed by BoardGameGeek ID.
  */
 export async function discoverBoardGameImages(
   candidates: Array<{ bggId: number; name: string }>,
@@ -126,24 +143,55 @@ export async function discoverBoardGameImages(
 }
 
 /**
- * Discovers BGG game links without requesting or parsing BGG pages.
+ * Looks up artwork for the visible result page in a single parallel round.
  *
- * @param query - The search query.
- * @returns The documented function result.
+ * The batched importer path stays sequential; interactive search trades a few
+ * concurrent local requests for a shorter wait.
+ *
+ * @param candidates - The visible games still missing artwork.
+ * @returns Artwork URLs keyed by BoardGameGeek ID.
  */
-export async function searchBoardGames(
-  query: string,
-): Promise<GameDiscoveryResult[]> {
-  const normalized = normalizeSearchText(query);
-  const normalizedQuery = normalized === "" ? query.trim() : normalized;
+async function discoverVisibleImages(
+  candidates: Array<{ bggId: number; name: string }>,
+): Promise<Map<number, string>> {
+  const images = new Map<number, string>();
+  const responses = await Promise.all(
+    candidates
+      .slice(0, maxResults)
+      .map((game) =>
+        requestResults(`"${game.bggId}" "${game.name}"`, "images", 6_000).catch(
+          () => [],
+        ),
+      ),
+  );
+  for (const [index, results] of responses.entries()) {
+    const candidate = candidates[index];
+    if (!candidate) continue;
+    for (const result of results) {
+      const image = parseBoardGameImage(result.url, result.img_src);
+      if (image?.bggId === candidate.bggId) {
+        images.set(candidate.bggId, image.imageUrl);
+        break;
+      }
+    }
+  }
+  return images;
+}
+
+/**
+ * Discovers BGG links for a query without requesting or parsing BGG pages.
+ *
+ * @param normalizedQuery - The normalized, non-empty search term.
+ * @returns The ranked and enriched games, without selection tokens.
+ */
+async function discoverGames(
+  normalizedQuery: string,
+): Promise<DiscoveredGame[]> {
   const [webResults, imageResults] = await Promise.all([
     requestResults(normalizedQuery),
-    requestResults(normalizedQuery, "images").catch(() => []),
+    requestResults(normalizedQuery, "images", 6_000).catch(() => []),
   ]);
-  const discovered = new Map<
-    number,
-    Omit<GameDiscoveryResult, "selectionToken">
-  >();
+  const discovered = new Map<number, DiscoveredGame>();
   for (const result of webResults) {
     const game = parseBoardGameResult(result.title, result.url);
     if (game && !discovered.has(game.bggId)) {
@@ -170,27 +218,55 @@ export async function searchBoardGames(
   })
     .search(normalizedQuery)
     .map((result) => result.item);
-  const orderedGames = ranked.length > 0 ? ranked : games;
-  const fallbackImages = await discoverBoardGameImages(
-    orderedGames
-      .filter((game) => !images.has(game.bggId))
-      .map((game) => ({ bggId: game.bggId, name: game.name })),
-  ).catch(() => new Map<number, string>());
+  const orderedGames = (ranked.length > 0 ? ranked : games).slice(
+    0,
+    maxResults,
+  );
+
+  const [fallbackImages, years] = await Promise.all([
+    discoverVisibleImages(
+      orderedGames
+        .filter((game) => !images.has(game.bggId))
+        .map((game) => ({ bggId: game.bggId, name: game.name })),
+    ).catch(() => new Map<number, string>()),
+    getWikidataYears(orderedGames.map((game) => game.bggId)).catch(
+      () => new Map<number, number>(),
+    ),
+  ]);
   for (const [bggId, imageUrl] of fallbackImages) {
     images.set(bggId, imageUrl);
   }
-  const years = await getWikidataYears(
-    orderedGames.map((game) => game.bggId),
-  ).catch(() => new Map<number, number>());
-  return orderedGames.map((game) => {
-    const enriched = {
-      ...game,
-      imageUrl: images.get(game.bggId) ?? null,
-      yearPublished: game.yearPublished ?? years.get(game.bggId) ?? null,
-    };
-    return {
-      ...enriched,
-      selectionToken: createSelectionToken(enriched),
-    };
-  });
+
+  return orderedGames.map((game) => ({
+    ...game,
+    imageUrl: images.get(game.bggId) ?? null,
+    yearPublished: game.yearPublished ?? years.get(game.bggId) ?? null,
+  }));
+}
+
+/**
+ * Searches BoardGameGeek games, serving repeated queries from a short cache.
+ *
+ * @param query - The raw search term.
+ * @returns The signed discovery results ready for the client.
+ */
+export async function searchBoardGames(
+  query: string,
+): Promise<GameDiscoveryResult[]> {
+  const normalized = normalizeSearchText(query);
+  const normalizedQuery = normalized === "" ? query.trim() : normalized;
+  const games =
+    searchCache.get(normalizedQuery) ??
+    searchCache.set(normalizedQuery, await discoverGames(normalizedQuery));
+
+  return games.map((game) => ({
+    ...game,
+    selectionToken: createSelectionToken({
+      bggId: game.bggId,
+      imageUrl: game.imageUrl,
+      isExpansion: game.isExpansion,
+      name: game.name,
+      yearPublished: game.yearPublished,
+    }),
+  }));
 }
