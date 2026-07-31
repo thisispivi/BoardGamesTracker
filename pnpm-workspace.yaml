@@ -4,9 +4,13 @@ allowBuilds:
   esbuild: true
   sharp: true
   unrs-resolver: true
-# ExcelJS currently pins a legacy glob stack whose only compatible fix has not
-# been released upstream. This narrowly scoped exception keeps every other
-# moderate-or-higher vulnerability blocking CI.
+# GHSA-mh99-v99m-4gvg is fixed in the tree by the brace-expansion override
+# below: 1.1.18 is the maintainers' backport of the 5.0.8 fix and contains the
+# EXPANSION_MAX_LENGTH bound. The advisory records only ">=5.0.8" as patched,
+# so `pnpm audit` still flags the 1.x line on version comparison alone.
+# brace-expansion 5.x cannot be used here: it exports a named `expand` instead
+# of a callable module, which breaks the minimatch@3 stack ExcelJS depends on.
+# Drop this exception once ExcelJS ships a modern glob stack.
 auditConfig:
   ignoreGhsas:
     - GHSA-mh99-v99m-4gvg
@@ -33,7 +37,13 @@ minimumReleaseAgeExclude:
   # the vetted release proceed without weakening the policy generally.
   - "@testing-library/jest-dom@7.0.0"
   - lint-staged@17.1.0
+  # Security fix for GHSA-mh99-v99m-4gvg (CVE-2026-14257); see overrides below.
+  - brace-expansion@1.1.18
 overrides:
+  # Backported fix for GHSA-mh99-v99m-4gvg. The legacy minimatch@3 stack pulled
+  # in by ExcelJS and ESLint still requires the 1.x line, so pin the patched
+  # 1.x release instead of ignoring the advisory.
+  brace-expansion: 1.1.18
   exceljs>uuid: 11.1.1
   esbuild: 0.28.1
   postcss: 8.5.19
