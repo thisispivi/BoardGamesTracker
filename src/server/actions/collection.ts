@@ -83,7 +83,10 @@ async function upsertGame(
     maxPlaytime: metadata?.maxPlaytime ?? details.maxPlaytime,
     weight: metadata?.weight ?? details.weight,
     bggRating: metadata?.bggRating ?? null,
-    isExpansion: metadata?.isExpansion ?? hasExpansionCategory(categories),
+    isExpansion:
+      (metadata?.isExpansion ?? false) ||
+      selection.isExpansion ||
+      hasExpansionCategory(categories),
     categories: metadata?.categories.length ? metadata.categories : categories,
     mechanics: metadata?.mechanics.length ? metadata.mechanics : mechanics,
     families: metadata?.families.length ? metadata.families : families,

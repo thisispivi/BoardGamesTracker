@@ -3,6 +3,7 @@ export type GameDiscoveryResult = {
   bggId: number;
   bggUrl: string;
   imageUrl: string | null;
+  isExpansion: boolean;
   name: string;
   selectionToken: string;
   yearPublished: number | null;
@@ -12,6 +13,7 @@ export type GameDiscoveryResult = {
 export type GameSelection = {
   bggId: number;
   imageUrl: string | null;
+  isExpansion: boolean;
   name: string;
   yearPublished: number | null;
 };
