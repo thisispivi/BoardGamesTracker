@@ -184,6 +184,7 @@ type GameCardProps = {
   eager?: boolean;
   expansions?: CollectionGame[];
   game: CollectionGame;
+  readOnly?: boolean;
 };
 
 /**
@@ -195,6 +196,7 @@ type GameCardProps = {
  * @param root0.eager - The 'eager' property.
  * @param root0.expansions - The 'expansions' property.
  * @param root0.game - The 'game' property.
+ * @param root0.readOnly - The 'readOnly' property.
  * @returns The documented function result.
  */
 export function GameCard({
@@ -203,6 +205,7 @@ export function GameCard({
   eager = false,
   expansions = [],
   game,
+  readOnly = false,
 }: GameCardProps): ReactNode {
   const formatDuration = useDurationFormatter();
   const format = useFormatter();
@@ -218,10 +221,12 @@ export function GameCard({
             <CollectionCost currency={currency} game={game} />
           </p>
         </div>
-        <div className="flex shrink-0 items-center gap-0.5">
-          <EditGameDialog currency={currency} game={game} />
-          <RemoveControl game={game} />
-        </div>
+        {readOnly ? null : (
+          <div className="flex shrink-0 items-center gap-0.5">
+            <EditGameDialog currency={currency} game={game} />
+            <RemoveControl game={game} />
+          </div>
+        )}
       </article>
     );
   }
@@ -230,9 +235,11 @@ export function GameCard({
     <article className="group bg-card shadow-soft overflow-hidden rounded-3xl border p-3 transition duration-300 hover:-translate-y-1">
       <div className="relative">
         <ArtworkLink eager={eager} game={game} />
-        <div className="absolute top-3 right-3">
-          <FavoriteControl game={game} />
-        </div>
+        {readOnly ? null : (
+          <div className="absolute top-3 right-3">
+            <FavoriteControl game={game} />
+          </div>
+        )}
       </div>
       <div className="px-1 pt-4">
         <div className="flex items-start justify-between gap-3">
@@ -269,10 +276,12 @@ export function GameCard({
               </span>
             </span>
           </div>
-          <div className="ml-2 flex shrink-0 items-center gap-0.5">
-            <EditGameDialog currency={currency} game={game} />
-            <RemoveControl game={game} />
-          </div>
+          {readOnly ? null : (
+            <div className="ml-2 flex shrink-0 items-center gap-0.5">
+              <EditGameDialog currency={currency} game={game} />
+              <RemoveControl game={game} />
+            </div>
+          )}
         </div>
         {expansions.length > 0 ? (
           <section className="mt-4 border-t pt-3">
@@ -287,6 +296,7 @@ export function GameCard({
                   currency={currency}
                   game={expansion}
                   key={expansion.id}
+                  readOnly={readOnly}
                 />
               ))}
             </div>

@@ -13,8 +13,28 @@ import { Button } from "@/components/atoms/Button/Button";
 import { GiftedPriceField } from "@/components/molecules/GiftedPriceField/GiftedPriceField";
 import type { CollectionActionState, GameDiscoveryResult } from "@/core";
 import { addGameAction } from "@/server/actions/collection";
+import { normalizeSearchText } from "@/utils/search";
+import { TtlCache } from "@/utils/ttlCache";
 
 const initialState: CollectionActionState = { success: false, message: "" };
+
+/**
+ * Client-side results cache shared by every dialog instance in the tab.
+ *
+ * Selection tokens stay valid for an hour, so a ten-minute lifetime keeps
+ * repeated searches instant while never serving a token that cannot be saved.
+ */
+const resultCache = new TtlCache<GameDiscoveryResult[]>(10 * 60_000, 50);
+
+/**
+ * Builds the cache key for a search term, matching server-side normalization.
+ *
+ * @param term - The trimmed search term typed by the user.
+ * @returns A stable key that ignores case, accents, and filler words.
+ */
+function cacheKey(term: string): string {
+  return normalizeSearchText(term) || term.toLowerCase();
+}
 
 type AddGameDialogProps = {
   currency: string;
@@ -43,6 +63,9 @@ export function AddGameDialog({
   const [searchError, setSearchError] = useState<string | null>(null);
   const [state, action, adding] = useActionState(addGameAction, initialState);
   const router = useRouter();
+  const term = query.trim();
+  const cached = term.length < 3 ? undefined : resultCache.get(cacheKey(term));
+  const visibleResults = cached ?? results;
 
   /**
    * Resets ephemeral search state whenever the dialog is dismissed.
@@ -86,8 +109,7 @@ export function AddGameDialog({
   }, [router, state]);
 
   useEffect(() => {
-    const term = query.trim();
-    if (!open || selected || term.length < 3) {
+    if (!open || selected || term.length < 3 || cached) {
       return;
     }
 
@@ -107,7 +129,9 @@ export function AddGameDialog({
             setResults([]);
             return;
           }
-          setResults(payload.results ?? []);
+          const found = payload.results ?? [];
+          resultCache.set(cacheKey(term), found);
+          setResults(found);
         })
         .catch((error: unknown) => {
           if (error instanceof DOMException && error.name === "AbortError") {
@@ -128,7 +152,7 @@ export function AddGameDialog({
       window.clearTimeout(timeout);
       controller.abort();
     };
-  }, [open, query, selected]);
+  }, [cached, open, selected, term]);
 
   return (
     <Dialog.Root onOpenChange={changeOpen} open={open}>
@@ -197,7 +221,7 @@ export function AddGameDialog({
                 </label>
 
                 <div aria-live="polite" className="mt-5 space-y-2">
-                  {results.map((result) => (
+                  {visibleResults.map((result) => (
                     <button
                       className="hover:bg-muted/60 focus:ring-primary/20 flex w-full items-center gap-4 rounded-2xl border p-3 text-left transition focus:ring-4 focus:outline-none"
                       key={result.bggId}
@@ -221,9 +245,16 @@ export function AddGameDialog({
                       </span>
                       <div className="min-w-0">
                         <p className="truncate font-bold">{result.name}</p>
-                        <p className="text-muted-foreground mt-1 text-xs">
-                          {result.yearPublished ?? t("common.yearUnknown")} ·
-                          BGG #{result.bggId}
+                        <p className="text-muted-foreground mt-1 flex items-center gap-2 text-xs">
+                          <span>
+                            {result.yearPublished ?? t("common.yearUnknown")} ·
+                            BGG #{result.bggId}
+                          </span>
+                          {result.isExpansion ? (
+                            <span className="bg-accent/15 text-accent rounded-full px-2 py-0.5 font-bold">
+                              {t("common.expansion")}
+                            </span>
+                          ) : null}
                         </p>
                       </div>
                       <span className="text-primary ml-auto shrink-0 text-xs font-bold">
@@ -240,8 +271,8 @@ export function AddGameDialog({
                   ) : null}
                   {!searching &&
                   !searchError &&
-                  hasSearched &&
-                  results.length === 0 ? (
+                  (hasSearched || cached !== undefined) &&
+                  visibleResults.length === 0 ? (
                     <p className="text-muted-foreground py-8 text-center text-sm">
                       {t("add.resultsHint")}
                     </p>

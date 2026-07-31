@@ -57,6 +57,7 @@ export function verifySelectionToken(token: string): GameSelection | null {
     return {
       bggId: decoded.data.bggId,
       imageUrl: decoded.data.imageUrl,
+      isExpansion: decoded.data.isExpansion,
       name: decoded.data.name,
       yearPublished: decoded.data.yearPublished,
     };

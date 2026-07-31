@@ -8,6 +8,6 @@ Thank you for improving Board Games Tracker.
 4. Run `pnpm check` and `pnpm build`.
 5. Describe user impact, schema changes, screenshots, and security considerations in the pull request.
 
-Use strict TypeScript, keep shared typings and Zod contracts in `src/core/`, validate data at trust boundaries, and keep database authorization in the same query as the mutation. Components follow the Atomic Design folders under `src/components/` and use direct component-file imports. Add a concise JSDoc summary to exported functions and components. Do not put implementation comments at the end of code lines.
+Read [`CODING_STYLE.md`](CODING_STYLE.md) before your first change. It is the authoritative style guide and covers naming, file layout, mandatory JSDoc, typing rules, i18n, data contracts, security boundaries, and tests. The same file is wired into the Claude, Codex, and GitHub Copilot configurations, so assistants working in this repository follow it too.
 
 Schema changes require a generated and reviewed migration. Never commit secrets, local environment files, database dumps, or user data.

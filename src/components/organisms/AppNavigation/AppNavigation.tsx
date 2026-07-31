@@ -9,6 +9,7 @@ import {
   House,
   Menu,
   Settings,
+  Share2,
   Shield,
   X,
 } from "lucide-react";
@@ -51,6 +52,7 @@ export function AppNavigation({
     { href: "/wishlist", label: t("navigation.wishlist"), icon: Heart },
     { href: "/play", label: t("navigation.play"), icon: Dices },
     { href: "/stats", label: t("navigation.stats"), icon: ChartNoAxesCombined },
+    { href: "/share", label: t("navigation.share"), icon: Share2 },
     { href: "/settings", label: t("navigation.settings"), icon: Settings },
     ...(isAdmin
       ? [{ href: "/admin", label: t("navigation.admin"), icon: Shield }]

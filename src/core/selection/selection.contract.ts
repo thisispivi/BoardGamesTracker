@@ -7,6 +7,7 @@ export const selectionSchema = z.object({
   bggId: z.number().int().positive().max(10_000_000),
   expiresAt: z.number().int().positive(),
   imageUrl: bggImageUrlSchema.nullable(),
+  isExpansion: z.boolean().default(false),
   name: z.string().trim().min(1).max(160),
   yearPublished: z.number().int().min(1800).max(2200).nullable(),
 });

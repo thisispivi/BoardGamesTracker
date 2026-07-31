@@ -13,19 +13,71 @@ describe("BoardGameGeek URL parsing", () => {
     ).toEqual({
       bggId: 266192,
       bggUrl: "https://boardgamegeek.com/boardgame/266192",
+      isExpansion: false,
     });
     expect(
       parseBoardGameUrl("https://www.boardgamegeek.com/boardgame/13"),
     ).toEqual({
       bggId: 13,
       bggUrl: "https://boardgamegeek.com/boardgame/13",
+      isExpansion: false,
+    });
+  });
+
+  it("rebuilds a canonical URL from deep sub-paths, queries, and fragments", () => {
+    expect(
+      parseBoardGameUrl(
+        "https://boardgamegeek.com/boardgame/172225/exploding-kittens/marketplace/boardgameexpansions",
+      ),
+    ).toEqual({
+      bggId: 172225,
+      bggUrl: "https://boardgamegeek.com/boardgame/172225",
+      isExpansion: false,
+    });
+    expect(
+      parseBoardGameUrl(
+        "  http://www.boardgamegeek.com/boardgame/13/catan?sort=hot#comments  ",
+      ),
+    ).toEqual({
+      bggId: 13,
+      bggUrl: "https://boardgamegeek.com/boardgame/13",
+      isExpansion: false,
+    });
+    expect(parseBoardGameUrl("boardgamegeek.com/boardgame/13")).toEqual({
+      bggId: 13,
+      bggUrl: "https://boardgamegeek.com/boardgame/13",
+      isExpansion: false,
+    });
+  });
+
+  it("marks expansion and accessory sections as expansions", () => {
+    expect(
+      parseBoardGameUrl(
+        "https://boardgamegeek.com/boardgameexpansion/260214/exploding-kittens-streaking-kittens",
+      ),
+    ).toEqual({
+      bggId: 260214,
+      bggUrl: "https://boardgamegeek.com/boardgameexpansion/260214",
+      isExpansion: true,
+    });
+    expect(
+      parseBoardGameUrl("https://boardgamegeek.com/boardgameaccessory/22551"),
+    ).toEqual({
+      bggId: 22551,
+      bggUrl: "https://boardgamegeek.com/boardgameaccessory/22551",
+      isExpansion: true,
     });
   });
 
   it.each([
-    "http://boardgamegeek.com/boardgame/13",
     "https://example.com/boardgame/13",
+    "https://boardgamegeek.com.example.org/boardgame/13",
     "https://boardgamegeek.com/thread/13",
+    "https://boardgamegeek.com/user/example",
+    "https://boardgamegeek.com/boardgame/0",
+    "https://boardgamegeek.com/boardgame/10000001",
+    "javascript:alert(1)//boardgamegeek.com/boardgame/13",
+    "",
   ])("rejects untrusted or non-game URLs: %s", (url) => {
     expect(parseBoardGameUrl(url)).toBeNull();
   });
@@ -43,8 +95,26 @@ describe("parseBoardGameResult", () => {
       bggId: 266192,
       bggUrl: "https://boardgamegeek.com/boardgame/266192",
       imageUrl: null,
+      isExpansion: false,
       name: "Wingspan",
       yearPublished: 2019,
+    });
+  });
+
+  /** Surfaces expansions from metasearch so they can be saved like games. */
+  it("parses an expansion result", () => {
+    expect(
+      parseBoardGameResult(
+        "Exploding Kittens: Streaking Kittens (2018) | BoardGameGeek",
+        "https://boardgamegeek.com/boardgameexpansion/260214/exploding-kittens-streaking-kittens",
+      ),
+    ).toEqual({
+      bggId: 260214,
+      bggUrl: "https://boardgamegeek.com/boardgameexpansion/260214",
+      imageUrl: null,
+      isExpansion: true,
+      name: "Exploding Kittens: Streaking Kittens",
+      yearPublished: 2018,
     });
   });
 

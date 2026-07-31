@@ -7,7 +7,8 @@
     "stats": "Stats",
     "settings": "Settings",
     "admin": "Admin",
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "share": "Shared"
   },
   "app": {
     "description": "Your self-hosted board-game shelf and game-night picker."
@@ -232,6 +233,27 @@
     "libraryItems": "Items",
     "libraryFavorites": "Favorites",
     "libraryGifts": "Gifts"
+  },
+  "sharing": {
+    "metaTitle": "Shared collections",
+    "eyebrow": "Sharing",
+    "title": "Share your collection",
+    "body": "Publish your shelf to other members of this instance. Nothing is shared until you turn it on.",
+    "shareCollection": "Share my collection",
+    "shareCollectionHelp": "Signed-in members can browse your owned games. Your wishlist and notes stay private.",
+    "sharePrices": "Include prices",
+    "sharePricesHelp": "Show what you paid and which games were gifts. Off by default.",
+    "updated": "Sharing preferences saved",
+    "copy": "Copy link",
+    "copied": "Copied",
+    "copyFailed": "The link could not be copied",
+    "browse": "Browse shared collections",
+    "directoryTitle": "Shared collections",
+    "directoryBody": "Collections other members have chosen to share.",
+    "ownerTitle": "{name}'s collection",
+    "backToDirectory": "All shared",
+    "emptyTitle": "Nothing shared yet",
+    "emptyBody": "When another member shares their collection it will show up here."
   },
   "wishlist": {
     "metaTitle": "Wishlist",
