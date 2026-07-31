@@ -39,7 +39,7 @@ describe("AddGameDialog", () => {
     expect(fetchMock).not.toHaveBeenCalled();
 
     fireEvent.change(input, { target: { value: "Win" } });
-    act(() => vi.advanceTimersByTime(349));
+    act(() => vi.advanceTimersByTime(249));
     expect(fetchMock).not.toHaveBeenCalled();
     act(() => vi.advanceTimersByTime(1));
     expect(fetchMock).toHaveBeenCalledOnce();

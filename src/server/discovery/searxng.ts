@@ -2,9 +2,8 @@ import "server-only";
 
 import Fuse from "fuse.js";
 
-import { searxngResponseSchema } from "@/core";
+import { type DiscoveredGame, searxngResponseSchema } from "@/core";
 import { env } from "@/env";
-import type { DiscoveredGame } from "@/server/discovery/bggSearch";
 import {
   parseBoardGameImage,
   parseBoardGameResult,
@@ -13,7 +12,7 @@ import {
 type SearchResult =
   (typeof searxngResponseSchema)["_output"]["results"][number];
 
-/** Maximum fallback results returned to the caller. */
+/** Maximum results returned to the caller. */
 const maxResults = 8;
 
 /**
@@ -130,9 +129,9 @@ export async function discoverBoardGameImages(
 /**
  * Finds BGG game links through the configured metasearch service.
  *
- * This is the fallback path used only when BoardGameGeek's own search is
- * unavailable, so it stays deliberately simple: links and titles only, with
- * artwork and expansion status filled in later from BGG metadata.
+ * One request, links and titles only. Artwork and expansion status are filled
+ * in afterwards from BoardGameGeek item data, so no image query is issued here
+ * and the response is never held open by the slow image engines.
  *
  * @param normalizedQuery - The normalized, non-empty search term.
  * @returns The ranked candidates, without artwork.
@@ -147,7 +146,7 @@ export async function searchViaSearxng(
     if (game && !discovered.has(game.bggId)) {
       discovered.set(game.bggId, game);
     }
-    if (discovered.size >= 12) {
+    if (discovered.size >= maxResults) {
       break;
     }
   }

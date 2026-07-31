@@ -148,7 +148,7 @@ export function AddGameDialog({
             setHasSearched(true);
           }
         });
-    }, 350);
+    }, 250);
 
     return () => {
       window.clearTimeout(timeout);

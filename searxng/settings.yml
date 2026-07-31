@@ -9,8 +9,18 @@ search:
   formats:
     - html
     - json
+  # Discovery is interactive, so return whatever answered quickly instead of
+  # waiting on the slowest engine. Engines that miss the window are dropped.
+  max_request_timeout: 4.0
 
 server:
   bind_address: 0.0.0.0
   limiter: false
   image_proxy: false
+
+outgoing:
+  request_timeout: 2.5
+  max_request_timeout: 4.0
+  pool_connections: 100
+  pool_maxsize: 20
+  enable_http2: true

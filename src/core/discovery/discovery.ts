@@ -9,6 +9,9 @@ export type GameDiscoveryResult = {
   yearPublished: number | null;
 };
 
+/** A discovery candidate before artwork and metadata enrichment. */
+export type DiscoveredGame = Omit<GameDiscoveryResult, "selectionToken">;
+
 /** Trusted identity decoded from a signed discovery result. */
 export type GameSelection = {
   bggId: number;

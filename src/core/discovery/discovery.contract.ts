@@ -16,18 +16,3 @@ export const searxngResponseSchema = z.object({
     )
     .default([]),
 });
-
-/** Validates the untrusted item payload returned by BoardGameGeek search. */
-export const bggSearchResponseSchema = z.object({
-  items: z
-    .array(
-      z.object({
-        href: z.string().max(2_000).nullish(),
-        name: z.string().max(300).nullish(),
-        objectid: z.union([z.string(), z.number()]),
-        objecttype: z.string().max(60).nullish(),
-        yearpublished: z.union([z.string(), z.number()]).nullish(),
-      }),
-    )
-    .default([]),
-});

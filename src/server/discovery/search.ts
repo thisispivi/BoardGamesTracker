@@ -1,11 +1,7 @@
 import "server-only";
 
-import type { GameDiscoveryResult } from "@/core";
+import type { DiscoveredGame, GameDiscoveryResult } from "@/core";
 import { scrapeBggMetadata } from "@/server/bgg/scrape";
-import {
-  type DiscoveredGame,
-  searchBggGames,
-} from "@/server/discovery/bggSearch";
 import {
   discoverBoardGameImages,
   searchViaSearxng,
@@ -22,44 +18,44 @@ import { TtlCache } from "@/utils/ttlCache";
  */
 const searchCache = new TtlCache<DiscoveredGame[]>(10 * 60_000, 300);
 
-/** How long BoardGameGeek search is skipped after it refuses a request. */
-const bggCooldownMs = 5 * 60_000;
-
-let bggUnavailableUntil = 0;
+/** Time allowed for artwork enrichment before results are sent as they are. */
+const enrichmentBudgetMs = 4_000;
 
 /**
- * Finds candidates on BoardGameGeek, falling back to metasearch when it fails.
+ * Resolves a slower enrichment step, or gives up and returns a fallback.
  *
- * BoardGameGeek sits behind bot protection that answers a challenge instead of
- * results once a client asks too often, and it keeps refusing for a while.
- * Retrying on every keystroke would only extend that, so a refusal parks the
- * BoardGameGeek path for a cooldown and searches go straight to metasearch.
+ * Enrichment only decorates results that are already usable, so a slow upstream
+ * must never hold the whole search open.
  *
- * @param normalizedQuery - The normalized, non-empty search term.
- * @returns The unenriched candidates from whichever source answered.
+ * @param work - The enrichment promise.
+ * @param fallback - The value to use when the budget elapses.
+ * @returns Whichever settles first.
  */
-async function findCandidates(
-  normalizedQuery: string,
-): Promise<DiscoveredGame[]> {
-  if (Date.now() >= bggUnavailableUntil) {
-    const fromBgg = await searchBggGames(normalizedQuery).catch(() => {
-      bggUnavailableUntil = Date.now() + bggCooldownMs;
-      return [];
-    });
-    if (fromBgg.length > 0) {
-      return fromBgg;
-    }
+async function withBudget<TValue>(
+  work: Promise<TValue>,
+  fallback: TValue,
+): Promise<TValue> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      work,
+      new Promise<TValue>((resolve) => {
+        timer = setTimeout(() => resolve(fallback), enrichmentBudgetMs);
+      }),
+    ]);
+  } finally {
+    clearTimeout(timer);
   }
-  return searchViaSearxng(normalizedQuery);
 }
 
 /**
- * Enriches candidates with BoardGameGeek artwork, years, and expansion status.
+ * Adds artwork, publication years, and expansion status to search candidates.
  *
- * Artwork comes from BGG itself, so it resolves for any game with a cover.
- * Metasearch is consulted only for the few candidates BGG could not answer for.
+ * BoardGameGeek's own item data is the artwork source because it always has a
+ * cover for games that have one, unlike an image index. Metasearch images are
+ * consulted only for whatever it could not answer.
  *
- * @param candidates - The unenriched candidates.
+ * @param candidates - The ranked candidates from metasearch.
  * @returns The enriched games, in their original ranking order.
  */
 async function enrichCandidates(
@@ -69,15 +65,18 @@ async function enrichCandidates(
     return [];
   }
 
-  const metadata = await scrapeBggMetadata(
-    candidates.map((game) => game.bggId),
-  ).catch(() => new Map());
+  const metadata = await withBudget(
+    scrapeBggMetadata(candidates.map((game) => game.bggId)).catch(
+      () => new Map(),
+    ),
+    new Map(),
+  );
   const enriched = candidates.map((game) => {
     const details = metadata.get(game.bggId);
     return {
       ...game,
       imageUrl: details?.imageUrl ?? game.imageUrl,
-      isExpansion: details?.isExpansion ?? game.isExpansion,
+      isExpansion: details?.isExpansion || game.isExpansion,
       name: details?.name ?? game.name,
       yearPublished: game.yearPublished ?? details?.yearPublished ?? null,
     };
@@ -88,9 +87,12 @@ async function enrichCandidates(
     return enriched;
   }
 
-  const fallbackImages = await discoverBoardGameImages(
-    missing.map((game) => ({ bggId: game.bggId, name: game.name })),
-  ).catch(() => new Map<number, string>());
+  const fallbackImages = await withBudget(
+    discoverBoardGameImages(
+      missing.map((game) => ({ bggId: game.bggId, name: game.name })),
+    ).catch(() => new Map<number, string>()),
+    new Map<number, string>(),
+  );
   return enriched.map((game) => ({
     ...game,
     imageUrl: game.imageUrl ?? fallbackImages.get(game.bggId) ?? null,
@@ -124,7 +126,7 @@ export async function searchBoardGames(
   const normalizedQuery = normalized === "" ? query.trim() : normalized;
   const cached = searchCache.get(normalizedQuery);
   const games =
-    cached ?? (await enrichCandidates(await findCandidates(normalizedQuery)));
+    cached ?? (await enrichCandidates(await searchViaSearxng(normalizedQuery)));
   if (!cached && isCacheable(games)) {
     searchCache.set(normalizedQuery, games);
   }
