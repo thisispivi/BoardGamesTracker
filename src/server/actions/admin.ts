@@ -10,8 +10,10 @@ import {
   roleSchema,
   userIdSchema,
 } from "@/core";
+import { env } from "@/env";
 import { getAuditLogPage } from "@/server/admin/auditLogs";
 import { writeAuditEvent } from "@/server/audit";
+import { createPasswordResetToken } from "@/server/auth/passwordReset";
 import { db } from "@/server/db";
 import { session, user } from "@/server/db/schema";
 import { requireAdmin } from "@/server/session";
@@ -135,4 +137,38 @@ export async function deleteUserAction(formData: FormData): Promise<void> {
     targetId,
   });
   revalidatePath("/admin");
+}
+
+/**
+ * Issues a one-time password-reset link for a user who is locked out.
+ *
+ * The link is returned to the administrator to deliver out of band, because a
+ * self-hosted instance is not assumed to have a working mail server. It stops
+ * working once it is used or after an hour, whichever comes first.
+ *
+ * @param formData - The submitted form data.
+ * @returns The reset link to hand to the account owner.
+ */
+export async function createPasswordResetLinkAction(
+  formData: FormData,
+): Promise<string> {
+  const session = await requireAdmin();
+  const userId = userIdSchema.parse(formData.get("userId"));
+  const [target] = await db
+    .select({ id: user.id })
+    .from(user)
+    .where(eq(user.id, userId))
+    .limit(1);
+  if (!target) {
+    throw new Error("The account no longer exists.");
+  }
+
+  const token = await createPasswordResetToken(target.id);
+  await writeAuditEvent({
+    actorId: session.user.id,
+    action: "admin.password_reset_issued",
+    targetType: "user",
+    targetId: target.id,
+  });
+  return `${env.NEXT_PUBLIC_APP_URL}/reset-password/${token}`;
 }

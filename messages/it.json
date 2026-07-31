@@ -33,6 +33,19 @@
     "haveAccount": "Hai già un account?",
     "failure": "Autenticazione non riuscita. Riprova."
   },
+  "reset": {
+    "metaTitle": "Reimposta password",
+    "eyebrow": "Recupero account",
+    "title": "Scegli una nuova password",
+    "body": "Questo link è stato generato da un amministratore. Impostando una nuova password verrai disconnesso da ogni altro dispositivo.",
+    "newPassword": "Nuova password",
+    "submit": "Imposta la nuova password",
+    "done": "Password aggiornata. Ora puoi accedere.",
+    "invalid": "Questo link non è più valido. Chiedi un nuovo link a un amministratore.",
+    "expired": "Questo link è scaduto o è già stato usato. Chiedi un nuovo link a un amministratore.",
+    "tooMany": "Troppi tentativi. Riprova più tardi.",
+    "backToLogin": "Torna all'accesso"
+  },
   "common": {
     "cancel": "Annulla",
     "close": "Chiudi",
@@ -363,7 +376,10 @@
     "loading": "Caricamento eventi di audit…",
     "loadError": "Impossibile caricare gli eventi di audit.",
     "previous": "Precedente",
-    "next": "Successiva"
+    "next": "Successiva",
+    "resetPassword": "Genera link di reimpostazione password",
+    "resetHint": "Invia questo link monouso al proprietario dell'account. Scade dopo un'ora e smette di funzionare una volta usato.",
+    "resetFailed": "Non è stato possibile creare il link di reimpostazione"
   },
   "error": {
     "eyebrow": "Mossa imprevista",

@@ -33,6 +33,19 @@
     "haveAccount": "Already have an account?",
     "failure": "Authentication failed. Please try again."
   },
+  "reset": {
+    "metaTitle": "Reset password",
+    "eyebrow": "Account recovery",
+    "title": "Choose a new password",
+    "body": "This link was issued by an administrator. Setting a new password signs you out everywhere else.",
+    "newPassword": "New password",
+    "submit": "Set new password",
+    "done": "Password updated. You can sign in now.",
+    "invalid": "This link is no longer valid. Ask an administrator for a new one.",
+    "expired": "This link has expired or has already been used. Ask an administrator for a new one.",
+    "tooMany": "Too many attempts. Try again later.",
+    "backToLogin": "Back to sign in"
+  },
   "common": {
     "cancel": "Cancel",
     "close": "Close",
@@ -363,7 +376,10 @@
     "loading": "Loading audit events…",
     "loadError": "The audit events could not be loaded.",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "resetPassword": "Issue password reset link",
+    "resetHint": "Send this one-time link to the account owner. It expires in one hour and stops working once used.",
+    "resetFailed": "The reset link could not be created"
   },
   "error": {
     "eyebrow": "Unexpected move",
