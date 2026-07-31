@@ -4,9 +4,11 @@ import type { Metadata } from "next";
 import { getFormatter, getTranslations } from "next-intl/server";
 
 import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
+import { AdminGamesPanel } from "@/components/organisms/AdminGamesPanel/AdminGamesPanel";
 import { AdminUserActions } from "@/components/organisms/AdminUserActions/AdminUserActions";
 import { AuditLogPanel } from "@/components/organisms/AuditLogPanel/AuditLogPanel";
 import { getAuditLogPage } from "@/server/admin/auditLogs";
+import { listAdminGames } from "@/server/admin/games";
 import { db } from "@/server/db";
 import { collectionItems, user } from "@/server/db/schema";
 import { requireAdmin } from "@/server/session";
@@ -32,8 +34,8 @@ export default async function AdminPage() {
     getTranslations(),
     getFormatter(),
   ]);
-  const [usersList, userCount, gameCount, initialAuditPage] = await Promise.all(
-    [
+  const [usersList, userCount, gameCount, initialAuditPage, allGames] =
+    await Promise.all([
       db
         .select({
           id: user.id,
@@ -49,8 +51,8 @@ export default async function AdminPage() {
       db.select({ value: count() }).from(user),
       db.select({ value: count() }).from(collectionItems),
       getAuditLogPage(1),
-    ],
-  );
+      listAdminGames(),
+    ]);
 
   return (
     <>
@@ -146,6 +148,21 @@ export default async function AdminPage() {
             </tbody>
           </table>
         </div>
+      </section>
+
+      <section className="bg-card shadow-soft mb-6 rounded-3xl border p-6 sm:p-8">
+        <div className="mb-6">
+          <p className="text-primary text-xs font-bold tracking-widest uppercase">
+            {t("adminGames.eyebrow")}
+          </p>
+          <h2 className="font-display mt-1 text-xl font-bold">
+            {t("adminGames.title")}
+          </h2>
+          <p className="text-muted-foreground mt-1 text-sm leading-6">
+            {t("adminGames.body")}
+          </p>
+        </div>
+        <AdminGamesPanel games={allGames} />
       </section>
 
       <section className="bg-card shadow-soft rounded-3xl border p-6 sm:p-8">

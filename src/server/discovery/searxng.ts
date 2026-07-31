@@ -30,14 +30,21 @@ const maxCandidates = 40;
  *
  * @param query - The search query.
  * @param category - The optional SearXNG category to restrict results to.
+ * @param unrestricted - Whether to drop the site operator for wider recall.
  * @returns The validated result list.
  */
 async function requestResults(
   query: string,
   category?: "images",
+  unrestricted = false,
 ): Promise<SearchResult[]> {
   const endpoint = new URL("/search", env.SEARXNG_URL);
-  endpoint.searchParams.set("q", `site:boardgamegeek.com/boardgame ${query}`);
+  endpoint.searchParams.set(
+    "q",
+    unrestricted
+      ? `boardgamegeek ${query}`
+      : `site:boardgamegeek.com/boardgame ${query}`,
+  );
   endpoint.searchParams.set("format", "json");
   endpoint.searchParams.set("safesearch", "1");
   if (category) {
@@ -149,16 +156,29 @@ export async function discoverBoardGameImages(
 export async function searchViaSearxng(
   normalizedQuery: string,
 ): Promise<DiscoveredGame[]> {
-  const webResults = await requestResults(normalizedQuery);
+  const collect = (
+    results: SearchResult[],
+    into: Map<number, DiscoveredGame>,
+  ) => {
+    for (const result of results) {
+      const game = parseBoardGameResult(result.title, result.url);
+      if (game && !into.has(game.bggId)) {
+        into.set(game.bggId, game);
+      }
+      if (into.size >= maxCandidates) {
+        return;
+      }
+    }
+  };
+
   const discovered = new Map<number, DiscoveredGame>();
-  for (const result of webResults) {
-    const game = parseBoardGameResult(result.title, result.url);
-    if (game && !discovered.has(game.bggId)) {
-      discovered.set(game.bggId, game);
-    }
-    if (discovered.size >= maxCandidates) {
-      break;
-    }
+  collect(await requestResults(normalizedQuery), discovered);
+  if (discovered.size === 0) {
+    // Newer or niche pages are often missing from the site-restricted index.
+    collect(
+      await requestResults(normalizedQuery, undefined, true).catch(() => []),
+      discovered,
+    );
   }
 
   const games = [...discovered.values()];

@@ -170,7 +170,8 @@
     "choose": "Scegli",
     "resultsHint": "Nessun gioco trovato su BoardGameGeek.",
     "searchFailed": "Ricerca non riuscita.",
-    "unavailable": "La ricerca dei giochi non è momentaneamente disponibile."
+    "unavailable": "La ricerca dei giochi non è momentaneamente disponibile.",
+    "metadataUnavailable": "Non è stato possibile caricare i dati da BoardGameGeek: i valori qui sotto sono segnaposto generici. Controllali prima di salvare."
   },
   "search": {
     "unauthorized": "Non autorizzato",
@@ -380,6 +381,26 @@
     "resetPassword": "Copia link di reimpostazione password",
     "resetFailed": "Non è stato possibile creare il link di reimpostazione",
     "resetCopied": "Link copiato. Scade dopo un'ora e funziona una sola volta."
+  },
+  "adminGames": {
+    "eyebrow": "Dati dei giochi",
+    "title": "Metadati dei giochi",
+    "body": "Tutti i giochi presenti su questa istanza. I metadati sono condivisi, quindi una correzione qui vale per ogni collezione che include il gioco.",
+    "searchLabel": "Cerca giochi",
+    "searchPlaceholder": "Cerca per nome o id BGG",
+    "empty": "Nessun gioco corrisponde alla ricerca.",
+    "edit": "Modifica {name}",
+    "name": "Nome",
+    "rating": "Voto BGG",
+    "kind": "Tipo",
+    "baseGame": "Gioco base",
+    "owners": "{count, plural, =0 {in nessuna collezione} one {in # collezione} other {in # collezioni}}",
+    "save": "Salva modifiche",
+    "saved": "Metadati del gioco aggiornati",
+    "refresh": "Aggiorna da BGG",
+    "refreshHelp": "Recupera i valori attuali da BoardGameGeek e sovrascrive questo record. Utile quando un gioco è stato aggiunto mentre BoardGameGeek non era raggiungibile.",
+    "refreshed": "Metadati aggiornati da BoardGameGeek",
+    "refreshFailed": "BoardGameGeek non ha restituito dati per questo gioco. Riprova tra poco."
   },
   "error": {
     "eyebrow": "Mossa imprevista",

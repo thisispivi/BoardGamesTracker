@@ -3,8 +3,19 @@ import "server-only";
 import type { BggMetadata } from "@/core";
 import { parseBggGeekItemPayload } from "@/server/bgg/parser";
 import { hasExpansionCategory } from "@/utils/gameTaxonomy";
+import { TtlCache } from "@/utils/ttlCache";
 
 export type { BggMetadata } from "@/core";
+
+/**
+ * Per-game metadata cache.
+ *
+ * BoardGameGeek throttles a client that asks repeatedly, and a throttled reply
+ * is indistinguishable from a game with no data, which silently writes default
+ * player counts and play times. Caching keeps one game to one request across a
+ * search, the add form, and the save that follows.
+ */
+const metadataCache = new TtlCache<BggMetadata>(6 * 60 * 60 * 1000, 2_000);
 
 /**
  * Decodes the small HTML entity subset used in metadata attributes.
@@ -241,13 +252,28 @@ export async function scrapeBggMetadata(
     .filter((id) => Number.isSafeInteger(id) && id > 0)
     .slice(0, 2_000);
   const metadata = new Map<number, BggMetadata>();
-  for (let index = 0; index < uniqueIds.length; index += 4) {
-    const batch = uniqueIds.slice(index, index + 4);
+  const pending: number[] = [];
+  for (const id of uniqueIds) {
+    const cached = metadataCache.get(String(id));
+    if (cached) {
+      metadata.set(id, cached);
+    } else {
+      pending.push(id);
+    }
+  }
+
+  for (let index = 0; index < pending.length; index += 4) {
+    const batch = pending.slice(index, index + 4);
     const results = await Promise.all(
       batch.map((id) => scrapePage(id).catch(() => null)),
     );
     for (const result of results) {
-      if (result) metadata.set(result.bggId, result);
+      if (result) {
+        metadata.set(
+          result.bggId,
+          metadataCache.set(String(result.bggId), result),
+        );
+      }
     }
   }
   return metadata;

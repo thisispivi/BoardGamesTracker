@@ -11,7 +11,11 @@ import { toast } from "sonner";
 import { AppSpinner } from "@/components/atoms/AppSpinner/AppSpinner";
 import { Button } from "@/components/atoms/Button/Button";
 import { GiftedPriceField } from "@/components/molecules/GiftedPriceField/GiftedPriceField";
-import type { CollectionActionState, GameDiscoveryResult } from "@/core";
+import type {
+  BggMetadata,
+  CollectionActionState,
+  GameDiscoveryResult,
+} from "@/core";
 import { addGameAction } from "@/server/actions/collection";
 import { normalizeSearchText } from "@/utils/search";
 import { TtlCache } from "@/utils/ttlCache";
@@ -58,6 +62,10 @@ export function AddGameDialog({
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<GameDiscoveryResult[]>([]);
   const [selected, setSelected] = useState<GameDiscoveryResult | null>(null);
+  const [loaded, setLoaded] = useState<{
+    bggId: number;
+    metadata: BggMetadata | null;
+  } | null>(null);
   const [searching, setSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
@@ -66,6 +74,9 @@ export function AddGameDialog({
   const term = query.trim();
   const cached = term.length < 3 ? undefined : resultCache.get(cacheKey(term));
   const visibleResults = cached ?? results;
+  const loadingDetails = selected !== null && loaded?.bggId !== selected.bggId;
+  const details =
+    loaded?.bggId === selected?.bggId ? (loaded?.metadata ?? null) : null;
 
   /**
    * Resets ephemeral search state whenever the dialog is dismissed.
@@ -78,6 +89,7 @@ export function AddGameDialog({
       setQuery("");
       setResults([]);
       setSelected(null);
+      setLoaded(null);
       setSearching(false);
       setHasSearched(false);
       setSearchError(null);
@@ -107,6 +119,32 @@ export function AddGameDialog({
     }
     toast.error(state.message);
   }, [router, state]);
+
+  useEffect(() => {
+    if (!selected) {
+      return;
+    }
+
+    const controller = new AbortController();
+    const bggId = selected.bggId;
+    void fetch(`/api/games/metadata?bggId=${bggId}`, {
+      signal: controller.signal,
+    })
+      .then(async (response) => {
+        const payload = (await response.json()) as {
+          metadata?: BggMetadata | null;
+        };
+        setLoaded({ bggId, metadata: payload.metadata ?? null });
+      })
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          return;
+        }
+        setLoaded({ bggId, metadata: null });
+      });
+
+    return () => controller.abort();
+  }, [selected]);
 
   useEffect(() => {
     if (!open || selected || term.length < 3 || cached) {
@@ -193,14 +231,21 @@ export function AddGameDialog({
 
           <div className="modal-scroll-area min-h-0 flex-1 overflow-y-auto px-6 py-6 sm:px-8">
             {selected ? (
-              <SelectedGameForm
-                action={action}
-                adding={adding}
-                currency={currency}
-                destination={destination}
-                onChooseAnother={() => setSelected(null)}
-                selected={selected}
-              />
+              loadingDetails ? (
+                <div className="grid place-items-center py-16">
+                  <AppSpinner className="size-6" label={t("common.loading")} />
+                </div>
+              ) : (
+                <SelectedGameForm
+                  action={action}
+                  adding={adding}
+                  currency={currency}
+                  destination={destination}
+                  details={details}
+                  onChooseAnother={() => setSelected(null)}
+                  selected={selected}
+                />
+              )
             ) : (
               <div>
                 <label className="relative block">
@@ -295,6 +340,7 @@ type SelectedGameFormProps = {
   adding: boolean;
   currency: string;
   destination: "collection" | "wishlist";
+  details: BggMetadata | null;
   onChooseAnother: () => void;
   selected: GameDiscoveryResult;
 };
@@ -307,6 +353,7 @@ type SelectedGameFormProps = {
  * @param root0.adding - The 'adding' property.
  * @param root0.currency - The 'currency' property.
  * @param root0.destination - The 'destination' property.
+ * @param root0.details - The 'details' property.
  * @param root0.onChooseAnother - The 'onChooseAnother' property.
  * @param root0.selected - The 'selected' property.
  */
@@ -315,6 +362,7 @@ function SelectedGameForm({
   adding,
   currency,
   destination,
+  details,
   onChooseAnother,
   selected,
 }: SelectedGameFormProps): ReactNode {
@@ -345,11 +393,19 @@ function SelectedGameForm({
         </a>
       </div>
 
+      {details ? null : (
+        <p className="border-accent/40 bg-accent/10 rounded-xl border px-4 py-3 text-xs leading-5">
+          {t("add.metadataUnavailable")}
+        </p>
+      )}
+
       <div className="grid gap-4 sm:grid-cols-3">
         <Field label={t("add.year")}>
           <input
             className="field-input"
-            defaultValue={selected.yearPublished ?? ""}
+            defaultValue={
+              details?.yearPublished ?? selected.yearPublished ?? ""
+            }
             max={2200}
             min={1800}
             name="yearPublished"
@@ -360,7 +416,7 @@ function SelectedGameForm({
         <Field label={t("add.minPlayers")}>
           <input
             className="field-input"
-            defaultValue={1}
+            defaultValue={details?.minPlayers ?? 1}
             max={99}
             min={1}
             name="minPlayers"
@@ -371,7 +427,7 @@ function SelectedGameForm({
         <Field label={t("add.maxPlayers")}>
           <input
             className="field-input"
-            defaultValue={4}
+            defaultValue={details?.maxPlayers ?? 4}
             max={99}
             min={1}
             name="maxPlayers"
@@ -382,7 +438,7 @@ function SelectedGameForm({
         <Field label={t("add.minMinutes")}>
           <input
             className="field-input"
-            defaultValue={30}
+            defaultValue={details?.minPlaytime ?? 30}
             max={10_000}
             min={0}
             name="minPlaytime"
@@ -393,7 +449,7 @@ function SelectedGameForm({
         <Field label={t("add.maxMinutes")}>
           <input
             className="field-input"
-            defaultValue={60}
+            defaultValue={details?.maxPlaytime ?? 60}
             max={10_000}
             min={1}
             name="maxPlaytime"
@@ -404,7 +460,7 @@ function SelectedGameForm({
         <Field label={t("add.complexity")}>
           <input
             className="field-input"
-            defaultValue={2.5}
+            defaultValue={details?.weight ?? 2.5}
             max={5}
             min={1}
             name="weight"
@@ -425,6 +481,7 @@ function SelectedGameForm({
       <Field label={t("add.categories")}>
         <input
           className="field-input"
+          defaultValue={details?.categories.join(", ") ?? ""}
           maxLength={500}
           name="categories"
           placeholder={t("add.categoriesPlaceholder")}
@@ -433,6 +490,7 @@ function SelectedGameForm({
       <Field label={t("add.mechanics")}>
         <input
           className="field-input"
+          defaultValue={details?.mechanics.join(", ") ?? ""}
           maxLength={1_000}
           name="mechanics"
           placeholder={t("add.mechanicsPlaceholder")}
@@ -441,6 +499,7 @@ function SelectedGameForm({
       <Field label={t("add.families")}>
         <input
           className="field-input"
+          defaultValue={details?.families.join(", ") ?? ""}
           maxLength={1_000}
           name="families"
           placeholder={t("add.familiesPlaceholder")}
@@ -449,7 +508,7 @@ function SelectedGameForm({
       <Field label={t("add.artwork")}>
         <input
           className="field-input"
-          defaultValue={selected.imageUrl ?? ""}
+          defaultValue={details?.imageUrl ?? selected.imageUrl ?? ""}
           maxLength={2_000}
           name="imageUrl"
           placeholder="https://cf.geekdo-images.com/..."
@@ -459,6 +518,7 @@ function SelectedGameForm({
       <Field label={t("add.description")}>
         <textarea
           className="field-input min-h-24 py-3"
+          defaultValue={details?.description.slice(0, 2_000) ?? ""}
           maxLength={2_000}
           name="description"
           placeholder={t("add.descriptionPlaceholder")}

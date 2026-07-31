@@ -1,7 +1,6 @@
 import "server-only";
 
 import type { DiscoveredGame, GameDiscoveryResult } from "@/core";
-import { scrapeBggMetadata } from "@/server/bgg/scrape";
 import {
   discoverBoardGameImages,
   searchViaSearxng,
@@ -18,7 +17,7 @@ import { TtlCache } from "@/utils/ttlCache";
  */
 const searchCache = new TtlCache<DiscoveredGame[]>(10 * 60_000, 300);
 
-/** Time allowed for artwork enrichment before results are sent as they are. */
+/** Time allowed for artwork lookup before results are sent as they are. */
 const enrichmentBudgetMs = 4_000;
 
 /**
@@ -49,14 +48,15 @@ async function withBudget<TValue>(
 }
 
 /**
- * Adds artwork, publication years, and expansion status to search candidates.
+ * Adds artwork to search candidates without touching BoardGameGeek.
  *
- * BoardGameGeek's own item data is the artwork source because it always has a
- * cover for games that have one, unlike an image index. Metasearch images are
- * consulted only for whatever it could not answer.
+ * Asking BoardGameGeek for every result of every keystroke gets the whole
+ * instance throttled, and a throttled reply then breaks the metadata lookup
+ * that actually matters when a game is saved. Full details are fetched once,
+ * for the single game the user picks.
  *
  * @param candidates - The ranked candidates from metasearch.
- * @returns The enriched games, in their original ranking order.
+ * @returns The candidates with whatever artwork could be resolved.
  */
 async function enrichCandidates(
   candidates: DiscoveredGame[],
@@ -65,37 +65,15 @@ async function enrichCandidates(
     return [];
   }
 
-  const metadata = await withBudget(
-    scrapeBggMetadata(candidates.map((game) => game.bggId)).catch(
-      () => new Map(),
-    ),
-    new Map(),
-  );
-  const enriched = candidates.map((game) => {
-    const details = metadata.get(game.bggId);
-    return {
-      ...game,
-      imageUrl: details?.imageUrl ?? game.imageUrl,
-      isExpansion: details?.isExpansion || game.isExpansion,
-      name: details?.name ?? game.name,
-      yearPublished: game.yearPublished ?? details?.yearPublished ?? null,
-    };
-  });
-
-  const missing = enriched.filter((game) => !game.imageUrl);
-  if (missing.length === 0) {
-    return enriched;
-  }
-
-  const fallbackImages = await withBudget(
+  const images = await withBudget(
     discoverBoardGameImages(
-      missing.map((game) => ({ bggId: game.bggId, name: game.name })),
+      candidates.map((game) => ({ bggId: game.bggId, name: game.name })),
     ).catch(() => new Map<number, string>()),
     new Map<number, string>(),
   );
-  return enriched.map((game) => ({
+  return candidates.map((game) => ({
     ...game,
-    imageUrl: game.imageUrl ?? fallbackImages.get(game.bggId) ?? null,
+    imageUrl: game.imageUrl ?? images.get(game.bggId) ?? null,
   }));
 }
 

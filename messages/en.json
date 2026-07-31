@@ -170,7 +170,8 @@
     "choose": "Choose",
     "resultsHint": "No BoardGameGeek games found.",
     "searchFailed": "Search failed.",
-    "unavailable": "Game discovery is temporarily unavailable."
+    "unavailable": "Game discovery is temporarily unavailable.",
+    "metadataUnavailable": "BoardGameGeek details could not be loaded, so the values below are generic placeholders. Please check them before saving."
   },
   "search": {
     "unauthorized": "Unauthorized",
@@ -380,6 +381,26 @@
     "resetPassword": "Copy password reset link",
     "resetFailed": "The reset link could not be created",
     "resetCopied": "Reset link copied. It expires in one hour and works once."
+  },
+  "adminGames": {
+    "eyebrow": "Game data",
+    "title": "Board-game metadata",
+    "body": "Every game stored on this instance. Metadata is shared, so a correction here applies to every collection that includes the game.",
+    "searchLabel": "Search games",
+    "searchPlaceholder": "Search by name or BGG id",
+    "empty": "No games match that search.",
+    "edit": "Edit {name}",
+    "name": "Name",
+    "rating": "BGG rating",
+    "kind": "Type",
+    "baseGame": "Base game",
+    "owners": "{count, plural, =0 {in no collections} one {in # collection} other {in # collections}}",
+    "save": "Save changes",
+    "saved": "Game metadata updated",
+    "refresh": "Refresh from BGG",
+    "refreshHelp": "Pull the current values from BoardGameGeek and overwrite this record. Useful when a game was added while BoardGameGeek was unreachable.",
+    "refreshed": "Metadata refreshed from BoardGameGeek",
+    "refreshFailed": "BoardGameGeek did not return data for this game. Try again shortly."
   },
   "error": {
     "eyebrow": "Unexpected move",
