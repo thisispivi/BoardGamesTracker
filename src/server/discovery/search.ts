@@ -102,15 +102,16 @@ async function enrichCandidates(
 /**
  * Reports whether a result set is worth caching.
  *
- * A non-empty result set in which nothing resolved artwork is the signature of
- * a failed or throttled lookup rather than a genuine answer, and caching it
- * would keep serving pictureless results long after the cause cleared.
+ * Only a result set that actually found something is stored. An empty answer,
+ * or one where nothing resolved artwork, is far more often a starved upstream
+ * than a real answer, and caching it would keep serving that failure for the
+ * whole cache lifetime instead of letting the next keystroke retry.
  *
  * @param games - The freshly discovered games.
  * @returns Whether the results may be stored.
  */
 function isCacheable(games: DiscoveredGame[]): boolean {
-  return games.length === 0 || games.some((game) => game.imageUrl !== null);
+  return games.length > 0 && games.some((game) => game.imageUrl !== null);
 }
 
 /**

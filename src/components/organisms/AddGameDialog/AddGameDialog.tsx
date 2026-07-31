@@ -130,7 +130,8 @@ export function AddGameDialog({
             return;
           }
           const found = payload.results ?? [];
-          if (found.length === 0 || found.some((game) => game.imageUrl)) {
+          // An empty answer is usually a starved upstream, so never pin it.
+          if (found.length > 0) {
             resultCache.set(cacheKey(term), found);
           }
           setResults(found);
