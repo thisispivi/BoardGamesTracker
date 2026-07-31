@@ -126,6 +126,7 @@ function facetOptions(
 type CollectionBrowserProps = {
   currency: string;
   games: CollectionGame[];
+  readOnly?: boolean;
 };
 
 /**
@@ -134,11 +135,13 @@ type CollectionBrowserProps = {
  * @param root0 - Component or function properties.
  * @param root0.currency - The 'currency' property.
  * @param root0.games - The 'games' property.
+ * @param root0.readOnly - The 'readOnly' property.
  * @returns The documented function result.
  */
 export function CollectionBrowser({
   currency,
   games,
+  readOnly = false,
 }: CollectionBrowserProps): ReactNode {
   const locale = useLocale();
   const t = useTranslations();
@@ -294,6 +297,7 @@ export function CollectionBrowser({
                 expansions={group.expansions}
                 game={group.base}
                 key={group.base.id}
+                readOnly={readOnly}
               />
             ))}
           </div>
@@ -320,6 +324,7 @@ export function CollectionBrowser({
                 currency={currency}
                 game={expansion}
                 key={expansion.id}
+                readOnly={readOnly}
               />
             ))}
           </div>

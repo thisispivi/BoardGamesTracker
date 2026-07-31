@@ -35,6 +35,8 @@ export const user = pgTable(
       .defaultNow(),
     role: text("role").notNull().default("user"),
     currency: text("currency").notNull().default("EUR"),
+    shareCollection: boolean("share_collection").notNull().default(false),
+    sharePrices: boolean("share_prices").notNull().default(false),
     banned: boolean("banned").notNull().default(false),
     banReason: text("ban_reason"),
     banExpires: timestamp("ban_expires", { withTimezone: true }),
@@ -42,7 +44,12 @@ export const user = pgTable(
   (table) => [
     uniqueIndex("user_email_unique").on(table.email),
     index("user_role_idx").on(table.role),
+    index("user_share_collection_idx").on(table.shareCollection),
     check("user_currency_check", sql`${table.currency} ~ '^[A-Z]{3}$'`),
+    check(
+      "user_share_prices_check",
+      sql`not ${table.sharePrices} or ${table.shareCollection}`,
+    ),
   ],
 );
 

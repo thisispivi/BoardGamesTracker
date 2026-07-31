@@ -12,7 +12,9 @@ import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
 import { CurrencySelect } from "@/components/molecules/CurrencySelect/CurrencySelect";
 import { ClearCollectionCard } from "@/components/organisms/ClearCollectionCard/ClearCollectionCard";
+import { SharingCard } from "@/components/organisms/SharingCard/SharingCard";
 import { UserDataCard } from "@/components/organisms/UserDataCard/UserDataCard";
+import { env } from "@/env";
 import { getCollection } from "@/server/collection";
 import { getUserPreferences } from "@/server/preferences";
 import { requireUser } from "@/server/session";
@@ -142,6 +144,11 @@ export default async function SettingsPage() {
             <CurrencySelect initialCurrency={preferences.currency} />
           </div>
         </section>
+        <SharingCard
+          shareCollection={preferences.shareCollection}
+          sharePrices={preferences.sharePrices}
+          shareUrl={`${env.NEXT_PUBLIC_APP_URL}/share/${session.user.id}`}
+        />
         <ClearCollectionCard />
         <div className="lg:col-span-2">
           <UserDataCard />

@@ -14,3 +14,14 @@ export const currencySchema = z.enum([
   "SEK",
   "USD",
 ]);
+
+/** Validates collection-sharing preferences, keeping prices opt-in. */
+export const sharingSchema = z
+  .object({
+    shareCollection: z.boolean(),
+    sharePrices: z.boolean(),
+  })
+  .transform((sharing) => ({
+    shareCollection: sharing.shareCollection,
+    sharePrices: sharing.shareCollection && sharing.sharePrices,
+  }));

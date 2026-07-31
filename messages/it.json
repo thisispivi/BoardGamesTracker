@@ -7,7 +7,8 @@
     "stats": "Statistiche",
     "settings": "Impostazioni",
     "admin": "Amministrazione",
-    "logout": "Esci"
+    "logout": "Esci",
+    "share": "Condivise"
   },
   "app": {
     "description": "La tua libreria di giochi da tavolo e selettore per le serate di gioco."
@@ -232,6 +233,27 @@
     "libraryItems": "Elementi",
     "libraryFavorites": "Preferiti",
     "libraryGifts": "Regali"
+  },
+  "sharing": {
+    "metaTitle": "Collezioni condivise",
+    "eyebrow": "Condivisione",
+    "title": "Condividi la tua collezione",
+    "body": "Pubblica la tua libreria per gli altri membri di questa istanza. Nulla viene condiviso finché non lo attivi.",
+    "shareCollection": "Condividi la mia collezione",
+    "shareCollectionHelp": "I membri autenticati possono sfogliare i giochi che possiedi. Lista dei desideri e note restano private.",
+    "sharePrices": "Includi i prezzi",
+    "sharePricesHelp": "Mostra quanto hai speso e quali giochi sono regali. Disattivato di default.",
+    "updated": "Preferenze di condivisione salvate",
+    "copy": "Copia link",
+    "copied": "Copiato",
+    "copyFailed": "Non è stato possibile copiare il link",
+    "browse": "Sfoglia le collezioni condivise",
+    "directoryTitle": "Collezioni condivise",
+    "directoryBody": "Collezioni che altri membri hanno scelto di condividere.",
+    "ownerTitle": "Collezione di {name}",
+    "backToDirectory": "Tutte le condivise",
+    "emptyTitle": "Ancora nessuna condivisione",
+    "emptyBody": "Quando un altro membro condivide la sua collezione la troverai qui."
   },
   "wishlist": {
     "metaTitle": "Lista desideri",
