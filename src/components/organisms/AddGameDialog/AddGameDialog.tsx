@@ -130,7 +130,9 @@ export function AddGameDialog({
             return;
           }
           const found = payload.results ?? [];
-          resultCache.set(cacheKey(term), found);
+          if (found.length === 0 || found.some((game) => game.imageUrl)) {
+            resultCache.set(cacheKey(term), found);
+          }
           setResults(found);
         })
         .catch((error: unknown) => {

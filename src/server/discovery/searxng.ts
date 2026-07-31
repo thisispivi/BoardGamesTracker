@@ -34,13 +34,11 @@ const searchCache = new TtlCache<DiscoveredGame[]>(10 * 60_000, 300);
  *
  * @param query - The search query.
  * @param category - The optional SearXNG category to restrict results to.
- * @param timeoutMs - Abort budget for the upstream request.
  * @returns The validated result list.
  */
 async function requestResults(
   query: string,
   category?: "images",
-  timeoutMs = 10_000,
 ): Promise<SearchResult[]> {
   const endpoint = new URL("/search", env.SEARXNG_URL);
   endpoint.searchParams.set("q", `site:boardgamegeek.com/boardgame ${query}`);
@@ -53,7 +51,7 @@ async function requestResults(
   const response = await fetch(endpoint, {
     headers: { Accept: "application/json" },
     cache: "no-store",
-    signal: AbortSignal.timeout(timeoutMs),
+    signal: AbortSignal.timeout(10_000),
   });
   if (!response.ok) {
     throw new Error(`SearXNG returned ${response.status}.`);
@@ -143,42 +141,6 @@ export async function discoverBoardGameImages(
 }
 
 /**
- * Looks up artwork for the visible result page in a single parallel round.
- *
- * The batched importer path stays sequential; interactive search trades a few
- * concurrent local requests for a shorter wait.
- *
- * @param candidates - The visible games still missing artwork.
- * @returns Artwork URLs keyed by BoardGameGeek ID.
- */
-async function discoverVisibleImages(
-  candidates: Array<{ bggId: number; name: string }>,
-): Promise<Map<number, string>> {
-  const images = new Map<number, string>();
-  const responses = await Promise.all(
-    candidates
-      .slice(0, maxResults)
-      .map((game) =>
-        requestResults(`"${game.bggId}" "${game.name}"`, "images", 6_000).catch(
-          () => [],
-        ),
-      ),
-  );
-  for (const [index, results] of responses.entries()) {
-    const candidate = candidates[index];
-    if (!candidate) continue;
-    for (const result of results) {
-      const image = parseBoardGameImage(result.url, result.img_src);
-      if (image?.bggId === candidate.bggId) {
-        images.set(candidate.bggId, image.imageUrl);
-        break;
-      }
-    }
-  }
-  return images;
-}
-
-/**
  * Discovers BGG links for a query without requesting or parsing BGG pages.
  *
  * @param normalizedQuery - The normalized, non-empty search term.
@@ -189,7 +151,7 @@ async function discoverGames(
 ): Promise<DiscoveredGame[]> {
   const [webResults, imageResults] = await Promise.all([
     requestResults(normalizedQuery),
-    requestResults(normalizedQuery, "images", 6_000).catch(() => []),
+    requestResults(normalizedQuery, "images").catch(() => []),
   ]);
   const discovered = new Map<number, DiscoveredGame>();
   for (const result of webResults) {
@@ -224,7 +186,7 @@ async function discoverGames(
   );
 
   const [fallbackImages, years] = await Promise.all([
-    discoverVisibleImages(
+    discoverBoardGameImages(
       orderedGames
         .filter((game) => !images.has(game.bggId))
         .map((game) => ({ bggId: game.bggId, name: game.name })),
@@ -245,6 +207,20 @@ async function discoverGames(
 }
 
 /**
+ * Reports whether a result set is worth caching.
+ *
+ * A non-empty result set in which nothing resolved artwork is the signature of
+ * a failed or throttled image lookup rather than a genuine answer, and caching
+ * it would keep serving pictureless results long after the cause cleared.
+ *
+ * @param games - The freshly discovered games.
+ * @returns Whether the results may be stored.
+ */
+function isCacheable(games: DiscoveredGame[]): boolean {
+  return games.length === 0 || games.some((game) => game.imageUrl !== null);
+}
+
+/**
  * Searches BoardGameGeek games, serving repeated queries from a short cache.
  *
  * @param query - The raw search term.
@@ -255,9 +231,11 @@ export async function searchBoardGames(
 ): Promise<GameDiscoveryResult[]> {
   const normalized = normalizeSearchText(query);
   const normalizedQuery = normalized === "" ? query.trim() : normalized;
-  const games =
-    searchCache.get(normalizedQuery) ??
-    searchCache.set(normalizedQuery, await discoverGames(normalizedQuery));
+  const cached = searchCache.get(normalizedQuery);
+  const games = cached ?? (await discoverGames(normalizedQuery));
+  if (!cached && isCacheable(games)) {
+    searchCache.set(normalizedQuery, games);
+  }
 
   return games.map((game) => ({
     ...game,
