@@ -1,0 +1,16 @@
+{
+  "github.copilot.chat.codeGeneration.useInstructionFiles": true,
+  "github.copilot.chat.codeGeneration.instructions": [
+    { "file": "CODING_STYLE.md" },
+    { "file": "AGENTS.md" }
+  ],
+  "github.copilot.chat.reviewSelection.instructions": [
+    { "file": "CODING_STYLE.md" }
+  ],
+  "github.copilot.chat.testGeneration.instructions": [
+    { "file": "CODING_STYLE.md" }
+  ],
+  "github.copilot.chat.commitMessageGeneration.instructions": [
+    { "text": "Use Conventional Commits: type(scope): imperative summary." }
+  ]
+}
