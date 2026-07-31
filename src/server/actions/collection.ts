@@ -633,22 +633,25 @@ export async function moveWishlistToCollectionAction(
 }
 
 /**
- * Permanently clears only owned entries, leaving the wishlist intact.
+ * Permanently clears one library, leaving the other untouched.
  *
  * @param _previous - The previous server-action state.
  * @param formData - The submitted form data.
  * @returns The documented function result.
  */
-export async function clearCollectionAction(
+export async function clearLibraryAction(
   _previous: CollectionActionState,
   formData: FormData,
 ): Promise<CollectionActionState> {
   const session = await requireUser();
   const t = await getTranslations();
+  const library = libraryDestinationSchema.safeParse(
+    formData.get("library") ?? "collection",
+  );
   const confirmation = z
     .literal(CLEAR_COLLECTION_CONFIRMATION)
     .safeParse(formData.get("confirmation"));
-  if (!confirmation.success) {
+  if (!confirmation.success || !library.success) {
     return {
       success: false,
       message: t("action.confirmClear", {
@@ -657,23 +660,27 @@ export async function clearCollectionAction(
     };
   }
 
+  const isWishlist = library.data === "wishlist";
   const deleted = await db
     .delete(collectionItems)
     .where(
       and(
         eq(collectionItems.userId, session.user.id),
-        eq(collectionItems.owned, true),
+        isWishlist
+          ? eq(collectionItems.wishlist, true)
+          : eq(collectionItems.owned, true),
       ),
     )
     .returning({ id: collectionItems.id });
   await writeAuditEvent({
     actorId: session.user.id,
-    action: "collection.cleared",
-    targetType: "collection",
+    action: isWishlist ? "wishlist.cleared" : "collection.cleared",
+    targetType: library.data,
     metadata: { removed: deleted.length },
   });
   revalidatePath("/settings");
   revalidatePath("/collection");
+  revalidatePath("/wishlist");
   revalidatePath("/dashboard");
   revalidatePath("/stats");
   revalidatePath("/play");

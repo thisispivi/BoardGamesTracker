@@ -9,7 +9,6 @@ const protectedPrefixes = [
   "/play",
   "/stats",
   "/settings",
-  "/share",
   "/admin",
 ];
 

@@ -1,93 +1,96 @@
 import "server-only";
 
-import { and, asc, count, eq } from "drizzle-orm";
+import { randomBytes } from "node:crypto";
+
+import { eq } from "drizzle-orm";
 import { cache } from "react";
 
 import type { CollectionGame } from "@/core";
-import { getCollection } from "@/server/collection";
+import { getCollection, getWishlist } from "@/server/collection";
 import { db } from "@/server/db";
-import { collectionItems, user } from "@/server/db/schema";
+import { user } from "@/server/db/schema";
 
-/** One publicly listed collection owner. */
-export type SharedCollectionSummary = {
-  games: number;
-  name: string;
-  userId: string;
-};
-
-/** A shared collection with prices already removed when opted out. */
-export type SharedCollection = {
+/** A shared library with prices already removed when the owner opted out. */
+export type SharedLibrary = {
+  collection: CollectionGame[] | null;
   currency: string;
-  games: CollectionGame[];
   name: string;
-  sharePrices: boolean;
+  wishlist: CollectionGame[] | null;
 };
 
 /**
- * Lists every user who has opted in to sharing their owned collection.
+ * Creates an unguessable share token.
  *
- * @returns The shared collections, alphabetized by owner name.
+ * The token is the only thing protecting a shared library, so it is drawn from
+ * a cryptographic source rather than derived from any account value.
+ *
+ * @returns A 128-bit token as lowercase hexadecimal.
  */
-export async function listSharedCollections(): Promise<
-  SharedCollectionSummary[]
-> {
-  const rows = await db
-    .select({
-      games: count(collectionItems.id),
-      name: user.name,
-      userId: user.id,
-    })
-    .from(user)
-    .leftJoin(
-      collectionItems,
-      and(eq(collectionItems.userId, user.id), eq(collectionItems.owned, true)),
-    )
-    .where(eq(user.shareCollection, true))
-    .groupBy(user.id, user.name)
-    .orderBy(asc(user.name));
-
-  return rows;
+export function createShareToken(): string {
+  return randomBytes(16).toString("hex");
 }
 
 /**
- * Reads one shared collection, redacting prices unless the owner shares them.
+ * Strips the personal fields that are never part of a shared library.
  *
- * Sharing is verified here rather than at the page, so no caller can render a
- * collection whose owner has not opted in.
- *
- * @param userId - The collection owner's identifier.
- * @returns The shared collection, or null when the owner does not share it.
+ * @param games - The owner's library entries.
+ * @param includePrices - Whether the owner shares what they paid.
+ * @returns Entries safe to serialize to an anonymous visitor.
  */
-export const getSharedCollection = cache(async function getSharedCollection(
-  userId: string,
-): Promise<SharedCollection | null> {
-  const [owner] = await db
-    .select({
-      currency: user.currency,
-      name: user.name,
-      shareCollection: user.shareCollection,
-      sharePrices: user.sharePrices,
-    })
-    .from(user)
-    .where(eq(user.id, userId))
-    .limit(1);
-  if (!owner?.shareCollection) {
+function redact(
+  games: CollectionGame[],
+  includePrices: boolean,
+): CollectionGame[] {
+  return games.map((game) => ({
+    ...game,
+    gifted: includePrices ? game.gifted : false,
+    moneySpent: includePrices ? game.moneySpent : 0,
+    notes: "",
+    personalRating: null,
+  }));
+}
+
+/**
+ * Reads a shared library by token for an anonymous visitor.
+ *
+ * The token is the whole authorization check, and each list is returned only
+ * when its own switch is on, so nothing reaches the page that the owner has
+ * not deliberately published.
+ *
+ * @param token - The share token from the URL.
+ * @returns The shared library, or null when the token matches nothing shared.
+ */
+export const getSharedLibrary = cache(async function getSharedLibrary(
+  token: string,
+): Promise<SharedLibrary | null> {
+  if (!/^[a-f0-9]{32}$/.test(token)) {
     return null;
   }
 
-  const games = await getCollection(userId);
+  const [owner] = await db
+    .select({
+      currency: user.currency,
+      id: user.id,
+      name: user.name,
+      shareCollection: user.shareCollection,
+      sharePrices: user.sharePrices,
+      shareWishlist: user.shareWishlist,
+    })
+    .from(user)
+    .where(eq(user.shareToken, token))
+    .limit(1);
+  if (!owner || (!owner.shareCollection && !owner.shareWishlist)) {
+    return null;
+  }
+
+  const [collection, wishlist] = await Promise.all([
+    owner.shareCollection ? getCollection(owner.id) : null,
+    owner.shareWishlist ? getWishlist(owner.id) : null,
+  ]);
   return {
+    collection: collection && redact(collection, owner.sharePrices),
     currency: owner.currency,
-    games: owner.sharePrices
-      ? games
-      : games.map((game) => ({
-          ...game,
-          gifted: false,
-          moneySpent: 0,
-          notes: "",
-          personalRating: null,
-        })),
     name: owner.name,
-    sharePrices: owner.sharePrices,
+    wishlist: wishlist && redact(wishlist, owner.sharePrices),
   };
 });

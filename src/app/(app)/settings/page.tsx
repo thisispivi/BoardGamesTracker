@@ -11,7 +11,7 @@ import { getTranslations } from "next-intl/server";
 
 import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
 import { CurrencySelect } from "@/components/molecules/CurrencySelect/CurrencySelect";
-import { ClearCollectionCard } from "@/components/organisms/ClearCollectionCard/ClearCollectionCard";
+import { ClearLibraryCard } from "@/components/organisms/ClearLibraryCard/ClearLibraryCard";
 import { SharingCard } from "@/components/organisms/SharingCard/SharingCard";
 import { UserDataCard } from "@/components/organisms/UserDataCard/UserDataCard";
 import { env } from "@/env";
@@ -122,6 +122,15 @@ export default async function SettingsPage() {
             </p>
           </div>
         </section>
+        <div className="lg:col-span-2">
+          <SharingCard
+            appUrl={env.NEXT_PUBLIC_APP_URL}
+            shareCollection={preferences.shareCollection}
+            sharePrices={preferences.sharePrices}
+            shareToken={preferences.shareToken}
+            shareWishlist={preferences.shareWishlist}
+          />
+        </div>
         <section className="bg-card shadow-soft relative overflow-hidden rounded-3xl border p-6 sm:p-8">
           <div
             aria-hidden="true"
@@ -144,12 +153,8 @@ export default async function SettingsPage() {
             <CurrencySelect initialCurrency={preferences.currency} />
           </div>
         </section>
-        <SharingCard
-          shareCollection={preferences.shareCollection}
-          sharePrices={preferences.sharePrices}
-          shareUrl={`${env.NEXT_PUBLIC_APP_URL}/share/${session.user.id}`}
-        />
-        <ClearCollectionCard />
+        <ClearLibraryCard library="collection" />
+        <ClearLibraryCard library="wishlist" />
         <div className="lg:col-span-2">
           <UserDataCard />
         </div>

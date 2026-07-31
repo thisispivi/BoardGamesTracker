@@ -15,13 +15,15 @@ export const currencySchema = z.enum([
   "USD",
 ]);
 
-/** Validates collection-sharing preferences, keeping prices opt-in. */
+/** Validates library-sharing preferences, keeping prices opt-in. */
 export const sharingSchema = z
   .object({
     shareCollection: z.boolean(),
     sharePrices: z.boolean(),
+    shareWishlist: z.boolean(),
   })
   .transform((sharing) => ({
-    shareCollection: sharing.shareCollection,
-    sharePrices: sharing.shareCollection && sharing.sharePrices,
+    ...sharing,
+    sharePrices:
+      (sharing.shareCollection || sharing.shareWishlist) && sharing.sharePrices,
   }));
