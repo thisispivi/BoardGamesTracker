@@ -55,7 +55,9 @@ export function AuthForm({
 
     setPending(false);
     if (result.error) {
-      toast.error(t("failure"));
+      toast.error(
+        result.error.code === "BANNED_USER" ? t("banned") : t("failure"),
+      );
       return;
     }
 

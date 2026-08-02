@@ -31,7 +31,8 @@
     "hidePassword": "Hide password",
     "needAccount": "Need an account?",
     "haveAccount": "Already have an account?",
-    "failure": "Authentication failed. Please try again."
+    "failure": "Authentication failed. Please try again.",
+    "banned": "This account has been suspended. Contact an administrator."
   },
   "reset": {
     "metaTitle": "Reset password",

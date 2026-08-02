@@ -2,6 +2,8 @@ import { getSessionCookie } from "better-auth/cookies";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
+import { consumeRateLimit } from "@/server/security/rateLimit";
+
 const protectedPrefixes = [
   "/dashboard",
   "/collection",
@@ -12,13 +14,79 @@ const protectedPrefixes = [
   "/admin",
 ];
 
+const rateLimitWindowMs = 60_000;
+const globalRequestLimit = 3_000;
+const identityRequestLimit = 300;
+
+/**
+ * Derives a short, non-reversible fingerprint of a caller-supplied secret.
+ *
+ * Session tokens are credentials, so the limiter keys on a digest rather than
+ * holding the token itself in a long-lived in-memory map.
+ *
+ * @param value - The value to fingerprint.
+ * @returns The first 16 bytes of the SHA-256 digest, hex encoded.
+ */
+async function fingerprint(value: string): Promise<string> {
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(value),
+  );
+  return Array.from(new Uint8Array(digest).slice(0, 16))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+/**
+ * Identifies the caller for early per-caller rate limiting.
+ *
+ * Authenticated callers are keyed by session before the authoritative per-user
+ * limit runs during session validation. Anonymous callers fall back to the
+ * forwarded address, which a hostile client can spoof — the global limit is the
+ * backstop for that case, not this one.
+ *
+ * @param request - The incoming request.
+ * @returns A stable rate-limit key for the caller.
+ */
+async function getCallerKey(request: NextRequest): Promise<string> {
+  const sessionCookie = getSessionCookie(request, {
+    cookiePrefix: "board_games_tracker",
+  });
+  if (sessionCookie) {
+    return `session:${await fingerprint(sessionCookie)}`;
+  }
+
+  const forwarded = request.headers.get("x-forwarded-for");
+  return `ip:${forwarded?.split(",")[0]?.trim() || "unknown"}`;
+}
+
+/** Refuses a request that exhausted its allowance, without leaking why. */
+function tooManyRequests(): NextResponse {
+  return new NextResponse("Too Many Requests", {
+    status: 429,
+    headers: {
+      "Retry-After": String(rateLimitWindowMs / 1_000),
+      "Content-Type": "text/plain; charset=utf-8",
+    },
+  });
+}
+
 /**
  * Applies optimistic auth redirects and a nonce-based security policy.
  *
  * @param request - The incoming request.
  * @returns The documented function result.
  */
-export function proxy(request: NextRequest): NextResponse {
+export async function proxy(request: NextRequest): Promise<NextResponse> {
+  if (!consumeRateLimit("global", globalRequestLimit, rateLimitWindowMs)) {
+    return tooManyRequests();
+  }
+
+  const callerKey = await getCallerKey(request);
+  if (!consumeRateLimit(callerKey, identityRequestLimit, rateLimitWindowMs)) {
+    return tooManyRequests();
+  }
+
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   const isDevelopment = process.env.NODE_ENV === "development";
   const policy = [

@@ -2,6 +2,7 @@ import "server-only";
 
 import { db } from "@/server/db";
 import { user } from "@/server/db/schema";
+import { log } from "@/utils/logger";
 
 /**
  * Returns whether this installation still needs its first administrator.
@@ -9,7 +10,14 @@ import { user } from "@/server/db/schema";
  * @returns The documented function result.
  */
 export async function isBootstrapRequired(): Promise<boolean> {
-  const existingUser = await db.select({ id: user.id }).from(user).limit(1);
+  try {
+    const existingUser = await db.select({ id: user.id }).from(user).limit(1);
 
-  return existingUser.length === 0;
+    return existingUser.length === 0;
+  } catch (error) {
+    log("error", "bootstrap_check_failed", {
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+    return false;
+  }
 }

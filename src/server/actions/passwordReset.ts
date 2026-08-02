@@ -8,6 +8,7 @@ import {
   applyPasswordReset,
   verifyPasswordResetToken,
 } from "@/server/auth/passwordReset";
+import { isUserCurrentlyBanned } from "@/server/security/accountAccess";
 import { consumeRateLimit } from "@/server/security/rateLimit";
 
 /**
@@ -33,7 +34,7 @@ export async function resetPasswordAction(
 
   const userId = await verifyPasswordResetToken(token);
   const password = newPasswordSchema.safeParse(formData.get("password"));
-  if (!userId || !password.success) {
+  if (!userId || !password.success || (await isUserCurrentlyBanned(userId))) {
     return { success: false, message: t("reset.invalid") };
   }
 

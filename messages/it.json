@@ -31,7 +31,8 @@
     "hidePassword": "Nascondi password",
     "needAccount": "Non hai un account?",
     "haveAccount": "Hai già un account?",
-    "failure": "Autenticazione non riuscita. Riprova."
+    "failure": "Autenticazione non riuscita. Riprova.",
+    "banned": "Questo account è stato sospeso. Contatta un amministratore."
   },
   "reset": {
     "metaTitle": "Reimposta password",

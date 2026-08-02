@@ -102,6 +102,7 @@ export async function toggleUserBanAction(formData: FormData): Promise<void> {
   await db
     .update(user)
     .set({
+      banExpires: null,
       banned,
       banReason: banned ? "Disabled by administrator" : null,
       updatedAt: new Date(),

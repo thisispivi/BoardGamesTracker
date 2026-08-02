@@ -16,7 +16,6 @@ import {
   type ReactNode,
   useActionState,
   useEffect,
-  useRef,
   useState,
   useTransition,
 } from "react";
@@ -316,9 +315,10 @@ export function AdminGamesPanel({
   const t = useTranslations();
   const [query, setQuery] = useState("");
   const [result, setResult] = useState(initialPage);
+  const [appliedQuery, setAppliedQuery] = useState("");
   const [editing, setEditing] = useState<AdminGame | null>(null);
   const [pending, startTransition] = useTransition();
-  const skipNextSearch = useRef(true);
+  const loadErrorMessage = t("adminGames.loadError");
 
   function loadPage(page: number, search: string): void {
     if (pending || page < 1 || page > result.pages) return;
@@ -326,27 +326,26 @@ export function AdminGamesPanel({
       try {
         setResult(await getAdminGamesPageAction(page, search));
       } catch {
-        toast.error(t("adminGames.loadError"));
+        toast.error(loadErrorMessage);
       }
     });
   }
-
   useEffect(() => {
-    if (skipNextSearch.current) {
-      skipNextSearch.current = false;
+    if (query === appliedQuery) {
       return;
     }
     const timeout = window.setTimeout(() => {
       startTransition(async () => {
         try {
           setResult(await getAdminGamesPageAction(1, query));
+          setAppliedQuery(query);
         } catch {
-          toast.error(t("adminGames.loadError"));
+          toast.error(loadErrorMessage);
         }
       });
     }, 300);
     return () => window.clearTimeout(timeout);
-  }, [query, t]);
+  }, [appliedQuery, loadErrorMessage, query]);
 
   return (
     <>

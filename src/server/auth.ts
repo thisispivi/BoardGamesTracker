@@ -1,15 +1,23 @@
 import "server-only";
 
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { APIError } from "better-auth/api";
+import {
+  APIError,
+  createAuthMiddleware,
+  getSessionFromCtx,
+} from "better-auth/api";
 import { betterAuth } from "better-auth/minimal";
 import { nextCookies } from "better-auth/next-js";
 import { admin } from "better-auth/plugins";
+import { eq } from "drizzle-orm";
 
 import { env } from "@/env";
 import { isBootstrapRequired } from "@/server/bootstrap";
 import { db } from "@/server/db";
 import * as schema from "@/server/db/schema";
+import { isCurrentlyBanned } from "@/server/security/ban";
+
+const bannedUserMessage = "This account has been suspended.";
 
 /** Better Auth server with hardened email/password sessions and RBAC. */
 export const auth = betterAuth({
@@ -35,9 +43,7 @@ export const auth = betterAuth({
     expiresIn: 60 * 60 * 24 * 14,
     updateAge: 60 * 60 * 24,
     cookieCache: {
-      enabled: true,
-      maxAge: 60 * 5,
-      strategy: "compact",
+      enabled: false,
     },
   },
   rateLimit: {
@@ -59,6 +65,31 @@ export const auth = betterAuth({
       sameSite: "lax",
       path: "/",
     },
+  },
+  hooks: {
+    /**
+     * Refuses every authenticated Better Auth endpoint to a suspended account.
+     *
+     * The admin plugin only blocks session creation, so without this a session
+     * issued before the ban could still drive `/api/auth/*` directly, which
+     * never passes through the application's own `getSession`.
+     */
+    before: createAuthMiddleware(async (ctx) => {
+      const active = await getSessionFromCtx(ctx, {
+        disableCookieCache: true,
+      }).catch(() => null);
+      if (!active?.user || !isCurrentlyBanned(active.user)) {
+        return;
+      }
+
+      await db
+        .delete(schema.session)
+        .where(eq(schema.session.userId, active.user.id));
+      throw APIError.from("FORBIDDEN", {
+        code: "BANNED_USER",
+        message: bannedUserMessage,
+      });
+    }),
   },
   databaseHooks: {
     user: {
@@ -102,7 +133,11 @@ export const auth = betterAuth({
     },
   },
   plugins: [
-    admin({ defaultRole: "user", adminRoles: ["admin"] }),
+    admin({
+      defaultRole: "user",
+      adminRoles: ["admin"],
+      bannedUserMessage,
+    }),
     nextCookies(),
   ],
 });

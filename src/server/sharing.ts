@@ -9,6 +9,7 @@ import type { CollectionGame } from "@/core";
 import { getCollection, getWishlist } from "@/server/collection";
 import { db } from "@/server/db";
 import { user } from "@/server/db/schema";
+import { isCurrentlyBanned } from "@/server/security/ban";
 
 /** A shared library with prices already removed when the owner opted out. */
 export type SharedLibrary = {
@@ -69,6 +70,8 @@ export const getSharedLibrary = cache(async function getSharedLibrary(
 
   const [owner] = await db
     .select({
+      banExpires: user.banExpires,
+      banned: user.banned,
       currency: user.currency,
       id: user.id,
       name: user.name,
@@ -80,6 +83,9 @@ export const getSharedLibrary = cache(async function getSharedLibrary(
     .where(eq(user.shareToken, token))
     .limit(1);
   if (!owner || (!owner.shareCollection && !owner.shareWishlist)) {
+    return null;
+  }
+  if (isCurrentlyBanned(owner)) {
     return null;
   }
 
