@@ -76,7 +76,7 @@
     "eslint-plugin-jsdoc": "^63.3.0",
     "eslint-plugin-simple-import-sort": "^14.0.0",
     "husky": "^9.1.7",
-    "jsdom": "^29.1.1",
+    "jsdom": "^30.0.1",
     "knip": "^6.29.0",
     "lint-staged": "^17.2.0",
     "npm-run-all2": "^9.0.2",
