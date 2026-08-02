@@ -30,6 +30,7 @@ type SharedSectionProps = {
   currency: string;
   games: CollectionGame[];
   icon: typeof BookOpen;
+  sharePrices: boolean;
   title: string;
 };
 
@@ -66,7 +67,7 @@ async function SharedStats({ currency, games, sharePrices }: SharedStatsProps) {
 
   return (
     <section
-      className={`mb-12 grid gap-4 ${sharePrices ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}
+      className={`mb-8 grid gap-4 ${sharePrices ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}
     >
       {cards.map(({ icon: Icon, label, value }) => (
         <article
@@ -104,6 +105,7 @@ async function SharedStats({ currency, games, sharePrices }: SharedStatsProps) {
  * @param root0.currency - The 'currency' property.
  * @param root0.games - The 'games' property.
  * @param root0.icon - The 'icon' property.
+ * @param root0.sharePrices - Whether prices are visible for this section.
  * @param root0.title - The 'title' property.
  * @returns The documented function result.
  */
@@ -111,6 +113,7 @@ function SharedSection({
   currency,
   games,
   icon: Icon,
+  sharePrices,
   title,
 }: SharedSectionProps) {
   return (
@@ -119,6 +122,11 @@ function SharedSection({
         <Icon className="text-primary size-5" />
         {title}
       </h2>
+      <SharedStats
+        currency={currency}
+        games={games}
+        sharePrices={sharePrices}
+      />
       <CollectionBrowser currency={currency} games={games} readOnly />
     </section>
   );
@@ -150,16 +158,12 @@ export default async function SharedLibraryPage({
         eyebrow={t("sharing.eyebrow")}
         title={t("sharing.ownerTitle", { name: shared.name })}
       />
-      <SharedStats
-        currency={shared.currency}
-        games={[...(shared.collection ?? []), ...(shared.wishlist ?? [])]}
-        sharePrices={shared.sharePrices}
-      />
       {shared.collection ? (
         <SharedSection
           currency={shared.currency}
           games={shared.collection}
           icon={BookOpen}
+          sharePrices={shared.sharePrices}
           title={t("navigation.collection")}
         />
       ) : null}
@@ -168,6 +172,7 @@ export default async function SharedLibraryPage({
           currency={shared.currency}
           games={shared.wishlist}
           icon={Heart}
+          sharePrices={shared.sharePrices}
           title={t("navigation.wishlist")}
         />
       ) : null}

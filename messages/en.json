@@ -249,7 +249,9 @@
     "libraryGifts": "Gifts",
     "credentials": "Account security",
     "credentialsBody": "Update your sign-in email or password. Password changes sign out your other sessions.",
+    "emailBody": "Change the address you use to sign in.",
     "password": "Password",
+    "passwordBody": "Use at least 12 characters. Your other sessions will be signed out.",
     "currentPassword": "Current password",
     "newPassword": "New password (12–128 characters)",
     "saveEmail": "Save email",
@@ -261,6 +263,7 @@
     "deleteAccount": "Delete account",
     "deleteAccountTitle": "Delete your account?",
     "deleteAccountBody": "This permanently deletes your account, sessions, library, and personal data. Enter your current password to continue.",
+    "deleteAccountSummary": "Permanently remove your account and all of its data.",
     "deleteFailed": "The account could not be deleted. Check your password and try again."
   },
   "sharing": {

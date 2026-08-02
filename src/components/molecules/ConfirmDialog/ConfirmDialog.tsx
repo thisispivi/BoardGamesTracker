@@ -59,35 +59,33 @@ export function ConfirmDialog({
           <AlertDialog.Description className="text-muted-foreground mt-3 text-sm leading-6">
             {description}
           </AlertDialog.Description>
-          <form action={action} className="mt-7 flex justify-end gap-2">
+          <form action={action} className="mt-7 space-y-5">
             {Object.entries(fields).map(([name, value]) => (
               <input key={name} name={name} type="hidden" value={value} />
             ))}
             {passwordLabel ? (
-              <label className="sr-only" htmlFor="confirmation-password">
-                {passwordLabel}
+              <label className="block text-sm font-bold">
+                <span className="mb-2 block">{passwordLabel}</span>
+                <input
+                  autoComplete="current-password"
+                  className="field-input"
+                  name="password"
+                  placeholder={passwordPlaceholder}
+                  required
+                  type="password"
+                />
               </label>
             ) : null}
-            {passwordLabel ? (
-              <input
-                autoComplete="current-password"
-                id="confirmation-password"
-                name="password"
-                placeholder={passwordPlaceholder}
-                required
-                type="password"
-              />
-            ) : null}
-            <AlertDialog.Cancel asChild>
-              <Button type="button" variant="secondary">
-                {cancelLabel}
-              </Button>
-            </AlertDialog.Cancel>
-            <AlertDialog.Action asChild>
+            <div className="flex flex-wrap justify-end gap-2 border-t pt-5">
+              <AlertDialog.Cancel asChild>
+                <Button type="button" variant="secondary">
+                  {cancelLabel}
+                </Button>
+              </AlertDialog.Cancel>
               <Button type="submit" variant="danger">
                 {confirmLabel}
               </Button>
-            </AlertDialog.Action>
+            </div>
           </form>
         </AlertDialog.Content>
       </AlertDialog.Portal>

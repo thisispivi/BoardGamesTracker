@@ -1,6 +1,6 @@
 "use client";
 
-import { KeyRound, Mail, Trash2 } from "lucide-react";
+import { KeyRound, ShieldCheck, Trash2, TriangleAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { type FormEvent, type ReactNode, useState, useTransition } from "react";
@@ -92,11 +92,11 @@ export function AccountSettingsCard({
   return (
     <section
       aria-busy={isPending}
-      className="bg-card shadow-soft rounded-3xl border p-6 sm:p-8"
+      className="bg-card shadow-soft h-full rounded-3xl border p-6 sm:p-8"
     >
-      <div className="flex items-start gap-4">
+      <div className="flex items-center gap-4">
         <span className="bg-primary/10 text-primary grid size-12 shrink-0 place-items-center rounded-2xl">
-          <Mail className="size-5" />
+          <ShieldCheck className="size-5" />
         </span>
         <div>
           <h2 className="font-display text-xl font-bold">
@@ -107,49 +107,92 @@ export function AccountSettingsCard({
           </p>
         </div>
       </div>
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <form className="space-y-3" onSubmit={changeEmail}>
-          <label className="text-sm font-bold" htmlFor="account-email">
+      <div className="mt-7 grid gap-6 lg:grid-cols-2">
+        <form className="rounded-2xl border p-5" onSubmit={changeEmail}>
+          <h3 className="flex items-center gap-2 font-bold">
             {t("settings.email")}
+          </h3>
+          <p className="text-muted-foreground mt-1 text-sm leading-6">
+            {t("settings.emailBody")}
+          </p>
+          <label className="mt-4 block text-sm font-bold">
+            <span className="mb-2 block">{t("settings.email")}</span>
+            <input
+              autoComplete="email"
+              className="field-input"
+              onChange={(event) => setEmailValue(event.target.value)}
+              required
+              type="email"
+              value={emailValue}
+            />
           </label>
-          <input
-            id="account-email"
-            onChange={(event) => setEmailValue(event.target.value)}
-            required
-            type="email"
-            value={emailValue}
-          />
-          <Button disabled={isPending} type="submit" variant="secondary">
+          <Button
+            className="mt-4"
+            disabled={isPending || emailValue === email}
+            size="sm"
+            type="submit"
+            variant="secondary"
+          >
             {t("settings.saveEmail")}
           </Button>
         </form>
-        <form className="space-y-3" onSubmit={changePassword}>
-          <p className="flex items-center gap-2 text-sm font-bold">
+        <form className="rounded-2xl border p-5" onSubmit={changePassword}>
+          <h3 className="flex items-center gap-2 font-bold">
             <KeyRound className="size-4" />
             {t("settings.password")}
+          </h3>
+          <p className="text-muted-foreground mt-1 text-sm leading-6">
+            {t("settings.passwordBody")}
           </p>
-          <input
-            autoComplete="current-password"
-            name="currentPassword"
-            placeholder={t("settings.currentPassword")}
-            required
-            type="password"
-          />
-          <input
-            autoComplete="new-password"
-            maxLength={128}
-            minLength={12}
-            name="newPassword"
-            placeholder={t("settings.newPassword")}
-            required
-            type="password"
-          />
-          <Button disabled={isPending} type="submit" variant="secondary">
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <label className="block text-sm font-bold">
+              <span className="mb-2 block">
+                {t("settings.currentPassword")}
+              </span>
+              <input
+                autoComplete="current-password"
+                className="field-input"
+                name="currentPassword"
+                required
+                type="password"
+              />
+            </label>
+            <label className="block text-sm font-bold">
+              <span className="mb-2 block">{t("settings.newPassword")}</span>
+              <input
+                autoComplete="new-password"
+                className="field-input"
+                maxLength={128}
+                minLength={12}
+                name="newPassword"
+                required
+                type="password"
+              />
+            </label>
+          </div>
+          <Button
+            className="mt-4"
+            disabled={isPending}
+            size="sm"
+            type="submit"
+            variant="secondary"
+          >
             {t("settings.savePassword")}
           </Button>
         </form>
       </div>
-      <div className="mt-7 border-t pt-6">
+      <div className="border-danger/30 mt-6 flex flex-col justify-between gap-4 rounded-2xl border p-5 sm:flex-row sm:items-center">
+        <div className="flex items-start gap-3">
+          <span className="bg-danger/10 text-danger grid size-10 shrink-0 place-items-center rounded-xl">
+            <TriangleAlert className="size-4" />
+          </span>
+          <div>
+            <h3 className="font-bold">{t("settings.deleteAccount")}</h3>
+            <p className="text-muted-foreground mt-1 text-sm leading-6">
+              {t("settings.deleteAccountSummary")}
+            </p>
+          </div>
+        </div>
         <ConfirmDialog
           action={deleteAccount}
           cancelLabel={t("common.cancel")}
@@ -160,7 +203,12 @@ export function AccountSettingsCard({
           passwordPlaceholder={t("settings.currentPassword")}
           title={t("settings.deleteAccountTitle")}
           trigger={
-            <Button type="button" variant="danger">
+            <Button
+              className="shrink-0"
+              size="sm"
+              type="button"
+              variant="danger"
+            >
               <Trash2 className="size-4" />
               {t("settings.deleteAccount")}
             </Button>

@@ -249,7 +249,9 @@
     "libraryGifts": "Regali",
     "credentials": "Sicurezza dell'account",
     "credentialsBody": "Aggiorna l'email di accesso o la password. Le modifiche alla password disconnettono le altre sessioni.",
+    "emailBody": "Modifica l'indirizzo utilizzato per accedere.",
     "password": "Password",
+    "passwordBody": "Usa almeno 12 caratteri. Le altre sessioni verranno disconnesse.",
     "currentPassword": "Password attuale",
     "newPassword": "Nuova password (12–128 caratteri)",
     "saveEmail": "Salva email",
@@ -261,6 +263,7 @@
     "deleteAccount": "Elimina account",
     "deleteAccountTitle": "Eliminare il tuo account?",
     "deleteAccountBody": "Elimina definitivamente account, sessioni, libreria e dati personali. Inserisci la password attuale per continuare.",
+    "deleteAccountSummary": "Rimuovi definitivamente il tuo account e tutti i suoi dati.",
     "deleteFailed": "Non è stato possibile eliminare l'account. Controlla la password e riprova."
   },
   "sharing": {
