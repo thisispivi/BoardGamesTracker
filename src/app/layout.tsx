@@ -1,7 +1,7 @@
 import "./globals.css";
 
 import type { Metadata, Viewport } from "next";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 
@@ -49,6 +49,7 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const cookieStore = await cookies();
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   const locale = await getLocale();
   const cookieTheme = cookieStore.get("theme")?.value;
   const theme = isAppTheme(cookieTheme) ? cookieTheme : undefined;
@@ -63,7 +64,9 @@ export default async function RootLayout({
     >
       <body>
         <NextIntlClientProvider>
-          <Providers initialTheme={theme}>{children}</Providers>
+          <Providers initialTheme={theme} nonce={nonce}>
+            {children}
+          </Providers>
         </NextIntlClientProvider>
       </body>
     </html>

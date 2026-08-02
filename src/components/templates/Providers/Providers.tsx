@@ -11,6 +11,7 @@ import { isAppTheme, persistThemeCookie } from "@/utils/theme";
 type ProvidersProps = {
   children: React.ReactNode;
   initialTheme?: AppTheme | undefined;
+  nonce: string | undefined;
 };
 
 /**
@@ -19,14 +20,17 @@ type ProvidersProps = {
  * @param root0 - Component or function properties.
  * @param root0.children - The 'children' property.
  * @param root0.initialTheme - The 'initialTheme' property.
+ * @param root0.nonce - The request nonce that authorizes the theme script.
  * @returns The documented function result.
  */
 export function Providers({
   children,
   initialTheme,
+  nonce,
 }: ProvidersProps): ReactNode {
   return (
     <ThemeProvider
+      {...(nonce ? { nonce } : {})}
       attribute="class"
       defaultTheme={initialTheme ?? "system"}
       disableTransitionOnChange
