@@ -105,19 +105,57 @@ export async function setSharingAction(formData: FormData): Promise<void> {
 }
 
 /**
+ * Returns the current sharing token, creating one for an already shared library.
+ *
+ * @returns The active sharing token, or null when sharing is disabled.
+ */
+export async function getShareTokenAction(): Promise<string | null> {
+  const session = await requireUser();
+  const [current] = await db
+    .select({
+      shareCollection: user.shareCollection,
+      shareToken: user.shareToken,
+      shareWishlist: user.shareWishlist,
+    })
+    .from(user)
+    .where(eq(user.id, session.user.id))
+    .limit(1);
+  if (!current || (!current.shareCollection && !current.shareWishlist)) {
+    return null;
+  }
+  if (current.shareToken) {
+    return current.shareToken;
+  }
+
+  const token = createShareToken();
+  await db
+    .update(user)
+    .set({ shareToken: token, updatedAt: new Date() })
+    .where(eq(user.id, session.user.id));
+  await writeAuditEvent({
+    actorId: session.user.id,
+    action: "settings.share_token_created",
+    targetType: "user",
+    targetId: session.user.id,
+  });
+  revalidatePath("/settings");
+  return token;
+}
+
+/**
  * Replaces the share token, revoking every link handed out so far.
  *
- * @returns The documented function result.
+ * @returns The new token, or null when the account no longer exists.
  */
-export async function regenerateShareTokenAction(): Promise<void> {
+export async function regenerateShareTokenAction(): Promise<string | null> {
   const session = await requireUser();
   const [updated] = await db
     .update(user)
     .set({ shareToken: createShareToken(), updatedAt: new Date() })
     .where(eq(user.id, session.user.id))
-    .returning({ id: user.id });
+    .returning({ shareToken: user.shareToken });
   if (!updated) {
-    return;
+    return null;
   }
 
   await writeAuditEvent({
@@ -127,4 +165,5 @@ export async function regenerateShareTokenAction(): Promise<void> {
     targetId: session.user.id,
   });
   revalidatePath("/settings");
+  return updated.shareToken;
 }

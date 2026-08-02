@@ -16,6 +16,7 @@ export type SharedLibrary = {
   collection: CollectionGame[] | null;
   currency: string;
   name: string;
+  sharePrices: boolean;
   wishlist: CollectionGame[] | null;
 };
 
@@ -97,6 +98,7 @@ export const getSharedLibrary = cache(async function getSharedLibrary(
     collection: collection && redact(collection, owner.sharePrices),
     currency: owner.currency,
     name: owner.name,
+    sharePrices: owner.sharePrices,
     wishlist: wishlist && redact(wishlist, owner.sharePrices),
   };
 });

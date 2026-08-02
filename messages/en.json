@@ -246,7 +246,22 @@
     "currencyBody": "Used for purchase prices and collection totals.",
     "libraryItems": "Items",
     "libraryFavorites": "Favorites",
-    "libraryGifts": "Gifts"
+    "libraryGifts": "Gifts",
+    "credentials": "Account security",
+    "credentialsBody": "Update your sign-in email or password. Password changes sign out your other sessions.",
+    "password": "Password",
+    "currentPassword": "Current password",
+    "newPassword": "New password (12–128 characters)",
+    "saveEmail": "Save email",
+    "savePassword": "Change password",
+    "emailUpdated": "Email address updated.",
+    "emailFailed": "The email address could not be updated.",
+    "passwordUpdated": "Password updated. Other sessions were signed out.",
+    "passwordFailed": "The password could not be updated. Check your current password.",
+    "deleteAccount": "Delete account",
+    "deleteAccountTitle": "Delete your account?",
+    "deleteAccountBody": "This permanently deletes your account, sessions, library, and personal data. Enter your current password to continue.",
+    "deleteFailed": "The account could not be deleted. Check your password and try again."
   },
   "sharing": {
     "metaTitle": "Shared library",
@@ -267,7 +282,10 @@
     "linkWarning": "Treat this link like a password: anyone who has it can view what you share. Regenerate it to revoke every link you have handed out.",
     "regenerate": "Regenerate",
     "regenerated": "New link generated. The previous link no longer works.",
-    "publicBody": "A library shared by its owner. Read-only."
+    "publicBody": "A library shared by its owner. Read-only.",
+    "games": "Games",
+    "expansions": "Expansions",
+    "moneySpent": "Money spent"
   },
   "wishlist": {
     "metaTitle": "Wishlist",

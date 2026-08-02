@@ -15,7 +15,7 @@ import { getAuditLogPage } from "@/server/admin/auditLogs";
 import { writeAuditEvent } from "@/server/audit";
 import { createPasswordResetToken } from "@/server/auth/passwordReset";
 import { db } from "@/server/db";
-import { session, user } from "@/server/db/schema";
+import { account, collectionItems, session, user } from "@/server/db/schema";
 import { requireAdmin } from "@/server/session";
 
 /**
@@ -130,7 +130,16 @@ export async function deleteUserAction(formData: FormData): Promise<void> {
   const actor = await requireAdmin();
   const targetId = userIdSchema.parse(formData.get("userId"));
   await assertManageableUser(actor.user.id, targetId);
-  await db.delete(user).where(eq(user.id, targetId));
+  await db.transaction(async (transaction) => {
+    // Delete related records explicitly so an older deployment with stale
+    // foreign-key rules cannot prevent the administrator from removing a user.
+    await transaction.delete(session).where(eq(session.userId, targetId));
+    await transaction.delete(account).where(eq(account.userId, targetId));
+    await transaction
+      .delete(collectionItems)
+      .where(eq(collectionItems.userId, targetId));
+    await transaction.delete(user).where(eq(user.id, targetId));
+  });
   await writeAuditEvent({
     actorId: actor.user.id,
     action: "admin.user_deleted",

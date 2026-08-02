@@ -246,7 +246,22 @@
     "currencyBody": "Usata per prezzi di acquisto e totale collezione.",
     "libraryItems": "Elementi",
     "libraryFavorites": "Preferiti",
-    "libraryGifts": "Regali"
+    "libraryGifts": "Regali",
+    "credentials": "Sicurezza dell'account",
+    "credentialsBody": "Aggiorna l'email di accesso o la password. Le modifiche alla password disconnettono le altre sessioni.",
+    "password": "Password",
+    "currentPassword": "Password attuale",
+    "newPassword": "Nuova password (12–128 caratteri)",
+    "saveEmail": "Salva email",
+    "savePassword": "Cambia password",
+    "emailUpdated": "Indirizzo email aggiornato.",
+    "emailFailed": "Non è stato possibile aggiornare l'indirizzo email.",
+    "passwordUpdated": "Password aggiornata. Le altre sessioni sono state disconnesse.",
+    "passwordFailed": "Non è stato possibile aggiornare la password. Controlla la password attuale.",
+    "deleteAccount": "Elimina account",
+    "deleteAccountTitle": "Eliminare il tuo account?",
+    "deleteAccountBody": "Elimina definitivamente account, sessioni, libreria e dati personali. Inserisci la password attuale per continuare.",
+    "deleteFailed": "Non è stato possibile eliminare l'account. Controlla la password e riprova."
   },
   "sharing": {
     "metaTitle": "Libreria condivisa",
@@ -267,7 +282,10 @@
     "linkWarning": "Tratta questo link come una password: chiunque lo possieda può vedere ciò che condividi. Rigeneralo per revocare tutti i link già distribuiti.",
     "regenerate": "Rigenera",
     "regenerated": "Nuovo link generato. Il link precedente non funziona più.",
-    "publicBody": "Una libreria condivisa dal proprietario. Sola lettura."
+    "publicBody": "Una libreria condivisa dal proprietario. Sola lettura.",
+    "games": "Giochi",
+    "expansions": "Espansioni",
+    "moneySpent": "Spesa totale"
   },
   "wishlist": {
     "metaTitle": "Lista desideri",

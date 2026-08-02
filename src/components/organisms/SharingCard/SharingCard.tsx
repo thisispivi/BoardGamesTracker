@@ -7,6 +7,7 @@ import { type ReactNode, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import {
+  getShareTokenAction,
   regenerateShareTokenAction,
   setSharingAction,
 } from "@/server/actions/preferences";
@@ -96,10 +97,11 @@ export function SharingCard({
     wishlist: shareWishlist,
   });
   const [copied, setCopied] = useState(false);
+  const [token, setToken] = useState(shareToken);
   const [pending, startTransition] = useTransition();
   const router = useRouter();
   const t = useTranslations();
-  const shareUrl = shareToken ? `${appUrl}/share/${shareToken}` : "";
+  const shareUrl = token ? `${appUrl}/share/${token}` : "";
   const sharesAnything = sharing.collection || sharing.wishlist;
 
   /**
@@ -124,7 +126,8 @@ export function SharingCard({
   /** Rotates the token, invalidating every link already handed out. */
   function regenerate(): void {
     startTransition(async () => {
-      await regenerateShareTokenAction();
+      const updatedToken = await regenerateShareTokenAction();
+      setToken(updatedToken);
       router.refresh();
       toast.success(t("sharing.regenerated"));
     });
@@ -132,13 +135,21 @@ export function SharingCard({
 
   /** Copies the sharing link, reporting a denied clipboard rather than failing. */
   function copyLink(): void {
-    void navigator.clipboard
-      .writeText(shareUrl)
-      .then(() => {
+    startTransition(async () => {
+      try {
+        const resolvedToken = token ?? (await getShareTokenAction());
+        if (!resolvedToken) {
+          toast.error(t("sharing.copyFailed"));
+          return;
+        }
+        await navigator.clipboard.writeText(`${appUrl}/share/${resolvedToken}`);
+        setToken(resolvedToken);
         setCopied(true);
         window.setTimeout(() => setCopied(false), 2_000);
-      })
-      .catch(() => toast.error(t("sharing.copyFailed")));
+      } catch {
+        toast.error(t("sharing.copyFailed"));
+      }
+    });
   }
 
   return (
@@ -187,17 +198,20 @@ export function SharingCard({
           />
         </div>
 
-        {sharesAnything && shareUrl ? (
+        {sharesAnything ? (
           <div className="flex flex-col gap-3 border-t pt-5">
             <p className="text-muted-foreground text-xs leading-5">
               {t("sharing.linkWarning")}
             </p>
             <div className="flex flex-wrap items-center gap-2">
-              <code className="bg-muted min-w-0 flex-1 truncate rounded-xl px-3 py-2 text-xs">
-                {shareUrl}
-              </code>
+              {shareUrl ? (
+                <code className="bg-muted min-w-0 flex-1 truncate rounded-xl px-3 py-2 text-xs">
+                  {shareUrl}
+                </code>
+              ) : null}
               <button
                 className="hover:bg-muted flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-bold transition"
+                disabled={pending}
                 onClick={copyLink}
                 type="button"
               >

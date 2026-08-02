@@ -11,6 +11,7 @@ import { getTranslations } from "next-intl/server";
 
 import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
 import { CurrencySelect } from "@/components/molecules/CurrencySelect/CurrencySelect";
+import { AccountSettingsCard } from "@/components/organisms/AccountSettingsCard/AccountSettingsCard";
 import { ClearLibraryCard } from "@/components/organisms/ClearLibraryCard/ClearLibraryCard";
 import { SharingCard } from "@/components/organisms/SharingCard/SharingCard";
 import { UserDataCard } from "@/components/organisms/UserDataCard/UserDataCard";
@@ -130,6 +131,9 @@ export default async function SettingsPage() {
             shareToken={preferences.shareToken}
             shareWishlist={preferences.shareWishlist}
           />
+        </div>
+        <div className="lg:col-span-2">
+          <AccountSettingsCard email={session.user.email} />
         </div>
         <section className="bg-card shadow-soft relative overflow-hidden rounded-3xl border p-6 sm:p-8">
           <div

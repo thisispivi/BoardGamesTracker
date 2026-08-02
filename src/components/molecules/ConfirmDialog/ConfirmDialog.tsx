@@ -12,6 +12,8 @@ type ConfirmDialogProps = {
   confirmLabel: string;
   description: string;
   fields: Record<string, string>;
+  passwordLabel?: string;
+  passwordPlaceholder?: string;
   title: string;
   trigger: React.ReactNode;
 };
@@ -25,6 +27,8 @@ type ConfirmDialogProps = {
  * @param root0.confirmLabel - The 'confirmLabel' property.
  * @param root0.description - The 'description' property.
  * @param root0.fields - The 'fields' property.
+ * @param root0.passwordLabel - The optional deletion-password label.
+ * @param root0.passwordPlaceholder - The optional deletion-password placeholder.
  * @param root0.title - The 'title' property.
  * @param root0.trigger - The 'trigger' property.
  * @returns The documented function result.
@@ -35,6 +39,8 @@ export function ConfirmDialog({
   confirmLabel,
   description,
   fields,
+  passwordLabel,
+  passwordPlaceholder,
   title,
   trigger,
 }: ConfirmDialogProps): ReactNode {
@@ -57,6 +63,21 @@ export function ConfirmDialog({
             {Object.entries(fields).map(([name, value]) => (
               <input key={name} name={name} type="hidden" value={value} />
             ))}
+            {passwordLabel ? (
+              <label className="sr-only" htmlFor="confirmation-password">
+                {passwordLabel}
+              </label>
+            ) : null}
+            {passwordLabel ? (
+              <input
+                autoComplete="current-password"
+                id="confirmation-password"
+                name="password"
+                placeholder={passwordPlaceholder}
+                required
+                type="password"
+              />
+            ) : null}
             <AlertDialog.Cancel asChild>
               <Button type="button" variant="secondary">
                 {cancelLabel}

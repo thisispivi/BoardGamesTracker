@@ -39,6 +39,14 @@ export const auth = betterAuth({
     autoSignIn: true,
     revokeSessionsOnPasswordReset: true,
   },
+  user: {
+    changeEmail: {
+      enabled: true,
+      // This self-hosted installation has no transactional email provider.
+      updateEmailWithoutVerification: true,
+    },
+    deleteUser: { enabled: true },
+  },
   session: {
     expiresIn: 60 * 60 * 24 * 14,
     updateAge: 60 * 60 * 24,

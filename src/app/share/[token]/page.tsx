@@ -1,7 +1,7 @@
-import { BookOpen, Heart } from "lucide-react";
+import { Banknote, BookOpen, Boxes, Heart, Puzzle } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { getFormatter, getTranslations } from "next-intl/server";
 
 import { Logo } from "@/components/atoms/Logo/Logo";
 import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
@@ -32,6 +32,70 @@ type SharedSectionProps = {
   icon: typeof BookOpen;
   title: string;
 };
+
+type SharedStatsProps = {
+  currency: string;
+  games: CollectionGame[];
+  sharePrices: boolean;
+};
+
+/**
+ * Summarizes the deliberately shared games without exposing extra personal data.
+ *
+ * @param root0 - Component properties.
+ * @param root0.currency - The owner's display currency.
+ * @param root0.games - The games the owner chose to publish.
+ * @param root0.sharePrices - Whether the owner chose to reveal prices.
+ * @returns The rendered library summary.
+ */
+async function SharedStats({ currency, games, sharePrices }: SharedStatsProps) {
+  const [format, t] = await Promise.all([getFormatter(), getTranslations()]);
+  const cards = [
+    {
+      icon: Boxes,
+      label: t("sharing.games"),
+      value: games.filter((game) => !game.isExpansion).length,
+    },
+    {
+      icon: Puzzle,
+      label: t("sharing.expansions"),
+      value: games.filter((game) => game.isExpansion).length,
+    },
+  ];
+  const spent = games.reduce((total, game) => total + game.moneySpent, 0);
+
+  return (
+    <section
+      className={`mb-12 grid gap-4 ${sharePrices ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}
+    >
+      {cards.map(({ icon: Icon, label, value }) => (
+        <article
+          className="bg-card shadow-soft rounded-3xl border p-5"
+          key={label}
+        >
+          <Icon className="text-primary size-5" />
+          <p className="font-display mt-5 text-3xl font-bold tabular-nums">
+            {format.number(value)}
+          </p>
+          <p className="text-muted-foreground mt-1 text-sm font-semibold">
+            {label}
+          </p>
+        </article>
+      ))}
+      {sharePrices ? (
+        <article className="bg-card shadow-soft rounded-3xl border p-5">
+          <Banknote className="text-primary size-5" />
+          <p className="font-display mt-5 text-3xl font-bold tabular-nums">
+            {format.number(spent, { currency, style: "currency" })}
+          </p>
+          <p className="text-muted-foreground mt-1 text-sm font-semibold">
+            {t("sharing.moneySpent")}
+          </p>
+        </article>
+      ) : null}
+    </section>
+  );
+}
 
 /**
  * One read-only library section with its own search and filters.
@@ -85,6 +149,11 @@ export default async function SharedLibraryPage({
         description={t("sharing.publicBody")}
         eyebrow={t("sharing.eyebrow")}
         title={t("sharing.ownerTitle", { name: shared.name })}
+      />
+      <SharedStats
+        currency={shared.currency}
+        games={[...(shared.collection ?? []), ...(shared.wishlist ?? [])]}
+        sharePrices={shared.sharePrices}
       />
       {shared.collection ? (
         <SharedSection
