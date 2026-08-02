@@ -5,15 +5,37 @@ import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 
 import {
+  type AdminGamesPage,
+  adminPageSchema,
+  adminSearchSchema,
   type CollectionActionState,
   gameMetadataSchema,
   itemIdSchema,
 } from "@/core";
+import { getAdminGamesPage } from "@/server/admin/games";
 import { writeAuditEvent } from "@/server/audit";
 import { scrapeBggMetadata } from "@/server/bgg/scrape";
 import { db } from "@/server/db";
 import { games } from "@/server/db/schema";
 import { requireAdmin } from "@/server/session";
+
+/**
+ * Returns an authorized page of shared games without navigating away from the console.
+ *
+ * @param page - The 'page' value.
+ * @param search - Free text matched against the game name or an exact BGG id.
+ * @returns The documented function result.
+ */
+export async function getAdminGamesPageAction(
+  page: number,
+  search: string,
+): Promise<AdminGamesPage> {
+  await requireAdmin();
+  return getAdminGamesPage(
+    adminPageSchema.parse(page),
+    adminSearchSchema.parse(search),
+  );
+}
 
 /**
  * Splits and deduplicates comma-separated taxonomy labels.

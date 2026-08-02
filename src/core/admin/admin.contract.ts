@@ -3,8 +3,11 @@ import { z } from "zod";
 /** Validates a bounded account identifier. */
 export const userIdSchema = z.string().min(1).max(128);
 
-/** Validates an audit-log page number. */
-export const auditPageSchema = z.number().int().positive().max(1_000_000);
+/** Validates a page number for a paginated administrator list view. */
+export const adminPageSchema = z.number().int().positive().max(1_000_000);
+
+/** Validates a bounded search term for a paginated administrator list view. */
+export const adminSearchSchema = z.string().trim().max(200).catch("");
 
 /** Validates an application role. */
 export const roleSchema = z.enum(["user", "admin"]);
@@ -65,4 +68,11 @@ export type AdminGame = {
   owners: number;
   yearPublished: number | null;
   weight: number | null;
+};
+
+/** One bounded page of shared game records rendered by the administrator console. */
+export type AdminGamesPage = {
+  games: AdminGame[];
+  page: number;
+  pages: number;
 };

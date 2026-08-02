@@ -4,8 +4,8 @@ import { count, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 import {
+  adminPageSchema,
   type AuditLogPage,
-  auditPageSchema,
   bannedSchema,
   roleSchema,
   userIdSchema,
@@ -28,7 +28,7 @@ export async function getAuditLogPageAction(
   page: number,
 ): Promise<AuditLogPage> {
   await requireAdmin();
-  return getAuditLogPage(auditPageSchema.parse(page));
+  return getAuditLogPage(adminPageSchema.parse(page));
 }
 
 /**

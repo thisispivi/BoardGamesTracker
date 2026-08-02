@@ -8,7 +8,7 @@ import { AdminGamesPanel } from "@/components/organisms/AdminGamesPanel/AdminGam
 import { AdminUserActions } from "@/components/organisms/AdminUserActions/AdminUserActions";
 import { AuditLogPanel } from "@/components/organisms/AuditLogPanel/AuditLogPanel";
 import { getAuditLogPage } from "@/server/admin/auditLogs";
-import { listAdminGames } from "@/server/admin/games";
+import { getAdminGamesPage } from "@/server/admin/games";
 import { db } from "@/server/db";
 import { collectionItems, user } from "@/server/db/schema";
 import { requireAdmin } from "@/server/session";
@@ -34,7 +34,7 @@ export default async function AdminPage() {
     getTranslations(),
     getFormatter(),
   ]);
-  const [usersList, userCount, gameCount, initialAuditPage, allGames] =
+  const [usersList, userCount, gameCount, initialAuditPage, initialGamesPage] =
     await Promise.all([
       db
         .select({
@@ -51,7 +51,7 @@ export default async function AdminPage() {
       db.select({ value: count() }).from(user),
       db.select({ value: count() }).from(collectionItems),
       getAuditLogPage(1),
-      listAdminGames(),
+      getAdminGamesPage(1, ""),
     ]);
 
   return (
@@ -102,7 +102,42 @@ export default async function AdminPage() {
             </p>
           </div>
         </div>
-        <div className="overflow-x-auto">
+        <div className="divide-y md:hidden">
+          {usersList.map((record) => (
+            <div className="p-4" key={record.id}>
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate font-bold">{record.name}</p>
+                  <p className="text-muted-foreground mt-1 truncate text-xs">
+                    {record.email}
+                  </p>
+                </div>
+                <span
+                  className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-bold ${record.banned ? "bg-danger/10 text-danger" : "bg-primary/10 text-primary"}`}
+                >
+                  {record.banned ? t("admin.banned") : t("admin.active")}
+                </span>
+              </div>
+              <div className="text-muted-foreground mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                <span className="capitalize">{record.role}</span>
+                <span>
+                  {format.dateTime(record.createdAt, {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </span>
+              </div>
+              <div className="mt-3 flex justify-end">
+                <AdminUserActions
+                  isSelf={record.id === actor.user.id}
+                  user={record}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="hidden overflow-x-auto md:block">
           <table className="w-full min-w-190 text-left text-sm">
             <thead className="bg-muted/60 text-muted-foreground text-xs tracking-wide uppercase">
               <tr>
@@ -162,7 +197,7 @@ export default async function AdminPage() {
             {t("adminGames.body")}
           </p>
         </div>
-        <AdminGamesPanel games={allGames} />
+        <AdminGamesPanel initialPage={initialGamesPage} />
       </section>
 
       <section className="bg-card shadow-soft rounded-3xl border p-6 sm:p-8">

@@ -27,7 +27,7 @@ export function proxy(request: NextRequest): NextResponse {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https://cf.geekdo-images.com https://react-circle-flags.pages.dev",
     "font-src 'self' data:",
-    "connect-src 'self'",
+    "connect-src 'self' https://bugsink.pivi.dev",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

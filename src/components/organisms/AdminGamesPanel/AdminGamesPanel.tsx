@@ -1,31 +1,41 @@
 "use client";
 
 import * as Dialog from "@radix-ui/react-dialog";
-import { Clock3, Pencil, RefreshCw, Search, Users, X } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Clock3,
+  Pencil,
+  RefreshCw,
+  Search,
+  Users,
+  X,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   type ReactNode,
   useActionState,
   useEffect,
-  useMemo,
+  useRef,
   useState,
+  useTransition,
 } from "react";
 import { toast } from "sonner";
 
 import { AppSpinner } from "@/components/atoms/AppSpinner/AppSpinner";
 import { Button } from "@/components/atoms/Button/Button";
 import { GameArtwork } from "@/components/atoms/GameArtwork/GameArtwork";
-import type { AdminGame, CollectionActionState } from "@/core";
+import type { AdminGame, AdminGamesPage, CollectionActionState } from "@/core";
 import {
+  getAdminGamesPageAction,
   refreshGameFromBggAction,
   updateGameMetadataAction,
 } from "@/server/actions/adminGames";
-import { normalizeSearchText } from "@/utils/search";
 
 const initialState: CollectionActionState = { success: false, message: "" };
 
 type AdminGamesPanelProps = {
-  games: AdminGame[];
+  initialPage: AdminGamesPage;
 };
 
 type EditDialogProps = {
@@ -294,23 +304,49 @@ function EditGameMetadataDialog({ game, onClose }: EditDialogProps): ReactNode {
 }
 
 /**
- * Searchable table of every shared game with a metadata editor.
+ * Searchable, paginated list of every shared game with a metadata editor.
  *
  * @param root0 - Component or function properties.
- * @param root0.games - The 'games' property.
+ * @param root0.initialPage - The 'initialPage' property.
  * @returns The documented function result.
  */
-export function AdminGamesPanel({ games }: AdminGamesPanelProps): ReactNode {
+export function AdminGamesPanel({
+  initialPage,
+}: AdminGamesPanelProps): ReactNode {
   const t = useTranslations();
   const [query, setQuery] = useState("");
+  const [result, setResult] = useState(initialPage);
   const [editing, setEditing] = useState<AdminGame | null>(null);
-  const visible = useMemo(() => {
-    const term = normalizeSearchText(query);
-    if (!term) return games;
-    return games.filter((game) =>
-      normalizeSearchText(`${game.name} ${game.bggId}`).includes(term),
-    );
-  }, [games, query]);
+  const [pending, startTransition] = useTransition();
+  const skipNextSearch = useRef(true);
+
+  function loadPage(page: number, search: string): void {
+    if (pending || page < 1 || page > result.pages) return;
+    startTransition(async () => {
+      try {
+        setResult(await getAdminGamesPageAction(page, search));
+      } catch {
+        toast.error(t("adminGames.loadError"));
+      }
+    });
+  }
+
+  useEffect(() => {
+    if (skipNextSearch.current) {
+      skipNextSearch.current = false;
+      return;
+    }
+    const timeout = window.setTimeout(() => {
+      startTransition(async () => {
+        try {
+          setResult(await getAdminGamesPageAction(1, query));
+        } catch {
+          toast.error(t("adminGames.loadError"));
+        }
+      });
+    }, 300);
+    return () => window.clearTimeout(timeout);
+  }, [query, t]);
 
   return (
     <>
@@ -326,57 +362,105 @@ export function AdminGamesPanel({ games }: AdminGamesPanelProps): ReactNode {
         />
       </label>
 
-      {visible.length === 0 ? (
-        <p className="text-muted-foreground py-12 text-center text-sm">
-          {t("adminGames.empty")}
+      <div aria-busy={pending} className="relative min-h-32">
+        <div
+          className={`max-h-128 space-y-1 overflow-y-auto overscroll-contain pr-1 transition-opacity ${pending ? "opacity-35" : "opacity-100"}`}
+        >
+          {result.games.length === 0 ? (
+            <p className="text-muted-foreground py-12 text-center text-sm">
+              {t("adminGames.empty")}
+            </p>
+          ) : (
+            <ul className="divide-y">
+              {result.games.map((game) => (
+                <li className="flex items-center gap-4 py-3" key={game.id}>
+                  <GameArtwork
+                    className="size-12 shrink-0 rounded-xl"
+                    imageUrl={game.imageUrl}
+                    name={game.name}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-bold">{game.name}</p>
+                    <p className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                      <span>BGG #{game.bggId}</span>
+                      <span className="flex items-center gap-1">
+                        <Users className="size-3" />
+                        {game.minPlayers}–{game.maxPlayers}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Clock3 className="size-3" />
+                        {game.minPlaytime}–{game.maxPlaytime}
+                      </span>
+                      <span>
+                        {game.yearPublished ?? t("common.yearUnknown")}
+                      </span>
+                      {game.isExpansion ? (
+                        <span className="bg-accent/15 text-accent rounded-full px-2 py-0.5 font-bold">
+                          {t("common.expansion")}
+                        </span>
+                      ) : null}
+                    </p>
+                  </div>
+                  <button
+                    aria-label={t("adminGames.edit", { name: game.name })}
+                    className="text-muted-foreground hover:bg-muted hover:text-primary shrink-0 rounded-lg p-2 transition"
+                    onClick={() => setEditing(game)}
+                    type="button"
+                  >
+                    <Pencil className="size-4" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        {pending ? (
+          <div className="bg-card/72 absolute inset-0 grid place-items-center rounded-2xl backdrop-blur-[2px]">
+            <div className="text-primary flex flex-col items-center gap-3 text-sm font-bold">
+              <AppSpinner className="size-7" label={t("adminGames.loading")} />
+              <span>{t("adminGames.loading")}</span>
+            </div>
+          </div>
+        ) : null}
+      </div>
+
+      <nav
+        aria-label={t("adminGames.title")}
+        className="mt-5 flex items-center justify-between gap-4 border-t pt-5"
+      >
+        <Button
+          className="min-w-0 px-2 sm:min-w-28 sm:px-3"
+          disabled={pending || result.page <= 1}
+          onClick={() => loadPage(result.page - 1, query)}
+          size="sm"
+          type="button"
+          variant="secondary"
+        >
+          <ChevronLeft className="size-4" /> {t("admin.previous")}
+        </Button>
+        <p className="text-muted-foreground text-xs font-bold tabular-nums">
+          {t("adminGames.page", { page: result.page, pages: result.pages })}
         </p>
-      ) : (
-        <ul className="divide-y">
-          {visible.map((game) => (
-            <li className="flex items-center gap-4 py-3" key={game.id}>
-              <GameArtwork
-                className="size-12 shrink-0 rounded-xl"
-                imageUrl={game.imageUrl}
-                name={game.name}
-              />
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-bold">{game.name}</p>
-                <p className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-                  <span>BGG #{game.bggId}</span>
-                  <span className="flex items-center gap-1">
-                    <Users className="size-3" />
-                    {game.minPlayers}–{game.maxPlayers}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Clock3 className="size-3" />
-                    {game.minPlaytime}–{game.maxPlaytime}
-                  </span>
-                  <span>{game.yearPublished ?? t("common.yearUnknown")}</span>
-                  {game.isExpansion ? (
-                    <span className="bg-accent/15 text-accent rounded-full px-2 py-0.5 font-bold">
-                      {t("common.expansion")}
-                    </span>
-                  ) : null}
-                </p>
-              </div>
-              <button
-                aria-label={t("adminGames.edit", { name: game.name })}
-                className="text-muted-foreground hover:bg-muted hover:text-primary shrink-0 rounded-lg p-2 transition"
-                onClick={() => setEditing(game)}
-                type="button"
-              >
-                <Pencil className="size-4" />
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+        <Button
+          className="min-w-0 px-2 sm:min-w-28 sm:px-3"
+          disabled={pending || result.page >= result.pages}
+          onClick={() => loadPage(result.page + 1, query)}
+          size="sm"
+          type="button"
+          variant="secondary"
+        >
+          {t("admin.next")} <ChevronRight className="size-4" />
+        </Button>
+      </nav>
 
       {editing ? (
         <EditGameMetadataDialog
           game={editing}
           key={editing.id}
-          onClose={() => setEditing(null)}
+          onClose={() => {
+            setEditing(null);
+            loadPage(result.page, query);
+          }}
         />
       ) : null}
     </>

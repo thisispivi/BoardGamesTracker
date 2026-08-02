@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { RotateCcw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
@@ -24,6 +25,7 @@ export default function ErrorBoundary({
   const t = useTranslations();
   useEffect(() => {
     console.error("Application render failed", { digest: error.digest });
+    Sentry.captureException(error);
   }, [error]);
 
   return (

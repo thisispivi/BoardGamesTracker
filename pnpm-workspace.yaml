@@ -1,5 +1,8 @@
 allowBuilds:
   "@parcel/watcher": true
+  # sentry-cli's native binary is only needed to upload source maps, which
+  # this project doesn't do (no SENTRY_AUTH_TOKEN / withSentryConfig wrapping).
+  "@sentry/cli": false
   "@swc/core": true
   esbuild: true
   sharp: true

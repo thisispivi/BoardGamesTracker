@@ -15,9 +15,11 @@ export const env = createEnv({
     HEALTH_CHECK_TOKEN: z.string().min(16).optional(),
     LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
     SEARXNG_URL: z.url(),
+    SENTRY_DSN: z.url().optional(),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.url(),
+    NEXT_PUBLIC_SENTRY_DSN: z.url().optional(),
   },
   runtimeEnv: {
     ADMIN_EMAIL: process.env.ADMIN_EMAIL,
@@ -28,7 +30,9 @@ export const env = createEnv({
     HEALTH_CHECK_TOKEN: process.env.HEALTH_CHECK_TOKEN,
     LOG_LEVEL: process.env.LOG_LEVEL,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
     SEARXNG_URL: process.env.SEARXNG_URL,
+    SENTRY_DSN: process.env.SENTRY_DSN,
   },
   emptyStringAsUndefined: true,
   skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
