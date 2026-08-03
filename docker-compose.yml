@@ -42,6 +42,10 @@ services:
       searxng:
         condition: service_started
     environment:
+      # Docker sets HOSTNAME to the container ID, which the Next.js standalone
+      # server would otherwise bind to instead of all interfaces, leaving the
+      # HEALTHCHECK's loopback probe unable to connect.
+      HOSTNAME: "0.0.0.0"
       DATABASE_URL: postgresql://${POSTGRES_USER:-board_games_tracker}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB:-board_games_tracker}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Set BETTER_AUTH_SECRET in .env}
       BETTER_AUTH_URL: ${APP_URL:?Set APP_URL in .env}
