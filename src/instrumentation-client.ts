@@ -1,13 +1,18 @@
 import * as Sentry from "@sentry/nextjs";
 
 import { env } from "@/env";
-import { scrubSentryEvent } from "@/utils/sentryScrub";
+import { createSentryOptions } from "@/utils/sentryOptions";
 
 if (env.NEXT_PUBLIC_SENTRY_DSN) {
-  Sentry.init({
-    dsn: env.NEXT_PUBLIC_SENTRY_DSN,
-    sendDefaultPii: false,
-    tracesSampleRate: 0,
-    beforeSend: scrubSentryEvent,
-  });
+  Sentry.init(
+    createSentryOptions(
+      env.NEXT_PUBLIC_SENTRY_DSN,
+      env.NEXT_PUBLIC_SENTRY_ENVIRONMENT,
+      env.NEXT_PUBLIC_SENTRY_RELEASE,
+      "browser",
+    ),
+  );
 }
+
+/** Lets the Sentry SDK observe App Router navigations initiated in the browser. */
+export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;

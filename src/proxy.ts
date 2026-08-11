@@ -2,6 +2,7 @@ import { getSessionCookie } from "better-auth/cookies";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
+import { env } from "@/env";
 import { consumeRateLimit } from "@/server/security/rateLimit";
 
 const protectedPrefixes = [
@@ -17,6 +18,9 @@ const protectedPrefixes = [
 const rateLimitWindowMs = 60_000;
 const globalRequestLimit = 3_000;
 const identityRequestLimit = 300;
+const errorReportingOrigin = env.NEXT_PUBLIC_SENTRY_DSN
+  ? new URL(env.NEXT_PUBLIC_SENTRY_DSN).origin
+  : undefined;
 
 /**
  * Derives a short, non-reversible fingerprint of a caller-supplied secret.
@@ -95,7 +99,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https://cf.geekdo-images.com https://react-circle-flags.pages.dev",
     "font-src 'self' data:",
-    "connect-src 'self' https://bugsink.pivi.dev",
+    `connect-src 'self'${errorReportingOrigin ? ` ${errorReportingOrigin}` : ""}`,
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

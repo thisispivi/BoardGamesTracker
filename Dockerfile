@@ -13,15 +13,32 @@ RUN pnpm install --frozen-lockfile --prod --ignore-scripts
 FROM node:24.19.0-slim AS builder
 WORKDIR /app
 ARG APP_URL=http://localhost:12500
+ARG NEXT_PUBLIC_SENTRY_DSN
+ARG NEXT_PUBLIC_SENTRY_ENVIRONMENT=production
+ARG NEXT_PUBLIC_SENTRY_RELEASE
+ARG SENTRY_PROJECT
+ARG SENTRY_URL
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV SKIP_ENV_VALIDATION=true
 ENV DATABASE_URL=postgresql://build:build@127.0.0.1:5432/build
 ENV BETTER_AUTH_SECRET=build-only-secret-not-used-at-runtime-000000000
 ENV BETTER_AUTH_URL=${APP_URL}
 ENV NEXT_PUBLIC_APP_URL=${APP_URL}
+ENV NEXT_PUBLIC_SENTRY_DSN=${NEXT_PUBLIC_SENTRY_DSN}
+ENV NEXT_PUBLIC_SENTRY_ENVIRONMENT=${NEXT_PUBLIC_SENTRY_ENVIRONMENT}
+ENV NEXT_PUBLIC_SENTRY_RELEASE=${NEXT_PUBLIC_SENTRY_RELEASE}
+ENV SENTRY_PROJECT=${SENTRY_PROJECT}
+ENV SENTRY_URL=${SENTRY_URL}
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
-RUN corepack enable && corepack prepare pnpm@11.21.0 --activate && pnpm build
+RUN --mount=type=secret,id=sentry_auth_token,required=false \
+    if [ -s /run/secrets/sentry_auth_token ]; then \
+      SENTRY_BUILD_TOKEN="$(cat /run/secrets/sentry_auth_token)"; \
+      if [ "$SENTRY_BUILD_TOKEN" != "disabled" ]; then \
+        export SENTRY_AUTH_TOKEN="$SENTRY_BUILD_TOKEN"; \
+      fi; \
+    fi && \
+    corepack enable && corepack prepare pnpm@11.21.0 --activate && pnpm build
 
 FROM node:24.19.0-slim AS runner
 WORKDIR /app

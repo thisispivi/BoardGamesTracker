@@ -20,6 +20,13 @@ export const env = createEnv({
   client: {
     NEXT_PUBLIC_APP_URL: z.url(),
     NEXT_PUBLIC_SENTRY_DSN: z.url().optional(),
+    NEXT_PUBLIC_SENTRY_ENVIRONMENT: z
+      .string()
+      .min(1)
+      .max(64)
+      .regex(/^[^\s/]+$/)
+      .default(process.env.NODE_ENV ?? "development"),
+    NEXT_PUBLIC_SENTRY_RELEASE: z.string().trim().min(1).max(200).optional(),
   },
   runtimeEnv: {
     ADMIN_EMAIL: process.env.ADMIN_EMAIL,
@@ -31,6 +38,8 @@ export const env = createEnv({
     LOG_LEVEL: process.env.LOG_LEVEL,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
+    NEXT_PUBLIC_SENTRY_ENVIRONMENT: process.env.NEXT_PUBLIC_SENTRY_ENVIRONMENT,
+    NEXT_PUBLIC_SENTRY_RELEASE: process.env.NEXT_PUBLIC_SENTRY_RELEASE,
     SEARXNG_URL: process.env.SEARXNG_URL,
     SENTRY_DSN: process.env.SENTRY_DSN,
   },

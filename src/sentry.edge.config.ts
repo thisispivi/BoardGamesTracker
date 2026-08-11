@@ -1,13 +1,17 @@
 import * as Sentry from "@sentry/nextjs";
 
 import { env } from "@/env";
-import { scrubSentryEvent } from "@/utils/sentryScrub";
+import { createSentryOptions } from "@/utils/sentryOptions";
 
-if (env.SENTRY_DSN) {
-  Sentry.init({
-    dsn: env.SENTRY_DSN,
-    sendDefaultPii: false,
-    tracesSampleRate: 0,
-    beforeSend: scrubSentryEvent,
-  });
+const dsn = env.SENTRY_DSN ?? env.NEXT_PUBLIC_SENTRY_DSN;
+
+if (dsn) {
+  Sentry.init(
+    createSentryOptions(
+      dsn,
+      env.NEXT_PUBLIC_SENTRY_ENVIRONMENT,
+      env.NEXT_PUBLIC_SENTRY_RELEASE,
+      "edge",
+    ),
+  );
 }

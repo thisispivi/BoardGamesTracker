@@ -11,6 +11,7 @@
   "scripts": {
     "dev": "next dev --port 12500",
     "build": "next build",
+    "bugsink:test": "node --env-file-if-exists=.env.local scripts/test-bugsink.mjs",
     "start": "next start --port 12500",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings=0",
@@ -61,6 +62,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@sentry/node": "^10.70.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.2",

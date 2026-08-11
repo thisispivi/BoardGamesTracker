@@ -75,6 +75,10 @@ Requirements: Docker Engine with Compose v2 and a public HTTPS URL for productio
    APP_PORT=12500
    LOG_LEVEL=info
    SEARXNG_SECRET=replace-with-a-different-random-secret
+   SENTRY_DSN=https://public-key@bugsink.example.com/1
+   NEXT_PUBLIC_SENTRY_DSN=https://public-key@bugsink.example.com/1
+   NEXT_PUBLIC_SENTRY_ENVIRONMENT=production
+   NEXT_PUBLIC_SENTRY_RELEASE=replace-with-the-deployed-git-sha
    ```
 
 2. Start the database and application:
@@ -120,20 +124,29 @@ Selected artwork is downloaded only from the exact HTTPS `cf.geekdo-images.com` 
 
 ## Environment
 
-| Variable              | Required    | Purpose                                                        |
-| --------------------- | ----------- | -------------------------------------------------------------- |
-| `DATABASE_URL`        | Yes         | PostgreSQL connection URL                                      |
-| `BETTER_AUTH_SECRET`  | Yes         | High-entropy session/encryption secret, at least 32 characters |
-| `BETTER_AUTH_URL`     | Yes         | Exact server origin; no trailing path                          |
-| `NEXT_PUBLIC_APP_URL` | Yes         | Exact browser-visible origin                                   |
-| `ADMIN_EMAIL`         | No          | Registration email promoted to admin; unset after bootstrap    |
-| `ALLOW_SIGN_UP`       | No          | Allows accounts after bootstrap; secure default is `false`     |
-| `HEALTH_CHECK_TOKEN`  | No          | Bearer token protecting the database-backed health probe       |
-| `LOG_LEVEL`           | No          | `debug`, `info`, `warn`, or `error`; defaults to `info`        |
-| `SEARXNG_URL`         | Yes         | Private SearXNG origin used for server-side discovery          |
-| `SEARXNG_SECRET`      | Docker only | Independent high-entropy secret for the bundled SearXNG        |
+| Variable                         | Required    | Purpose                                                        |
+| -------------------------------- | ----------- | -------------------------------------------------------------- |
+| `DATABASE_URL`                   | Yes         | PostgreSQL connection URL                                      |
+| `BETTER_AUTH_SECRET`             | Yes         | High-entropy session/encryption secret, at least 32 characters |
+| `BETTER_AUTH_URL`                | Yes         | Exact server origin; no trailing path                          |
+| `NEXT_PUBLIC_APP_URL`            | Yes         | Exact browser-visible origin                                   |
+| `ADMIN_EMAIL`                    | No          | Registration email promoted to admin; unset after bootstrap    |
+| `ALLOW_SIGN_UP`                  | No          | Allows accounts after bootstrap; secure default is `false`     |
+| `HEALTH_CHECK_TOKEN`             | No          | Bearer token protecting the database-backed health probe       |
+| `LOG_LEVEL`                      | No          | `debug`, `info`, `warn`, or `error`; defaults to `info`        |
+| `SEARXNG_URL`                    | Yes         | Private SearXNG origin used for server-side discovery          |
+| `SEARXNG_SECRET`                 | Docker only | Independent high-entropy secret for the bundled SearXNG        |
+| `SENTRY_DSN`                     | No          | Server/edge Bugsink DSN; falls back to the public DSN          |
+| `NEXT_PUBLIC_SENTRY_DSN`         | No          | Browser Bugsink DSN, embedded during the application build     |
+| `NEXT_PUBLIC_SENTRY_ENVIRONMENT` | No          | Bugsink environment tag; defaults to `production` in Compose   |
+| `NEXT_PUBLIC_SENTRY_RELEASE`     | No          | Immutable deployment ID used for release/error correlation     |
+| `SENTRY_URL`                     | No          | Bugsink origin for build-time source-map upload                |
+| `SENTRY_PROJECT`                 | No          | Bugsink project slug for build-time source-map upload          |
+| `SENTRY_AUTH_TOKEN_FILE`         | No          | File containing the build-only Bugsink source-map upload token |
 
 `BETTER_AUTH_URL` and `NEXT_PUBLIC_APP_URL` must match the deployed origin. A mismatch is intentionally rejected by trusted-origin and cookie protections.
+
+When Bugsink is configured, browser, server, React-boundary, route-handler, Server Action, and edge errors are sent without user identity, cookies, headers, bodies, or query strings. Set `NEXT_PUBLIC_SENTRY_RELEASE` to the deployed commit SHA so Bugsink can identify regressions. For readable production stack traces, create an untracked `.sentry-auth-token` file containing a Bugsink API token, set `SENTRY_AUTH_TOKEN_FILE=.sentry-auth-token`, `SENTRY_PROJECT` to the Bugsink project slug, and optionally `SENTRY_URL` when it differs from the DSN origin. The token is mounted only during the Docker build and is not copied into the runtime image. Verify ingestion with `pnpm bugsink:test`; it creates one clearly tagged test issue and exits unsuccessfully if Bugsink rejects the event.
 
 ## Database workflow
 
