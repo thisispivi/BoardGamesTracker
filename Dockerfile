@@ -1,16 +1,16 @@
-FROM node:24.18.0-slim AS dependencies
+FROM node:24.19.0-slim AS dependencies
 WORKDIR /app
-RUN corepack enable && corepack prepare pnpm@11.15.0 --activate
+RUN corepack enable && corepack prepare pnpm@11.21.0 --activate
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 
-FROM node:24.18.0-slim AS prod-dependencies
+FROM node:24.19.0-slim AS prod-dependencies
 WORKDIR /app
-RUN corepack enable && corepack prepare pnpm@11.15.0 --activate
+RUN corepack enable && corepack prepare pnpm@11.21.0 --activate
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile --prod --ignore-scripts
 
-FROM node:24.18.0-slim AS builder
+FROM node:24.19.0-slim AS builder
 WORKDIR /app
 ARG APP_URL=http://localhost:12500
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -21,9 +21,9 @@ ENV BETTER_AUTH_URL=${APP_URL}
 ENV NEXT_PUBLIC_APP_URL=${APP_URL}
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
-RUN corepack enable && corepack prepare pnpm@11.15.0 --activate && pnpm build
+RUN corepack enable && corepack prepare pnpm@11.21.0 --activate && pnpm build
 
-FROM node:24.18.0-slim AS runner
+FROM node:24.19.0-slim AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1

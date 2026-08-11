@@ -91,7 +91,7 @@ When upgrading an existing Docker installation, set `POSTGRES_DB`, `POSTGRES_USE
 
 ## Local development
 
-Requirements: Node.js 22 LTS, pnpm 11.8+, and PostgreSQL 17.
+Requirements: Node.js 24.18+, pnpm 11.21+, and PostgreSQL 17.
 
 ```bash
 pnpm install --frozen-lockfile

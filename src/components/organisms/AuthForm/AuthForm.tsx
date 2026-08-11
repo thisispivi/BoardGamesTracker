@@ -1,6 +1,7 @@
 "use client";
 
 import { Eye, EyeOff, LoaderCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { type ReactNode, useState } from "react";
 import { toast } from "sonner";
@@ -28,6 +29,7 @@ export function AuthForm({
   allowSignUp,
   bootstrapRequired,
 }: AuthFormProps): ReactNode {
+  const router = useRouter();
   const t = useTranslations("auth");
   const [mode, setMode] = useState(initialMode);
   const [showPassword, setShowPassword] = useState(false);
@@ -61,7 +63,7 @@ export function AuthForm({
       return;
     }
 
-    window.location.assign("/dashboard");
+    router.replace("/dashboard");
   }
 
   return (
