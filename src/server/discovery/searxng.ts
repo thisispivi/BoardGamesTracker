@@ -12,8 +12,8 @@ import {
 type SearchResult =
   (typeof searxngResponseSchema)["_output"]["results"][number];
 
-/** Maximum results returned to the caller. */
-const maxResults = 8;
+/** Maximum BGG links enriched and returned to the caller. */
+const maxResults = 4;
 
 /**
  * How many links are collected before ranking.
@@ -23,28 +23,21 @@ const maxResults = 8;
  * generic ones. Ranking has to see a wide pool or the right game is discarded
  * before it is ever scored.
  */
-const maxCandidates = 40;
+const maxCandidates = 20;
 
 /**
  * Queries one SearXNG category and validates its untrusted JSON response.
  *
  * @param query - The search query.
  * @param category - The optional SearXNG category to restrict results to.
- * @param unrestricted - Whether to drop the site operator for wider recall.
  * @returns The validated result list.
  */
 async function requestResults(
   query: string,
   category?: "images",
-  unrestricted = false,
 ): Promise<SearchResult[]> {
   const endpoint = new URL("/search", env.SEARXNG_URL);
-  endpoint.searchParams.set(
-    "q",
-    unrestricted
-      ? `boardgamegeek ${query}`
-      : `site:boardgamegeek.com/boardgame ${query}`,
-  );
+  endpoint.searchParams.set("q", `site:boardgamegeek.com/boardgame ${query}`);
   endpoint.searchParams.set("format", "json");
   endpoint.searchParams.set("safesearch", "1");
   if (category) {
@@ -150,11 +143,11 @@ export async function discoverBoardGameImages(
  * in afterwards from BoardGameGeek item data, so no image query is issued here
  * and the response is never held open by the slow image engines.
  *
- * @param normalizedQuery - The normalized, non-empty search term.
+ * @param query - The trimmed, non-empty text supplied by the user.
  * @returns The ranked candidates, without artwork.
  */
 export async function searchViaSearxng(
-  normalizedQuery: string,
+  query: string,
 ): Promise<DiscoveredGame[]> {
   const collect = (
     results: SearchResult[],
@@ -172,14 +165,7 @@ export async function searchViaSearxng(
   };
 
   const discovered = new Map<number, DiscoveredGame>();
-  collect(await requestResults(normalizedQuery), discovered);
-  if (discovered.size === 0) {
-    // Newer or niche pages are often missing from the site-restricted index.
-    collect(
-      await requestResults(normalizedQuery, undefined, true).catch(() => []),
-      discovered,
-    );
-  }
+  collect(await requestResults(query), discovered);
 
   const games = [...discovered.values()];
   const ranked = new Fuse(games, {
@@ -188,7 +174,7 @@ export async function searchViaSearxng(
     ignoreLocation: true,
     useExtendedSearch: false,
   })
-    .search(normalizedQuery)
+    .search(query)
     .map((result) => result.item);
   return (ranked.length > 0 ? ranked : games).slice(0, maxResults);
 }

@@ -1,6 +1,7 @@
 import "server-only";
 
-import type { DiscoveredGame, GameDiscoveryResult } from "@/core";
+import type { BggMetadata, DiscoveredGame, GameDiscoveryResult } from "@/core";
+import { scrapeBggMetadata } from "@/server/bgg/scrape";
 import {
   discoverBoardGameImages,
   searchViaSearxng,
@@ -17,8 +18,11 @@ import { TtlCache } from "@/utils/ttlCache";
  */
 const searchCache = new TtlCache<DiscoveredGame[]>(10 * 60_000, 300);
 
-/** Time allowed for artwork lookup before results are sent as they are. */
-const enrichmentBudgetMs = 4_000;
+/** Time allowed for canonical BGG metadata enrichment. */
+const metadataBudgetMs = 6_000;
+
+/** Time allowed for the SearXNG image fallback. */
+const imageBudgetMs = 3_000;
 
 /**
  * Resolves a slower enrichment step, or gives up and returns a fallback.
@@ -28,18 +32,20 @@ const enrichmentBudgetMs = 4_000;
  *
  * @param work - The enrichment promise.
  * @param fallback - The value to use when the budget elapses.
+ * @param budgetMs - The maximum stage duration in milliseconds.
  * @returns Whichever settles first.
  */
 async function withBudget<TValue>(
   work: Promise<TValue>,
   fallback: TValue,
+  budgetMs: number,
 ): Promise<TValue> {
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {
     return await Promise.race([
       work,
       new Promise<TValue>((resolve) => {
-        timer = setTimeout(() => resolve(fallback), enrichmentBudgetMs);
+        timer = setTimeout(() => resolve(fallback), budgetMs);
       }),
     ]);
   } finally {
@@ -48,12 +54,11 @@ async function withBudget<TValue>(
 }
 
 /**
- * Adds artwork to search candidates without touching BoardGameGeek.
+ * Populates SearXNG links with canonical BoardGameGeek metadata.
  *
- * Asking BoardGameGeek for every result of every keystroke gets the whole
- * instance throttled, and a throttled reply then breaks the metadata lookup
- * that actually matters when a game is saved. Full details are fetched once,
- * for the single game the user picks.
+ * Only the four links that can be shown are resolved. This supplies a canonical
+ * name and cover while keeping the request volume bounded; a targeted SearXNG
+ * image lookup remains a soft fallback when BGG refuses metadata.
  *
  * @param candidates - The ranked candidates from metasearch.
  * @returns The candidates with whatever artwork could be resolved.
@@ -65,13 +70,36 @@ async function enrichCandidates(
     return [];
   }
 
+  const metadata = await withBudget(
+    scrapeBggMetadata(candidates.map((game) => game.bggId)).catch(
+      () => new Map<number, BggMetadata>(),
+    ),
+    new Map<number, BggMetadata>(),
+    metadataBudgetMs,
+  );
+  const enriched = candidates.map((game) => {
+    const details = metadata.get(game.bggId);
+    return {
+      ...game,
+      imageUrl: details?.imageUrl ?? game.imageUrl,
+      isExpansion: details?.isExpansion ?? game.isExpansion,
+      name: details?.name ?? game.name,
+      yearPublished: details?.yearPublished ?? game.yearPublished,
+    };
+  });
+  const missing = enriched.filter((game) => game.imageUrl === null);
+  if (missing.length === 0) {
+    return enriched;
+  }
+
   const images = await withBudget(
     discoverBoardGameImages(
-      candidates.map((game) => ({ bggId: game.bggId, name: game.name })),
+      missing.map((game) => ({ bggId: game.bggId, name: game.name })),
     ).catch(() => new Map<number, string>()),
     new Map<number, string>(),
+    imageBudgetMs,
   );
-  return candidates.map((game) => ({
+  return enriched.map((game) => ({
     ...game,
     imageUrl: game.imageUrl ?? images.get(game.bggId) ?? null,
   }));
@@ -102,12 +130,13 @@ export async function searchBoardGames(
   query: string,
 ): Promise<GameDiscoveryResult[]> {
   const normalized = normalizeSearchText(query);
-  const normalizedQuery = normalized === "" ? query.trim() : normalized;
-  const cached = searchCache.get(normalizedQuery);
+  const trimmedQuery = query.trim();
+  const cacheKey = normalized === "" ? trimmedQuery : normalized;
+  const cached = searchCache.get(cacheKey);
   const games =
-    cached ?? (await enrichCandidates(await searchViaSearxng(normalizedQuery)));
+    cached ?? (await enrichCandidates(await searchViaSearxng(trimmedQuery)));
   if (!cached && isCacheable(games)) {
-    searchCache.set(normalizedQuery, games);
+    searchCache.set(cacheKey, games);
   }
 
   return games.map((game) => ({

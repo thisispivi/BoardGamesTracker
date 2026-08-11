@@ -7,7 +7,11 @@ vi.mock("@/env", () => ({
     BETTER_AUTH_SECRET: "test-secret-value-long-enough-000000",
   },
 }));
+vi.mock("@/server/bgg/scrape", () => ({
+  scrapeBggMetadata: vi.fn(async () => new Map()),
+}));
 
+import { scrapeBggMetadata } from "@/server/bgg/scrape";
 import { searchBoardGames } from "@/server/discovery/search";
 
 const searxngPayload = {
@@ -19,15 +23,12 @@ const searxngPayload = {
 };
 
 /**
- * Serves metasearch instantly while BoardGameGeek hangs until it is aborted.
+ * Serves metasearch results without making any real upstream requests.
  *
- * An unreachable host does not refuse a connection, it simply never answers,
- * which is the case that previously stalled a search for almost a minute.
- *
- * @returns A fetch stub covering both upstreams.
+ * @returns A fetch stub covering general and image searches.
  */
-function stubUnreachableBgg() {
-  return vi.fn((input: URL | string, init?: { signal?: AbortSignal }) => {
+function stubSearxng() {
+  return vi.fn((input: URL | string) => {
     if (String(input).includes("searxng.test")) {
       return Promise.resolve({
         ok: true,
@@ -36,17 +37,50 @@ function stubUnreachableBgg() {
         json: async () => searxngPayload,
       });
     }
-    return new Promise((_resolve, reject) => {
-      init?.signal?.addEventListener("abort", () =>
-        reject(new Error("TimeoutError")),
-      );
-    });
+    return Promise.reject(new Error("Unexpected upstream request."));
   });
 }
 
 describe("searchBoardGames", () => {
-  it("returns metasearch results promptly when BoardGameGeek never answers", async () => {
-    vi.stubGlobal("fetch", stubUnreachableBgg());
+  it("populates the result name and image from each discovered BGG link", async () => {
+    vi.mocked(scrapeBggMetadata).mockResolvedValueOnce(
+      new Map([
+        [
+          9209,
+          {
+            bggId: 9209,
+            bggRating: 7.4,
+            categories: ["Trains"],
+            description: "Build railway routes across North America.",
+            families: [],
+            imageUrl: "https://cf.geekdo-images.com/ticket/pic.jpg",
+            isExpansion: false,
+            maxPlayers: 5,
+            maxPlaytime: 60,
+            mechanics: ["Network and Route Building"],
+            minPlayers: 2,
+            minPlaytime: 30,
+            name: "Ticket to Ride",
+            weight: 1.8,
+            yearPublished: 2004,
+          },
+        ],
+      ]),
+    );
+    vi.stubGlobal("fetch", stubSearxng());
+
+    const results = await searchBoardGames("ticket ride metadata test");
+
+    expect(results[0]).toMatchObject({
+      bggId: 9209,
+      imageUrl: "https://cf.geekdo-images.com/ticket/pic.jpg",
+      name: "Ticket to Ride",
+      yearPublished: 2004,
+    });
+  });
+
+  it("returns metasearch results promptly when metadata is unavailable", async () => {
+    vi.stubGlobal("fetch", stubSearxng());
 
     const started = Date.now();
     const results = await searchBoardGames("ticket to ride");

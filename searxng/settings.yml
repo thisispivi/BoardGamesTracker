@@ -14,3 +14,14 @@ server:
   bind_address: 0.0.0.0
   limiter: false
   image_proxy: false
+
+# Default engines suspend themselves temporarily when an upstream challenges
+# repeated searches. These independent general-search engines keep discovery
+# available without requiring API keys when one provider is cooling down.
+engines:
+  - name: bing
+    disabled: false
+  - name: mojeek
+    disabled: false
+  - name: qwant
+    disabled: false
