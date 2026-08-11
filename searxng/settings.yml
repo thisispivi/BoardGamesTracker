@@ -1,4 +1,12 @@
-use_default_settings: true
+use_default_settings:
+  engines:
+    keep_only:
+      - bing images
+      - duckduckgo images
+      - mojeek
+      - privacywall
+      - yandex
+      - zapmeta
 
 general:
   debug: false
@@ -15,13 +23,19 @@ server:
   limiter: false
   image_proxy: false
 
-# Default engines suspend themselves temporarily when an upstream challenges
-# repeated searches. These independent general-search engines keep discovery
-# available without requiring API keys when one provider is cooling down.
+# Discovery uses only independent, keyless web and image engines. Keeping the
+# engine set narrow avoids sending BGG-specific queries to Wikipedia and other
+# vertical engines that cannot interpret them and only add errors or latency.
 engines:
-  - name: bing
+  - name: bing images
+    disabled: false
+  - name: duckduckgo images
     disabled: false
   - name: mojeek
     disabled: false
-  - name: qwant
+  - name: privacywall
+    disabled: false
+  - name: yandex
+    disabled: false
+  - name: zapmeta
     disabled: false

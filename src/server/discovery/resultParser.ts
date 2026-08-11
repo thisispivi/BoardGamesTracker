@@ -1,4 +1,5 @@
 import type { GameDiscoveryResult } from "@/core";
+import { normalizeSearchText } from "@/utils/search";
 
 /** BGG "thing" sections that map onto a collectable game entry. */
 const gameSections = new Set([
@@ -85,7 +86,8 @@ export function parseBoardGameResult(
     if (!parsedUrl) return null;
 
     const cleaned = title
-      .replace(/\s*[|–-]\s*(?:Board Game\s*[|–-]\s*)?BoardGameGeek\s*$/i, "")
+      .replace(/\s*[|–-]\s*BoardGameGeek\s*$/i, "")
+      .replace(/\s*[|–-]\s*Board(?:\s+Game)?(?:\.{3}|…)?\s*[|–-]?\s*$/i, "")
       .trim();
     const yearMatch = cleaned.match(/\s*\(((?:18|19|20)\d{2})\)\s*$/);
     const name = cleaned.replace(/\s*\((?:18|19|20)\d{2}\)\s*$/, "").trim();
@@ -130,6 +132,54 @@ export function parseBoardGameImage(
       return null;
     }
     return { bggId: game.bggId, imageUrl: image.toString() };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Accepts candidate artwork discovered on a matching public BGG image page.
+ *
+ * Image-search engines commonly return BGG gallery URLs rather than canonical
+ * game URLs. The page slug must still match the candidate name before its
+ * allowlisted CDN image can be associated with that candidate.
+ *
+ * @param pageUrl - The untrusted image-result page URL.
+ * @param rawImageUrl - The untrusted image source URL.
+ * @param candidateName - The canonical candidate name from general search.
+ * @returns A trusted artwork URL, or null when the result is unrelated.
+ */
+export function parseBoardGameArtwork(
+  pageUrl: string,
+  rawImageUrl: string,
+  candidateName: string,
+): string | null {
+  try {
+    const page = new URL(pageUrl);
+    const image = new URL(rawImageUrl);
+    if (
+      (page.protocol !== "https:" && page.protocol !== "http:") ||
+      page.hostname.toLowerCase().replace(/^www\./, "") !==
+        "boardgamegeek.com" ||
+      image.protocol !== "https:" ||
+      image.hostname !== "cf.geekdo-images.com"
+    ) {
+      return null;
+    }
+
+    const slug = page.pathname.match(
+      /^\/(?:image|boardgame|boardgameexpansion|boardgameaccessory|boardgameintegration)\/\d+\/([^/]+)/i,
+    )?.[1];
+    const normalizedName = normalizeSearchText(candidateName);
+    const normalizedSlug = normalizeSearchText(slug ?? "");
+    if (
+      normalizedName === "" ||
+      normalizedSlug === "" ||
+      normalizedName !== normalizedSlug
+    ) {
+      return null;
+    }
+    return image.toString();
   } catch {
     return null;
   }

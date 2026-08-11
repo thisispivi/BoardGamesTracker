@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  parseBoardGameArtwork,
   parseBoardGameImage,
   parseBoardGameResult,
   parseBoardGameUrl,
@@ -101,6 +102,21 @@ describe("parseBoardGameResult", () => {
     });
   });
 
+  it("removes a truncated Board Game suffix from a result title", () => {
+    expect(
+      parseBoardGameResult(
+        "Dead Cells: The Rogue-Lite Board Game | Board Game |",
+        "https://boardgamegeek.com/boardgame/380135/dead-cells-the-rogue-lite-board-game",
+      )?.name,
+    ).toBe("Dead Cells: The Rogue-Lite Board Game");
+    expect(
+      parseBoardGameResult(
+        "Dead Cells: The Rogue-Lite Board Game | Board... | BoardGameGeek",
+        "https://boardgamegeek.com/boardgame/380135/dead-cells-the-rogue-lite-board-game",
+      )?.name,
+    ).toBe("Dead Cells: The Rogue-Lite Board Game");
+  });
+
   /** Surfaces expansions from metasearch so they can be saved like games. */
   it("parses an expansion result", () => {
     expect(
@@ -137,6 +153,26 @@ describe("parseBoardGameResult", () => {
       parseBoardGameImage(
         "https://boardgamegeek.com/boardgame/9209/ticket-to-ride",
         "https://example.com/pic123.jpg",
+      ),
+    ).toBeNull();
+  });
+
+  it("accepts CDN artwork from a matching BGG image page", () => {
+    expect(
+      parseBoardGameArtwork(
+        "https://boardgamegeek.com/image/8461280/dead-cells-the-rogue-lite-board-game",
+        "https://cf.geekdo-images.com/dead-cells/pic8461280.jpg",
+        "Dead Cells: The Rogue-Lite Board Game",
+      ),
+    ).toBe("https://cf.geekdo-images.com/dead-cells/pic8461280.jpg");
+  });
+
+  it("rejects artwork from a different BGG game's image page", () => {
+    expect(
+      parseBoardGameArtwork(
+        "https://boardgamegeek.com/image/1924077/ticket-to-ride-europe",
+        "https://cf.geekdo-images.com/europe/pic1924077.jpg",
+        "Ticket to Ride",
       ),
     ).toBeNull();
   });

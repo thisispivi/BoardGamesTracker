@@ -22,6 +22,9 @@ import { TtlCache } from "@/utils/ttlCache";
 
 const initialState: CollectionActionState = { success: false, message: "" };
 
+/** Delay that prevents unfinished typing from exhausting free search engines. */
+const searchDelayMs = 600;
+
 /**
  * Client-side results cache shared by every dialog instance in the tab.
  *
@@ -187,7 +190,7 @@ export function AddGameDialog({
             setHasSearched(true);
           }
         });
-    }, 250);
+    }, searchDelayMs);
 
     return () => {
       window.clearTimeout(timeout);

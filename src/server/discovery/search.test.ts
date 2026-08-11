@@ -92,6 +92,49 @@ describe("searchBoardGames", () => {
     expect(elapsed).toBeLessThan(9_000);
   }, 30_000);
 
+  it("uses scraped BGG gallery artwork when page metadata is unavailable", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: URL | string) => {
+        const endpoint = new URL(String(input));
+        const isImageSearch =
+          endpoint.searchParams.get("categories") === "images";
+        return {
+          ok: true,
+          status: 200,
+          headers: new Headers({ "content-type": "application/json" }),
+          json: async () => ({
+            results: isImageSearch
+              ? [
+                  {
+                    img_src:
+                      "https://cf.geekdo-images.com/dead-cells/pic8461280.jpg",
+                    title: "BoardGameGeek",
+                    url: "https://boardgamegeek.com/image/8461280/dead-cells-the-rogue-lite-board-game",
+                  },
+                ]
+              : [
+                  {
+                    img_src: "",
+                    title:
+                      "Dead Cells: The Rogue-Lite Board Game | Board Game | BoardGameGeek",
+                    url: "https://boardgamegeek.com/boardgame/380135/dead-cells-the-rogue-lite-board-game",
+                  },
+                ],
+          }),
+        };
+      }),
+    );
+
+    const results = await searchBoardGames("dead cells image enrichment test");
+
+    expect(results[0]).toMatchObject({
+      bggId: 380_135,
+      imageUrl: "https://cf.geekdo-images.com/dead-cells/pic8461280.jpg",
+      name: "Dead Cells: The Rogue-Lite Board Game",
+    });
+  });
+
   it("retries the upstream instead of pinning an empty answer", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,

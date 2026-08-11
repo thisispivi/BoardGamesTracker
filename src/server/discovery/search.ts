@@ -18,11 +18,11 @@ import { TtlCache } from "@/utils/ttlCache";
  */
 const searchCache = new TtlCache<DiscoveredGame[]>(10 * 60_000, 300);
 
-/** Time allowed for canonical BGG metadata enrichment. */
-const metadataBudgetMs = 6_000;
+/** Time allowed for optional public-page metadata enrichment. */
+const metadataBudgetMs = 5_000;
 
 /** Time allowed for the SearXNG image fallback. */
-const imageBudgetMs = 3_000;
+const imageBudgetMs = 8_000;
 
 /**
  * Resolves a slower enrichment step, or gives up and returns a fallback.
@@ -54,11 +54,11 @@ async function withBudget<TValue>(
 }
 
 /**
- * Populates SearXNG links with canonical BoardGameGeek metadata.
+ * Populates SearXNG links with scraped metadata and artwork.
  *
- * Only the four links that can be shown are resolved. This supplies a canonical
- * name and cover while keeping the request volume bounded; a targeted SearXNG
- * image lookup remains a soft fallback when BGG refuses metadata.
+ * Public-page HTML and image metasearch run concurrently so a blocked BGG page
+ * cannot delay the source that already discovered the result. Both are soft
+ * enrichment: the validated link and title remain usable on their own.
  *
  * @param candidates - The ranked candidates from metasearch.
  * @returns The candidates with whatever artwork could be resolved.
@@ -70,39 +70,34 @@ async function enrichCandidates(
     return [];
   }
 
-  const metadata = await withBudget(
-    scrapeBggMetadata(candidates.map((game) => game.bggId)).catch(
-      () => new Map<number, BggMetadata>(),
+  const [metadata, images] = await Promise.all([
+    withBudget(
+      scrapeBggMetadata(candidates.map((game) => game.bggId)).catch(
+        () => new Map<number, BggMetadata>(),
+      ),
+      new Map<number, BggMetadata>(),
+      metadataBudgetMs,
     ),
-    new Map<number, BggMetadata>(),
-    metadataBudgetMs,
-  );
+    withBudget(
+      discoverBoardGameImages(
+        candidates.map((game) => ({ bggId: game.bggId, name: game.name })),
+      ).catch(() => new Map<number, string>()),
+      new Map<number, string>(),
+      imageBudgetMs,
+    ),
+  ]);
   const enriched = candidates.map((game) => {
     const details = metadata.get(game.bggId);
     return {
       ...game,
-      imageUrl: details?.imageUrl ?? game.imageUrl,
+      imageUrl:
+        details?.imageUrl ?? game.imageUrl ?? images.get(game.bggId) ?? null,
       isExpansion: details?.isExpansion ?? game.isExpansion,
       name: details?.name ?? game.name,
       yearPublished: details?.yearPublished ?? game.yearPublished,
     };
   });
-  const missing = enriched.filter((game) => game.imageUrl === null);
-  if (missing.length === 0) {
-    return enriched;
-  }
-
-  const images = await withBudget(
-    discoverBoardGameImages(
-      missing.map((game) => ({ bggId: game.bggId, name: game.name })),
-    ).catch(() => new Map<number, string>()),
-    new Map<number, string>(),
-    imageBudgetMs,
-  );
-  return enriched.map((game) => ({
-    ...game,
-    imageUrl: game.imageUrl ?? images.get(game.bggId) ?? null,
-  }));
+  return enriched;
 }
 
 /**

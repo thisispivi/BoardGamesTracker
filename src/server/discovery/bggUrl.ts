@@ -3,13 +3,15 @@ import "server-only";
 import type { GameDiscoveryResult } from "@/core";
 import { scrapeBggMetadata } from "@/server/bgg/scrape";
 import { parseBoardGameUrl } from "@/server/discovery/resultParser";
+import { searchBoardGames } from "@/server/discovery/search";
 import { createSelectionToken } from "@/server/discovery/selectionToken";
 
 /**
- * Resolves a pasted BGG URL through the same trusted metadata path used on save.
+ * Resolves a pasted BGG URL through scraped public sources.
  *
- * Works for base games, expansions, and accessories: the URL section decides
- * the expansion fallback whenever BGG's own metadata is unavailable.
+ * Public HTML is preferred. When BGG blocks the page scrape, the validated ID
+ * is searched through SearXNG and the URL section remains authoritative for
+ * expansion status.
  *
  * @param rawUrl - The untrusted URL text pasted by the user.
  * @returns The signed discovery result, or null when the URL is not a game.
@@ -20,13 +22,20 @@ export async function discoverBoardGameByUrl(
   const parsed = parseBoardGameUrl(rawUrl);
   if (!parsed) return null;
   const metadata = (await scrapeBggMetadata([parsed.bggId])).get(parsed.bggId);
-  if (!metadata) return null;
+  const discovered = metadata
+    ? null
+    : (await searchBoardGames(String(parsed.bggId))).find(
+        (game) => game.bggId === parsed.bggId,
+      );
+  if (!metadata && !discovered) return null;
   const selection = {
     bggId: parsed.bggId,
-    imageUrl: metadata.imageUrl,
-    isExpansion: metadata.isExpansion || parsed.isExpansion,
-    name: metadata.name,
-    yearPublished: metadata.yearPublished,
+    imageUrl: metadata?.imageUrl ?? discovered?.imageUrl ?? null,
+    isExpansion:
+      (metadata?.isExpansion ?? discovered?.isExpansion ?? false) ||
+      parsed.isExpansion,
+    name: metadata?.name ?? discovered?.name ?? "",
+    yearPublished: metadata?.yearPublished ?? discovered?.yearPublished ?? null,
   };
   return {
     ...parsed,
