@@ -63,9 +63,9 @@ export function UserDataCard(): ReactNode {
   }
 
   return (
-    <section className="bg-card shadow-soft h-full rounded-3xl border p-6 sm:p-8">
+    <section className="bg-card shadow-soft h-full rounded-3xl border p-5 sm:p-8">
       <div className="flex items-center gap-4">
-        <span className="bg-primary/10 text-primary grid size-12 place-items-center rounded-2xl">
+        <span className="bg-primary/10 text-primary grid size-12 shrink-0 place-items-center rounded-2xl">
           <FileArchive className="size-5" />
         </span>
         <div>
@@ -75,7 +75,7 @@ export function UserDataCard(): ReactNode {
       </div>
 
       <div className="mt-7 grid gap-6 lg:grid-cols-2">
-        <div className="rounded-2xl border p-5">
+        <div className="rounded-2xl border p-4 sm:p-5">
           <h3 className="font-bold">{t("data.exportTitle")}</h3>
           <p className="text-muted-foreground mt-1 text-sm leading-6">
             {t("data.exportBody")}
@@ -96,7 +96,7 @@ export function UserDataCard(): ReactNode {
           </div>
         </div>
 
-        <form className="rounded-2xl border p-5" onSubmit={importData}>
+        <form className="rounded-2xl border p-4 sm:p-5" onSubmit={importData}>
           <h3 className="font-bold">{t("data.importTitle")}</h3>
           <p className="text-muted-foreground mt-1 text-sm leading-6">
             {t("data.importBody")}
@@ -111,7 +111,12 @@ export function UserDataCard(): ReactNode {
               type="file"
             />
           </label>
-          <Button className="mt-4" disabled={importing} size="sm" type="submit">
+          <Button
+            className="mt-4 w-full sm:w-fit"
+            disabled={importing}
+            size="sm"
+            type="submit"
+          >
             {importing ? (
               <LoaderCircle className="size-4 animate-spin" />
             ) : (
@@ -122,7 +127,7 @@ export function UserDataCard(): ReactNode {
         </form>
       </div>
 
-      <div className="mt-6 flex flex-col justify-between gap-4 rounded-2xl border border-dashed p-5 sm:flex-row sm:items-center">
+      <div className="mt-6 flex flex-col justify-between gap-4 rounded-2xl border border-dashed p-4 sm:flex-row sm:items-center sm:p-5">
         <div>
           <h3 className="font-bold">{t("data.bggTitle")}</h3>
           <p className="text-muted-foreground mt-1 text-sm">

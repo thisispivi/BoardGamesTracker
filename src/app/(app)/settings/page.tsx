@@ -74,25 +74,25 @@ export default async function SettingsPage() {
         title={t("settings.title")}
       />
       <div className="grid items-stretch gap-5 lg:grid-cols-2">
-        <section className="bg-card shadow-soft relative overflow-hidden rounded-4xl border p-6 sm:p-8 lg:col-span-2">
+        <section className="bg-card shadow-soft relative overflow-hidden rounded-4xl border p-5 sm:p-8 lg:col-span-2">
           <div
             aria-hidden="true"
             className="bg-primary/8 pointer-events-none absolute -top-20 -right-16 size-72 rounded-full blur-3xl"
           />
           <div className="relative flex flex-col gap-7">
             <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-start">
-              <div className="flex items-center gap-4">
-                <span className="from-primary to-primary/70 text-primary-foreground font-display grid size-16 shrink-0 place-items-center rounded-3xl bg-linear-to-br text-xl font-black shadow-lg">
+              <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+                <span className="from-primary to-primary/70 text-primary-foreground font-display grid size-14 shrink-0 place-items-center rounded-2xl bg-linear-to-br text-lg font-black shadow-lg sm:size-16 sm:rounded-3xl sm:text-xl">
                   {initials || <UserRound className="size-6" />}
                 </span>
                 <div className="min-w-0">
                   <p className="text-primary text-xs font-bold tracking-widest uppercase">
                     {t("settings.account")}
                   </p>
-                  <h2 className="font-display mt-1 truncate text-2xl font-bold">
+                  <h2 className="font-display mt-1 truncate text-xl font-bold sm:text-2xl">
                     {session.user.name}
                   </h2>
-                  <p className="text-muted-foreground truncate text-sm">
+                  <p className="text-muted-foreground truncate text-xs sm:text-sm">
                     {session.user.email}
                   </p>
                 </div>
@@ -104,14 +104,14 @@ export default async function SettingsPage() {
             <div className="grid grid-cols-3 gap-2 sm:gap-3">
               {collectionFacts.map((fact) => (
                 <article
-                  className="bg-background/75 rounded-2xl border p-3 backdrop-blur sm:p-4"
+                  className="bg-background/75 rounded-2xl border p-2 backdrop-blur sm:p-4"
                   key={fact.label}
                 >
                   <fact.icon className="text-primary size-4" />
                   <p className="font-display mt-4 text-2xl font-bold tabular-nums">
                     {fact.value}
                   </p>
-                  <p className="text-muted-foreground mt-1 truncate text-[0.68rem] font-semibold sm:text-xs">
+                  <p className="text-muted-foreground mt-1 truncate text-[0.625rem] font-semibold min-[400px]:text-[0.68rem] sm:text-xs">
                     {fact.label}
                   </p>
                 </article>
@@ -135,7 +135,7 @@ export default async function SettingsPage() {
         <div className="lg:col-span-2">
           <AccountSettingsCard email={session.user.email} />
         </div>
-        <section className="bg-card shadow-soft relative overflow-hidden rounded-3xl border p-6 sm:p-8">
+        <section className="bg-card shadow-soft relative overflow-hidden rounded-3xl border p-5 sm:p-8">
           <div
             aria-hidden="true"
             className="bg-primary/7 absolute -right-12 -bottom-16 size-56 rounded-full blur-2xl"

@@ -57,7 +57,7 @@ function ShareToggle({
 }: ShareToggleProps): ReactNode {
   return (
     <label
-      className={`flex items-start gap-3 rounded-2xl border p-4 transition ${disabled ? "opacity-55" : "hover:bg-muted/50 cursor-pointer"}`}
+      className={`flex items-start gap-3 rounded-2xl border p-3 transition sm:p-4 ${disabled ? "opacity-55" : "hover:bg-muted/50 cursor-pointer"}`}
     >
       <input
         checked={checked}
@@ -167,7 +167,7 @@ export function SharingCard({
   return (
     <section
       aria-busy={pending}
-      className="bg-card shadow-soft relative overflow-hidden rounded-3xl border p-6 sm:p-8"
+      className="bg-card shadow-soft relative overflow-hidden rounded-3xl border p-5 sm:p-8"
     >
       <div
         aria-hidden="true"

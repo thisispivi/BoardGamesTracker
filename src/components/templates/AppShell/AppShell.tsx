@@ -51,7 +51,8 @@ export function AppShell({ children, user }: AppShellProps): ReactNode {
         </div>
       </aside>
       <header className="bg-background/90 sticky top-0 z-20 flex h-18 items-center justify-between border-b px-4 backdrop-blur lg:hidden">
-        <Logo />
+        <Logo className="min-[360px]:hidden" compact />
+        <Logo className="hidden min-[360px]:inline-flex" />
         <div className="flex items-center gap-1">
           <ThemeToggle />
           <AppNavigation isAdmin={user.role === "admin"} mobile user={user} />

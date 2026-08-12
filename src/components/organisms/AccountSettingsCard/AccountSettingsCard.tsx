@@ -96,7 +96,7 @@ export function AccountSettingsCard({
   return (
     <section
       aria-busy={isPending}
-      className="bg-card shadow-soft h-full rounded-3xl border p-6 sm:p-8"
+      className="bg-card shadow-soft h-full rounded-3xl border p-5 sm:p-8"
     >
       <div className="flex items-center gap-4">
         <span className="bg-primary/10 text-primary grid size-12 shrink-0 place-items-center rounded-2xl">
@@ -112,7 +112,7 @@ export function AccountSettingsCard({
         </div>
       </div>
       <div className="mt-7 grid gap-6 lg:grid-cols-2">
-        <form className="rounded-2xl border p-5" onSubmit={changeEmail}>
+        <form className="rounded-2xl border p-4 sm:p-5" onSubmit={changeEmail}>
           <h3 className="flex items-center gap-2 font-bold">
             {t("settings.email")}
           </h3>
@@ -131,7 +131,7 @@ export function AccountSettingsCard({
             />
           </label>
           <Button
-            className="mt-4"
+            className="mt-4 w-full sm:w-fit"
             disabled={isPending || emailValue === email}
             size="sm"
             type="submit"
@@ -140,7 +140,10 @@ export function AccountSettingsCard({
             {t("settings.saveEmail")}
           </Button>
         </form>
-        <form className="rounded-2xl border p-5" onSubmit={changePassword}>
+        <form
+          className="rounded-2xl border p-4 sm:p-5"
+          onSubmit={changePassword}
+        >
           <h3 className="flex items-center gap-2 font-bold">
             <KeyRound className="size-4" />
             {t("settings.password")}
@@ -175,7 +178,7 @@ export function AccountSettingsCard({
             </label>
           </div>
           <Button
-            className="mt-4"
+            className="mt-4 w-full sm:w-fit"
             disabled={isPending}
             size="sm"
             type="submit"
@@ -185,7 +188,7 @@ export function AccountSettingsCard({
           </Button>
         </form>
       </div>
-      <div className="border-danger/30 mt-6 flex flex-col justify-between gap-4 rounded-2xl border p-5 sm:flex-row sm:items-center">
+      <div className="border-danger/30 mt-6 flex flex-col justify-between gap-4 rounded-2xl border p-4 sm:flex-row sm:items-center sm:p-5">
         <div className="flex items-start gap-3">
           <span className="bg-danger/10 text-danger grid size-10 shrink-0 place-items-center rounded-xl">
             <TriangleAlert className="size-4" />
@@ -208,7 +211,7 @@ export function AccountSettingsCard({
           title={t("settings.deleteAccountTitle")}
           trigger={
             <Button
-              className="shrink-0"
+              className="w-full shrink-0 sm:w-fit"
               size="sm"
               type="button"
               variant="danger"

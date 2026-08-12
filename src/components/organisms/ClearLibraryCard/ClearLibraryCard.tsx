@@ -56,7 +56,7 @@ export function ClearLibraryCard({
   }, [router, state]);
 
   return (
-    <section className="bg-card shadow-soft h-full rounded-3xl border border-red-500/25 p-6 sm:p-8">
+    <section className="bg-card shadow-soft h-full rounded-3xl border border-red-500/25 p-5 sm:p-8">
       <div className="flex h-full flex-col justify-between gap-7">
         <div className="flex items-start gap-4">
           <span className="bg-danger/10 text-danger grid size-12 shrink-0 place-items-center rounded-2xl">
