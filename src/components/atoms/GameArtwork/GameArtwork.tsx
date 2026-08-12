@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/utils/cn";
 
+/** Properties used to render safe game artwork and its fallback. */
 type GameArtworkProps = {
   eager?: boolean;
   name: string;
@@ -14,13 +15,13 @@ type GameArtworkProps = {
 /**
  * Responsive game-box artwork with a polished text fallback.
  *
- * @param root0 - Component or function properties.
- * @param root0.eager - The 'eager' property.
- * @param root0.name - The 'name' property.
- * @param root0.imageUrl - The 'imageUrl' property.
- * @param root0.className - The 'className' property.
- * @param root0.imageClassName - The 'imageClassName' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure game artwork.
+ * @param root0.eager - Whether the artwork should load with high priority.
+ * @param root0.name - Game name used for accessible artwork text.
+ * @param root0.imageUrl - Validated artwork URL, when the game has one.
+ * @param root0.className - Optional classes merged with the component styles.
+ * @param root0.imageClassName - Optional classes applied to the image element.
+ * @returns The rendered game artwork.
  */
 export function GameArtwork({
   eager = false,

@@ -32,6 +32,7 @@ const gameHeaders = [
   "gifted",
 ] as const;
 
+/** String-valued game row shared by tabular import and export formats. */
 type FlatGame = Record<(typeof gameHeaders)[number], string>;
 
 /**
@@ -39,7 +40,7 @@ type FlatGame = Record<(typeof gameHeaders)[number], string>;
  *
  * @param document - The portable user-data document.
  * @param format - The requested data format.
- * @returns The documented function result.
+ * @returns The serialized user data.
  */
 export async function serializeUserData(
   document: UserDataDocument,
@@ -60,7 +61,7 @@ export async function serializeUserData(
  *
  * @param bytes - The serialized input bytes.
  * @param format - The requested data format.
- * @returns The documented function result.
+ * @returns The parsed user data.
  */
 export async function parseUserData(
   bytes: Uint8Array,
@@ -81,7 +82,7 @@ export async function parseUserData(
  * Returns download metadata for one export format.
  *
  * @param format - The requested data format.
- * @returns The documented function result.
+ * @returns Version, timestamp, and profile metadata shared by every export.
  */
 export function getExportMetadata(format: UserDataFormat) {
   return {
@@ -101,6 +102,7 @@ export function getExportMetadata(format: UserDataFormat) {
  * Converts canonical data into a readable two-record-type CSV document.
  *
  * @param document - The portable user-data document.
+ * @returns A spreadsheet-safe CSV representation of the portable document.
  */
 function serializeCsv(document: UserDataDocument): string {
   const headers = [
@@ -139,7 +141,8 @@ function serializeCsv(document: UserDataDocument): string {
 /**
  * Parses the application's flat CSV representation.
  *
- * @param text - The 'text' value.
+ * @param text - Serialized user-data text to parse.
+ * @returns An untrusted portable-document candidate decoded from CSV.
  */
 function parseCsv(text: string): unknown {
   const rows = parse(text, {
@@ -169,6 +172,7 @@ function parseCsv(text: string): unknown {
  * Writes a styled, editable workbook with separate profile and game sheets.
  *
  * @param document - The portable user-data document.
+ * @returns The XLSX workbook serialized as bytes.
  */
 async function serializeXlsx(document: UserDataDocument): Promise<Uint8Array> {
   const workbook = new ExcelJS.Workbook();
@@ -242,6 +246,7 @@ async function serializeXlsx(document: UserDataDocument): Promise<Uint8Array> {
  * Reads the two-sheet Board Games Tracker workbook representation.
  *
  * @param bytes - The serialized input bytes.
+ * @returns A validated portable document decoded from an XLSX workbook.
  */
 async function parseXlsx(bytes: Uint8Array): Promise<UserDataDocument> {
   const workbook = new ExcelJS.Workbook();
@@ -289,6 +294,7 @@ async function parseXlsx(bytes: Uint8Array): Promise<UserDataDocument> {
  * Produces SQL-shaped text while retaining a strict, non-executable import path.
  *
  * @param document - The portable user-data document.
+ * @returns A non-executable SQL-style representation of the portable document.
  */
 function serializeSql(document: UserDataDocument): string {
   const json = JSON.stringify(document).replaceAll("'", "''");
@@ -303,7 +309,8 @@ function serializeSql(document: UserDataDocument): string {
 /**
  * Extracts the app's single escaped JSON literal and never executes SQL.
  *
- * @param text - The 'text' value.
+ * @param text - Serialized user-data text to parse.
+ * @returns An untrusted portable-document candidate decoded from the SQL-style export.
  */
 function parseSql(text: string): unknown {
   const match =
@@ -317,7 +324,8 @@ function parseSql(text: string): unknown {
 /**
  * Flattens arrays and nullable values for CSV and worksheet cells.
  *
- * @param game - The 'game' value.
+ * @param game - Portable game record being serialized or parsed.
+ * @returns String values aligned with the canonical tabular headers.
  */
 function gameToFlatValues(game: PortableGame): string[] {
   return [
@@ -348,7 +356,8 @@ function gameToFlatValues(game: PortableGame): string[] {
 /**
  * Preserves numeric and Boolean cell types in editable XLSX exports.
  *
- * @param game - The 'game' value.
+ * @param game - Portable game record being serialized or parsed.
+ * @returns Worksheet cell values aligned with the canonical tabular headers.
  */
 function gameToWorksheetValues(game: PortableGame): unknown[] {
   return [
@@ -379,7 +388,8 @@ function gameToWorksheetValues(game: PortableGame): unknown[] {
 /**
  * Restores one flat game row into strongly typed primitive values.
  *
- * @param row - The 'row' value.
+ * @param row - Untrusted row read from the uploaded document.
+ * @returns A normalized portable game decoded from a flat row.
  */
 function flatToGame(row: FlatGame): PortableGame {
   return {
@@ -410,10 +420,11 @@ function flatToGame(row: FlatGame): PortableGame {
 /**
  * Creates the shared raw document shape before final Zod validation.
  *
- * @param formatVersion - The 'formatVersion' value.
- * @param exportedAt - The 'exportedAt' value.
- * @param profile - The 'profile' value.
- * @param items - The 'items' value.
+ * @param formatVersion - Portable document version declared by the import.
+ * @param exportedAt - ISO timestamp recorded in the imported document.
+ * @param profile - Portable user preferences included in the import.
+ * @param items - Portable game records included in the import.
+ * @returns A validated portable document assembled from imported values.
  */
 function buildDocument(
   formatVersion: string,
@@ -432,7 +443,8 @@ function buildDocument(
 /**
  * Quotes a CSV cell and protects spreadsheet viewers from formula injection.
  *
- * @param value - The value to inspect or transform.
+ * @param value - Untrusted input being validated or normalized.
+ * @returns A quoted CSV cell safe from spreadsheet formula execution.
  */
 function csvCell(value: string): string {
   const safe = safeSpreadsheetText(value);
@@ -442,7 +454,8 @@ function csvCell(value: string): string {
 /**
  * Prefixes text that spreadsheet programs could otherwise treat as a formula.
  *
- * @param value - The value to inspect or transform.
+ * @param value - Untrusted input being validated or normalized.
+ * @returns Text prefixed when necessary to prevent spreadsheet formula execution.
  */
 function safeSpreadsheetText(value: string): string {
   return /^[=+\-@\t\r]/.test(value) ? `'${value}` : value;
@@ -451,7 +464,8 @@ function safeSpreadsheetText(value: string): string {
 /**
  * Reverses the explicit formula-injection protection on trusted export fields.
  *
- * @param value - The value to inspect or transform.
+ * @param value - Untrusted input being validated or normalized.
+ * @returns Original text recovered from a formula-protected spreadsheet cell.
  */
 function unprotectCell(value: string): string {
   return /^'[=+\-@\t\r]/.test(value) ? value.slice(1) : value;
@@ -460,7 +474,8 @@ function unprotectCell(value: string): string {
 /**
  * Parses a finite required number before bounded schema validation.
  *
- * @param value - The value to inspect or transform.
+ * @param value - Untrusted input being validated or normalized.
+ * @returns A finite required number decoded from the imported value.
  */
 function requiredNumber(value: string): number {
   const parsed = Number(value);
@@ -471,7 +486,8 @@ function requiredNumber(value: string): number {
 /**
  * Parses an empty nullable number or delegates to the finite parser.
  *
- * @param value - The value to inspect or transform.
+ * @param value - Untrusted input being validated or normalized.
+ * @returns A finite number, or null when the imported value is absent.
  */
 function optionalNumber(value: string): number | null {
   return value === "" ? null : requiredNumber(value);
@@ -480,7 +496,8 @@ function optionalNumber(value: string): number | null {
 /**
  * Parses JSON taxonomy arrays; the document schema validates every label.
  *
- * @param value - The value to inspect or transform.
+ * @param value - Untrusted input being validated or normalized.
+ * @returns Normalized, unique labels from the delimited source text.
  */
 function parseLabels(value: string): string[] {
   const parsed: unknown = JSON.parse(unprotectCell(value));

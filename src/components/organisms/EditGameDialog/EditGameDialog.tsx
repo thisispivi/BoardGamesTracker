@@ -13,6 +13,7 @@ import { updateCollectionItemAction } from "@/server/actions/collection";
 
 const initialState: CollectionActionState = { success: false, message: "" };
 
+/** Owned game and currency used by the personal-metadata editor. */
 type EditGameDialogProps = {
   currency: string;
   game: CollectionGame;
@@ -21,10 +22,10 @@ type EditGameDialogProps = {
 /**
  * Modal editor for personal collection metadata and purchase spend.
  *
- * @param root0 - Component or function properties.
- * @param root0.currency - The 'currency' property.
- * @param root0.game - The 'game' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure edit game dialog.
+ * @param root0.currency - ISO currency code used to format monetary values.
+ * @param root0.game - Game record displayed or changed by the component.
+ * @returns The rendered edit game dialog.
  */
 export function EditGameDialog({
   currency,

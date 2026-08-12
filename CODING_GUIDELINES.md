@@ -1,10 +1,29 @@
-# Coding style
+# Coding Guidelines
 
-Binding rules for every change in this repository — human or agent. They describe
-what `pnpm check` already enforces plus the conventions the linter cannot see.
-When a rule here disagrees with habit, the rule wins. When a rule here disagrees
-with a tool config (`eslint.config.mjs`, `.prettierrc.json`, `tsconfig.json`),
-the tool config wins and this file must be corrected.
+This is the canonical standard for every change in this repository, whether it
+is written by a human or an agent. `AGENTS.md`, `CLAUDE.md`, and
+`.github/copilot-instructions.md` are adapters that point here; shared rules
+belong only in this file.
+
+Rules use **MUST** for requirements, **SHOULD** for the project default, and
+**MAY** for context-dependent choices. Existing violations are not precedent.
+When this document and an executable configuration disagree, the configuration
+wins for the current run and this document MUST be corrected in the same change.
+
+The application uses the Next.js App Router, React Server Components,
+TypeScript, Tailwind CSS, `next-intl`, Better Auth, Drizzle ORM, PostgreSQL,
+Zod, Vitest, ESLint, Prettier, and pnpm. Its main boundaries are:
+
+```text
+src/app/          Routes, layouts, metadata, and HTTP handlers
+src/components/   Atomic Design UI: atoms -> molecules -> organisms -> templates
+src/core/         Framework-free shared types and validation contracts
+src/server/       Authentication, persistence, actions, and external services
+src/utils/        Isomorphic helpers with a single named responsibility
+messages/         Structurally identical English and Italian message catalogs
+drizzle/          Generated migrations and snapshots
+scripts/          Repository operations and maintenance commands
+```
 
 Every change must pass, before review:
 
@@ -78,30 +97,38 @@ Additional rules:
 
 ## 3. Documentation and comments
 
-JSDoc is enforced by `eslint-plugin-jsdoc` at error level. It is not optional.
+JSDoc is enforced by `eslint-plugin-jsdoc` at error level. It is part of the
+public contract, not filler added to satisfy lint.
 
-1. Every exported function, component, class, and method carries a JSDoc block.
-2. The first line is a single sentence in the **third person present tense**
-   describing what the code does, ending with a period:
+1. Every named function, React component, class, constructor, method, type alias,
+   interface, and enum MUST carry a JSDoc block, whether exported or private.
+   Exported constants need JSDoc as well. Inline anonymous callbacks are the
+   only function exception. Named functions use declarations rather than arrows
+   so the rule is mechanically enforceable.
+2. The summary MUST be a useful sentence in the **third person present tense**,
+   end with a period, and describe observable behavior:
    `/** Parses a canonical BoardGameGeek URL into its stable identity. */`
-   Not `// parse url`, not "This function will parse…".
-3. Keep the summary to one line under 80 characters. Extra context goes in a
-   separate paragraph after a blank line — use it to record _why_, invariants,
-   and security properties, not to restate the signature.
-4. Every parameter needs a `@param name - Description.` entry, and destructured
-   props need one entry per property (`@param root0.currency - …`). Every
-   function needs `@returns`, including `Promise<void>` ones.
-5. Leave exactly one blank line between the summary and the first tag
-   (`jsdoc/tag-lines` with `startLines: 1`).
-6. Single-line JSDoc (`/** … */`) for exported constants and types is preferred
-   over a multi-line block.
-7. Descriptions must add information. `@param value - The 'value' value.` is
-   noise; write what the value _is_ and what makes it valid.
-8. Implementation comments use `//`, sit on their own line **above** the code,
-   and explain intent or a non-obvious constraint. Never place a comment at the
-   end of a line of code.
-9. Never leave commented-out code, `TODO` without an owner, or a comment that
-   narrates the obvious.
+   Do not write "This function will…" or merely turn the symbol name into prose.
+3. A simple constant or type uses one-line JSDoc. A function uses a multiline
+   block with `/**` and `*/` on their own lines. Put exactly one blank line
+   between its description and its tags.
+4. Every parameter needs `@param name - Description.`. Destructured props use
+   one entry for the object and one per property (`root0.currency`). Every
+   non-constructor function needs `@returns`, including functions returning
+   `void` or `Promise<void>`.
+5. Descriptions MUST add information that is absent from the TypeScript type.
+   Banned filler includes "The documented function result", "Component or
+   function properties", "The 'value' value", and "The 'x' property".
+6. Document boundaries, units, validity, fallback behavior, authorization, and
+   security properties where relevant. Do not repeat implementation steps.
+7. Human-authored `//` prose comments are forbidden in application and test
+   code. Tooling directives such as `@ts-expect-error`, ESLint directives, and
+   TypeScript triple-slash references are allowed only when the tool requires
+   that syntax and the directive includes its reason and removal condition.
+8. Do not leave trailing comments, commented-out code, AI narration, TODOs,
+   FIXMEs, or speculative notes. Make intent visible through names, extracted
+   functions, tests, and a useful JSDoc contract on the declaration that owns
+   the constraint.
 
 ## 4. Naming inside code
 
@@ -238,8 +265,8 @@ before writing routing, caching, or data-fetching code.**
 
 ## 11. Errors and logging
 
-1. Catch narrowly. An empty `catch {}` needs a comment explaining why the
-   failure is safe to swallow.
+1. Catch narrowly. Empty catch blocks are forbidden; make the fallback or
+   control flow explicit.
 2. Optional enrichment fails soft (`.catch(() => fallback)`); anything the user
    asked for fails loud with a translated message.
 3. Log through `@/utils/logger`'s `log(level, event, context)`. `event` is a
@@ -249,10 +276,31 @@ before writing routing, caching, or data-fetching code.**
 ## 12. Dependencies and dead code
 
 1. Knip runs in `pnpm check`: unused files, exports, and dependencies fail the
-   build. Delete rather than keep "for later".
-2. Prefer deletion to addition. Prefer the standard library to a dependency, and
-   an installed dependency to a new one.
-3. Lockfile changes are part of the diff and must be reviewed.
-4. `pnpm audit --audit-level=moderate` must pass. An `ignoreGhsas` entry in
-   `pnpm-workspace.yaml` requires a comment stating the advisory, why the
-   installed tree is not exploitable, and the condition for removing it.
+   build. Delete dead code instead of retaining it "for later".
+2. Use Depcheck as a corroborating audit, not as the source of truth. It cannot
+   understand every PostCSS, Tailwind, CLI, or framework configuration; verify
+   each report against package scripts and configuration before removing it.
+3. Prefer deletion to addition, the platform to a package, and an existing
+   package to a second tool with overlapping responsibility.
+4. Keep dependencies on the newest release compatible with the supported Node,
+   Next.js, ESLint, and TypeScript stack. Do not force a major version through
+   unmet peer ranges. Record the reason when an apparently newer major is held.
+5. Lockfile changes are part of the diff and MUST be reviewed. Never mix npm or
+   Yarn lockfiles into this pnpm repository.
+6. `pnpm audit --audit-level=moderate` must pass. An `ignoreGhsas` entry in
+   `pnpm-workspace.yaml` requires a nearby explanation of the advisory, why the
+   installed tree is safe, and the condition for removing the exception.
+
+## 13. Definition of done
+
+Before review, confirm all of the following:
+
+- New code lives in the owning layer and respects the dependency direction.
+- Public input is bounded and validated once at its trust boundary.
+- Authorization is enforced in the mutation query, not after data is loaded.
+- User-visible copy is translated in both message catalogs.
+- Interactive UI has keyboard support, an accessible name, and visible focus.
+- Named functions and exported declarations have informative JSDoc with no
+  placeholder descriptions or prose line comments.
+- New behavior and non-trivial failure paths have colocated tests.
+- `pnpm check`, `pnpm build`, and `pnpm audit --audit-level=moderate` pass.

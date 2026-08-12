@@ -1,3 +1,4 @@
+/** Cached value paired with the timestamp after which it is stale. */
 type CacheEntry<TValue> = {
   expiresAt: number;
   value: TValue;

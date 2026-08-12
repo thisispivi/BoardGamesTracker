@@ -28,12 +28,14 @@ import { requireUser } from "@/server/session";
 import { CLEAR_COLLECTION_CONFIRMATION } from "@/utils/collectionConfirmation";
 import { hasExpansionCategory } from "@/utils/gameTaxonomy";
 
+/** Validated local metadata accepted when a user adds a custom game. */
 type LocalGameDetails = z.infer<typeof gameDetailsSchema>;
 
 /**
  * Splits and deduplicates user-maintained taxonomy labels.
  *
- * @param value - The value to inspect or transform.
+ * @param value - Untrusted input being validated or normalized.
+ * @returns Normalized, unique labels from the delimited source text.
  */
 function parseLabels(value: string): string[] {
   return [
@@ -50,8 +52,9 @@ function parseLabels(value: string): string[] {
  * Inserts or refreshes user-supplied local metadata and returns the game ID.
  *
  * @param selection - The game selection to sign.
- * @param details - The 'details' value.
- * @param metadata - The 'metadata' value.
+ * @param details - Validated local fields supplied by the user.
+ * @param metadata - Validated BoardGameGeek metadata for the game.
+ * @returns The stored game identifier and whether artwork was cached.
  */
 async function upsertGame(
   selection: GameSelection,
@@ -127,7 +130,7 @@ async function upsertGame(
  *
  * @param _previous - The previous server-action state.
  * @param formData - The submitted form data.
- * @returns The documented function result.
+ * @returns The outcome of the validated import operation.
  */
 export async function importBggCsvAction(
   _previous: CollectionActionState,
@@ -307,7 +310,7 @@ export async function importBggCsvAction(
  *
  * @param _previous - The previous server-action state.
  * @param formData - The submitted form data.
- * @returns The documented function result.
+ * @returns The outcome of the authorized server action.
  */
 export async function addGameAction(
   _previous: CollectionActionState,
@@ -428,7 +431,7 @@ export async function addGameAction(
  *
  * @param _previous - The previous server-action state.
  * @param formData - The submitted form data.
- * @returns The documented function result.
+ * @returns The outcome of the authorized server action.
  */
 export async function updateCollectionItemAction(
   _previous: CollectionActionState,
@@ -497,7 +500,7 @@ export async function updateCollectionItemAction(
  * Removes one owned item after verifying it belongs to the current user.
  *
  * @param formData - The submitted form data.
- * @returns The documented function result.
+ * @returns A promise that resolves when the operation completes.
  */
 export async function removeGameAction(formData: FormData): Promise<void> {
   const session = await requireUser();
@@ -531,7 +534,7 @@ export async function removeGameAction(formData: FormData): Promise<void> {
  * Toggles a favorite after verifying collection ownership.
  *
  * @param formData - The submitted form data.
- * @returns The documented function result.
+ * @returns A promise that resolves when the operation completes.
  */
 export async function toggleFavoriteAction(formData: FormData): Promise<void> {
   const session = await requireUser();
@@ -557,7 +560,7 @@ export async function toggleFavoriteAction(formData: FormData): Promise<void> {
  *
  * @param _previous - The previous server-action state.
  * @param formData - The submitted form data.
- * @returns The documented function result.
+ * @returns The outcome of the authorized server action.
  */
 export async function moveWishlistToCollectionAction(
   _previous: CollectionActionState,
@@ -637,7 +640,7 @@ export async function moveWishlistToCollectionAction(
  *
  * @param _previous - The previous server-action state.
  * @param formData - The submitted form data.
- * @returns The documented function result.
+ * @returns The outcome of the authorized server action.
  */
 export async function clearLibraryAction(
   _previous: CollectionActionState,

@@ -1,15 +1,14 @@
-<!-- BEGIN:nextjs-agent-rules -->
+# Repository instructions
 
-# This is NOT the Next.js you know
+Before writing, reviewing, or suggesting code, read
+[`CODING_GUIDELINES.md`](CODING_GUIDELINES.md) completely and follow it as the
+authoritative repository standard. Apply it to every file in the scope of the
+change, including tests, scripts, documentation, and configuration.
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
-<!-- END:nextjs-agent-rules -->
+This installed Next.js version may differ from prior knowledge. Read the
+relevant guide in `node_modules/next/dist/docs/` before changing framework APIs,
+routing, caching, data fetching, rendering, or configuration. Follow bundled
+deprecation notices.
 
-# Coding style
-
-Read [`CODING_STYLE.md`](CODING_STYLE.md) before writing or reviewing code in
-this repository. It is the authoritative guide and covers naming, file layout,
-mandatory JSDoc, typing rules, i18n, data contracts, security boundaries, and
-tests. Follow it exactly; where it disagrees with your defaults, it wins.
-
-Every change must pass `pnpm check` and `pnpm build`.
+Do not finish a change until `pnpm check`, `pnpm build`, and
+`pnpm audit --audit-level=moderate` pass.

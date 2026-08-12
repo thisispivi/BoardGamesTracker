@@ -25,17 +25,18 @@ const buttonVariants = cva(
   },
 );
 
+/** Native and product-specific properties accepted by the button primitive. */
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
   VariantProps<typeof buttonVariants>;
 
 /**
  * Reusable button primitive with product variants.
  *
- * @param root0 - Component or function properties.
- * @param root0.className - The 'className' property.
- * @param root0.variant - The 'variant' property.
- * @param root0.size - The 'size' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure button.
+ * @param root0.className - Optional classes merged with the component styles.
+ * @param root0.variant - Product color variant applied to the control.
+ * @param root0.size - Product size variant applied to the control.
+ * @returns The rendered button.
  */
 export function Button({
   className,

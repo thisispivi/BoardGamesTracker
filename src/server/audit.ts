@@ -6,6 +6,7 @@ import { db } from "@/server/db";
 import { auditLogs } from "@/server/db/schema";
 import { log } from "@/utils/logger";
 
+/** Security-relevant event fields accepted by the audit writer. */
 type AuditInput = {
   actorId?: string;
   action: string;
@@ -17,8 +18,8 @@ type AuditInput = {
 /**
  * Persists a security-relevant administrative or user event.
  *
- * @param input - The 'input' value.
- * @returns The documented function result.
+ * @param input - Validated audit event fields to persist.
+ * @returns A promise that resolves after the audit event is persisted.
  */
 export async function writeAuditEvent(input: AuditInput): Promise<void> {
   const requestHeaders = await headers();

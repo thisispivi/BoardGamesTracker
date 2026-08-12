@@ -3,6 +3,7 @@
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import type { ReactNode } from "react";
 
+/** Properties that configure an accessible explanatory tooltip. */
 type TooltipProps = {
   children: React.ReactElement;
   content: React.ReactNode;
@@ -11,10 +12,10 @@ type TooltipProps = {
 /**
  * Accessible themed tooltip with consistent timing, spacing, and animation.
  *
- * @param root0 - Component or function properties.
- * @param root0.children - The 'children' property.
- * @param root0.content - The 'content' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure tooltip.
+ * @param root0.children - Content rendered inside the component.
+ * @param root0.content - Content displayed inside the tooltip.
+ * @returns The rendered tooltip.
  */
 export function Tooltip({ children, content }: TooltipProps): ReactNode {
   return (

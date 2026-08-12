@@ -5,7 +5,7 @@ import { isExpansionCategory } from "@/utils/gameTaxonomy";
  * Computes deterministic user-facing insights from owned collection data.
  *
  * @param collection - The collection items to analyze.
- * @returns The documented function result.
+ * @returns The calculated collection stats.
  */
 export function calculateCollectionStats(collection: StatGame[]) {
   const priced = collection
@@ -82,6 +82,7 @@ export function calculateCollectionStats(collection: StatGame[]) {
  * Sums a list without leaking floating-point noise into serialized output.
  *
  * @param values - The values to process.
+ * @returns The arithmetic sum of the provided values.
  */
 function sum(values: number[]): number {
   return Number(values.reduce((total, value) => total + value, 0).toFixed(2));
@@ -91,6 +92,7 @@ function sum(values: number[]): number {
  * Counts normalized labels and orders them by frequency then alphabetically.
  *
  * @param labels - The labels to count.
+ * @returns Label counts sorted by frequency and name.
  */
 function countLabels(labels: string[]): CountDatum[] {
   const counts = new Map<string, number>();

@@ -9,6 +9,7 @@ import { CollectionBrowser } from "@/components/organisms/CollectionBrowser/Coll
 import type { CollectionGame } from "@/core";
 import { getSharedLibrary } from "@/server/sharing";
 
+/** Properties supplied to the tokenized public-library route. */
 type SharedLibraryPageProps = {
   params: Promise<{ token: string }>;
 };
@@ -16,7 +17,7 @@ type SharedLibraryPageProps = {
 /**
  * Shared-library page metadata.
  *
- * @returns The documented function result.
+ * @returns Localized metadata for the page.
  */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
@@ -26,6 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+/** Properties used to render one section of a shared library. */
 type SharedSectionProps = {
   currency: string;
   games: CollectionGame[];
@@ -34,6 +36,7 @@ type SharedSectionProps = {
   title: string;
 };
 
+/** Collection totals displayed on a public sharing page. */
 type SharedStatsProps = {
   currency: string;
   games: CollectionGame[];
@@ -101,13 +104,13 @@ async function SharedStats({ currency, games, sharePrices }: SharedStatsProps) {
 /**
  * One read-only library section with its own search and filters.
  *
- * @param root0 - Component or function properties.
- * @param root0.currency - The 'currency' property.
- * @param root0.games - The 'games' property.
- * @param root0.icon - The 'icon' property.
+ * @param root0 - Properties that configure shared section.
+ * @param root0.currency - ISO currency code used to format monetary values.
+ * @param root0.games - Game records available to the component.
+ * @param root0.icon - Decorative icon rendered beside the label.
  * @param root0.sharePrices - Whether prices are visible for this section.
- * @param root0.title - The 'title' property.
- * @returns The documented function result.
+ * @param root0.title - Localized heading displayed by the component.
+ * @returns The rendered shared section.
  */
 function SharedSection({
   currency,
@@ -135,9 +138,9 @@ function SharedSection({
 /**
  * Public, link-only view of a library someone chose to share.
  *
- * @param root0 - Component or function properties.
- * @param root0.params - The 'params' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure shared library page.
+ * @param root0.params - Dynamic route parameters supplied by Next.js.
+ * @returns The rendered shared library page.
  */
 export default async function SharedLibraryPage({
   params,

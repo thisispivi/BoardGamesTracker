@@ -1,218 +1,264 @@
 <div align="center">
-  <picture>
-    <img alt="Board Games Tracker banner" src="public/board-games-tracker-banner.png" width="100%">
-  </picture>
+  <div style="display: flex; padding-block: 40px; margin-bottom: 20px; background-color: #1f1f1f">
+    <picture>
+      <img alt="Board Games Tracker banner" src="./public/board-games-tracker-banner.png" width="100%">
+    </picture>
+  </div>
+</div>
 
 # Board Games Tracker
 
-![Next.js](https://img.shields.io/badge/Next.js-16.2-black) ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169e1) ![License](https://img.shields.io/badge/license-MIT-18594b)
+A secure, self-hosted board-game collection manager and game-night picker for households, clubs, and private groups.
 
-</div>
+![Next.js](https://img.shields.io/badge/next.js-16.3-000000.svg?style=for-the-badge&logo=nextdotjs&logoColor=white) ![React](https://img.shields.io/badge/react-19.2-20232a.svg?style=for-the-badge&logo=react&logoColor=61dafb) ![TypeScript](https://img.shields.io/badge/typescript-6.0-007acc.svg?style=for-the-badge&logo=typescript&logoColor=white) ![Tailwind CSS](https://img.shields.io/badge/tailwind_css-4.3-06b6d4.svg?style=for-the-badge&logo=tailwindcss&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/postgresql-17-4169e1.svg?style=for-the-badge&logo=postgresql&logoColor=white) ![Docker](https://img.shields.io/badge/docker-2496ed.svg?style=for-the-badge&logo=docker&logoColor=white) ![pnpm](https://img.shields.io/badge/pnpm-11-f69220.svg?style=for-the-badge&logo=pnpm&logoColor=white) ![Vitest](https://img.shields.io/badge/vitest-4.1-6e9f18.svg?style=for-the-badge&logo=vitest&logoColor=white)
 
-Board Games Tracker is a secure, self-hosted home for a board-game collection. It presents each user's games in a calm visual shelf, supports multiple local users, and settles game-night indecision with a filterable animated picker.
+Board Games Tracker keeps your collection, wishlist, ratings, notes, and game-night decisions in one private application. It supports multilingual metadata discovery, BoardGameGeek-compatible imports, portable exports, household sharing, and administrative controls without depending on a hosted collection service.
 
-## Table of contents
+Start with the [Docker setup](#docker), run it through [local development](#local-development), or review the [security model](#security).
 
-- [Features](#features)
-- [Architecture](#architecture)
-- [Quick start with Docker](#quick-start-with-docker)
-- [Local development](#local-development)
-- [Environment](#environment)
-- [Database workflow](#database-workflow)
-- [Quality gates](#quality-gates)
-- [Project structure](#project-structure)
-- [Security model](#security-model)
-- [Backups and upgrades](#backups-and-upgrades)
-- [License](#license)
+## Tech Stack
 
-## Features
+- **Framework:** Next.js 16 and React 19
+- **Language:** TypeScript 6
+- **Styling:** Tailwind CSS 4 and Radix UI primitives
+- **Database:** PostgreSQL 17 with Drizzle ORM
+- **Authentication:** Better Auth
+- **Internationalization:** next-intl
+- **Testing:** Vitest and Testing Library
+- **Tooling:** pnpm, ESLint, Prettier, Knip, and Husky
+- **Deployment:** Docker Compose with a private SearXNG service
 
-- Responsive light/dark interface inspired by modern travel and mobility products
-- Email/password accounts with secure server-side sessions and administrator roles
-- Fuzzy English/Italian collection and discovery search with stop-word removal, typo tolerance, and compact queries such as `7wonders`
-- Main-game shelves with expansions grouped beneath the most likely owned base game
-- Local add/remove, favorites, gifted-game labels, purchase prices, BGG ratings, player counts, and duration with animated in-app confirmations
-- Secure BGG CSV collection import for owned games, ratings, plays, and notes
-- Token-free SearXNG discovery, PostgreSQL-cached BGG artwork, enriched publication years, and direct BGG links
-- Game-night picker with candidate cover art, separate searchable multi-select mechanic/theme filters, optional expansion exclusion, and a labeled animated wheel
-- Collection analytics for spending, price coverage (including gifts), complexity, expansions, favorites, categories, and mechanics
-- Administrative console for roles, bans, session revocation, account deletion, health metrics, and paginated audit events
-- Typed English and Italian localization with `next-intl`, ICU plurals, locale-aware formatting, and a persisted language preference
-- PostgreSQL migrations, Docker deployment, structured redacted logs, strict TypeScript, ESLint, Prettier, Husky, lint-staged, and Vitest
+## What Board Games Tracker includes
 
-> Board Games Tracker is independent software and is not affiliated with BoardGameGeek. SearXNG discovers indexed BGG links and BGG-hosted artwork; a bounded, best-effort server-side scrape enriches selected games. There is no BGG token, account association, or collection synchronization.
+### Collection and wishlist
 
-## Architecture
+Maintain separate collection and wishlist views with ownership status, ratings, notes, tags, player counts, play times, and rich game metadata. Search, filtering, sorting, pagination, duplicate handling, batch actions, and bulk deletion are built into the library workflow.
+
+### Discovery and imports
+
+Search multilingual web sources through a private SearXNG instance, inspect a game before adding it, and resolve incomplete metadata without exposing SearXNG directly to the browser. Existing collections can be imported from BoardGameGeek-compatible CSV files, with a preview step for matching and duplicate decisions.
+
+> BoardGameGeek is a trademark of BoardGameGeek, LLC. This project is independent and is not affiliated with or endorsed by BoardGameGeek.
+
+### Game-night picker and statistics
+
+Build a shared candidate pool, apply player-count and duration constraints, and let the picker choose a game for the table. Collection statistics and charts make it easier to understand the library by status, rating, player count, and other stored metadata.
+
+### Accounts, sharing, and administration
+
+The first registered account becomes the administrator. Administrators can control registration and manage users, while share links expose only the collection data explicitly selected for sharing. English, German, Dutch, and Japanese interfaces are included, together with light and dark themes.
+
+## How it works
+
+1. The browser talks only to the Next.js application.
+2. Server actions and route handlers validate input, authenticate the request, and enforce ownership.
+3. PostgreSQL stores accounts, sessions, collection records, cached metadata, and audit events.
+4. Discovery requests pass through the server to the private SearXNG container.
+5. Remote game images are fetched and served through same-origin application routes.
 
 ```mermaid
 flowchart LR
-  Browser["Browser · React 19"] --> App["Next.js 16 App Router"]
-  App --> Auth["Better Auth · RBAC"]
-  App --> DB[("PostgreSQL 17")]
-  DB --> Images["Content-addressed cover cache"]
-  App --> Search["Private SearXNG discovery"]
-  Search --> Index["Search providers"]
-  Browser -. "Open external link" .-> BGG["BoardGameGeek"]
-  Auth --> DB
-  App --> Audit["Structured logs + audit events"]
-  Audit --> DB
+    Browser["Browser"] --> App["Next.js application"]
+    App --> Database[("PostgreSQL")]
+    App --> Search["Private SearXNG"]
+    App --> Sources["Metadata and image sources"]
 ```
 
-Server Components read data directly from the typed Drizzle data layer. Server Actions and Route Handlers validate all untrusted input, re-check authentication and ownership, and record security-relevant mutations. `src/proxy.ts` adds CSP and modern browser-security headers while protected layouts perform authoritative session and role checks.
+Neither PostgreSQL nor SearXNG needs to be publicly reachable. In production, place the application behind a TLS-terminating reverse proxy and expose only the application port.
 
-## Quick start with Docker
+## Getting Started
 
-Requirements: Docker Engine with Compose v2 and a public HTTPS URL for production.
+### Docker
 
-1. Create `.env` beside `docker-compose.yml`:
+Docker Compose is the simplest way to run the complete stack. It starts PostgreSQL, SearXNG, and the application with health checks and a persistent database volume.
 
-   ```dotenv
-   POSTGRES_PASSWORD=replace-with-a-long-random-password
-   BETTER_AUTH_SECRET=replace-with-at-least-32-random-characters
-   APP_URL=http://localhost:12500
-   ADMIN_EMAIL=you@example.com
-   ALLOW_SIGN_UP=false
-   APP_PORT=12500
-   LOG_LEVEL=info
-   SEARXNG_SECRET=replace-with-a-different-random-secret
-   SENTRY_DSN=https://public-key@bugsink.example.com/1
-   NEXT_PUBLIC_SENTRY_DSN=https://public-key@bugsink.example.com/1
-   NEXT_PUBLIC_SENTRY_ENVIRONMENT=production
-   NEXT_PUBLIC_SENTRY_RELEASE=replace-with-the-deployed-git-sha
+1. Copy the environment template:
+
+   ```bash
+   cp .env.example .env
    ```
 
-2. Start the database and application:
+   PowerShell:
+
+   ```powershell
+   Copy-Item .env.example .env
+   ```
+
+2. Set at least these values in `.env`:
+
+   ```dotenv
+   POSTGRES_PASSWORD=replace-with-a-strong-password
+   BETTER_AUTH_SECRET=replace-with-at-least-32-random-characters
+   APP_URL=http://localhost:12500
+   SEARXNG_SECRET=replace-with-another-random-secret
+   ```
+
+3. Build and start the stack:
 
    ```bash
    docker compose up --build -d
    ```
 
-3. Open `http://localhost:12500`. When the database has no users, Board Games Tracker automatically presents first-time setup and makes the first account an administrator. Public registration closes as soon as that account exists. Pending SQL migrations run automatically before the server starts.
+4. Open [http://localhost:12500](http://localhost:12500).
 
-For production, put the app behind a TLS-terminating reverse proxy, set `APP_URL` to the exact external `https://` origin, restrict database access to the private Docker network, and back up the `board_games_tracker_data` volume.
+The first account created is promoted to administrator. Keep `ALLOW_SIGN_UP=false` unless public registration is intentional.
 
-When upgrading an existing Docker installation, set `POSTGRES_DB`, `POSTGRES_USER`, and `POSTGRES_VOLUME_NAME` to the names already used by that installation before starting the renamed stack. Compose will then reuse the existing database and physical volume instead of initializing new storage.
+### Local development
 
-## Local development
-
-Requirements: Node.js 24.18+, pnpm 11.21+, and PostgreSQL 17.
+Local development requires Node.js 24.18 or newer, pnpm 11.21 or newer, PostgreSQL, and a reachable SearXNG instance.
 
 ```bash
-pnpm install --frozen-lockfile
+pnpm install
 cp .env.example .env.local
 pnpm db:migrate
 pnpm dev
 ```
 
-PowerShell equivalent: `Copy-Item .env.example .env.local`.
+PowerShell:
 
-Generate secrets with a cryptographically secure tool such as `openssl rand -base64 32`. Never reuse the example values.
-
-### Game discovery
-
-Board Games Tracker queries a private SearXNG JSON endpoint for indexed BoardGameGeek game links and BGG-hosted cover images. Missing publication years are enriched from Wikidata's CC0 data by exact BGG ID. Docker Compose includes a SearXNG service that is reachable only from the private application network. For local development outside Compose, run a private SearXNG instance with JSON output enabled and set `SEARXNG_URL` to its origin. Public SearXNG instances commonly disable JSON responses and should not be treated as an application dependency.
-
-Official BGG collection CSV exports can be uploaded from Settings. Imports are restricted to 5 MB and 2,000 rows, validate the expected BGG columns and field bounds, and only add rows explicitly marked as owned. Imported BGG IDs are used to discover and download covers in bounded batches.
-
-Owned games and future purchases are kept in separate Collection and Wishlist views. Moving a wishlist item into the collection records either its purchase price or that it was gifted. Gifted games count toward price coverage while contributing zero to spend, average, and median calculations. The Stats view summarizes spend, price coverage, complexity, expansions, favorites, and the most common categories and mechanics. Play histories are deliberately not collected.
-
-Settings can export the signed-in user's Board Games Tracker profile preferences, collection, wishlist, personal metadata, and shared game metadata as JSON, CSV, XLSX, or SQL. All four formats import through the same bounded, versioned validator and merge by BGG ID. Uploaded SQL is parsed only as Board Games Tracker's escaped data envelope and is never executed. Credentials, sessions, audit logs, and other users' data are excluded.
-
-Search terms are normalized for punctuation, diacritics, adjoining words and numbers, and English/Italian stop words before fuzzy ranking. Search results are filtered to exact HTTPS `boardgamegeek.com/boardgame/{id}` links. The user supplies player counts, duration, complexity, taxonomy, purchase price, and optional artwork before saving. Board Games Tracker stores only explicitly added games. It makes bounded, best-effort server-side reads of the structured data backing each selected or imported game's public BGG credits page to enrich categories, mechanics, and themes; BGG may block automated requests, so all metadata remains manually editable and scraping fails softly.
-
-Selected artwork is downloaded only from the exact HTTPS `cf.geekdo-images.com` host. JPEG, PNG, and WebP signatures are verified, downloads are limited to 5 MB and 12 seconds, and redirects are rejected. Image bytes are deduplicated in PostgreSQL by SHA-256 checksum alongside their MIME type, byte size, and source URL. A same-origin content-addressed route serves them with immutable caching, ETags, and MIME-sniffing protection.
-
-## Environment
-
-| Variable                         | Required    | Purpose                                                        |
-| -------------------------------- | ----------- | -------------------------------------------------------------- |
-| `DATABASE_URL`                   | Yes         | PostgreSQL connection URL                                      |
-| `BETTER_AUTH_SECRET`             | Yes         | High-entropy session/encryption secret, at least 32 characters |
-| `BETTER_AUTH_URL`                | Yes         | Exact server origin; no trailing path                          |
-| `NEXT_PUBLIC_APP_URL`            | Yes         | Exact browser-visible origin                                   |
-| `ADMIN_EMAIL`                    | No          | Registration email promoted to admin; unset after bootstrap    |
-| `ALLOW_SIGN_UP`                  | No          | Allows accounts after bootstrap; secure default is `false`     |
-| `HEALTH_CHECK_TOKEN`             | No          | Bearer token protecting the database-backed health probe       |
-| `LOG_LEVEL`                      | No          | `debug`, `info`, `warn`, or `error`; defaults to `info`        |
-| `SEARXNG_URL`                    | Yes         | Private SearXNG origin used for server-side discovery          |
-| `SEARXNG_SECRET`                 | Docker only | Independent high-entropy secret for the bundled SearXNG        |
-| `SENTRY_DSN`                     | No          | Server/edge Bugsink DSN; falls back to the public DSN          |
-| `NEXT_PUBLIC_SENTRY_DSN`         | No          | Browser Bugsink DSN, embedded during the application build     |
-| `NEXT_PUBLIC_SENTRY_ENVIRONMENT` | No          | Bugsink environment tag; defaults to `production` in Compose   |
-| `NEXT_PUBLIC_SENTRY_RELEASE`     | No          | Immutable deployment ID used for release/error correlation     |
-| `SENTRY_URL`                     | No          | Bugsink origin for build-time source-map upload                |
-| `SENTRY_PROJECT`                 | No          | Bugsink project slug for build-time source-map upload          |
-| `SENTRY_AUTH_TOKEN_FILE`         | No          | File containing the build-only Bugsink source-map upload token |
-
-`BETTER_AUTH_URL` and `NEXT_PUBLIC_APP_URL` must match the deployed origin. A mismatch is intentionally rejected by trusted-origin and cookie protections.
-
-When Bugsink is configured, browser, server, React-boundary, route-handler, Server Action, and edge errors are sent without user identity, cookies, headers, bodies, or query strings. Set `NEXT_PUBLIC_SENTRY_RELEASE` to the deployed commit SHA so Bugsink can identify regressions. For readable production stack traces, create an untracked `.sentry-auth-token` file containing a Bugsink API token, set `SENTRY_AUTH_TOKEN_FILE=.sentry-auth-token`, `SENTRY_PROJECT` to the Bugsink project slug, and optionally `SENTRY_URL` when it differs from the DSN origin. The token is mounted only during the Docker build and is not copied into the runtime image. Verify ingestion with `pnpm bugsink:test`; it creates one clearly tagged test issue and exits unsuccessfully if Bugsink rejects the event.
-
-## Database workflow
-
-```bash
-pnpm db:generate   # create a reviewed SQL migration from schema changes
-pnpm db:migrate    # apply committed migrations
-pnpm db:studio     # inspect a local database
-pnpm images:cache  # cache up to 500 existing remote cover references
+```powershell
+pnpm install
+Copy-Item .env.example .env.local
+pnpm db:migrate
+pnpm dev
 ```
 
-Commit both schema changes and generated files under `drizzle/`. Never use `db:push` against production.
+Update `DATABASE_URL`, `BETTER_AUTH_URL`, `NEXT_PUBLIC_APP_URL`, and `SEARXNG_URL` in `.env.local` for your local services. The development server listens on [http://localhost:12500](http://localhost:12500).
 
-## Quality gates
+## Deployment
+
+### Production setup
+
+Use Docker Compose as the deployment baseline:
+
+- Put the application behind an HTTPS reverse proxy.
+- Set `APP_URL` to the public HTTPS origin.
+- Generate unique secrets for PostgreSQL, Better Auth, and SearXNG.
+- Keep PostgreSQL and SearXNG on the private Compose network.
+- Persist and back up the PostgreSQL volume.
+- Configure Sentry-compatible monitoring only when required.
+
+The application container runs database migrations before starting the production server. Review generated migrations before deploying them and take a database backup before every upgrade.
+
+### Upgrades and backups
+
+Back up the named PostgreSQL volume before pulling a new release:
 
 ```bash
-pnpm check         # types, lint, formatting, tests, and Knip in parallel
-pnpm build         # production compilation
-pnpm audit         # dependency advisory check
+docker compose exec -T database pg_dump -U board_games_tracker -d board_games_tracker > board-games-tracker.sql
 ```
 
-Husky runs lint-staged before each commit. Exported functions and components carry JSDoc summaries; implementation comments are deliberately kept out of expression lines.
+Then rebuild and restart:
 
-## Project structure
+```bash
+docker compose pull
+docker compose up --build -d
+```
+
+Restore procedures should be tested periodically. A backup is useful only when it can be restored successfully.
+
+## Your data stays yours
+
+Board Games Tracker is designed for self-hosting. Account data, collection records, preferences, and cached game metadata remain in your PostgreSQL database. The application can export user-owned library data as JSON, CSV, XLSX, or SQL without including credentials, sessions, or audit-log records.
+
+Discovery still contacts the metadata and image sources configured through SearXNG, so operators should review those sources and their privacy policies. No hosted Board Games Tracker account or proprietary synchronization service is required.
+
+## Configuration
+
+The checked-in [`.env.example`](./.env.example) documents every supported setting. The most important application variables are:
+
+| Variable                         | Required | Purpose                                                       |
+| -------------------------------- | -------- | ------------------------------------------------------------- |
+| `DATABASE_URL`                   | Yes      | PostgreSQL connection string                                  |
+| `BETTER_AUTH_SECRET`             | Yes      | Authentication signing secret with at least 32 characters     |
+| `BETTER_AUTH_URL`                | Yes      | Canonical application origin for local or non-Compose runs    |
+| `NEXT_PUBLIC_APP_URL`            | Yes      | Public application origin exposed to the browser              |
+| `ADMIN_EMAIL`                    | No       | Additional email address eligible for administrator bootstrap |
+| `ALLOW_SIGN_UP`                  | No       | Enables registration when set to `true`                       |
+| `HEALTH_CHECK_TOKEN`             | No       | Protects detailed health-check output                         |
+| `LOG_LEVEL`                      | No       | Server log verbosity                                          |
+| `SEARXNG_URL`                    | Yes      | Server-side SearXNG endpoint                                  |
+| `SENTRY_DSN`                     | No       | Server-side Sentry-compatible error reporting                 |
+| `NEXT_PUBLIC_SENTRY_DSN`         | No       | Browser-side Sentry-compatible error reporting                |
+| `NEXT_PUBLIC_SENTRY_ENVIRONMENT` | No       | Monitoring environment name                                   |
+| `NEXT_PUBLIC_SENTRY_RELEASE`     | No       | Monitoring release identifier                                 |
+| `SENTRY_AUTH_TOKEN_FILE`         | No       | File containing the source-map upload token                   |
+
+Compose deployments use `APP_URL` for the public origin and derive the internal database and SearXNG addresses automatically. See the template for PostgreSQL, SearXNG, and optional monitoring variables.
+
+## Database and quality workflow
+
+Create migrations after schema changes and apply checked-in migrations before running the application:
+
+```bash
+pnpm db:generate
+pnpm db:migrate
+```
+
+Useful database commands:
+
+```bash
+pnpm db:push
+pnpm db:studio
+```
+
+Before opening a pull request, run the complete quality gate and production build:
+
+```bash
+pnpm check
+pnpm build
+```
+
+`pnpm check` runs TypeScript, ESLint, Prettier, Vitest, and Knip. Dependency audits can be run separately:
+
+```bash
+pnpm audit
+```
+
+## Security
+
+- Credentials and sessions remain server-side and are stored as secure, `HttpOnly` cookies in production.
+- Mutations require authentication, ownership checks, and validated input.
+- Administrative operations require an explicit administrator role.
+- Remote fetches reject unsafe targets and enforce timeouts, size limits, and content-type checks.
+- Spreadsheet exports neutralize formula-like cells to reduce injection risk.
+- Audit events record security-relevant actions without storing raw secrets.
+
+Review [SECURITY.md](./SECURITY.md) for the threat model, deployment checklist, vulnerability-reporting process, and supported versions.
+
+## Documentation
+
+| Document                                       | Contents                                                    |
+| ---------------------------------------------- | ----------------------------------------------------------- |
+| [README.md](./README.md)                       | Features, setup, deployment, and operating guidance         |
+| [SECURITY.md](./SECURITY.md)                   | Security model and vulnerability reporting                  |
+| [CONTRIBUTING.md](./CONTRIBUTING.md)           | Contribution workflow and review expectations               |
+| [CODING_GUIDELINES.md](./CODING_GUIDELINES.md) | Mandatory code, documentation, test, and architecture rules |
+| [`.env.example`](./.env.example)               | Complete application and infrastructure configuration       |
+
+## Project Structure
 
 ```text
-BoardGamesTracker/
-├── drizzle/                  # Reviewed PostgreSQL migrations and snapshots
-├── messages/                 # Typed next-intl UI catalogs by locale
-├── scripts/                  # Migration and artwork-cache utilities
-├── searxng/                  # Private metasearch configuration
+.
+├── drizzle/                 Database migrations
+├── messages/                Locale message catalogs
+├── public/                  Static assets and application artwork
+├── scripts/                 Migration, monitoring, and maintenance scripts
+├── searxng/                 Private search configuration
 ├── src/
-│   ├── app/                  # Routing-only Next.js pages, layouts, and handlers
-│   ├── components/           # Atomic Design atoms, molecules, organisms, and templates
-│   ├── core/                 # Isomorphic domain folders with colocated contracts and types
-│   ├── hooks/                # Reusable client hooks
-│   ├── i18n/                 # Request config, locale rules, and domain catalogs
-│   ├── server/               # Auth, data access, actions, discovery, imports, and security
-│   └── utils/                # Client-safe taxonomy, search, picker, currency, and statistics
-├── docker-compose.yml        # App, PostgreSQL, and SearXNG production stack
-├── drizzle.config.ts         # Typed migration configuration
-└── package.json              # Runtime dependencies and quality commands
+│   ├── app/                 Routes, layouts, route handlers, and server actions
+│   ├── components/          Reusable interface components
+│   ├── core/                Shared domain types and contracts
+│   ├── hooks/               Client-side React hooks
+│   ├── i18n/                Locale routing and request configuration
+│   ├── server/              Authentication, persistence, services, and security
+│   ├── test/                Shared test infrastructure
+│   └── utils/               Focused framework-independent utilities
+├── docker-compose.yml       Application, PostgreSQL, and SearXNG services
+├── Dockerfile               Production container build
+└── package.json             Scripts, dependencies, and package metadata
 ```
-
-Pages remain server-rendered by default. Interactive behavior is isolated in focused Client Components, while reusable filtering, validation, and formatting live outside route files.
-
-Core domains use `fileName.contract.ts` for Zod boundaries and `fileName.ts` for domain types or behavior. Tests use `fileName.test.ts(x)` beside the implementation they exercise; message-catalog tests live with the catalogs in `messages/`.
-
-## Security model
-
-- Password hashing, session rotation, CSRF/origin validation, secure cookie attributes, login throttling, and banned-user checks are provided by Better Auth.
-- Every private page validates the full database-backed session. The proxy cookie check is only an early redirect optimization.
-- Collection mutations include the acting user ID in their database predicate. Admin mutations require a live admin session and protect the acting/final admin.
-- User-data imports are same-origin, size-limited, schema-validated, and never execute uploaded SQL. Exports are private, uncached, and omit authentication data.
-- Expensive discovery and collection-import actions use bounded per-user rate limits. Multi-instance deployments should replace the documented per-instance limiter with a shared store.
-- A restrictive CSP, HSTS in production, anti-framing, MIME sniffing protection, referrer controls, and feature restrictions are applied centrally.
-- Metasearch responses are treated as untrusted input. Only strict BGG game URLs are accepted, and short-lived signed selection tokens prevent client-side identity tampering.
-- Remote artwork is restricted to the BGG image CDN, bounded while streaming, verified by file signature, hashed, and served from PostgreSQL through immutable same-origin URLs.
-- Application logs use JSON and drop common credential fields. Durable audit records capture actor, action, target, time, and request IP without passwords or cookies.
-- The runtime container is non-root, the database is not published to the host, and the optionally bearer-protected health output contains no internal diagnostics.
-
-See [SECURITY.md](SECURITY.md) for reporting and operating guidance.
-
-## Backups and upgrades
-
-Back up PostgreSQL with `pg_dump` or volume snapshots before upgrades; these backups include cached cover bytes. Test restoration regularly. To upgrade, review release notes, update dependencies, run the full quality gates, build a new immutable image, and let the startup migration complete before serving traffic. Keep at least one previous image and database backup for rollback.
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+Board Games Tracker is available under the [MIT License](./LICENSE).

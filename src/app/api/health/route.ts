@@ -7,7 +7,7 @@ import { db } from "@/server/db";
  * Minimal orchestrator health check without sensitive diagnostics.
  *
  * @param request - The incoming request.
- * @returns The documented function result.
+ * @returns The HTTP response for the request.
  */
 export async function GET(request: Request): Promise<Response> {
   if (

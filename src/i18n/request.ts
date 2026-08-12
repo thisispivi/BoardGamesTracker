@@ -5,6 +5,7 @@ import { type AppLocale, defaultLocale, isLocale } from "@/i18n/config";
 
 import type englishMessages from "../../messages/en.json";
 
+/** Message catalog shape established by the canonical English catalog. */
 type Messages = typeof englishMessages;
 
 const messageLoaders: Record<AppLocale, () => Promise<{ default: Messages }>> =
@@ -21,8 +22,6 @@ export default getRequestConfig(async () => {
   return {
     locale,
     messages: (await messageLoaders[locale]()).default,
-    // Keep server output and client hydration deterministic. A future account
-    // time-zone preference can replace the deployment time zone here.
     timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   };
 });

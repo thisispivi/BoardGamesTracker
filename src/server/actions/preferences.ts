@@ -16,7 +16,7 @@ import { createShareToken } from "@/server/sharing";
  * Persists a validated display locale in a same-site cookie.
  *
  * @param formData - The submitted form data.
- * @returns The documented function result.
+ * @returns A promise that resolves when the operation completes.
  */
 export async function setLocaleAction(formData: FormData): Promise<void> {
   const locale = String(formData.get("locale") ?? "");
@@ -38,7 +38,7 @@ export async function setLocaleAction(formData: FormData): Promise<void> {
  * Persists the signed-in user's ISO 4217 display currency.
  *
  * @param formData - The submitted form data.
- * @returns The documented function result.
+ * @returns A promise that resolves when the operation completes.
  */
 export async function setCurrencyAction(formData: FormData): Promise<void> {
   const session = await requireUser();
@@ -63,7 +63,7 @@ export async function setCurrencyAction(formData: FormData): Promise<void> {
  * turning everything off clears it, which permanently breaks any old link.
  *
  * @param formData - The submitted form data.
- * @returns The documented function result.
+ * @returns A promise that resolves when the operation completes.
  */
 export async function setSharingAction(formData: FormData): Promise<void> {
   const session = await requireUser();

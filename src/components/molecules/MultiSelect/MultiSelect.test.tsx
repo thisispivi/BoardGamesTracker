@@ -11,7 +11,11 @@ const options = [
   { count: 9, label: "Worker Placement", value: "workers" },
 ];
 
-/** Stateful fixture that exercises the controlled multi-select contract. */
+/**
+ * Stateful fixture that exercises the controlled multi-select contract.
+ *
+ * @returns A controlled multi-select fixture for interaction tests.
+ */
 function MultiSelectFixture() {
   const [values, setValues] = useState<string[]>([]);
   return (

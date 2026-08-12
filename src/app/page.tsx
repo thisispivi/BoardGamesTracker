@@ -5,7 +5,7 @@ import { getSession } from "@/server/session";
 /**
  * Routes visitors directly to authentication or their dashboard.
  *
- * @returns The documented function result.
+ * @returns The rendered home page.
  */
 export default async function HomePage() {
   const session = await getSession();

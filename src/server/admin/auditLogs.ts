@@ -9,8 +9,8 @@ const auditLogPageSize = 20;
 /**
  * Loads one bounded audit page and serializes its timestamps for the client.
  *
- * @param requestedPage - The 'requestedPage' value.
- * @returns The documented function result.
+ * @param requestedPage - Untrusted one-based page number requested by the client.
+ * @returns A bounded page of recent audit events.
  */
 export async function getAuditLogPage(
   requestedPage: number,

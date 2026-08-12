@@ -33,10 +33,12 @@ import {
 
 const initialState: CollectionActionState = { success: false, message: "" };
 
+/** Initial paginated data displayed by the game administration panel. */
 type AdminGamesPanelProps = {
   initialPage: AdminGamesPage;
 };
 
+/** Game record and close handler used by the metadata editor. */
 type EditDialogProps = {
   game: AdminGame;
   onClose: () => void;
@@ -45,10 +47,10 @@ type EditDialogProps = {
 /**
  * Labelled input used throughout the metadata editor.
  *
- * @param root0 - Component or function properties.
- * @param root0.children - The 'children' property.
- * @param root0.label - The 'label' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure field.
+ * @param root0.children - Content rendered inside the component.
+ * @param root0.label - Localized label displayed by the control.
+ * @returns The rendered field.
  */
 function Field({
   children,
@@ -68,10 +70,10 @@ function Field({
 /**
  * Editable form for one shared game's metadata.
  *
- * @param root0 - Component or function properties.
- * @param root0.game - The 'game' property.
- * @param root0.onClose - The 'onClose' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure edit game metadata dialog.
+ * @param root0.game - Game record displayed or changed by the component.
+ * @param root0.onClose - Callback that dismisses the dialog.
+ * @returns The rendered edit game metadata dialog.
  */
 function EditGameMetadataDialog({ game, onClose }: EditDialogProps): ReactNode {
   const t = useTranslations();
@@ -305,9 +307,9 @@ function EditGameMetadataDialog({ game, onClose }: EditDialogProps): ReactNode {
 /**
  * Searchable, paginated list of every shared game with a metadata editor.
  *
- * @param root0 - Component or function properties.
- * @param root0.initialPage - The 'initialPage' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure admin games panel.
+ * @param root0.initialPage - First server-rendered page of paginated records.
+ * @returns The rendered admin games panel.
  */
 export function AdminGamesPanel({
   initialPage,
@@ -320,6 +322,13 @@ export function AdminGamesPanel({
   const [pending, startTransition] = useTransition();
   const loadErrorMessage = t("adminGames.loadError");
 
+  /**
+   * Loads one validated administration page without blocking the panel.
+   *
+   * @param page - One-based page number to request.
+   * @param search - Current game-name filter.
+   * @returns Nothing.
+   */
   function loadPage(page: number, search: string): void {
     if (pending || page < 1 || page > result.pages) return;
     startTransition(async () => {

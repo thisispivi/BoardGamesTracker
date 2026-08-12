@@ -106,7 +106,7 @@ export async function verifyPasswordResetToken(
  *
  * @param userId - The account being reset.
  * @param newPassword - The replacement password.
- * @returns The documented function result.
+ * @returns A promise that resolves when the operation completes.
  */
 export async function applyPasswordReset(
   userId: string,

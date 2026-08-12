@@ -21,8 +21,8 @@ import { requireAdmin } from "@/server/session";
 /**
  * Returns an authorized audit page without navigating away from the console.
  *
- * @param page - The 'page' value.
- * @returns The documented function result.
+ * @param page - One-based page number requested by the client.
+ * @returns A bounded page of audit events visible to administrators.
  */
 export async function getAuditLogPageAction(
   page: number,
@@ -34,8 +34,9 @@ export async function getAuditLogPageAction(
 /**
  * Prevents destructive changes to the acting admin and final administrator.
  *
- * @param actorId - The 'actorId' value.
- * @param targetId - The 'targetId' value.
+ * @param actorId - Identifier of the administrator performing the operation.
+ * @param targetId - Identifier of the user account being changed.
+ * @returns A promise that resolves when the target account may be managed.
  */
 async function assertManageableUser(
   actorId: string,
@@ -67,7 +68,7 @@ async function assertManageableUser(
  * Changes a user's role with last-admin protection.
  *
  * @param formData - The submitted form data.
- * @returns The documented function result.
+ * @returns A promise that resolves when the operation completes.
  */
 export async function updateUserRoleAction(formData: FormData): Promise<void> {
   const actor = await requireAdmin();
@@ -92,7 +93,7 @@ export async function updateUserRoleAction(formData: FormData): Promise<void> {
  * Bans or restores a user and revokes active sessions when banning.
  *
  * @param formData - The submitted form data.
- * @returns The documented function result.
+ * @returns A promise that resolves when the operation completes.
  */
 export async function toggleUserBanAction(formData: FormData): Promise<void> {
   const actor = await requireAdmin();
@@ -124,15 +125,13 @@ export async function toggleUserBanAction(formData: FormData): Promise<void> {
  * Permanently removes a user and all cascade-owned data.
  *
  * @param formData - The submitted form data.
- * @returns The documented function result.
+ * @returns A promise that resolves when the operation completes.
  */
 export async function deleteUserAction(formData: FormData): Promise<void> {
   const actor = await requireAdmin();
   const targetId = userIdSchema.parse(formData.get("userId"));
   await assertManageableUser(actor.user.id, targetId);
   await db.transaction(async (transaction) => {
-    // Delete related records explicitly so an older deployment with stale
-    // foreign-key rules cannot prevent the administrator from removing a user.
     await transaction.delete(session).where(eq(session.userId, targetId));
     await transaction.delete(account).where(eq(account.userId, targetId));
     await transaction

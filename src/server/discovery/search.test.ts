@@ -152,7 +152,6 @@ describe("searchBoardGames", () => {
   });
 
   it("still finds a precise match ranked far down the engine results", async () => {
-    // The wanted edition sits at position 20, well past the returned page size.
     const results = [
       ...Array.from({ length: 19 }, (_, index) => ({
         title: `Ticket to Ride: Filler ${index} (2010) | BoardGameGeek`,

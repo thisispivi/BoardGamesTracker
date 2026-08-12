@@ -22,13 +22,15 @@ import {
 } from "@/server/actions/collection";
 import { isExpansionCategory } from "@/utils/gameTaxonomy";
 
+/** Game record used by the optimistic favorite control. */
 type FavoriteControlProps = { game: CollectionGame };
 
 /**
  * Favorite toggle shared by full collection cards.
  *
- * @param root0 - Component or function properties.
- * @param root0.game - The 'game' property.
+ * @param root0 - Properties that configure favorite control.
+ * @param root0.game - Game record displayed or changed by the component.
+ * @returns An optimistic favorite toggle for the game.
  */
 function FavoriteControl({ game }: FavoriteControlProps): ReactNode {
   const t = useTranslations();
@@ -49,13 +51,15 @@ function FavoriteControl({ game }: FavoriteControlProps): ReactNode {
   );
 }
 
+/** Game record used by the collection removal control. */
 type RemoveControlProps = { game: CollectionGame };
 
 /**
  * In-app removal confirmation shared by collection card variants.
  *
- * @param root0 - Component or function properties.
- * @param root0.game - The 'game' property.
+ * @param root0 - Properties that configure remove control.
+ * @param root0.game - Game record displayed or changed by the component.
+ * @returns A confirmation control that removes the game.
  */
 function RemoveControl({ game }: RemoveControlProps): ReactNode {
   const t = useTranslations();
@@ -80,6 +84,7 @@ function RemoveControl({ game }: RemoveControlProps): ReactNode {
   );
 }
 
+/** Artwork link state derived from a game and presentation mode. */
 type ArtworkLinkProps = {
   eager?: boolean;
   game: CollectionGame;
@@ -89,10 +94,11 @@ type ArtworkLinkProps = {
 /**
  * Square artwork with a blurred, keyboard-accessible BGG hover action.
  *
- * @param root0 - Component or function properties.
- * @param root0.eager - The 'eager' property.
- * @param root0.game - The 'game' property.
- * @param root0.compact - The 'compact' property.
+ * @param root0 - Properties that configure artwork link.
+ * @param root0.eager - Whether the artwork should load with high priority.
+ * @param root0.game - Game record displayed or changed by the component.
+ * @param root0.compact - Whether to use the condensed presentation.
+ * @returns Linked artwork when the BGG URL is valid, otherwise unlinked artwork.
  */
 function ArtworkLink({
   eager = false,
@@ -131,13 +137,15 @@ function ArtworkLink({
   );
 }
 
+/** Game taxonomy rendered as localized category pills. */
 type TaxonomyPillsProps = { game: CollectionGame };
 
 /**
  * Shows a concise mix of scraped BGG categories and mechanics.
  *
- * @param root0 - Component or function properties.
- * @param root0.game - The 'game' property.
+ * @param root0 - Properties that configure taxonomy pills.
+ * @param root0.game - Game record displayed or changed by the component.
+ * @returns Localized category and mechanic pills for the game.
  */
 function TaxonomyPills({ game }: TaxonomyPillsProps): ReactNode {
   const categories = game.categories
@@ -178,6 +186,7 @@ function TaxonomyPills({ game }: TaxonomyPillsProps): ReactNode {
   );
 }
 
+/** Game data, related expansions, and permissions shown by a card. */
 type GameCardProps = {
   compact?: boolean;
   currency: string;
@@ -190,14 +199,14 @@ type GameCardProps = {
 /**
  * Interactive board-game card with embedded, scrollable expansions.
  *
- * @param root0 - Component or function properties.
- * @param root0.compact - The 'compact' property.
- * @param root0.currency - The 'currency' property.
- * @param root0.eager - The 'eager' property.
- * @param root0.expansions - The 'expansions' property.
- * @param root0.game - The 'game' property.
- * @param root0.readOnly - The 'readOnly' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure game card.
+ * @param root0.compact - Whether to use the condensed presentation.
+ * @param root0.currency - ISO currency code used to format monetary values.
+ * @param root0.eager - Whether the artwork should load with high priority.
+ * @param root0.expansions - Expansion entries associated with the base game.
+ * @param root0.game - Game record displayed or changed by the component.
+ * @param root0.readOnly - Whether mutation controls must be omitted.
+ * @returns The rendered game card.
  */
 export function GameCard({
   compact = false,
@@ -307,6 +316,7 @@ export function GameCard({
   );
 }
 
+/** Game and currency used to display personal purchase cost. */
 type CollectionCostProps = {
   currency: string;
   game: CollectionGame;
@@ -315,9 +325,10 @@ type CollectionCostProps = {
 /**
  * Renders a recorded price or the gifted label without implying a zero price.
  *
- * @param root0 - Component or function properties.
- * @param root0.currency - The 'currency' property.
- * @param root0.game - The 'game' property.
+ * @param root0 - Properties that configure collection cost.
+ * @param root0.currency - ISO currency code used to format monetary values.
+ * @param root0.game - Game record displayed or changed by the component.
+ * @returns The formatted purchase cost, or null when the game was gifted.
  */
 function CollectionCost({ currency, game }: CollectionCostProps): ReactNode {
   const format = useFormatter();

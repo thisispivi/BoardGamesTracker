@@ -4,9 +4,9 @@ import { requireUser } from "@/server/session";
 /**
  * Authenticated product shell with server-validated authorization.
  *
- * @param root0 - Component or function properties.
- * @param root0.children - The 'children' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure authenticated layout.
+ * @param root0.children - Content rendered inside the component.
+ * @returns The rendered authenticated layout.
  */
 export default async function AuthenticatedLayout({
   children,

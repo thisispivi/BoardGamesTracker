@@ -21,7 +21,7 @@ const maxImportBytes = 10 * 1024 * 1024;
  * Exports only the signed-in user's portable application data.
  *
  * @param request - The incoming request.
- * @returns The documented function result.
+ * @returns The HTTP response for the request.
  */
 export async function GET(request: NextRequest): Promise<Response> {
   const session = await getSession();
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest): Promise<Response> {
  * Imports a validated Board Games Tracker export into the current account.
  *
  * @param request - The incoming request.
- * @returns The documented function result.
+ * @returns The HTTP response for the request.
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const session = await getSession();
@@ -119,7 +119,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 /**
  * Maps an upload extension to a supported parser without trusting MIME types.
  *
- * @param filename - The 'filename' value.
+ * @param filename - Requested export filename, including its extension.
+ * @returns The matching portable format, or null for an unsupported extension.
  */
 function formatFromFilename(filename: string): UserDataFormat | null {
   const extension = filename.toLowerCase().split(".").pop();

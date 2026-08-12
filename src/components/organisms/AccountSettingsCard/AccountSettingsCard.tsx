@@ -10,6 +10,7 @@ import { Button } from "@/components/atoms/Button/Button";
 import { ConfirmDialog } from "@/components/molecules/ConfirmDialog/ConfirmDialog";
 import { authClient } from "@/utils/authClient";
 
+/** Account preferences displayed and edited by the settings card. */
 type AccountSettingsCardProps = {
   email: string;
 };
@@ -33,6 +34,7 @@ export function AccountSettingsCard({
    * Submits an authenticated email-address change.
    *
    * @param event - The intercepted email form submission.
+   * @returns Nothing.
    */
   function changeEmail(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault();
@@ -51,6 +53,7 @@ export function AccountSettingsCard({
    * Submits a password update after verifying the current password.
    *
    * @param event - The intercepted password form submission.
+   * @returns Nothing.
    */
   function changePassword(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault();
@@ -77,6 +80,7 @@ export function AccountSettingsCard({
    * Deletes the signed-in account after Better Auth verifies its password.
    *
    * @param formData - The confirmed account-deletion payload.
+   * @returns A promise that resolves after the account deletion request finishes.
    */
   async function deleteAccount(formData: FormData): Promise<void> {
     const password = String(formData.get("password") ?? "");

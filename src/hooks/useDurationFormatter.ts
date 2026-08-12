@@ -3,7 +3,7 @@ import { useTranslations } from "next-intl";
 /**
  * Formats a minute count with the active locale's compact duration message.
  *
- * @returns The documented function result.
+ * @returns A formatter created by use duration formatter.
  */
 export function useDurationFormatter(): (minutes: number) => string {
   const t = useTranslations();

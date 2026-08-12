@@ -64,7 +64,11 @@ async function getCallerKey(request: NextRequest): Promise<string> {
   return `ip:${forwarded?.split(",")[0]?.trim() || "unknown"}`;
 }
 
-/** Refuses a request that exhausted its allowance, without leaking why. */
+/**
+ * Refuses a request that exhausted its allowance, without leaking why.
+ *
+ * @returns A generic rate-limit response without sensitive details.
+ */
 function tooManyRequests(): NextResponse {
   return new NextResponse("Too Many Requests", {
     status: 429,
@@ -79,7 +83,7 @@ function tooManyRequests(): NextResponse {
  * Applies optimistic auth redirects and a nonce-based security policy.
  *
  * @param request - The incoming request.
- * @returns The documented function result.
+ * @returns The HTTP response produced for the request.
  */
 export async function proxy(request: NextRequest): Promise<NextResponse> {
   if (!consumeRateLimit("global", globalRequestLimit, rateLimitWindowMs)) {

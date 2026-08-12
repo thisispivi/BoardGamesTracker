@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/atoms/Button/Button";
 import { authClient } from "@/utils/authClient";
 
+/** Authentication modes available for the current installation state. */
 type AuthFormProps = {
   initialMode: "login" | "signup";
   allowSignUp: boolean;
@@ -18,11 +19,11 @@ type AuthFormProps = {
 /**
  * Email/password login and registration form.
  *
- * @param root0 - Component or function properties.
- * @param root0.initialMode - The 'initialMode' property.
- * @param root0.allowSignUp - The 'allowSignUp' property.
- * @param root0.bootstrapRequired - The 'bootstrapRequired' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure auth form.
+ * @param root0.initialMode - Authentication mode shown when the form opens.
+ * @param root0.allowSignUp - Whether the sign-up mode is available.
+ * @param root0.bootstrapRequired - Whether the first administrator account still needs to be created.
+ * @returns The rendered auth form.
  */
 export function AuthForm({
   initialMode,
@@ -38,7 +39,8 @@ export function AuthForm({
   /**
    * Submits credentials through Better Auth without exposing secrets to server logs.
    *
-   * @param event - The 'event' value.
+   * @param event - Form submission event whose default navigation is suppressed.
+   * @returns A promise that resolves after the authentication request finishes.
    */
   async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>,

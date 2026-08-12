@@ -62,7 +62,7 @@ const firstPage: AdminGamesPage = {
  * Renders the panel inside the translation provider it depends on.
  *
  * @param strict - Whether to wrap in StrictMode, matching the dev runtime.
- * @returns The documented function result.
+ * @returns Nothing.
  */
 function renderPanel(strict = false): void {
   const tree = (

@@ -2,12 +2,17 @@ import postgres from "postgres";
 
 import { downloadBggImages } from "../src/server/images/bggImage";
 
+/** A stored game whose remote artwork may need local caching. */
 type ExistingGame = {
   bgg_id: number;
   image_url: string;
 };
 
-/** Caches remote BGG artwork already referenced by existing game records. */
+/**
+ * Caches remote BGG artwork already referenced by existing game records.
+ *
+ * @returns A promise that resolves after every uncached image is processed.
+ */
 async function cacheExistingImages(): Promise<void> {
   if (!process.env.DATABASE_URL) {
     throw new Error("DATABASE_URL is required to cache game images.");

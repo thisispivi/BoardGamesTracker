@@ -9,6 +9,7 @@ import { WishlistCard } from "@/components/organisms/WishlistCard/WishlistCard";
 import type { CollectionGame } from "@/core";
 import { normalizeSearchText } from "@/utils/search";
 
+/** Wishlist games and currency rendered by the browser. */
 type WishlistBrowserProps = {
   currency: string;
   games: CollectionGame[];
@@ -17,10 +18,10 @@ type WishlistBrowserProps = {
 /**
  * Fuzzy searchable grid of wishlist games.
  *
- * @param root0 - Component or function properties.
+ * @param root0 - Properties that configure wishlist browser.
  * @param root0.currency - The user's display currency.
  * @param root0.games - The wishlist games to show.
- * @returns The documented function result.
+ * @returns The rendered wishlist browser.
  */
 export function WishlistBrowser({
   currency,

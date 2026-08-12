@@ -24,9 +24,10 @@ const requiredColumns = [
 /**
  * Parses a bounded integer field while rejecting malformed values.
  *
- * @param value - The value to inspect or transform.
- * @param minimum - The 'minimum' value.
- * @param maximum - The 'maximum' value.
+ * @param value - Untrusted input being validated or normalized.
+ * @param minimum - Smallest accepted numeric value.
+ * @param maximum - Largest accepted numeric value.
+ * @returns A bounded integer, or null when the source is absent or invalid.
  */
 function integer(
   value: string,
@@ -46,10 +47,11 @@ function integer(
 /**
  * Parses a bounded decimal, treating zero as an unset value when requested.
  *
- * @param value - The value to inspect or transform.
- * @param minimum - The 'minimum' value.
- * @param maximum - The 'maximum' value.
- * @param zeroIsNull - The 'zeroIsNull' value.
+ * @param value - Untrusted input being validated or normalized.
+ * @param minimum - Smallest accepted numeric value.
+ * @param maximum - Largest accepted numeric value.
+ * @param zeroIsNull - Whether a zero in the source represents missing data.
+ * @returns A bounded decimal, or null when the source is absent or invalid.
  */
 function decimal(
   value: string,
@@ -67,7 +69,8 @@ function decimal(
 /**
  * Converts one validated CSV object into the local game metadata shape.
  *
- * @param row - The 'row' value.
+ * @param row - Untrusted row read from the uploaded document.
+ * @returns A normalized owned-game record, or null for a non-owned row.
  */
 function normalizeRow(
   row: z.infer<typeof importedRowSchema>,
@@ -128,8 +131,8 @@ function normalizeRow(
 /**
  * Parses an official BGG CSV and returns only explicitly owned games.
  *
- * @param csv - The 'csv' value.
- * @returns The documented function result.
+ * @param csv - BoardGameGeek CSV text uploaded by the user.
+ * @returns The parsed bgg collection csv.
  */
 export function parseBggCollectionCsv(csv: string): BggCsvImport {
   const records = parse(csv, {

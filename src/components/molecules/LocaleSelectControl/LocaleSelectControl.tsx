@@ -15,6 +15,7 @@ const localeOptions = [
   { locale: "it" as const, country: "it", label: "Italiano" },
 ];
 
+/** Properties that initialize the account locale selector. */
 type LocaleSelectControlProps = {
   initialLocale: Locale;
 };
@@ -22,9 +23,9 @@ type LocaleSelectControlProps = {
 /**
  * Immediately persists language changes and displays round inline flags.
  *
- * @param root0 - Component or function properties.
- * @param root0.initialLocale - The 'initialLocale' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure locale select control.
+ * @param root0.initialLocale - Locale stored for the current user.
+ * @returns The rendered locale select control.
  */
 export function LocaleSelectControl({
   initialLocale,
@@ -34,6 +35,12 @@ export function LocaleSelectControl({
   const router = useRouter();
   const t = useTranslations();
 
+  /**
+   * Persists a supported locale and refreshes translated server content.
+   *
+   * @param value - Application locale selected by the user.
+   * @returns Nothing.
+   */
   function changeLocale(value: string): void {
     if (value !== "en" && value !== "it") return;
     setLocale(value);

@@ -15,7 +15,7 @@ const initialState: CollectionActionState = { success: false, message: "" };
 /**
  * Dialog for securely importing an official BoardGameGeek CSV export.
  *
- * @returns The documented function result.
+ * @returns The rendered import collection dialog.
  */
 export function ImportCollectionDialog(): ReactNode {
   const t = useTranslations();

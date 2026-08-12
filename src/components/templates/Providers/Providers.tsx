@@ -8,6 +8,7 @@ import { Toaster } from "sonner";
 import type { AppTheme } from "@/core";
 import { isAppTheme, persistThemeCookie } from "@/utils/theme";
 
+/** Initial theme and application content supplied to client providers. */
 type ProvidersProps = {
   children: React.ReactNode;
   initialTheme?: AppTheme | undefined;
@@ -17,11 +18,11 @@ type ProvidersProps = {
 /**
  * Client-side application providers.
  *
- * @param root0 - Component or function properties.
- * @param root0.children - The 'children' property.
- * @param root0.initialTheme - The 'initialTheme' property.
+ * @param root0 - Properties that configure providers.
+ * @param root0.children - Content rendered inside the component.
+ * @param root0.initialTheme - Theme resolved on the server for the first render.
  * @param root0.nonce - The request nonce that authorizes the theme script.
- * @returns The documented function result.
+ * @returns The rendered providers.
  */
 export function Providers({
   children,
@@ -43,7 +44,11 @@ export function Providers({
   );
 }
 
-/** Migrates the resolved next-themes value into the SSR-readable cookie. */
+/**
+ * Migrates the resolved next-themes value into the SSR-readable cookie.
+ *
+ * @returns No visible output; the component only synchronizes theme state.
+ */
 function ThemeCookieSync(): ReactNode {
   const { resolvedTheme } = useTheme();
 

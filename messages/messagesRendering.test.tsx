@@ -5,6 +5,14 @@ import { describe, expect, it } from "vitest";
 import english from "./en.json";
 import italian from "./it.json";
 
+/**
+ * Renders representative plural and duration messages for catalog tests.
+ *
+ * @param root0 - Values interpolated into the test messages.
+ * @param root0.count - Quantity used by the pluralized collection message.
+ * @param root0.minutes - Duration converted into hours and remaining minutes.
+ * @returns The representative translated messages.
+ */
 function MessageProbe({ count, minutes }: { count: number; minutes: number }) {
   const t = useTranslations();
   return (

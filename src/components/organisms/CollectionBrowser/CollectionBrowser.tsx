@@ -11,6 +11,7 @@ import type { CollectionGame, MultiSelectOption } from "@/core";
 import { getTaxonomyLabel } from "@/utils/gameTaxonomy";
 import { normalizeSearchText } from "@/utils/search";
 
+/** A base game and the owned expansions displayed beneath it. */
 type CollectionGroup = {
   base: CollectionGame;
   expansions: CollectionGame[];
@@ -19,8 +20,9 @@ type CollectionGroup = {
 /**
  * Measures shared normalized title tokens for cautious expansion matching.
  *
- * @param left - The 'left' value.
- * @param right - The 'right' value.
+ * @param left - First collection group in the comparison.
+ * @param right - Second collection group in the comparison.
+ * @returns The number of normalized search tokens shared by both names.
  */
 function tokenOverlap(left: string, right: string): number {
   const leftTokens = new Set(left.split(" "));
@@ -35,6 +37,7 @@ function tokenOverlap(left: string, right: string): number {
  * Associates expansions with the most likely owned base game.
  *
  * @param games - The candidate games.
+ * @returns Base-game groups and collection entries without a resolvable parent.
  */
 function groupCollection(games: CollectionGame[]): {
   groups: CollectionGroup[];
@@ -96,8 +99,9 @@ function groupCollection(games: CollectionGame[]): {
  * Builds alphabetized facet options with per-game occurrence counts.
  *
  * @param games - The candidate games.
- * @param taxonomy - The 'taxonomy' value.
- * @param locale - The 'locale' value.
+ * @param taxonomy - Taxonomy namespace used to resolve the translated label.
+ * @param locale - Active application locale used for translated labels.
+ * @returns Sorted, localized options for the requested taxonomy facet.
  */
 function facetOptions(
   games: CollectionGame[],
@@ -123,6 +127,7 @@ function facetOptions(
     .sort((left, right) => left.label.localeCompare(right.label, locale));
 }
 
+/** Collection data and presentation mode used by the browser. */
 type CollectionBrowserProps = {
   currency: string;
   games: CollectionGame[];
@@ -132,11 +137,11 @@ type CollectionBrowserProps = {
 /**
  * Fuzzy collection search with base-game and expansion grouping.
  *
- * @param root0 - Component or function properties.
- * @param root0.currency - The 'currency' property.
- * @param root0.games - The 'games' property.
- * @param root0.readOnly - The 'readOnly' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure collection browser.
+ * @param root0.currency - ISO currency code used to format monetary values.
+ * @param root0.games - Game records available to the component.
+ * @param root0.readOnly - Whether mutation controls must be omitted.
+ * @returns The rendered collection browser.
  */
 export function CollectionBrowser({
   currency,

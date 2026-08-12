@@ -12,7 +12,7 @@ import { cn } from "@/utils/cn";
 /**
  * Personalized collection summary without promotional hero content.
  *
- * @returns The documented function result.
+ * @returns The rendered dashboard page.
  */
 export default async function DashboardPage() {
   const session = await requireUser();

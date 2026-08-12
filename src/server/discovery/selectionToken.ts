@@ -9,7 +9,7 @@ import { env } from "@/env";
  * Creates an authenticated, short-lived token for a discovery result.
  *
  * @param selection - The game selection to sign.
- * @returns The documented function result.
+ * @returns The newly created selection token.
  */
 export function createSelectionToken(selection: GameSelection): string {
   const payload = Buffer.from(
@@ -28,7 +28,7 @@ export function createSelectionToken(selection: GameSelection): string {
  * Verifies and decodes an authenticated discovery selection.
  *
  * @param token - The signed selection token.
- * @returns The documented function result.
+ * @returns The verified token payload, or null when verification fails.
  */
 export function verifySelectionToken(token: string): GameSelection | null {
   const [payload, signature, extra] = token.split(".");

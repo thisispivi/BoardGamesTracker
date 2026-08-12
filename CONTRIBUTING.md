@@ -8,6 +8,6 @@ Thank you for improving Board Games Tracker.
 4. Run `pnpm check` and `pnpm build`.
 5. Describe user impact, schema changes, screenshots, and security considerations in the pull request.
 
-Read [`CODING_STYLE.md`](CODING_STYLE.md) before your first change. It is the authoritative style guide and covers naming, file layout, mandatory JSDoc, typing rules, i18n, data contracts, security boundaries, and tests. The same file is wired into the Claude, Codex, and GitHub Copilot configurations, so assistants working in this repository follow it too.
+Read [`CODING_GUIDELINES.md`](CODING_GUIDELINES.md) before your first change. It is the authoritative style guide and covers naming, file layout, mandatory JSDoc, typing rules, i18n, data contracts, security boundaries, and tests. The same file is wired into the Claude, Codex, and GitHub Copilot configurations, so assistants working in this repository follow it too.
 
 Schema changes require a generated and reviewed migration. Never commit secrets, local environment files, database dumps, or user data.

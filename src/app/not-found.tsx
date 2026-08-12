@@ -7,7 +7,7 @@ import { Logo } from "@/components/atoms/Logo/Logo";
 /**
  * Friendly application-wide 404 response.
  *
- * @returns The documented function result.
+ * @returns The rendered not found.
  */
 export default async function NotFound() {
   const t = await getTranslations();

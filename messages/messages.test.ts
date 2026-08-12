@@ -3,8 +3,16 @@ import { describe, expect, it } from "vitest";
 import english from "./en.json";
 import italian from "./it.json";
 
+/** A recursively nested translation catalog. */
 type MessageTree = { [key: string]: MessageTree | string };
 
+/**
+ * Flattens a nested message catalog into dot-qualified translation keys.
+ *
+ * @param tree - Message catalog branch to flatten.
+ * @param prefix - Key path accumulated from parent branches.
+ * @returns Message strings keyed by their complete translation path.
+ */
 function flattenMessages(
   tree: MessageTree,
   prefix = "",
@@ -19,6 +27,12 @@ function flattenMessages(
   );
 }
 
+/**
+ * Extracts the distinct ICU argument names referenced by a message.
+ *
+ * @param message - ICU message whose arguments are inspected.
+ * @returns Sorted argument names used by the message.
+ */
 function messageArguments(message: string): string[] {
   return [
     ...new Set(

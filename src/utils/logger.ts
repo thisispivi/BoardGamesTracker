@@ -2,7 +2,10 @@ import "server-only";
 
 import { env } from "@/env";
 
+/** Supported severity levels for structured application events. */
 type LogLevel = "debug" | "info" | "warn" | "error";
+
+/** Scalar metadata safe to serialize alongside a structured event. */
 type LogContext = Record<string, boolean | number | string | null | undefined>;
 
 const priorities: Record<LogLevel, number> = {
@@ -23,10 +26,10 @@ const blockedKeys = new Set([
 /**
  * Writes structured, redacted application logs to standard output.
  *
- * @param level - The 'level' value.
- * @param message - The 'message' value.
+ * @param level - Severity used for the structured log entry.
+ * @param message - Stable event name recorded by the logger.
  * @param context - The route or operation context.
- * @returns The documented function result.
+ * @returns Nothing.
  */
 export function log(
   level: LogLevel,

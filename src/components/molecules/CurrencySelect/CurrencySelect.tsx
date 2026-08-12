@@ -9,6 +9,7 @@ import { Select } from "@/components/atoms/Select/Select";
 import { setCurrencyAction } from "@/server/actions/preferences";
 import { currencies, type Currency, getCurrencySymbol } from "@/utils/currency";
 
+/** Properties that initialize the account currency selector. */
 type CurrencySelectProps = {
   initialCurrency: string;
 };
@@ -16,9 +17,9 @@ type CurrencySelectProps = {
 /**
  * Immediately saves a supported ISO currency preference.
  *
- * @param root0 - Component or function properties.
- * @param root0.initialCurrency - The 'initialCurrency' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure currency select.
+ * @param root0.initialCurrency - Currency stored for the current user.
+ * @returns The rendered currency select.
  */
 export function CurrencySelect({
   initialCurrency,
@@ -28,6 +29,12 @@ export function CurrencySelect({
   const router = useRouter();
   const t = useTranslations();
 
+  /**
+   * Persists a supported currency and refreshes server-rendered values.
+   *
+   * @param value - ISO currency code selected by the user.
+   * @returns Nothing.
+   */
   function changeCurrency(value: string): void {
     if (!currencies.includes(value as Currency)) return;
     setCurrency(value);

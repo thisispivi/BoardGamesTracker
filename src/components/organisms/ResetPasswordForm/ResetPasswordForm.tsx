@@ -12,6 +12,7 @@ import { resetPasswordAction } from "@/server/actions/passwordReset";
 
 const initialState: CollectionActionState = { success: false, message: "" };
 
+/** Verified reset token submitted with the new password. */
 type ResetPasswordFormProps = {
   token: string;
 };
@@ -19,9 +20,9 @@ type ResetPasswordFormProps = {
 /**
  * New-password form for an administrator-issued reset link.
  *
- * @param root0 - Component or function properties.
- * @param root0.token - The 'token' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure reset password form.
+ * @param root0.token - Password-reset token read from the route.
+ * @returns The rendered reset password form.
  */
 export function ResetPasswordForm({
   token,

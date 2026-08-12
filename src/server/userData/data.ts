@@ -10,7 +10,7 @@ import { collectionItems, games, user } from "@/server/db/schema";
  * Reads portable user data without exporting credentials, sessions, or audit logs.
  *
  * @param userId - The authenticated user identifier.
- * @returns The documented function result.
+ * @returns A portable document containing the user's profile and games.
  */
 export async function getUserDataDocument(
   userId: string,
@@ -66,7 +66,7 @@ export async function getUserDataDocument(
  *
  * @param userId - The authenticated user identifier.
  * @param document - The portable user-data document.
- * @returns The documented function result.
+ * @returns The outcome of the validated import operation.
  */
 export async function importUserDataDocument(
   userId: string,

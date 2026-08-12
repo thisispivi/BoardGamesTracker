@@ -8,7 +8,8 @@ const allowedMimeTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
 /**
  * Validates that a source points to the exact secure BGG image CDN.
  *
- * @param rawUrl - The 'rawUrl' value.
+ * @param rawUrl - Untrusted artwork URL to validate against the BGG allowlist.
+ * @returns A validated BGG image URL.
  */
 function parseSourceUrl(rawUrl: string): URL {
   if (rawUrl.length > 2_000) {
@@ -30,7 +31,8 @@ function parseSourceUrl(rawUrl: string): URL {
 /**
  * Detects the supported image MIME type from trusted file signatures.
  *
- * @param data - The 'data' value.
+ * @param data - Untrusted bytes received from the remote image host.
+ * @returns The supported image MIME type, or null when the bytes are unknown.
  */
 function detectMimeType(data: Buffer): StoredGameImage["mimeType"] | null {
   if (
@@ -62,7 +64,8 @@ function detectMimeType(data: Buffer): StoredGameImage["mimeType"] | null {
 /**
  * Reads a response body while enforcing the configured byte limit.
  *
- * @param response - The 'response' value.
+ * @param response - Remote HTTP response whose image body is read with a size limit.
+ * @returns The complete response body when it stays within the configured limit.
  */
 async function readBoundedBody(response: Response): Promise<Buffer> {
   if (!response.body) {
@@ -92,8 +95,8 @@ async function readBoundedBody(response: Response): Promise<Buffer> {
 /**
  * Downloads and authenticates one bounded image from the BGG image CDN.
  *
- * @param rawUrl - The 'rawUrl' value.
- * @returns The documented function result.
+ * @param rawUrl - Untrusted artwork URL to validate against the BGG allowlist.
+ * @returns The downloaded bgg image.
  */
 export async function downloadBggImage(
   rawUrl: string,
@@ -142,8 +145,8 @@ export async function downloadBggImage(
 /**
  * Downloads a bounded image map with limited outbound concurrency.
  *
- * @param sources - The 'sources' value.
- * @returns The documented function result.
+ * @param sources - BoardGameGeek artwork URLs keyed by stable game identifier.
+ * @returns The downloaded bgg images.
  */
 export async function downloadBggImages(
   sources: Map<number, string>,
@@ -152,7 +155,11 @@ export async function downloadBggImages(
   const images = new Map<number, StoredGameImage>();
   let cursor = 0;
 
-  /** Claims and downloads entries until the shared bounded queue is empty. */
+  /**
+   * Claims and downloads entries until the shared bounded queue is empty.
+   *
+   * @returns A promise that resolves when the shared image queue is empty.
+   */
   async function worker(): Promise<void> {
     while (cursor < entries.length) {
       const entry = entries[cursor];

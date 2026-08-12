@@ -20,6 +20,7 @@ import { getTaxonomyLabel } from "@/utils/gameTaxonomy";
 
 const chartColors = ["var(--primary)", "var(--accent)", "#3f8fba", "#b86b8f"];
 
+/** Aggregated collection statistics rendered across the chart dashboard. */
 type StatsChartsProps = {
   categories: CountDatum[];
   complexity: { key: "light" | "medium" | "heavy" | "expert"; value: number }[];
@@ -28,6 +29,7 @@ type StatsChartsProps = {
   mostExpensive: CountDatum[];
 };
 
+/** Recharts tooltip datum normalized for the shared tooltip renderer. */
 type TooltipEntry = {
   color?: string;
   fill?: string;
@@ -38,13 +40,13 @@ type TooltipEntry = {
 /**
  * Responsive, accessible visual summaries for collection statistics.
  *
- * @param root0 - Component or function properties.
- * @param root0.categories - The 'categories' property.
- * @param root0.complexity - The 'complexity' property.
- * @param root0.currency - The 'currency' property.
- * @param root0.mechanics - The 'mechanics' property.
- * @param root0.mostExpensive - The 'mostExpensive' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure stats charts.
+ * @param root0.categories - BoardGameGeek categories associated with the games.
+ * @param root0.complexity - Complexity distribution rendered by the charts.
+ * @param root0.currency - ISO currency code used to format monetary values.
+ * @param root0.mechanics - BoardGameGeek mechanics associated with the games.
+ * @param root0.mostExpensive - Highest-cost games included in the ranking.
+ * @returns The rendered stats charts.
  */
 export function StatsCharts({
   categories,
@@ -56,12 +58,19 @@ export function StatsCharts({
   const format = useFormatter();
   const locale = useLocale();
   const t = useTranslations();
-  const formatCurrency = (value: number) =>
-    format.number(value, {
+  /**
+   * Formats a chart value in the user's preferred currency.
+   *
+   * @param value - Monetary chart value expressed in the preferred currency.
+   * @returns The localized currency string.
+   */
+  function formatCurrency(value: number): string {
+    return format.number(value, {
       style: "currency",
       currency,
       maximumFractionDigits: 2,
     });
+  }
   const complexityData = complexity.map((datum) => ({
     name: t(`stats.complexity.${datum.key}`),
     value: datum.value,
@@ -209,6 +218,7 @@ export function StatsCharts({
 const axisTick = { fill: "var(--muted-foreground)", fontSize: 11 };
 const tooltipCursor = { fill: "var(--muted)", opacity: 0.5 };
 
+/** Heading and visualization rendered inside a statistics card. */
 type ChartCardProps = {
   children: React.ReactNode;
   title: string;
@@ -217,9 +227,10 @@ type ChartCardProps = {
 /**
  * Consistent chart frame with a softly tinted plotting area.
  *
- * @param root0 - Component or function properties.
- * @param root0.children - The 'children' property.
- * @param root0.title - The 'title' property.
+ * @param root0 - Properties that configure chart card.
+ * @param root0.children - Content rendered inside the component.
+ * @param root0.title - Localized heading displayed by the component.
+ * @returns A titled card containing the supplied chart.
  */
 function ChartCard({ children, title }: ChartCardProps): ReactNode {
   return (
@@ -232,6 +243,7 @@ function ChartCard({ children, title }: ChartCardProps): ReactNode {
   );
 }
 
+/** Ranked data and chart settings rendered by a horizontal bar card. */
 type RankingCardProps = {
   title: string;
   data: CountDatum[];
@@ -241,10 +253,11 @@ type RankingCardProps = {
 /**
  * Ranked horizontal bars suited to long taxonomy labels.
  *
- * @param root0 - Component or function properties.
- * @param root0.title - The 'title' property.
- * @param root0.data - The 'data' property.
- * @param root0.gradientId - The 'gradientId' property.
+ * @param root0 - Properties that configure ranking card.
+ * @param root0.title - Localized heading displayed by the component.
+ * @param root0.data - Untrusted bytes received from the remote image host.
+ * @param root0.gradientId - Stable SVG identifier used by the chart gradient.
+ * @returns A horizontal ranking chart, or its localized empty state.
  */
 function RankingCard({ title, data, gradientId }: RankingCardProps): ReactNode {
   return (
@@ -302,6 +315,7 @@ function RankingCard({ title, data, gradientId }: RankingCardProps): ReactNode {
   );
 }
 
+/** Active Recharts payload and optional value formatter for a tooltip. */
 type ChartTooltipProps = {
   active?: boolean;
   label?: number | string;
@@ -312,11 +326,12 @@ type ChartTooltipProps = {
 /**
  * Theme-aware tooltip shared by bars and the donut chart.
  *
- * @param root0 - Component or function properties.
- * @param root0.active - The 'active' property.
- * @param root0.label - The 'label' property.
- * @param root0.payload - The 'payload' property.
- * @param root0.valueFormatter - The 'valueFormatter' property.
+ * @param root0 - Properties that configure chart tooltip.
+ * @param root0.active - Whether the tooltip is currently visible.
+ * @param root0.label - Localized label displayed by the control.
+ * @param root0.payload - Chart entries supplied for the active data point.
+ * @param root0.valueFormatter - Function that formats a numeric tooltip value.
+ * @returns A formatted tooltip for the active chart datum, or null when inactive.
  */
 function ChartTooltip({
   active,
@@ -348,7 +363,11 @@ function ChartTooltip({
   );
 }
 
-/** Quiet grid lines that respect both application themes. */
+/**
+ * Quiet grid lines that respect both application themes.
+ *
+ * @returns Theme-aware Cartesian grid lines.
+ */
 function ChartGrid(): ReactNode {
   return (
     <CartesianGrid
@@ -363,14 +382,19 @@ function ChartGrid(): ReactNode {
 /**
  * Ellipsizes an axis label while the tooltip retains the complete title.
  *
- * @param value - The value to inspect or transform.
- * @param maximum - The 'maximum' value.
+ * @param value - Untrusted input being validated or normalized.
+ * @param maximum - Largest accepted numeric value.
+ * @returns The original text or a shortened ellipsis-terminated label.
  */
 function truncate(value: string, maximum: number): string {
   return value.length > maximum ? `${value.slice(0, maximum - 1)}…` : value;
 }
 
-/** Localized empty state for chart panels without enough source data. */
+/**
+ * Localized empty state for chart panels without enough source data.
+ *
+ * @returns A localized empty state for charts without source data.
+ */
 function EmptyChart(): ReactNode {
   const t = useTranslations();
   return (

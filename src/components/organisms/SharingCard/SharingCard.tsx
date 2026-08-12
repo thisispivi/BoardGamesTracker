@@ -12,12 +12,14 @@ import {
   setSharingAction,
 } from "@/server/actions/preferences";
 
+/** Public-library settings currently persisted for the account. */
 type SharingState = {
   collection: boolean;
   prices: boolean;
   wishlist: boolean;
 };
 
+/** Public URL and sharing settings displayed by the account card. */
 type SharingCardProps = {
   appUrl: string;
   shareCollection: boolean;
@@ -26,6 +28,7 @@ type SharingCardProps = {
   shareWishlist: boolean;
 };
 
+/** Accessible label, description, and state for one sharing option. */
 type ShareToggleProps = {
   checked: boolean;
   description: string;
@@ -37,13 +40,13 @@ type ShareToggleProps = {
 /**
  * One labelled sharing switch with its explanatory help text.
  *
- * @param root0 - Component or function properties.
- * @param root0.checked - The 'checked' property.
- * @param root0.description - The 'description' property.
- * @param root0.disabled - The 'disabled' property.
- * @param root0.label - The 'label' property.
- * @param root0.onChange - The 'onChange' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure share toggle.
+ * @param root0.checked - Whether the sharing option is enabled.
+ * @param root0.description - Localized explanatory text shown to the user.
+ * @param root0.disabled - Whether the control must reject interaction.
+ * @param root0.label - Localized label displayed by the control.
+ * @param root0.onChange - Callback invoked with the next checked state.
+ * @returns The rendered share toggle.
  */
 function ShareToggle({
   checked,
@@ -76,13 +79,13 @@ function ShareToggle({
 /**
  * Opt-in controls for publishing a collection, a wishlist, and their prices.
  *
- * @param root0 - Component or function properties.
- * @param root0.appUrl - The 'appUrl' property.
- * @param root0.shareCollection - The 'shareCollection' property.
- * @param root0.sharePrices - The 'sharePrices' property.
- * @param root0.shareToken - The 'shareToken' property.
- * @param root0.shareWishlist - The 'shareWishlist' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure sharing card.
+ * @param root0.appUrl - Public base URL used to build the sharing link.
+ * @param root0.shareCollection - Whether owned games are visible on the public page.
+ * @param root0.sharePrices - Whether monetary values are visible on the public page.
+ * @param root0.shareToken - Opaque token identifying the public sharing page.
+ * @param root0.shareWishlist - Whether wishlist games are visible on the public page.
+ * @returns The rendered sharing card.
  */
 export function SharingCard({
   appUrl,
@@ -108,6 +111,7 @@ export function SharingCard({
    * Saves every switch together so prices can never outlive what they describe.
    *
    * @param next - The switch positions to persist.
+   * @returns Nothing.
    */
   function save(next: SharingState): void {
     const prices = (next.collection || next.wishlist) && next.prices;
@@ -123,7 +127,11 @@ export function SharingCard({
     });
   }
 
-  /** Rotates the token, invalidating every link already handed out. */
+  /**
+   * Rotates the token, invalidating every link already handed out.
+   *
+   * @returns Nothing.
+   */
   function regenerate(): void {
     startTransition(async () => {
       const updatedToken = await regenerateShareTokenAction();
@@ -133,7 +141,11 @@ export function SharingCard({
     });
   }
 
-  /** Copies the sharing link, reporting a denied clipboard rather than failing. */
+  /**
+   * Copies the sharing link, reporting a denied clipboard rather than failing.
+   *
+   * @returns Nothing.
+   */
   function copyLink(): void {
     startTransition(async () => {
       try {

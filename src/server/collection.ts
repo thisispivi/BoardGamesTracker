@@ -9,7 +9,8 @@ import { collectionItems, games } from "@/server/db/schema";
  * Fetches one user library location with normalized game metadata.
  *
  * @param userId - The authenticated user identifier.
- * @param location - The 'location' value.
+ * @param location - Library section used to constrain the collection query.
+ * @returns Games owned by the user in the requested library section.
  */
 async function getLibraryItems(userId: string, location: "owned" | "wishlist") {
   const collection = await db
@@ -66,7 +67,7 @@ async function getLibraryItems(userId: string, location: "owned" | "wishlist") {
  * Fetches a user's owned board-game collection.
  *
  * @param userId - The authenticated user identifier.
- * @returns The documented function result.
+ * @returns Owned games with their personal metadata.
  */
 export function getCollection(userId: string) {
   return getLibraryItems(userId, "owned");
@@ -76,7 +77,7 @@ export function getCollection(userId: string) {
  * Fetches a user's games saved for a future purchase.
  *
  * @param userId - The authenticated user identifier.
- * @returns The documented function result.
+ * @returns Wishlist games with their personal metadata.
  */
 export function getWishlist(userId: string) {
   return getLibraryItems(userId, "wishlist");

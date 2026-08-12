@@ -9,7 +9,7 @@ import { requireUser } from "@/server/session";
 /**
  * Game picker page metadata.
  *
- * @returns The documented function result.
+ * @returns Localized metadata for the page.
  */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
@@ -19,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
 /**
  * Filtered, animated game-night randomizer.
  *
- * @returns The documented function result.
+ * @returns The rendered play page.
  */
 export default async function PlayPage() {
   const session = await requireUser();

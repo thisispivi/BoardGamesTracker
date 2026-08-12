@@ -10,14 +10,15 @@ import { Button } from "@/components/atoms/Button/Button";
 import type { AuditLogPage } from "@/core";
 import { getAuditLogPageAction } from "@/server/actions/admin";
 
+/** Initial paginated audit records displayed by the administration panel. */
 type AuditLogPanelProps = { initialPage: AuditLogPage };
 
 /**
  * Paginated audit log that updates only its own scrollable result region.
  *
- * @param root0 - Component or function properties.
- * @param root0.initialPage - The 'initialPage' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure audit log panel.
+ * @param root0.initialPage - First server-rendered page of paginated records.
+ * @returns The rendered audit log panel.
  */
 export function AuditLogPanel({ initialPage }: AuditLogPanelProps): ReactNode {
   const format = useFormatter();
@@ -25,6 +26,12 @@ export function AuditLogPanel({ initialPage }: AuditLogPanelProps): ReactNode {
   const [result, setResult] = useState(initialPage);
   const [pending, startTransition] = useTransition();
 
+  /**
+   * Loads one audit page while preserving the currently rendered results.
+   *
+   * @param page - One-based audit page number to request.
+   * @returns Nothing.
+   */
   function loadPage(page: number): void {
     if (pending || page < 1 || page > result.pages) return;
     startTransition(async () => {

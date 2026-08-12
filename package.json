@@ -75,7 +75,7 @@
     "drizzle-kit": "^0.31.10",
     "eslint": "^9.39.5",
     "eslint-config-next": "16.3.0",
-    "eslint-plugin-jsdoc": "^64.0.2",
+    "eslint-plugin-jsdoc": "^64.1.0",
     "eslint-plugin-simple-import-sort": "^14.0.0",
     "husky": "^9.1.7",
     "jsdom": "^30.0.1",

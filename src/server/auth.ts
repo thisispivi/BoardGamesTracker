@@ -32,7 +32,6 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
-    // Registration is gated dynamically so an empty installation can bootstrap.
     disableSignUp: false,
     minPasswordLength: 12,
     maxPasswordLength: 128,
@@ -42,7 +41,6 @@ export const auth = betterAuth({
   user: {
     changeEmail: {
       enabled: true,
-      // This self-hosted installation has no transactional email provider.
       updateEmailWithoutVerification: true,
     },
     deleteUser: { enabled: true },

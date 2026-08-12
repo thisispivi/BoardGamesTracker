@@ -10,10 +10,10 @@ import { useEffect } from "react";
  * This replaces the entire document, so it cannot rely on styling or providers (Tailwind, locale,
  * theme) that live inside the root layout — the failure may be in that layout.
  *
- * @param root0 - Component or function properties.
- * @param root0.error - The 'error' property.
- * @param root0.reset - The 'reset' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure global error.
+ * @param root0.error - Error captured by the nearest Next.js error boundary.
+ * @param root0.reset - Callback that asks Next.js to retry rendering the boundary.
+ * @returns The rendered global error.
  */
 export default function GlobalError({
   error,

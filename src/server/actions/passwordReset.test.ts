@@ -29,7 +29,11 @@ vi.mock("@/server/security/rateLimit", () => ({
 
 import { resetPasswordAction } from "@/server/actions/passwordReset";
 
-/** Builds a valid reset submission for action-level authorization tests. */
+/**
+ * Builds a valid reset submission for action-level authorization tests.
+ *
+ * @returns A valid password-reset form submission.
+ */
 function buildFormData(): FormData {
   const formData = new FormData();
   formData.set("password", "a-secure-password");

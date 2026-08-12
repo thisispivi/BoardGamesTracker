@@ -11,7 +11,7 @@ import { requireUser } from "@/server/session";
 /**
  * Collection page metadata.
  *
- * @returns The documented function result.
+ * @returns Localized metadata for the page.
  */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
@@ -21,7 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
 /**
  * Visual, searchable personal board-game collection.
  *
- * @returns The documented function result.
+ * @returns The rendered collection page.
  */
 export default async function CollectionPage() {
   const session = await requireUser();

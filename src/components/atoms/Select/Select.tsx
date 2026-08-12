@@ -7,6 +7,7 @@ import type { ReactNode } from "react";
 import type { SelectOption } from "@/core";
 import { cn } from "@/utils/cn";
 
+/** Properties that configure the accessible select primitive. */
 type SelectProps = {
   ariaLabel: string;
   className?: string;
@@ -20,15 +21,15 @@ type SelectProps = {
 /**
  * Animated, theme-aware select control backed by Radix primitives.
  *
- * @param root0 - Component or function properties.
- * @param root0.ariaLabel - The 'ariaLabel' property.
- * @param root0.className - The 'className' property.
- * @param root0.defaultValue - The 'defaultValue' property.
- * @param root0.name - The 'name' property.
- * @param root0.onValueChange - The 'onValueChange' property.
- * @param root0.options - The 'options' property.
- * @param root0.value - The 'value' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure select.
+ * @param root0.ariaLabel - Accessible name announced for the control.
+ * @param root0.className - Optional classes merged with the component styles.
+ * @param root0.defaultValue - Initial value shown before the user changes the selection.
+ * @param root0.name - Game name used for accessible artwork text.
+ * @param root0.onValueChange - Callback invoked with the next selected value or values.
+ * @param root0.options - Selectable values displayed by the control.
+ * @param root0.value - Untrusted input being validated or normalized.
+ * @returns The rendered select.
  */
 export function Select({
   ariaLabel,

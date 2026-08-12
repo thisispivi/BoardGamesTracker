@@ -21,8 +21,10 @@ import {
   updateUserRoleAction,
 } from "@/server/actions/admin";
 
+/** Administrative user record accepted by account-management controls. */
 type ManagedUser = { id: string; name: string; role: string; banned: boolean };
 
+/** Current administrator context and target user for management actions. */
 type AdminUserActionsProps = {
   user: ManagedUser;
   isSelf: boolean;
@@ -31,10 +33,10 @@ type AdminUserActionsProps = {
 /**
  * Guarded administrator controls for one user record.
  *
- * @param root0 - Component or function properties.
- * @param root0.user - The 'user' property.
- * @param root0.isSelf - The 'isSelf' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure admin user actions.
+ * @param root0.user - Authenticated user displayed by the application shell.
+ * @param root0.isSelf - Whether the managed account belongs to the current administrator.
+ * @returns The rendered admin user actions.
  */
 export function AdminUserActions({
   user,
@@ -49,6 +51,8 @@ export function AdminUserActions({
    *
    * The link is a credential, so it is never rendered: it goes to the clipboard
    * and nowhere else, which also keeps it off any shoulder-surfer's screen.
+   *
+   * @returns Nothing.
    */
   function copyResetLink(): void {
     const formData = new FormData();

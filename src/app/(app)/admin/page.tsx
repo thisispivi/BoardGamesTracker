@@ -16,7 +16,7 @@ import { requireAdmin } from "@/server/session";
 /**
  * Administrator page metadata.
  *
- * @returns The documented function result.
+ * @returns Localized metadata for the page.
  */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
@@ -26,7 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
 /**
  * User management, service health, collection, and audit console.
  *
- * @returns The documented function result.
+ * @returns The rendered admin page.
  */
 export default async function AdminPage() {
   const [actor, t, format] = await Promise.all([

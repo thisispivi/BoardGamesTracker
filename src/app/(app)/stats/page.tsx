@@ -19,7 +19,7 @@ import { calculateCollectionStats } from "@/utils/collectionStats";
 /**
  * Statistics page metadata.
  *
- * @returns The documented function result.
+ * @returns Localized metadata for the page.
  */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
@@ -29,7 +29,7 @@ export async function generateMetadata(): Promise<Metadata> {
 /**
  * Useful financial and taxonomy insights for the owned collection.
  *
- * @returns The documented function result.
+ * @returns The rendered stats page.
  */
 export default async function StatsPage() {
   const session = await requireUser();
@@ -39,12 +39,19 @@ export default async function StatsPage() {
     getFormatter(),
     getTranslations(),
   ]);
-  const formatCurrency = (value: number) =>
-    format.number(value, {
+  /**
+   * Formats a monetary statistic in the user's preferred currency.
+   *
+   * @param value - Monetary value expressed in the preferred currency.
+   * @returns The localized currency string.
+   */
+  function formatCurrency(value: number): string {
+    return format.number(value, {
       style: "currency",
       currency: preferences.currency,
       maximumFractionDigits: 2,
     });
+  }
   const stats = calculateCollectionStats(collection);
   const cards = [
     {

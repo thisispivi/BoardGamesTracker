@@ -3,7 +3,7 @@ import * as Sentry from "@sentry/nextjs";
 /**
  * Loads the runtime-appropriate Sentry configuration before the server starts handling requests.
  *
- * @returns The documented function result.
+ * @returns A promise that resolves after server instrumentation is registered.
  */
 export async function register(): Promise<void> {
   if (process.env.NEXT_RUNTIME === "nodejs") {

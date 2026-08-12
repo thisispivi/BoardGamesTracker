@@ -31,12 +31,14 @@ import { useDurationFormatter } from "@/hooks/useDurationFormatter";
 import { getTaxonomyLabel, isExpansionCategory } from "@/utils/gameTaxonomy";
 import { filterGames, pickRandomGame } from "@/utils/picker";
 
+/** A game duplicated into the animated picker reel. */
 type ReelGame = {
   gameId: string;
   imageUrl?: string | null;
   name: string;
 };
 
+/** Prepared reel sequence, winner, and animation identity for one spin. */
 type ReelRun = {
   id: number;
   items: ReelGame[];
@@ -45,14 +47,15 @@ type ReelRun = {
   winnerId: string;
 };
 
+/** Collection games available to the game-night picker. */
 type GamePickerProps = { games: CollectionGame[] };
 
 /**
  * Animated filter-and-reel experience for choosing a collection game.
  *
- * @param root0 - Component or function properties.
- * @param root0.games - The 'games' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure game picker.
+ * @param root0.games - Game records available to the component.
+ * @returns The rendered game picker.
  */
 export function GamePicker({ games }: GamePickerProps): ReactNode {
   const locale = useLocale();
@@ -112,7 +115,11 @@ export function GamePicker({ games }: GamePickerProps): ReactNode {
   const candidates = filterGames(pickable, filters);
   const selected = games.find((game) => game.gameId === selectedId) ?? null;
 
-  /** Runs a cover reel that decelerates onto a preselected eligible game. */
+  /**
+   * Runs a cover reel that decelerates onto a preselected eligible game.
+   *
+   * @returns Nothing.
+   */
   function spin(): void {
     if (candidates.length === 0 || spinning) {
       return;
@@ -142,7 +149,8 @@ export function GamePicker({ games }: GamePickerProps): ReactNode {
   /**
    * Reveals a manually chosen candidate and returns mobile users to the stage.
    *
-   * @param gameId - The 'gameId' value.
+   * @param gameId - Stable identifier of the game to remove from the candidates.
+   * @returns Nothing.
    */
   function selectCandidate(gameId: string): void {
     setSelectedId(gameId);
@@ -402,6 +410,7 @@ export function GamePicker({ games }: GamePickerProps): ReactNode {
   );
 }
 
+/** Icon, label, and content rendered by a picker filter group. */
 type FilterLabelProps = {
   children?: React.ReactNode;
   icon: LucideIcon;
@@ -411,10 +420,11 @@ type FilterLabelProps = {
 /**
  * Shared icon-and-label treatment for every picker filter.
  *
- * @param root0 - Component or function properties.
- * @param root0.children - The 'children' property.
- * @param root0.icon - The 'icon' property.
- * @param root0.label - The 'label' property.
+ * @param root0 - Properties that configure filter label.
+ * @param root0.children - Content rendered inside the component.
+ * @param root0.icon - Decorative icon rendered beside the label.
+ * @param root0.label - Localized label displayed by the control.
+ * @returns A labeled picker filter group.
  */
 function FilterLabel({ children, icon, label }: FilterLabelProps): ReactNode {
   return (
@@ -428,6 +438,7 @@ function FilterLabel({ children, icon, label }: FilterLabelProps): ReactNode {
   );
 }
 
+/** Icon and semantic tone rendered inside a filter label. */
 type FilterIconProps = {
   icon: LucideIcon;
   tone?: "danger" | "primary";
@@ -436,9 +447,10 @@ type FilterIconProps = {
 /**
  * Consistent compact icon tile used across filter rows.
  *
- * @param root0 - Component or function properties.
- * @param root0.icon - The 'icon' property.
- * @param root0.tone - The 'tone' property.
+ * @param root0 - Properties that configure filter icon.
+ * @param root0.icon - Decorative icon rendered beside the label.
+ * @param root0.tone - Semantic color treatment applied to the icon.
+ * @returns A semantically colored filter icon.
  */
 function FilterIcon({
   icon: Icon,
@@ -453,6 +465,7 @@ function FilterIcon({
   );
 }
 
+/** Eligible games and selection callback used by the candidate dialog. */
 type PossibleGamesDialogProps = {
   candidates: ReelGame[];
   onSelect: (gameId: string) => void;
@@ -461,9 +474,10 @@ type PossibleGamesDialogProps = {
 /**
  * Opens the complete eligible-game set as a responsive cover gallery.
  *
- * @param root0 - Component or function properties.
- * @param root0.candidates - The 'candidates' property.
- * @param root0.onSelect - The 'onSelect' property.
+ * @param root0 - Properties that configure possible games dialog.
+ * @param root0.candidates - Games eligible for display or selection.
+ * @param root0.onSelect - Callback invoked with the selected game identifier.
+ * @returns A dialog listing games that satisfy the current filters.
  */
 function PossibleGamesDialog({
   candidates,
@@ -558,6 +572,7 @@ function PossibleGamesDialog({
   );
 }
 
+/** Prepared animation state and element references used by the cover reel. */
 type CoverReelProps = {
   candidates: ReelGame[];
   cardRef: React.RefObject<HTMLDivElement | null>;
@@ -571,14 +586,15 @@ type CoverReelProps = {
 /**
  * Displays eligible covers and decelerates the active run beneath the marker.
  *
- * @param root0 - Component or function properties.
- * @param root0.candidates - The 'candidates' property.
- * @param root0.cardRef - The 'cardRef' property.
- * @param root0.onComplete - The 'onComplete' property.
- * @param root0.reduceMotion - The 'reduceMotion' property.
- * @param root0.reelRun - The 'reelRun' property.
- * @param root0.spinning - The 'spinning' property.
- * @param root0.trackRef - The 'trackRef' property.
+ * @param root0 - Properties that configure cover reel.
+ * @param root0.candidates - Games eligible for display or selection.
+ * @param root0.cardRef - Reference that receives the winning card element.
+ * @param root0.onComplete - Callback invoked after the reel settles on a winner.
+ * @param root0.reduceMotion - Whether the operating system requests reduced animation.
+ * @param root0.reelRun - Prepared reel sequence and winner for the current spin.
+ * @param root0.spinning - Whether the reel animation is in progress.
+ * @param root0.trackRef - Reference that receives the reel track element.
+ * @returns The animated cover reel or its stable pre-spin state.
  */
 function CoverReel({
   candidates,
@@ -646,8 +662,9 @@ function CoverReel({
 /**
  * Creates a bounded reel with the selected game placed near its far end.
  *
- * @param candidates - The 'candidates' value.
- * @param winnerId - The 'winnerId' value.
+ * @param candidates - Games eligible for the reel.
+ * @param winnerId - Stable identifier of the selected winner.
+ * @returns A repeated reel sequence and the index of its final winner.
  */
 function buildReelSequence(
   candidates: ReelGame[],
@@ -668,8 +685,9 @@ function buildReelSequence(
 /**
  * Reads the rendered responsive card step before starting an animation.
  *
- * @param card - The 'card' value.
- * @param track - The 'track' value.
+ * @param card - Winning card element used to calculate its final position.
+ * @param track - Reel track element whose translation is calculated.
+ * @returns Measured card width and inter-card gap for reel positioning.
  */
 function getReelMetrics(
   card: HTMLDivElement | null,
@@ -692,8 +710,9 @@ function getReelMetrics(
  * Builds localized picker facets with occurrence counts for quick scanning.
  *
  * @param games - The candidate games.
- * @param facet - The 'facet' value.
- * @param locale - The 'locale' value.
+ * @param facet - Picker facet whose label needs translation.
+ * @param locale - Active application locale used for translated labels.
+ * @returns Sorted picker options with localized taxonomy labels.
  */
 function pickerOptions(
   games: CollectionGame[],

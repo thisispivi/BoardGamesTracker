@@ -10,12 +10,17 @@ import { authClient } from "@/utils/authClient";
 /**
  * Revokes the current session from the account area.
  *
- * @returns The documented function result.
+ * @returns The rendered sign out button.
  */
 export function SignOutButton(): ReactNode {
   const router = useRouter();
   const t = useTranslations();
 
+  /**
+   * Revokes the browser session and returns to the public entry page.
+   *
+   * @returns A promise that resolves after navigation is refreshed.
+   */
   async function signOut(): Promise<void> {
     await authClient.signOut();
     router.push("/");

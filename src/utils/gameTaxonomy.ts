@@ -20,10 +20,10 @@ const expansionCategories = new Set([
 /**
  * Returns a localized taxonomy label while preserving unknown imported values.
  *
- * @param value - The value to inspect or transform.
- * @param taxonomy - The 'taxonomy' value.
- * @param locale - The 'locale' value.
- * @returns The documented function result.
+ * @param value - Untrusted input being validated or normalized.
+ * @param taxonomy - Taxonomy namespace used to resolve the translated label.
+ * @param locale - Active application locale used for translated labels.
+ * @returns The translated label, or the imported source value when unknown.
  */
 export function getTaxonomyLabel(
   value: string,
@@ -39,8 +39,8 @@ export function getTaxonomyLabel(
 /**
  * Returns whether a BGG category represents an expansion rather than a base game.
  *
- * @param category - The 'category' value.
- * @returns The documented function result.
+ * @param category - BoardGameGeek category to classify.
+ * @returns Whether the category identifies an expansion.
  */
 export function isExpansionCategory(category: string): boolean {
   return expansionCategories.has(category.trim().toLocaleLowerCase("en"));
@@ -49,8 +49,8 @@ export function isExpansionCategory(category: string): boolean {
 /**
  * Infers expansion status when BGG subtype metadata is unavailable.
  *
- * @param categories - The 'categories' value.
- * @returns The documented function result.
+ * @param categories - BoardGameGeek categories associated with the games.
+ * @returns Whether any category identifies an expansion.
  */
 export function hasExpansionCategory(categories: readonly string[]): boolean {
   return categories.some(isExpansionCategory);

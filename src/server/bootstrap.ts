@@ -7,7 +7,7 @@ import { log } from "@/utils/logger";
 /**
  * Returns whether this installation still needs its first administrator.
  *
- * @returns The documented function result.
+ * @returns Whether the installation still needs its first administrator.
  */
 export async function isBootstrapRequired(): Promise<boolean> {
   try {

@@ -43,6 +43,7 @@ function cacheKey(term: string): string {
   return normalizeSearchText(term) || term.toLowerCase();
 }
 
+/** Properties that select the destination and currency for a new game. */
 type AddGameDialogProps = {
   currency: string;
   destination?: "collection" | "wishlist";
@@ -51,10 +52,10 @@ type AddGameDialogProps = {
 /**
  * Debounced search dialog for adding a title or pasted BGG game URL.
  *
- * @param root0 - Component or function properties.
- * @param root0.currency - The 'currency' property.
- * @param root0.destination - The 'destination' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure add game dialog.
+ * @param root0.currency - ISO currency code used to format monetary values.
+ * @param root0.destination - Library section that receives the selected game.
+ * @returns The rendered add game dialog.
  */
 export function AddGameDialog({
   currency,
@@ -84,7 +85,8 @@ export function AddGameDialog({
   /**
    * Resets ephemeral search state whenever the dialog is dismissed.
    *
-   * @param nextOpen - The 'nextOpen' value.
+   * @param nextOpen - Next open state emitted by the dialog primitive.
+   * @returns Nothing.
    */
   function changeOpen(nextOpen: boolean): void {
     setOpen(nextOpen);
@@ -102,7 +104,8 @@ export function AddGameDialog({
   /**
    * Clears stale discovery state immediately while the user keeps typing.
    *
-   * @param nextQuery - The 'nextQuery' value.
+   * @param nextQuery - Latest search text entered by the user.
+   * @returns Nothing.
    */
   function changeQuery(nextQuery: string): void {
     setQuery(nextQuery);
@@ -171,7 +174,6 @@ export function AddGameDialog({
             return;
           }
           const found = payload.results ?? [];
-          // An empty answer is usually a starved upstream, so never pin it.
           if (found.length > 0) {
             resultCache.set(cacheKey(term), found);
           }
@@ -338,6 +340,7 @@ export function AddGameDialog({
   );
 }
 
+/** Selected discovery data and callbacks used by the add-game form. */
 type SelectedGameFormProps = {
   action: (formData: FormData) => void;
   adding: boolean;
@@ -351,14 +354,15 @@ type SelectedGameFormProps = {
 /**
  * Editable local details after a trusted discovery result has been selected.
  *
- * @param root0 - Component or function properties.
- * @param root0.action - The 'action' property.
- * @param root0.adding - The 'adding' property.
- * @param root0.currency - The 'currency' property.
- * @param root0.destination - The 'destination' property.
- * @param root0.details - The 'details' property.
- * @param root0.onChooseAnother - The 'onChooseAnother' property.
- * @param root0.selected - The 'selected' property.
+ * @param root0 - Properties that configure selected game form.
+ * @param root0.action - Server action invoked by the form.
+ * @param root0.adding - Whether the add operation is pending.
+ * @param root0.currency - ISO currency code used to format monetary values.
+ * @param root0.destination - Library section that receives the selected game.
+ * @param root0.details - Validated BoardGameGeek metadata for the selected game.
+ * @param root0.onChooseAnother - Callback that returns the dialog to search results.
+ * @param root0.selected - Discovery result currently chosen by the user.
+ * @returns The validated add-game form for the current discovery result.
  */
 function SelectedGameForm({
   action,
@@ -552,6 +556,7 @@ function SelectedGameForm({
   );
 }
 
+/** Label and content rendered by a compact form field wrapper. */
 type FieldProps = {
   children: React.ReactNode;
   label: string;
@@ -560,9 +565,10 @@ type FieldProps = {
 /**
  * Consistent label wrapper for local game metadata inputs.
  *
- * @param root0 - Component or function properties.
- * @param root0.children - The 'children' property.
- * @param root0.label - The 'label' property.
+ * @param root0 - Properties that configure field.
+ * @param root0.children - Content rendered inside the component.
+ * @param root0.label - Localized label displayed by the control.
+ * @returns A labeled form-field wrapper.
  */
 function Field({ children, label }: FieldProps): ReactNode {
   return (

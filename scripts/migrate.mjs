@@ -2,7 +2,11 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
 
-/** Applies pending, checksum-tracked migrations before application startup. */
+/**
+ * Applies pending, checksum-tracked migrations before application startup.
+ *
+ * @returns A promise that resolves after all pending migrations are applied.
+ */
 async function runMigrations() {
   if (!process.env.DATABASE_URL) {
     throw new Error("DATABASE_URL is required to run migrations.");

@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 
 import { Button } from "@/components/atoms/Button/Button";
 
+/** Properties that configure a destructive-action confirmation dialog. */
 type ConfirmDialogProps = {
   action: (formData: FormData) => Promise<void>;
   cancelLabel: string;
@@ -21,17 +22,17 @@ type ConfirmDialogProps = {
 /**
  * Animated in-app confirmation dialog for a server-side form action.
  *
- * @param root0 - Component or function properties.
- * @param root0.action - The 'action' property.
- * @param root0.cancelLabel - The 'cancelLabel' property.
- * @param root0.confirmLabel - The 'confirmLabel' property.
- * @param root0.description - The 'description' property.
- * @param root0.fields - The 'fields' property.
+ * @param root0 - Properties that configure confirm dialog.
+ * @param root0.action - Server action invoked by the form.
+ * @param root0.cancelLabel - Localized label for the cancel control.
+ * @param root0.confirmLabel - Localized label for the confirmation control.
+ * @param root0.description - Localized explanatory text shown to the user.
+ * @param root0.fields - Additional form controls rendered in the dialog.
  * @param root0.passwordLabel - The optional deletion-password label.
  * @param root0.passwordPlaceholder - The optional deletion-password placeholder.
- * @param root0.title - The 'title' property.
- * @param root0.trigger - The 'trigger' property.
- * @returns The documented function result.
+ * @param root0.title - Localized heading displayed by the component.
+ * @param root0.trigger - Interactive element that opens the dialog.
+ * @returns The rendered confirm dialog.
  */
 export function ConfirmDialog({
   action,

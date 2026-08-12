@@ -1,5 +1,6 @@
 import { scrubSentryEvent } from "@/utils/sentryScrub";
 
+/** Execution environments with distinct Sentry integration settings. */
 type SentryRuntime = "browser" | "edge" | "server";
 
 /**

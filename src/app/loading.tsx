@@ -5,7 +5,7 @@ import { AppSpinner } from "@/components/atoms/AppSpinner/AppSpinner";
 /**
  * Global streaming fallback for the first application load.
  *
- * @returns The documented function result.
+ * @returns A localized full-page loading indicator.
  */
 export default function Loading() {
   const t = useTranslations();

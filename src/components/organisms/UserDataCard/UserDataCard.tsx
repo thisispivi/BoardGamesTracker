@@ -15,7 +15,7 @@ const formats = ["json", "csv", "xlsx", "sql"] as const;
 /**
  * Export and restore controls for the current user's portable app data.
  *
- * @returns The documented function result.
+ * @returns The rendered user data card.
  */
 export function UserDataCard(): ReactNode {
   const [importing, setImporting] = useState(false);
@@ -25,7 +25,8 @@ export function UserDataCard(): ReactNode {
   /**
    * Uploads a bounded portable export to the authenticated import endpoint.
    *
-   * @param event - The 'event' value.
+   * @param event - Form submission event whose default navigation is suppressed.
+   * @returns A promise that resolves after the selected import is processed.
    */
   async function importData(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();

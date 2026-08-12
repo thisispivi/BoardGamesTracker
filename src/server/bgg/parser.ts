@@ -159,7 +159,7 @@ function taxonomy(html: string, type: string): string[] {
         values.add(value.trim().slice(0, 160));
       }
     } catch {
-      // A malformed optional taxonomy entry must not discard valid metadata.
+      continue;
     }
   }
   return [...values].slice(0, 50);

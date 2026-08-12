@@ -7,6 +7,7 @@ import { type ReactNode, useId, useState } from "react";
 import { Tooltip } from "@/components/atoms/Tooltip/Tooltip";
 import { cn } from "@/utils/cn";
 
+/** Properties that coordinate gifted state with a monetary form field. */
 type GiftedPriceFieldProps = {
   currency: string;
   className?: string;
@@ -18,13 +19,13 @@ type GiftedPriceFieldProps = {
 /**
  * Coupled gifted and price controls that always submit a consistent value pair.
  *
- * @param root0 - Component or function properties.
- * @param root0.currency - The 'currency' property.
- * @param root0.className - The 'className' property.
- * @param root0.companionField - The 'companionField' property.
- * @param root0.defaultGifted - The 'defaultGifted' property.
- * @param root0.defaultValue - The 'defaultValue' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure gifted price field.
+ * @param root0.currency - ISO currency code used to format monetary values.
+ * @param root0.className - Optional classes merged with the component styles.
+ * @param root0.companionField - Related form field cleared when the game is marked as gifted.
+ * @param root0.defaultGifted - Initial gifted state supplied by the saved collection item.
+ * @param root0.defaultValue - Initial value shown before the user changes the selection.
+ * @returns The rendered gifted price field.
  */
 export function GiftedPriceField({
   currency,

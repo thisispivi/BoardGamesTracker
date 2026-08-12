@@ -3,18 +3,26 @@ import { describe, expect, it } from "vitest";
 import type { StatGame } from "@/core";
 import { calculateCollectionStats } from "@/utils/collectionStats";
 
-const game = (overrides: Partial<StatGame>): StatGame => ({
-  bggId: 1,
-  categories: [],
-  favorite: false,
-  gifted: false,
-  isExpansion: false,
-  mechanics: [],
-  moneySpent: 0,
-  name: "Game",
-  weight: null,
-  ...overrides,
-});
+/**
+ * Builds a complete statistics fixture from focused field overrides.
+ *
+ * @param overrides - Fields that differ from the neutral game fixture.
+ * @returns A game suitable for collection-statistics tests.
+ */
+function game(overrides: Partial<StatGame>): StatGame {
+  return {
+    bggId: 1,
+    categories: [],
+    favorite: false,
+    gifted: false,
+    isExpansion: false,
+    mechanics: [],
+    moneySpent: 0,
+    name: "Game",
+    weight: null,
+    ...overrides,
+  };
+}
 
 describe("calculateCollectionStats", () => {
   it("calculates spend and excludes expansion taxonomy noise", () => {

@@ -6,6 +6,7 @@ import { Logo } from "@/components/atoms/Logo/Logo";
 import { ResetPasswordForm } from "@/components/organisms/ResetPasswordForm/ResetPasswordForm";
 import { verifyPasswordResetToken } from "@/server/auth/passwordReset";
 
+/** Properties supplied to the tokenized password-reset route. */
 type ResetPasswordPageProps = {
   params: Promise<{ token: string }>;
 };
@@ -13,7 +14,7 @@ type ResetPasswordPageProps = {
 /**
  * Password-reset page metadata.
  *
- * @returns The documented function result.
+ * @returns Localized metadata for the page.
  */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
@@ -26,9 +27,9 @@ export async function generateMetadata(): Promise<Metadata> {
 /**
  * Lets a locked-out account owner choose a new password from a signed link.
  *
- * @param root0 - Component or function properties.
- * @param root0.params - The 'params' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure reset password page.
+ * @param root0.params - Dynamic route parameters supplied by Next.js.
+ * @returns The rendered reset password page.
  */
 export default async function ResetPasswordPage({
   params,

@@ -14,9 +14,9 @@ const adminGamesPageSize = 20;
  * Metadata is shared across all collections, so an administrator correcting one
  * record fixes it for every user who owns that game.
  *
- * @param requestedPage - The 'requestedPage' value.
+ * @param requestedPage - Untrusted one-based page number requested by the client.
  * @param search - Free text matched against the game name or an exact BGG id.
- * @returns The documented function result.
+ * @returns A bounded page of games matching the optional search term.
  */
 export async function getAdminGamesPage(
   requestedPage: number,

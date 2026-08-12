@@ -1,5 +1,6 @@
 import "server-only";
 
+/** Mutable request count and expiry for one rate-limit key. */
 type RateLimitEntry = {
   count: number;
   resetsAt: number;
@@ -13,8 +14,9 @@ let nextSweepAt = 0;
 /**
  * Removes expired entries and, at capacity, the oldest remaining entries.
  *
- * @param now - The 'now' value.
- * @param enforceCapacity - The 'enforceCapacity' value.
+ * @param now - Current timestamp used to evaluate and refresh the rate-limit window.
+ * @param enforceCapacity - Whether the in-memory limiter must evict excess keys.
+ * @returns Nothing.
  */
 function sweepEntries(now: number, enforceCapacity: boolean): void {
   if (now < nextSweepAt && !enforceCapacity) {

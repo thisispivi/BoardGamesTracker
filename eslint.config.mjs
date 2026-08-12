@@ -13,7 +13,12 @@ const eslintConfig = defineConfig([
       "jsdoc/require-jsdoc": [
         "error",
         {
-          publicOnly: true,
+          contexts: [
+            "TSEnumDeclaration",
+            "TSInterfaceDeclaration",
+            "TSTypeAliasDeclaration",
+          ],
+          publicOnly: false,
           require: {
             ArrowFunctionExpression: false,
             ClassDeclaration: true,
@@ -24,6 +29,9 @@ const eslintConfig = defineConfig([
           },
         },
       ],
+      "jsdoc/informative-docs": "error",
+      "jsdoc/require-description": "error",
+      "jsdoc/require-description-complete-sentence": "error",
       "jsdoc/require-param-description": "error",
       "jsdoc/require-returns-description": "error",
       "jsdoc/require-returns-check": "off",
@@ -31,10 +39,11 @@ const eslintConfig = defineConfig([
       "jsdoc/require-returns": [
         "error",
         {
+          checkConstructors: false,
           enableFixer: true,
           forceRequireReturn: true,
           forceReturnsWithAsync: true,
-          publicOnly: true,
+          publicOnly: false,
         },
       ],
       "jsdoc/tag-lines": ["error", "any", { startLines: 1 }],
@@ -56,9 +65,7 @@ const eslintConfig = defineConfig([
       "simple-import-sort/imports": "error",
     },
   },
-  // Override default ignores of eslint-config-next.
   globalIgnores([
-    // Default ignores of eslint-config-next:
     ".next/**",
     "out/**",
     "build/**",

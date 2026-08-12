@@ -5,7 +5,7 @@ import type { PickableGame, PickerFilters } from "@/core";
  *
  * @param games - The candidate games.
  * @param filters - The active picker filters.
- * @returns The documented function result.
+ * @returns The games that satisfy every active picker constraint.
  */
 export function filterGames(
   games: PickableGame[],
@@ -53,8 +53,8 @@ export function filterGames(
  *
  * @param games - The candidate games.
  * @param filters - The active picker filters.
- * @param random - The 'random' value.
- * @returns The documented function result.
+ * @param random - Injectable random source used to make selection testable.
+ * @returns A randomly selected eligible game, or null when none qualify.
  */
 export function pickRandomGame(
   games: PickableGame[],

@@ -20,7 +20,7 @@ import { consumeRateLimit } from "@/server/security/rateLimit";
  *
  * @param _previous - The previous server-action state.
  * @param formData - The submitted form data.
- * @returns The documented function result.
+ * @returns The outcome of the authorized server action.
  */
 export async function resetPasswordAction(
   _previous: CollectionActionState,

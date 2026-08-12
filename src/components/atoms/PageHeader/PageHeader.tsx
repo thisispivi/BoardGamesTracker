@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+/** Properties displayed by a page-level heading. */
 type PageHeaderProps = {
   eyebrow: string;
   title: string;
@@ -10,12 +11,12 @@ type PageHeaderProps = {
 /**
  * Consistent title, eyebrow, description, and action region.
  *
- * @param root0 - Component or function properties.
- * @param root0.eyebrow - The 'eyebrow' property.
- * @param root0.title - The 'title' property.
- * @param root0.description - The 'description' property.
- * @param root0.action - The 'action' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure page header.
+ * @param root0.eyebrow - Optional context displayed above the page title.
+ * @param root0.title - Localized heading displayed by the component.
+ * @param root0.description - Localized explanatory text shown to the user.
+ * @param root0.action - Server action invoked by the form.
+ * @returns The rendered page header.
  */
 export function PageHeader({
   eyebrow,

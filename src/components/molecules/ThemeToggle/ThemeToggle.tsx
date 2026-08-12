@@ -11,12 +11,17 @@ import { persistThemeCookie } from "@/utils/theme";
 /**
  * Toggles the persisted light and dark color schemes.
  *
- * @returns The documented function result.
+ * @returns The rendered theme toggle.
  */
 export function ThemeToggle(): ReactNode {
   const { resolvedTheme, setTheme } = useTheme();
   const t = useTranslations();
 
+  /**
+   * Switches between light and dark themes and persists the selection.
+   *
+   * @returns Nothing.
+   */
   function toggleTheme(): void {
     const nextTheme = resolvedTheme === "dark" ? "light" : "dark";
     persistThemeCookie(nextTheme);

@@ -25,6 +25,7 @@ import {
 
 const initialState: CollectionActionState = { success: false, message: "" };
 
+/** Wishlist game and currency used by the purchase dialog. */
 type PurchaseDialogProps = {
   currency: string;
   game: CollectionGame;
@@ -33,9 +34,10 @@ type PurchaseDialogProps = {
 /**
  * Purchase dialog that promotes one wishlist item into the owned collection.
  *
- * @param root0 - Component or function properties.
- * @param root0.currency - The 'currency' property.
- * @param root0.game - The 'game' property.
+ * @param root0 - Properties that configure purchase dialog.
+ * @param root0.currency - ISO currency code used to format monetary values.
+ * @param root0.game - Game record displayed or changed by the component.
+ * @returns A dialog that moves a wishlist game into the collection.
  */
 function PurchaseDialog({ currency, game }: PurchaseDialogProps): ReactNode {
   const [open, setOpen] = useState(false);
@@ -115,6 +117,7 @@ function PurchaseDialog({ currency, game }: PurchaseDialogProps): ReactNode {
   );
 }
 
+/** Wishlist game and currency displayed by a card. */
 type WishlistCardProps = {
   currency: string;
   game: CollectionGame;
@@ -123,10 +126,10 @@ type WishlistCardProps = {
 /**
  * Square wishlist card with purchase, BGG, and removal actions.
  *
- * @param root0 - Component or function properties.
- * @param root0.currency - The 'currency' property.
- * @param root0.game - The 'game' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure wishlist card.
+ * @param root0.currency - ISO currency code used to format monetary values.
+ * @param root0.game - Game record displayed or changed by the component.
+ * @returns The rendered wishlist card.
  */
 export function WishlistCard({ currency, game }: WishlistCardProps): ReactNode {
   const t = useTranslations();

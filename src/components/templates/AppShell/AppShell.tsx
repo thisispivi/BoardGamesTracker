@@ -6,6 +6,7 @@ import { SignOutButton } from "@/components/molecules/SignOutButton/SignOutButto
 import { ThemeToggle } from "@/components/molecules/ThemeToggle/ThemeToggle";
 import { AppNavigation } from "@/components/organisms/AppNavigation/AppNavigation";
 
+/** Authenticated user and route content rendered by the application shell. */
 type AppShellProps = {
   children: React.ReactNode;
   user: {
@@ -19,10 +20,10 @@ type AppShellProps = {
 /**
  * Responsive navigation shell for signed-in screens.
  *
- * @param root0 - Component or function properties.
- * @param root0.children - The 'children' property.
- * @param root0.user - The 'user' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure app shell.
+ * @param root0.children - Content rendered inside the component.
+ * @param root0.user - Authenticated user displayed by the application shell.
+ * @returns The rendered app shell.
  */
 export function AppShell({ children, user }: AppShellProps): ReactNode {
   return (

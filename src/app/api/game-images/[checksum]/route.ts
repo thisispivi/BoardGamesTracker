@@ -10,7 +10,7 @@ import { gameImages } from "@/server/db/schema";
  * @param request - The incoming request.
  * @param context - The route or operation context.
  * @param context.params - The resolved route parameters.
- * @returns The documented function result.
+ * @returns The HTTP response for the request.
  */
 export async function GET(
   request: Request,

@@ -11,6 +11,7 @@ import {
 } from "@/server/discovery/resultParser";
 import { normalizeSearchText } from "@/utils/search";
 
+/** Minimal result shape returned by the configured SearXNG instance. */
 type SearchResult =
   (typeof searxngResponseSchema)["_output"]["results"][number];
 
@@ -197,10 +198,17 @@ export async function discoverBoardGameImages(
 export async function searchViaSearxng(
   query: string,
 ): Promise<DiscoveredGame[]> {
-  const collect = (
+  /**
+   * Adds unique, valid BGG results to the bounded candidate map.
+   *
+   * @param results - Untrusted metasearch results to parse.
+   * @param into - Candidate map populated by stable BGG identifier.
+   * @returns Nothing.
+   */
+  function collect(
     results: SearchResult[],
     into: Map<number, DiscoveredGame>,
-  ) => {
+  ): void {
     for (const result of results) {
       const game = parseBoardGameResult(result.title, result.url);
       if (game && !into.has(game.bggId)) {
@@ -215,7 +223,7 @@ export async function searchViaSearxng(
         return;
       }
     }
-  };
+  }
 
   const discovered = new Map<number, DiscoveredGame>();
   const broadQuery = `BoardGameGeek ${query}`;

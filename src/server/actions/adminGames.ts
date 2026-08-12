@@ -22,9 +22,9 @@ import { requireAdmin } from "@/server/session";
 /**
  * Returns an authorized page of shared games without navigating away from the console.
  *
- * @param page - The 'page' value.
+ * @param page - One-based page number requested by the client.
  * @param search - Free text matched against the game name or an exact BGG id.
- * @returns The documented function result.
+ * @returns A bounded page of games visible to administrators.
  */
 export async function getAdminGamesPageAction(
   page: number,
@@ -57,7 +57,7 @@ function parseLabels(value: string): string[] {
 /**
  * Revalidates every route that renders shared game metadata.
  *
- * @returns The documented function result.
+ * @returns Nothing.
  */
 function revalidateGameViews(): void {
   revalidatePath("/admin/games");
@@ -73,7 +73,7 @@ function revalidateGameViews(): void {
  *
  * @param _previous - The previous server-action state.
  * @param formData - The submitted form data.
- * @returns The documented function result.
+ * @returns The outcome of the authorized server action.
  */
 export async function updateGameMetadataAction(
   _previous: CollectionActionState,
@@ -136,7 +136,7 @@ export async function updateGameMetadataAction(
  *
  * @param _previous - The previous server-action state.
  * @param formData - The submitted form data.
- * @returns The documented function result.
+ * @returns The outcome of the authorized server action.
  */
 export async function refreshGameFromBggAction(
   _previous: CollectionActionState,

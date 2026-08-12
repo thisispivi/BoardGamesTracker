@@ -5,7 +5,7 @@ import { AppSpinner } from "@/components/atoms/AppSpinner/AppSpinner";
 /**
  * Immediate fallback for navigation between authenticated pages.
  *
- * @returns The documented function result.
+ * @returns A localized loading indicator within the authenticated shell.
  */
 export default function Loading() {
   const t = useTranslations();

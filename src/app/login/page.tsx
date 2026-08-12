@@ -13,7 +13,7 @@ import { getSession } from "@/server/session";
 /**
  * Authentication page metadata.
  *
- * @returns The documented function result.
+ * @returns Localized metadata for the page.
  */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("auth");
@@ -23,9 +23,9 @@ export async function generateMetadata(): Promise<Metadata> {
 /**
  * Direct login and registration page.
  *
- * @param root0 - Component or function properties.
- * @param root0.searchParams - The 'searchParams' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure login page.
+ * @param root0.searchParams - URL query parameters supplied by Next.js.
+ * @returns The rendered login page.
  */
 export default async function LoginPage({
   searchParams,

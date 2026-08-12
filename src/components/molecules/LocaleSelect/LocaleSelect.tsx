@@ -6,7 +6,7 @@ import { LocaleSelectControl } from "@/components/molecules/LocaleSelectControl/
 /**
  * Server-backed language preference control.
  *
- * @returns The documented function result.
+ * @returns The rendered locale select.
  */
 export async function LocaleSelect(): Promise<ReactNode> {
   const locale = await getLocale();

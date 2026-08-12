@@ -11,7 +11,7 @@ import { isAppTheme } from "@/utils/theme";
 /**
  * Global metadata for search engines and browser integrations.
  *
- * @returns The documented function result.
+ * @returns Localized metadata for the page.
  */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
@@ -41,9 +41,9 @@ export const viewport: Viewport = {
 /**
  * Root document shell with locale, theme, and toast providers.
  *
- * @param root0 - Component or function properties.
- * @param root0.children - The 'children' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure root layout.
+ * @param root0.children - Content rendered inside the component.
+ * @returns The rendered root layout.
  */
 export default async function RootLayout({
   children,

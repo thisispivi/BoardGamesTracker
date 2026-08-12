@@ -14,9 +14,9 @@ export const giftedSchema = z.preprocess(
 /**
  * Creates a nullable, coerced integer contract within inclusive bounds.
  *
- * @param minimum - The 'minimum' value.
- * @param maximum - The 'maximum' value.
- * @returns The documented function result.
+ * @param minimum - Smallest accepted numeric value.
+ * @param maximum - Largest accepted numeric value.
+ * @returns A schema that accepts a bounded optional integer.
  */
 export function optionalInteger(minimum: number, maximum: number) {
   return z.preprocess(

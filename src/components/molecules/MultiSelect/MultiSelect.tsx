@@ -7,6 +7,7 @@ import { type ReactNode, useMemo, useState } from "react";
 import type { MultiSelectOption } from "@/core";
 import { cn } from "@/utils/cn";
 
+/** Properties that configure a searchable multi-value selector. */
 type MultiSelectProps = {
   ariaLabel: string;
   className?: string;
@@ -23,18 +24,18 @@ type MultiSelectProps = {
 /**
  * Searchable, animated multi-select popover with a bounded scrollable option list.
  *
- * @param root0 - Component or function properties.
- * @param root0.ariaLabel - The 'ariaLabel' property.
- * @param root0.className - The 'className' property.
- * @param root0.clearLabel - The 'clearLabel' property.
- * @param root0.emptyLabel - The 'emptyLabel' property.
- * @param root0.onValueChange - The 'onValueChange' property.
- * @param root0.options - The 'options' property.
- * @param root0.placeholder - The 'placeholder' property.
- * @param root0.searchPlaceholder - The 'searchPlaceholder' property.
- * @param root0.selectedSummary - The 'selectedSummary' property.
- * @param root0.values - The 'values' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure multi select.
+ * @param root0.ariaLabel - Accessible name announced for the control.
+ * @param root0.className - Optional classes merged with the component styles.
+ * @param root0.clearLabel - Localized label for clearing every selection.
+ * @param root0.emptyLabel - Localized message shown when no option matches.
+ * @param root0.onValueChange - Callback invoked with the next selected value or values.
+ * @param root0.options - Selectable values displayed by the control.
+ * @param root0.placeholder - Localized prompt shown before a value is selected.
+ * @param root0.searchPlaceholder - Localized prompt displayed in the option filter.
+ * @param root0.selectedSummary - Function that summarizes the active selections.
+ * @param root0.values - Currently selected option values.
+ * @returns The rendered multi select.
  */
 export function MultiSelect({
   ariaLabel,
@@ -72,7 +73,8 @@ export function MultiSelect({
   /**
    * Toggles one facet while preserving the order of the available options.
    *
-   * @param value - The value to inspect or transform.
+   * @param value - Untrusted input being validated or normalized.
+   * @returns Nothing.
    */
   function toggleValue(value: string) {
     const next = new Set(values);

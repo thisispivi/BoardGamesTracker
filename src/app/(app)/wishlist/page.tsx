@@ -12,7 +12,7 @@ import { requireUser } from "@/server/session";
 /**
  * Wishlist page metadata.
  *
- * @returns The documented function result.
+ * @returns Localized metadata for the page.
  */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
@@ -22,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
 /**
  * Games the signed-in user may want to buy later.
  *
- * @returns The documented function result.
+ * @returns The rendered wishlist page.
  */
 export default async function WishlistPage() {
   const session = await requireUser();

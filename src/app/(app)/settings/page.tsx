@@ -23,7 +23,7 @@ import { requireUser } from "@/server/session";
 /**
  * Settings page metadata.
  *
- * @returns The documented function result.
+ * @returns Localized metadata for the page.
  */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
@@ -33,7 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
 /**
  * Account and session settings for the signed-in user.
  *
- * @returns The documented function result.
+ * @returns The rendered settings page.
  */
 export default async function SettingsPage() {
   const session = await requireUser();

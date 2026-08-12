@@ -10,10 +10,10 @@ import { Button } from "@/components/atoms/Button/Button";
 /**
  * Isolates unexpected render failures without leaking stack traces.
  *
- * @param root0 - Component or function properties.
- * @param root0.error - The 'error' property.
- * @param root0.reset - The 'reset' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure error boundary.
+ * @param root0.error - Error captured by the nearest Next.js error boundary.
+ * @param root0.reset - Callback that asks Next.js to retry rendering the boundary.
+ * @returns The rendered error boundary.
  */
 export default function ErrorBoundary({
   error,

@@ -58,7 +58,7 @@ const getCachedSession = cache(async () => {
 /**
  * Returns the fully validated session for the current request.
  *
- * @returns The documented function result.
+ * @returns The active session, or null when the request is unauthenticated.
  */
 export async function getSession() {
   return getCachedSession();
@@ -67,7 +67,7 @@ export async function getSession() {
 /**
  * Requires an authenticated user and redirects anonymous visitors.
  *
- * @returns The documented function result.
+ * @returns The authenticated session after account-access checks.
  */
 export async function requireUser() {
   const session = await getSession();
@@ -82,7 +82,7 @@ export async function requireUser() {
 /**
  * Requires an administrator and redirects unauthorized users.
  *
- * @returns The documented function result.
+ * @returns The authenticated administrator session.
  */
 export async function requireAdmin() {
   const session = await requireUser();

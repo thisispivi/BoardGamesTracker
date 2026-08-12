@@ -13,6 +13,7 @@ import { CLEAR_COLLECTION_CONFIRMATION } from "@/utils/collectionConfirmation";
 
 const initialState: CollectionActionState = { success: false, message: "" };
 
+/** Library section targeted by the destructive clear operation. */
 type ClearLibraryCardProps = {
   library: "collection" | "wishlist";
 };
@@ -20,9 +21,9 @@ type ClearLibraryCardProps = {
 /**
  * Destructive settings card for clearing one of the signed-in user's libraries.
  *
- * @param root0 - Component or function properties.
- * @param root0.library - The 'library' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure clear library card.
+ * @param root0.library - Library section whose games will be deleted.
+ * @returns The rendered clear library card.
  */
 export function ClearLibraryCard({
   library,

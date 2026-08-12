@@ -22,6 +22,7 @@ import { Logo } from "@/components/atoms/Logo/Logo";
 import { SignOutButton } from "@/components/molecules/SignOutButton/SignOutButton";
 import { cn } from "@/utils/cn";
 
+/** Authenticated user and viewport mode shown by application navigation. */
 type AppNavigationProps = {
   isAdmin: boolean;
   mobile?: boolean;
@@ -31,11 +32,11 @@ type AppNavigationProps = {
 /**
  * Active navigation, mobile drawer, and session sign-out.
  *
- * @param root0 - Component or function properties.
- * @param root0.isAdmin - The 'isAdmin' property.
- * @param root0.mobile - The 'mobile' property.
- * @param root0.user - The 'user' property.
- * @returns The documented function result.
+ * @param root0 - Properties that configure app navigation.
+ * @param root0.isAdmin - Whether the managed user currently has administrator privileges.
+ * @param root0.mobile - Whether to render the navigation for a narrow viewport.
+ * @param root0.user - Authenticated user displayed by the application shell.
+ * @returns The rendered app navigation.
  */
 export function AppNavigation({
   isAdmin,
@@ -143,7 +144,11 @@ export function AppNavigation({
   );
 }
 
-/** Reserves a stable slot and appears only when a slow link is pending. */
+/**
+ * Reserves a stable slot and appears only when a slow link is pending.
+ *
+ * @returns A stable navigation slot containing the pending indicator when needed.
+ */
 function NavigationPendingIndicator(): ReactNode {
   const { pending } = useLinkStatus();
   const t = useTranslations();
