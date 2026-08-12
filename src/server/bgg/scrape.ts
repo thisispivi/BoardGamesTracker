@@ -1,13 +1,16 @@
 import "server-only";
 
 import type { BggMetadata } from "@/core";
-import { parseBggHtmlPage } from "@/server/bgg/parser";
+import { parseBggHtmlPage, parseBggJsonResponses } from "@/server/bgg/parser";
 import { TtlCache } from "@/utils/ttlCache";
 
 export type { BggMetadata } from "@/core";
 
 /** Maximum public BGG page size accepted by the scraper. */
 const maxHtmlLength = 5_000_000;
+
+/** Maximum public BGG JSON response size accepted by the scraper. */
+const maxJsonLength = 2_000_000;
 
 /**
  * Per-game metadata cache.
@@ -23,7 +26,7 @@ const metadataCache = new TtlCache<BggMetadata>(6 * 60 * 60 * 1000, 2_000);
  * @param bggId - The validated BoardGameGeek identifier.
  * @returns Normalized public metadata, or null when the page is unavailable.
  */
-async function scrapePage(bggId: number): Promise<BggMetadata | null> {
+async function scrapeHtmlPage(bggId: number): Promise<BggMetadata | null> {
   const response = await fetch(`https://boardgamegeek.com/boardgame/${bggId}`, {
     headers: {
       Accept: "text/html,application/xhtml+xml",
@@ -45,6 +48,61 @@ async function scrapePage(bggId: number): Promise<BggMetadata | null> {
   return parseBggHtmlPage(
     (await response.text()).slice(0, maxHtmlLength + 1),
     bggId,
+  );
+}
+
+/**
+ * Fetches one bounded JSON response from BGG's public application API.
+ *
+ * @param url - The allowlisted API URL assembled by the caller.
+ * @returns Parsed JSON, or null when the response is invalid or unavailable.
+ */
+async function fetchBggJson(url: string): Promise<unknown | null> {
+  const response = await fetch(url, {
+    headers: {
+      Accept: "application/json",
+      "User-Agent": "BoardGamesTracker/0.1 (self-hosted metadata scraper)",
+    },
+    cache: "no-store",
+    redirect: "error",
+    signal: AbortSignal.timeout(12_000),
+  });
+  if (
+    !response.ok ||
+    !response.headers.get("content-type")?.includes("application/json")
+  ) {
+    return null;
+  }
+  const contentLength = Number(response.headers.get("content-length") ?? 0);
+  if (contentLength > maxJsonLength) return null;
+  const body = await response.text();
+  if (body.length > maxJsonLength) return null;
+  try {
+    return JSON.parse(body);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Loads one game from BGG's JSON API with the HTML page as a fallback.
+ *
+ * @param bggId - The validated BoardGameGeek identifier.
+ * @returns Normalized public metadata, or null when BGG is unavailable.
+ */
+async function scrapePage(bggId: number): Promise<BggMetadata | null> {
+  const query = `objectid=${bggId}&objecttype=thing`;
+  const [itemResponse, dynamicResponse] = await Promise.all([
+    fetchBggJson(`https://api.geekdo.com/api/geekitems?${query}`).catch(
+      () => null,
+    ),
+    fetchBggJson(`https://api.geekdo.com/api/dynamicinfo?${query}`).catch(
+      () => null,
+    ),
+  ]);
+  return (
+    parseBggJsonResponses(itemResponse, dynamicResponse, bggId) ??
+    scrapeHtmlPage(bggId)
   );
 }
 

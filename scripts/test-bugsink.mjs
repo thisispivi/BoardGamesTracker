@@ -1,4 +1,4 @@
-import * as Sentry from "@sentry/node";
+import { captureMessage, flush, init } from "@sentry/node";
 
 let ingestionResponse;
 let transportFailure;
@@ -79,11 +79,11 @@ const environment =
 const release =
   process.env.NEXT_PUBLIC_SENTRY_RELEASE ?? process.env.SENTRY_RELEASE;
 
-Sentry.init({
+init({
   dsn,
   environment,
   release,
-  attachStacktrace: true,
+  attachStacktrace: false,
   enableLogs: false,
   sendClientReports: false,
   sendDefaultPii: false,
@@ -98,10 +98,11 @@ Sentry.init({
   },
 });
 
-const eventId = Sentry.captureException(
-  new Error("Board Games Tracker Bugsink integration test"),
+const eventId = captureMessage(
+  "Board Games Tracker Bugsink integration check",
+  "info",
 );
-const flushed = await Sentry.flush(10_000);
+const flushed = await flush(10_000);
 
 if (!flushed) {
   throw new Error(

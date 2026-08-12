@@ -1,8 +1,47 @@
+import { z } from "zod";
+
 import type { BggMetadata } from "@/core";
 import { hasExpansionCategory } from "@/utils/gameTaxonomy";
 
 /** Maximum public page size accepted by the metadata parser. */
 const maxHtmlLength = 5_000_000;
+
+const geekdoLinkSchema = z.object({
+  name: z.string().min(1).max(160),
+});
+
+const geekdoItemResponseSchema = z.object({
+  item: z.object({
+    imageurl: z.string().max(2_000).nullable().optional(),
+    links: z
+      .object({
+        boardgamecategory: z.array(geekdoLinkSchema).max(200).optional(),
+        boardgamefamily: z.array(geekdoLinkSchema).max(200).optional(),
+        boardgamemechanic: z.array(geekdoLinkSchema).max(200).optional(),
+      })
+      .optional(),
+    maxplayers: z.string().max(16).nullable().optional(),
+    maxplaytime: z.string().max(16).nullable().optional(),
+    minplayers: z.string().max(16).nullable().optional(),
+    minplaytime: z.string().max(16).nullable().optional(),
+    name: z.string().min(1).max(160),
+    objectid: z.number().int().positive(),
+    short_description: z.string().max(10_000).nullable().optional(),
+    subtypes: z.array(z.string().max(64)).max(20).optional(),
+    yearpublished: z.string().max(16).nullable().optional(),
+  }),
+});
+
+const geekdoDynamicResponseSchema = z.object({
+  item: z.object({
+    stats: z
+      .object({
+        average: z.string().max(32).nullable().optional(),
+        avgweight: z.string().max(32).nullable().optional(),
+      })
+      .optional(),
+  }),
+});
 
 /**
  * Decodes the bounded HTML entity subset used in BGG metadata attributes.
@@ -47,6 +86,29 @@ function pageNumber(
     }
   }
   return null;
+}
+
+/**
+ * Normalizes a bounded numeric field from BGG's JSON response.
+ *
+ * @param value - The untrusted numeric string.
+ * @param minimum - The smallest accepted value.
+ * @param maximum - The largest accepted value.
+ * @returns The bounded number, or null when absent or invalid.
+ */
+function jsonNumber(
+  value: string | null | undefined,
+  minimum: number,
+  maximum: number,
+): number | null {
+  const parsed = Number(value);
+  return value !== null &&
+    value !== undefined &&
+    Number.isFinite(parsed) &&
+    parsed >= minimum &&
+    parsed <= maximum
+    ? parsed
+    : null;
 }
 
 /**
@@ -119,6 +181,71 @@ function trustedImage(value: string | null): string | null {
   } catch {
     return null;
   }
+}
+
+/**
+ * Parses BGG's public JSON item and statistics responses.
+ *
+ * Both payloads are untrusted and validated independently because statistics
+ * are optional enrichment while the stable item record is required.
+ *
+ * @param itemResponse - The parsed public item response.
+ * @param dynamicResponse - The parsed public statistics response, when available.
+ * @param expectedBggId - The requested BoardGameGeek identifier.
+ * @returns Normalized metadata, or null for malformed or unrelated data.
+ */
+export function parseBggJsonResponses(
+  itemResponse: unknown,
+  dynamicResponse: unknown,
+  expectedBggId: number,
+): BggMetadata | null {
+  const parsedItem = geekdoItemResponseSchema.safeParse(itemResponse);
+  if (!parsedItem.success || parsedItem.data.item.objectid !== expectedBggId) {
+    return null;
+  }
+
+  const item = parsedItem.data.item;
+  const parsedDynamic = geekdoDynamicResponseSchema.safeParse(dynamicResponse);
+  const stats = parsedDynamic.success
+    ? parsedDynamic.data.item.stats
+    : undefined;
+  const categories = (item.links?.boardgamecategory ?? [])
+    .map((link) => link.name.trim())
+    .filter(Boolean)
+    .slice(0, 50);
+  const minPlayers = jsonNumber(item.minplayers, 1, 99) ?? 1;
+  const minPlaytime = jsonNumber(item.minplaytime, 0, 10_000) ?? 0;
+
+  return {
+    bggId: expectedBggId,
+    bggRating: jsonNumber(stats?.average, 0, 10),
+    categories,
+    description: decodeHtml(item.short_description ?? "")
+      .replaceAll(/\s+/g, " ")
+      .trim()
+      .slice(0, 10_000),
+    families: (item.links?.boardgamefamily ?? [])
+      .map((link) => link.name.trim())
+      .filter(Boolean)
+      .slice(0, 50),
+    imageUrl: trustedImage(item.imageurl ?? null),
+    isExpansion:
+      (item.subtypes ?? []).some((subtype) =>
+        ["boardgameaccessory", "boardgameexpansion"].includes(subtype),
+      ) || hasExpansionCategory(categories),
+    maxPlayers: jsonNumber(item.maxplayers, minPlayers, 99) ?? minPlayers,
+    maxPlaytime:
+      jsonNumber(item.maxplaytime, minPlaytime, 10_000) ?? minPlaytime,
+    mechanics: (item.links?.boardgamemechanic ?? [])
+      .map((link) => link.name.trim())
+      .filter(Boolean)
+      .slice(0, 50),
+    minPlayers,
+    minPlaytime,
+    name: item.name.trim(),
+    weight: jsonNumber(stats?.avgweight, 0, 5),
+    yearPublished: jsonNumber(item.yearpublished, 1800, 2200),
+  };
 }
 
 /**

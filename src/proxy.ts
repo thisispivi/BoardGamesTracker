@@ -99,7 +99,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https://cf.geekdo-images.com https://react-circle-flags.pages.dev",
     "font-src 'self' data:",
-    `connect-src 'self'${errorReportingOrigin ? ` ${errorReportingOrigin}` : ""}`,
+    `connect-src 'self' https://api.geekdo.com${errorReportingOrigin ? ` ${errorReportingOrigin}` : ""}`,
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

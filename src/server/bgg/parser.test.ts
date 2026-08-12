@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { parseBggHtmlPage } from "@/server/bgg/parser";
+import { parseBggHtmlPage, parseBggJsonResponses } from "@/server/bgg/parser";
 
 const ticketToRideHtml = `
   <html>
@@ -71,5 +71,80 @@ describe("parseBggHtmlPage", () => {
     );
 
     expect(parseBggHtmlPage(html, 9209)?.imageUrl).toBeNull();
+  });
+});
+
+const magicItemResponse = {
+  item: {
+    imageurl: "https://cf.geekdo-images.com/magic/pic.jpg",
+    links: {
+      boardgamecategory: [
+        { name: "Card Game" },
+        { name: "Collectible Components" },
+      ],
+      boardgamefamily: [{ name: "Game: Magic The Gathering" }],
+      boardgamemechanic: [{ name: "Deck Construction" }],
+    },
+    maxplayers: "6",
+    maxplaytime: "20",
+    minplayers: "2",
+    minplaytime: "20",
+    name: "Magic: The Gathering",
+    objectid: 463,
+    short_description:
+      "Cast spells &amp; summon fantasy monsters in the original collectible card game.",
+    subtypes: ["boardgame", "boardgameintegration"],
+    yearpublished: "1993",
+  },
+};
+
+const magicDynamicResponse = {
+  item: {
+    stats: {
+      average: "7.59719",
+      avgweight: "3.286",
+    },
+  },
+};
+
+describe("parseBggJsonResponses", () => {
+  it("extracts Magic: The Gathering from BGG's public JSON responses", () => {
+    expect(
+      parseBggJsonResponses(magicItemResponse, magicDynamicResponse, 463),
+    ).toEqual({
+      bggId: 463,
+      bggRating: 7.59719,
+      categories: ["Card Game", "Collectible Components"],
+      description:
+        "Cast spells & summon fantasy monsters in the original collectible card game.",
+      families: ["Game: Magic The Gathering"],
+      imageUrl: "https://cf.geekdo-images.com/magic/pic.jpg",
+      isExpansion: false,
+      maxPlayers: 6,
+      maxPlaytime: 20,
+      mechanics: ["Deck Construction"],
+      minPlayers: 2,
+      minPlaytime: 20,
+      name: "Magic: The Gathering",
+      weight: 3.286,
+      yearPublished: 1993,
+    });
+  });
+
+  it("keeps valid item details when dynamic statistics are unavailable", () => {
+    expect(parseBggJsonResponses(magicItemResponse, null, 463)).toEqual(
+      expect.objectContaining({
+        bggRating: null,
+        name: "Magic: The Gathering",
+        weight: null,
+      }),
+    );
+  });
+
+  it("rejects malformed or unrelated item responses", () => {
+    expect(
+      parseBggJsonResponses(magicItemResponse, magicDynamicResponse, 9209),
+    ).toBeNull();
+    expect(parseBggJsonResponses({ item: {} }, null, 463)).toBeNull();
   });
 });
