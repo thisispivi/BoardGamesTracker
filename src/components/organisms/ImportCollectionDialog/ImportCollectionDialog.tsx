@@ -41,7 +41,12 @@ export function ImportCollectionDialog(): ReactNode {
 
   return (
     <>
-      <Button onClick={() => setOpen(true)} type="button" variant="secondary">
+      <Button
+        className="w-full max-w-full sm:w-fit"
+        onClick={() => setOpen(true)}
+        type="button"
+        variant="secondary"
+      >
         <FileUp className="size-4" /> {t("import.button")}
       </Button>
       {open ? (
@@ -52,12 +57,12 @@ export function ImportCollectionDialog(): ReactNode {
           <section
             aria-labelledby="import-collection-title"
             aria-modal="true"
-            className="modal-content bg-card w-full max-w-lg rounded-3xl border p-6 shadow-2xl sm:p-8"
+            className="modal-content bg-card max-h-[calc(100dvh-2rem)] w-full max-w-lg min-w-0 overflow-x-hidden overflow-y-auto rounded-3xl border p-5 shadow-2xl sm:p-8"
             onMouseDown={(event) => event.stopPropagation()}
             role="dialog"
           >
             <div className="flex items-start justify-between gap-5">
-              <div>
+              <div className="min-w-0">
                 <p className="text-primary text-xs font-bold tracking-widest uppercase">
                   {t("import.eyebrow")}
                 </p>
@@ -81,12 +86,12 @@ export function ImportCollectionDialog(): ReactNode {
               </button>
             </div>
 
-            <form action={action} className="mt-7 space-y-5">
-              <label className="block text-sm font-bold">
+            <form action={action} className="mt-7 min-w-0 space-y-5">
+              <label className="block min-w-0 text-sm font-bold">
                 <span className="mb-2 block">{t("import.file")}</span>
                 <input
                   accept=".csv,text/csv"
-                  className="file:bg-primary file:text-primary-foreground bg-background w-full rounded-xl border p-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:px-4 file:py-2 file:font-bold"
+                  className="file:bg-primary file:text-primary-foreground bg-background block w-full max-w-full min-w-0 overflow-hidden rounded-xl border p-2 text-sm file:mr-3 file:max-w-full file:rounded-lg file:border-0 file:px-4 file:py-2 file:font-bold"
                   name="collection"
                   required
                   type="file"
@@ -96,7 +101,11 @@ export function ImportCollectionDialog(): ReactNode {
                 {t("import.limit")}
               </div>
               <div className="flex justify-end border-t pt-5">
-                <Button disabled={importing} type="submit">
+                <Button
+                  className="w-full sm:w-fit"
+                  disabled={importing}
+                  type="submit"
+                >
                   {importing ? (
                     <LoaderCircle className="size-4 animate-spin" />
                   ) : (

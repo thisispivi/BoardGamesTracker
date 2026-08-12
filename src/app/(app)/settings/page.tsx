@@ -73,7 +73,7 @@ export default async function SettingsPage() {
         eyebrow={t("settings.eyebrow")}
         title={t("settings.title")}
       />
-      <div className="grid items-stretch gap-5 lg:grid-cols-2">
+      <div className="grid min-w-0 items-stretch gap-5 lg:grid-cols-2">
         <section className="bg-card shadow-soft relative overflow-hidden rounded-4xl border p-5 sm:p-8 lg:col-span-2">
           <div
             aria-hidden="true"
@@ -123,7 +123,7 @@ export default async function SettingsPage() {
             </p>
           </div>
         </section>
-        <div className="lg:col-span-2">
+        <div className="min-w-0 lg:col-span-2">
           <SharingCard
             appUrl={env.NEXT_PUBLIC_APP_URL}
             shareCollection={preferences.shareCollection}
@@ -132,7 +132,7 @@ export default async function SettingsPage() {
             shareWishlist={preferences.shareWishlist}
           />
         </div>
-        <div className="lg:col-span-2">
+        <div className="min-w-0 lg:col-span-2">
           <AccountSettingsCard email={session.user.email} />
         </div>
         <section className="bg-card shadow-soft relative overflow-hidden rounded-3xl border p-5 sm:p-8">
@@ -159,7 +159,7 @@ export default async function SettingsPage() {
         </section>
         <ClearLibraryCard library="collection" />
         <ClearLibraryCard library="wishlist" />
-        <div className="lg:col-span-2">
+        <div className="min-w-0 lg:col-span-2">
           <UserDataCard />
         </div>
       </div>

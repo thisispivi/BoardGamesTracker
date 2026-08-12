@@ -27,7 +27,7 @@ type AppShellProps = {
  */
 export function AppShell({ children, user }: AppShellProps): ReactNode {
   return (
-    <div className="bg-background min-h-screen lg:grid lg:grid-cols-[270px_minmax(0,1fr)]">
+    <div className="bg-background min-h-screen w-full max-w-full overflow-x-clip lg:grid lg:grid-cols-[270px_minmax(0,1fr)]">
       <aside className="bg-card sticky top-0 hidden h-screen flex-col border-r px-5 py-6 lg:flex">
         <Logo className="px-2" />
         <AppNavigation isAdmin={user.role === "admin"} />
@@ -58,8 +58,8 @@ export function AppShell({ children, user }: AppShellProps): ReactNode {
           <AppNavigation isAdmin={user.role === "admin"} mobile user={user} />
         </div>
       </header>
-      <div className="min-w-0">
-        <main className="mx-auto w-full max-w-375 px-5 py-7 sm:px-8 sm:py-10 lg:px-12">
+      <div className="max-w-full min-w-0 overflow-x-clip">
+        <main className="mx-auto w-full max-w-375 min-w-0 px-5 py-7 sm:px-8 sm:py-10 lg:px-12">
           {children}
         </main>
       </div>
