@@ -28,6 +28,7 @@ import { Select } from "@/components/atoms/Select/Select";
 import { MultiSelect } from "@/components/molecules/MultiSelect/MultiSelect";
 import type { CollectionGame, MultiSelectOption } from "@/core";
 import { useDurationFormatter } from "@/hooks/useDurationFormatter";
+import { cn } from "@/utils/cn";
 import { getTaxonomyLabel, isExpansionCategory } from "@/utils/gameTaxonomy";
 import { filterGames, pickRandomGame } from "@/utils/picker";
 
@@ -164,7 +165,7 @@ export function GamePicker({ games }: GamePickerProps): ReactNode {
 
   if (games.length === 0) {
     return (
-      <div className="rounded-3xl border border-dashed p-8 text-center sm:p-16">
+      <div className="rounded-xl border border-dashed p-8 text-center sm:p-16">
         <Dices className="text-primary mx-auto size-10" />
         <h2 className="font-display mt-5 text-2xl font-bold">
           {t("picker.emptyTitle")}
@@ -176,10 +177,10 @@ export function GamePicker({ games }: GamePickerProps): ReactNode {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
-      <aside className="bg-card shadow-soft order-2 rounded-3xl border p-4 sm:p-7 lg:order-1">
+      <aside className="bg-card shadow-soft order-2 rounded-xl border p-4 sm:p-7 lg:order-1">
         <button
           aria-expanded={filtersOpen}
-          className="flex w-full items-center justify-between gap-4 rounded-2xl p-2 text-left lg:hidden"
+          className="flex w-full items-center justify-between gap-4 rounded-lg p-2 text-left lg:hidden"
           onClick={() => setFiltersOpen((open) => !open)}
           type="button"
         >
@@ -191,17 +192,23 @@ export function GamePicker({ games }: GamePickerProps): ReactNode {
               {t("picker.optional")}
             </span>
           </span>
-          <span className="bg-muted grid size-9 shrink-0 place-items-center rounded-xl">
+          <span className="bg-muted grid size-9 shrink-0 place-items-center rounded-lg">
             <ChevronDown
-              className={`size-4 transition-transform ${filtersOpen ? "rotate-180" : ""}`}
+              className={cn(
+                "size-4 transition-transform",
+                filtersOpen && "rotate-180",
+              )}
             />
           </span>
         </button>
         <div
-          className={`${filtersOpen ? "mt-5 block" : "hidden"} lg:mt-0 lg:block`}
+          className={cn(
+            filtersOpen ? "mt-5 block" : "hidden",
+            "lg:mt-0 lg:block",
+          )}
         >
           <div className="mb-7 flex items-center gap-3">
-            <span className="bg-primary/10 text-primary grid size-10 place-items-center rounded-xl">
+            <span className="bg-primary/10 text-primary grid size-10 place-items-center rounded-lg">
               <Sparkles className="size-4" />
             </span>
             <div>
@@ -289,7 +296,7 @@ export function GamePicker({ games }: GamePickerProps): ReactNode {
                 values={themes}
               />
             </div>
-            <label className="bg-muted/70 flex cursor-pointer items-center justify-between rounded-xl p-4 text-sm font-bold">
+            <label className="bg-muted/70 flex cursor-pointer items-center justify-between rounded-lg p-4 text-sm font-bold">
               <span className="flex items-center gap-3">
                 <FilterIcon icon={Heart} tone="danger" />
                 {t("picker.favoritesOnly")}
@@ -301,7 +308,7 @@ export function GamePicker({ games }: GamePickerProps): ReactNode {
                 type="checkbox"
               />
             </label>
-            <label className="bg-muted/70 flex cursor-pointer items-center justify-between rounded-xl p-4 text-sm font-bold">
+            <label className="bg-muted/70 flex cursor-pointer items-center justify-between rounded-lg p-4 text-sm font-bold">
               <span className="flex items-center gap-3">
                 <FilterIcon icon={PackageX} />
                 {t("picker.excludeExpansions")}
@@ -318,7 +325,7 @@ export function GamePicker({ games }: GamePickerProps): ReactNode {
       </aside>
 
       <section
-        className="bg-card shadow-soft relative order-1 grid min-h-117.5 min-w-0 scroll-mt-24 place-items-center overflow-hidden rounded-3xl border px-4 pt-20 pb-5 sm:min-h-142.5 sm:px-6 sm:pt-24 sm:pb-6 lg:order-2"
+        className="bg-card shadow-soft relative order-1 grid min-h-117.5 min-w-0 scroll-mt-24 place-items-center overflow-hidden rounded-xl border px-4 pt-20 pb-5 sm:min-h-142.5 sm:px-6 sm:pt-24 sm:pb-6 lg:order-2"
         ref={reelStageRef}
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,color-mix(in_srgb,var(--primary)_17%,transparent),transparent_48%)] opacity-50" />
@@ -458,7 +465,12 @@ function FilterIcon({
 }: FilterIconProps): ReactNode {
   return (
     <span
-      className={`grid size-8 shrink-0 place-items-center rounded-lg ${tone === "danger" ? "bg-danger/10 text-danger" : "bg-primary/10 text-primary"}`}
+      className={cn(
+        "grid size-8 shrink-0 place-items-center rounded-md",
+        tone === "danger"
+          ? "bg-danger/10 text-danger"
+          : "bg-primary/10 text-primary",
+      )}
     >
       <Icon className="size-3.5" />
     </span>
@@ -489,10 +501,10 @@ function PossibleGamesDialog({
     <Dialog.Root>
       <Dialog.Trigger asChild>
         <button
-          className="bg-background/90 hover:border-primary/40 hover:bg-background group flex w-full max-w-sm items-center gap-3 rounded-2xl border px-3 py-2.5 text-left shadow-lg backdrop-blur-md transition sm:px-4"
+          className="bg-background/90 hover:border-primary/40 hover:bg-background group flex w-full max-w-sm items-center gap-3 rounded-lg border px-3 py-2.5 text-left shadow-lg backdrop-blur-md transition sm:px-4"
           type="button"
         >
-          <span className="bg-primary text-primary-foreground grid size-9 shrink-0 place-items-center rounded-xl shadow-sm">
+          <span className="bg-primary text-primary-foreground grid size-9 shrink-0 place-items-center rounded-lg shadow-sm">
             <LayoutGrid className="size-4" />
           </span>
           <span className="min-w-0 flex-1">
@@ -508,10 +520,10 @@ function PossibleGamesDialog({
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="edit-dialog-overlay fixed inset-0 z-90 bg-black/55 backdrop-blur-sm" />
-        <Dialog.Content className="edit-dialog-content bg-card fixed inset-x-0 bottom-0 z-91 flex max-h-[calc(100dvh-0.5rem)] flex-col overflow-hidden rounded-t-3xl border shadow-2xl focus:outline-none sm:top-1/2 sm:right-auto sm:bottom-auto sm:left-1/2 sm:max-h-[min(86vh,50rem)] sm:w-[min(calc(100vw-2rem),58rem)] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-3xl">
+        <Dialog.Content className="edit-dialog-content bg-card fixed inset-x-0 bottom-0 z-91 flex max-h-[calc(100dvh-0.5rem)] flex-col overflow-hidden rounded-t-xl border shadow-2xl focus:outline-none sm:top-1/2 sm:right-auto sm:bottom-auto sm:left-1/2 sm:max-h-[min(86vh,50rem)] sm:w-[min(calc(100vw-2rem),58rem)] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl">
           <div className="flex shrink-0 items-start justify-between gap-4 border-b p-5 sm:p-7">
             <div className="flex min-w-0 items-center gap-4">
-              <span className="bg-primary/10 text-primary grid size-11 shrink-0 place-items-center rounded-2xl">
+              <span className="bg-primary/10 text-primary grid size-11 shrink-0 place-items-center rounded-lg">
                 <LayoutGrid className="size-5" />
               </span>
               <div className="min-w-0">
@@ -528,7 +540,7 @@ function PossibleGamesDialog({
             <Dialog.Close asChild>
               <button
                 aria-label={t("common.close")}
-                className="hover:bg-muted grid size-10 shrink-0 place-items-center rounded-xl transition"
+                className="hover:bg-muted grid size-10 shrink-0 place-items-center rounded-lg transition"
                 type="button"
               >
                 <X className="size-5" />
@@ -540,12 +552,12 @@ function PossibleGamesDialog({
               {candidates.map((candidate) => (
                 <Dialog.Close asChild key={candidate.gameId}>
                   <button
-                    className="group/game hover:bg-muted focus-visible:ring-primary/30 min-w-0 rounded-2xl border p-2 text-left transition hover:-translate-y-0.5 hover:shadow-lg focus-visible:ring-4 focus-visible:outline-none sm:p-3"
+                    className="group/game hover:bg-muted hover:border-primary/40 min-w-0 rounded-lg border p-2 text-left transition-colors sm:p-3"
                     onClick={() => onSelect(candidate.gameId)}
                     type="button"
                   >
                     <GameArtwork
-                      className="rounded-xl shadow-md transition group-hover/game:shadow-xl"
+                      className="rounded-lg shadow-md transition group-hover/game:shadow-xl"
                       imageUrl={candidate.imageUrl ?? null}
                       name={candidate.name}
                     />
@@ -629,7 +641,7 @@ function CoverReel({
     <div className="relative mx-auto h-48 w-full max-w-3xl overflow-hidden sm:h-60">
       <div className="from-card pointer-events-none absolute inset-y-0 left-0 z-20 w-12 bg-linear-to-r to-transparent sm:w-24" />
       <div className="from-card pointer-events-none absolute inset-y-0 right-0 z-20 w-12 bg-linear-to-l to-transparent sm:w-24" />
-      <div className="bg-accent/10 ring-accent pointer-events-none absolute top-1/2 left-1/2 z-30 h-[calc(100%-0.75rem)] w-32 -translate-x-1/2 -translate-y-1/2 rounded-2xl border-3 border-[color-mix(in_srgb,var(--accent)_60%,transparent)] shadow-xl ring-4 sm:w-40 lg:w-44" />
+      <div className="bg-accent/10 ring-accent pointer-events-none absolute top-1/2 left-1/2 z-30 h-[calc(100%-0.75rem)] w-32 -translate-x-1/2 -translate-y-1/2 rounded-lg border-3 border-[color-mix(in_srgb,var(--accent)_60%,transparent)] shadow-xl ring-4 sm:w-40 lg:w-44" />
       {reelRun ? (
         <motion.div
           animate={{ x: reelRun.targetX }}

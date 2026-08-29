@@ -72,7 +72,7 @@ export function AppNavigation({
         return (
           <Link
             className={cn(
-              "flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold transition",
+              "flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-semibold transition",
               active
                 ? "bg-primary text-primary-foreground shadow-sm"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -99,7 +99,7 @@ export function AppNavigation({
       <Dialog.Trigger asChild>
         <button
           aria-label={t("nav.open")}
-          className="bg-card hover:bg-muted grid size-11 place-items-center rounded-xl border shadow-sm transition"
+          className="bg-card hover:bg-muted grid size-11 place-items-center rounded-lg border shadow-sm transition"
           type="button"
         >
           <Menu className="size-5" />
@@ -107,14 +107,14 @@ export function AppNavigation({
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="drawer-overlay fixed inset-0 z-100 bg-black/45 backdrop-blur-sm" />
-        <Dialog.Content className="drawer-content bg-card fixed inset-y-3 right-3 z-101 flex w-[calc(100%-1.5rem)] max-w-sm flex-col overflow-hidden rounded-3xl border p-5 shadow-2xl focus:outline-none">
+        <Dialog.Content className="drawer-content bg-card fixed inset-y-3 right-3 z-101 flex w-[calc(100%-1.5rem)] max-w-sm flex-col overflow-hidden rounded-xl border p-5 shadow-2xl focus:outline-none">
           <Dialog.Title className="sr-only">{t("nav.primary")}</Dialog.Title>
           <div className="flex shrink-0 items-center justify-between border-b pb-4">
             <Logo />
             <Dialog.Close asChild>
               <button
                 aria-label={t("nav.close")}
-                className="hover:bg-muted grid size-10 place-items-center rounded-xl transition"
+                className="hover:bg-muted grid size-10 place-items-center rounded-lg transition"
                 type="button"
               >
                 <X className="size-5" />
@@ -125,7 +125,7 @@ export function AppNavigation({
           {user ? (
             <div className="mt-5 shrink-0 border-t pt-5">
               <div className="flex items-center gap-3">
-                <span className="bg-primary text-primary-foreground grid size-11 shrink-0 place-items-center rounded-xl text-sm font-bold">
+                <span className="bg-primary text-primary-foreground grid size-11 shrink-0 place-items-center rounded-lg text-sm font-bold">
                   {user.name.slice(0, 2).toUpperCase()}
                 </span>
                 <div className="min-w-0">

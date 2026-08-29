@@ -24,7 +24,7 @@ export function Tooltip({ children, content }: TooltipProps): ReactNode {
         <TooltipPrimitive.Trigger asChild>{children}</TooltipPrimitive.Trigger>
         <TooltipPrimitive.Portal>
           <TooltipPrimitive.Content
-            className="popover-content bg-card text-card-foreground z-100 max-w-72 rounded-xl border px-3.5 py-2.5 text-xs leading-5 shadow-2xl"
+            className="popover-content bg-card text-card-foreground z-100 max-w-72 rounded-lg border px-3.5 py-2.5 text-xs leading-5 shadow-2xl"
             collisionPadding={12}
             side="top"
             sideOffset={8}

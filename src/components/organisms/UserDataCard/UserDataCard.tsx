@@ -63,9 +63,9 @@ export function UserDataCard(): ReactNode {
   }
 
   return (
-    <section className="bg-card shadow-soft h-full max-w-full min-w-0 overflow-hidden rounded-3xl border p-5 sm:p-8">
+    <section className="bg-card shadow-soft h-full max-w-full min-w-0 overflow-hidden rounded-xl border p-5 sm:p-8">
       <div className="flex items-center gap-4">
-        <span className="bg-primary/10 text-primary grid size-12 shrink-0 place-items-center rounded-2xl">
+        <span className="bg-primary/10 text-primary grid size-12 shrink-0 place-items-center rounded-lg">
           <FileArchive className="size-5" />
         </span>
         <div className="min-w-0">
@@ -75,7 +75,7 @@ export function UserDataCard(): ReactNode {
       </div>
 
       <div className="mt-7 grid min-w-0 gap-6 lg:grid-cols-2">
-        <div className="min-w-0 rounded-2xl border p-4 sm:p-5">
+        <div className="min-w-0 rounded-lg border p-4 sm:p-5">
           <h3 className="font-bold">{t("data.exportTitle")}</h3>
           <p className="text-muted-foreground mt-1 text-sm leading-6">
             {t("data.exportBody")}
@@ -97,7 +97,7 @@ export function UserDataCard(): ReactNode {
         </div>
 
         <form
-          className="min-w-0 rounded-2xl border p-4 sm:p-5"
+          className="min-w-0 rounded-lg border p-4 sm:p-5"
           onSubmit={importData}
         >
           <h3 className="font-bold">{t("data.importTitle")}</h3>
@@ -108,7 +108,7 @@ export function UserDataCard(): ReactNode {
             <span className="sr-only">{t("data.file")}</span>
             <input
               accept=".json,.csv,.xlsx,.sql,application/json,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/sql"
-              className="file:bg-primary file:text-primary-foreground bg-background block w-full max-w-full min-w-0 cursor-pointer overflow-hidden rounded-xl border p-2 text-sm file:mr-3 file:max-w-full file:cursor-pointer file:rounded-lg file:border-0 file:px-3 file:py-2 file:font-bold"
+              className="file:bg-primary file:text-primary-foreground bg-background block w-full max-w-full min-w-0 cursor-pointer overflow-hidden rounded-lg border p-2 text-sm file:mr-3 file:max-w-full file:cursor-pointer file:rounded-md file:border-0 file:px-3 file:py-2 file:font-bold"
               name="file"
               required
               type="file"
@@ -130,7 +130,7 @@ export function UserDataCard(): ReactNode {
         </form>
       </div>
 
-      <div className="mt-6 flex min-w-0 flex-col justify-between gap-4 rounded-2xl border border-dashed p-4 sm:flex-row sm:items-center sm:p-5">
+      <div className="mt-6 flex min-w-0 flex-col justify-between gap-4 rounded-lg border border-dashed p-4 sm:flex-row sm:items-center sm:p-5">
         <div className="min-w-0">
           <h3 className="font-bold">{t("data.bggTitle")}</h3>
           <p className="text-muted-foreground mt-1 text-sm">

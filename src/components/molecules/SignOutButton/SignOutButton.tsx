@@ -29,7 +29,7 @@ export function SignOutButton(): ReactNode {
 
   return (
     <button
-      className="text-muted-foreground hover:bg-danger/10 hover:text-danger mt-3 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition"
+      className="text-muted-foreground hover:bg-danger/10 hover:text-danger mt-3 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition"
       onClick={signOut}
       type="button"
     >

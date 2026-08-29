@@ -96,10 +96,10 @@ export function AccountSettingsCard({
   return (
     <section
       aria-busy={isPending}
-      className="bg-card shadow-soft h-full rounded-3xl border p-5 sm:p-8"
+      className="bg-card shadow-soft h-full rounded-xl border p-5 sm:p-8"
     >
       <div className="flex items-center gap-4">
-        <span className="bg-primary/10 text-primary grid size-12 shrink-0 place-items-center rounded-2xl">
+        <span className="bg-primary/10 text-primary grid size-12 shrink-0 place-items-center rounded-lg">
           <ShieldCheck className="size-5" />
         </span>
         <div>
@@ -112,7 +112,7 @@ export function AccountSettingsCard({
         </div>
       </div>
       <div className="mt-7 grid gap-6 lg:grid-cols-2">
-        <form className="rounded-2xl border p-4 sm:p-5" onSubmit={changeEmail}>
+        <form className="rounded-lg border p-4 sm:p-5" onSubmit={changeEmail}>
           <h3 className="flex items-center gap-2 font-bold">
             {t("settings.email")}
           </h3>
@@ -141,7 +141,7 @@ export function AccountSettingsCard({
           </Button>
         </form>
         <form
-          className="rounded-2xl border p-4 sm:p-5"
+          className="rounded-lg border p-4 sm:p-5"
           onSubmit={changePassword}
         >
           <h3 className="flex items-center gap-2 font-bold">
@@ -188,9 +188,9 @@ export function AccountSettingsCard({
           </Button>
         </form>
       </div>
-      <div className="border-danger/30 mt-6 flex flex-col justify-between gap-4 rounded-2xl border p-4 sm:flex-row sm:items-center sm:p-5">
+      <div className="border-danger/30 mt-6 flex flex-col justify-between gap-4 rounded-lg border p-4 sm:flex-row sm:items-center sm:p-5">
         <div className="flex items-start gap-3">
-          <span className="bg-danger/10 text-danger grid size-10 shrink-0 place-items-center rounded-xl">
+          <span className="bg-danger/10 text-danger grid size-10 shrink-0 place-items-center rounded-lg">
             <TriangleAlert className="size-4" />
           </span>
           <div>

@@ -30,6 +30,7 @@ import {
   refreshGameFromBggAction,
   updateGameMetadataAction,
 } from "@/server/actions/adminGames";
+import { cn } from "@/utils/cn";
 
 const initialState: CollectionActionState = { success: false, message: "" };
 
@@ -102,7 +103,7 @@ function EditGameMetadataDialog({ game, onClose }: EditDialogProps): ReactNode {
     <Dialog.Root onOpenChange={(next) => (next ? null : onClose())} open>
       <Dialog.Portal>
         <Dialog.Overlay className="dialog-overlay fixed inset-0 z-50 bg-black/45 backdrop-blur-sm" />
-        <Dialog.Content className="dialog-content bg-card fixed top-1/2 left-1/2 z-51 flex max-h-[90vh] w-[calc(100%-2rem)] max-w-3xl flex-col overflow-hidden rounded-3xl border shadow-2xl focus:outline-none">
+        <Dialog.Content className="dialog-content bg-card fixed top-1/2 left-1/2 z-51 flex max-h-[90vh] w-[calc(100%-2rem)] max-w-3xl flex-col overflow-hidden rounded-xl border shadow-2xl focus:outline-none">
           <header className="flex shrink-0 items-start justify-between gap-5 border-b px-6 py-5">
             <div className="min-w-0">
               <p className="text-primary text-xs font-bold tracking-widest uppercase">
@@ -130,7 +131,7 @@ function EditGameMetadataDialog({ game, onClose }: EditDialogProps): ReactNode {
           <div className="modal-scroll-area min-h-0 flex-1 overflow-y-auto px-6 py-6">
             <form action={refresh} className="mb-6">
               <input name="gameId" type="hidden" value={game.id} />
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4">
                 <p className="text-muted-foreground min-w-0 flex-1 text-xs leading-5">
                   {t("adminGames.refreshHelp")}
                 </p>
@@ -362,7 +363,7 @@ export function AdminGamesPanel({
         <span className="sr-only">{t("adminGames.searchLabel")}</span>
         <Search className="text-muted-foreground absolute top-1/2 left-4 size-4 -translate-y-1/2" />
         <input
-          className="bg-background focus:ring-primary/20 h-11 w-full rounded-xl border pr-4 pl-11 text-sm transition focus:ring-4 focus:outline-none"
+          className="bg-background h-11 w-full rounded-lg border pr-4 pl-11 text-sm transition"
           onChange={(event) => setQuery(event.target.value)}
           placeholder={t("adminGames.searchPlaceholder")}
           type="search"
@@ -372,7 +373,10 @@ export function AdminGamesPanel({
 
       <div aria-busy={pending} className="relative min-h-32">
         <div
-          className={`max-h-128 space-y-1 overflow-y-auto overscroll-contain pr-1 transition-opacity ${pending ? "opacity-35" : "opacity-100"}`}
+          className={cn(
+            "max-h-128 space-y-1 overflow-y-auto overscroll-contain pr-1 transition-opacity",
+            pending ? "opacity-35" : "opacity-100",
+          )}
         >
           {result.games.length === 0 ? (
             <p className="text-muted-foreground py-12 text-center text-sm">
@@ -383,7 +387,7 @@ export function AdminGamesPanel({
               {result.games.map((game) => (
                 <li className="flex items-center gap-4 py-3" key={game.id}>
                   <GameArtwork
-                    className="size-12 shrink-0 rounded-xl"
+                    className="size-12 shrink-0 rounded-lg"
                     imageUrl={game.imageUrl}
                     name={game.name}
                   />
@@ -411,7 +415,7 @@ export function AdminGamesPanel({
                   </div>
                   <button
                     aria-label={t("adminGames.edit", { name: game.name })}
-                    className="text-muted-foreground hover:bg-muted hover:text-primary shrink-0 rounded-lg p-2 transition"
+                    className="text-muted-foreground hover:bg-muted hover:text-primary shrink-0 rounded-md p-2 transition"
                     onClick={() => setEditing(game)}
                     type="button"
                   >
@@ -423,7 +427,7 @@ export function AdminGamesPanel({
           )}
         </div>
         {pending ? (
-          <div className="bg-card/72 absolute inset-0 grid place-items-center rounded-2xl backdrop-blur-[2px]">
+          <div className="bg-card/72 absolute inset-0 grid place-items-center rounded-lg backdrop-blur-[2px]">
             <div className="text-primary flex flex-col items-center gap-3 text-sm font-bold">
               <AppSpinner className="size-7" label={t("adminGames.loading")} />
               <span>{t("adminGames.loading")}</span>

@@ -61,7 +61,7 @@ export default async function LoginPage({
           <div className="mb-6 flex justify-center sm:mb-8">
             <Logo />
           </div>
-          <div className="bg-card/95 shadow-soft rounded-3xl border p-5 backdrop-blur-xl sm:p-8">
+          <div className="bg-card/95 shadow-soft rounded-xl border p-5 backdrop-blur-xl sm:p-8">
             <AuthForm
               allowSignUp={allowSignUp}
               bootstrapRequired={bootstrapRequired}

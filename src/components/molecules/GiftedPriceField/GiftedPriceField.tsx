@@ -69,7 +69,7 @@ export function GiftedPriceField({
         </label>
         {companionField}
       </div>
-      <div className="bg-muted/65 hover:bg-muted flex items-center justify-between gap-3 rounded-xl border px-3.5 py-3 text-sm font-bold transition">
+      <div className="bg-muted/65 hover:bg-muted flex items-center justify-between gap-3 rounded-lg border px-3.5 py-3 text-sm font-bold transition">
         <div className="flex min-w-0 items-center gap-2">
           <label
             className="flex cursor-pointer items-center gap-2"
@@ -81,7 +81,7 @@ export function GiftedPriceField({
           <Tooltip content={t("game.giftedHelp")}>
             <button
               aria-label={t("game.giftedHelp")}
-              className="text-muted-foreground hover:bg-background hover:text-foreground focus-visible:ring-primary/30 grid size-7 shrink-0 place-items-center rounded-lg transition focus-visible:ring-4 focus-visible:outline-none"
+              className="text-muted-foreground hover:bg-background hover:text-foreground grid size-7 shrink-0 place-items-center rounded-md transition"
               type="button"
             >
               <Info aria-hidden="true" className="size-4" />

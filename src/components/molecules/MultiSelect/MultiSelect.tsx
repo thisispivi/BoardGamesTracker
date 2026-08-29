@@ -99,7 +99,7 @@ export function MultiSelect({
         <button
           aria-label={ariaLabel}
           className={cn(
-            "bg-background hover:bg-muted/60 focus:ring-primary/25 flex h-11 w-full min-w-0 items-center justify-between gap-2 rounded-xl border px-3 text-sm font-medium shadow-sm transition focus:ring-4 focus:outline-none",
+            "bg-background hover:bg-muted/60 flex h-11 w-full min-w-0 items-center justify-between gap-2 rounded-lg border px-3 text-sm font-medium shadow-sm transition",
             className,
           )}
           type="button"
@@ -114,7 +114,7 @@ export function MultiSelect({
           </span>
           <span className="flex shrink-0 items-center gap-1.5">
             {values.length > 0 ? (
-              <span className="bg-primary text-primary-foreground min-w-5 rounded-full px-1.5 py-0.5 text-center text-[0.65rem] font-bold tabular-nums">
+              <span className="bg-primary text-primary-foreground min-w-5 rounded-full px-1.5 py-0.5 text-center text-xs font-bold tabular-nums">
                 {values.length}
               </span>
             ) : null}
@@ -125,7 +125,7 @@ export function MultiSelect({
       <Popover.Portal>
         <Popover.Content
           align="start"
-          className="popover-content bg-card z-80 w-(--radix-popover-trigger-width) max-w-[calc(100vw-1.5rem)] min-w-64 overflow-hidden rounded-xl border shadow-2xl"
+          className="popover-content bg-card z-80 w-(--radix-popover-trigger-width) max-w-[calc(100vw-1.5rem)] min-w-64 overflow-hidden rounded-lg border shadow-2xl"
           collisionPadding={12}
           sideOffset={8}
         >
@@ -134,7 +134,7 @@ export function MultiSelect({
               <span className="sr-only">{searchPlaceholder}</span>
               <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
               <input
-                className="bg-muted/60 focus:ring-primary/20 h-10 w-full rounded-lg pr-3 pl-9 text-sm focus:ring-4 focus:outline-none"
+                className="bg-muted/60 h-10 w-full rounded-md pr-3 pl-9 text-sm"
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder={searchPlaceholder}
                 type="search"
@@ -158,7 +158,7 @@ export function MultiSelect({
                 return (
                   <button
                     aria-selected={checked}
-                    className="hover:bg-muted focus-visible:bg-muted flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm transition outline-none"
+                    className="hover:bg-muted focus-visible:bg-muted flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-sm transition"
                     key={option.value}
                     onClick={() => toggleValue(option.value)}
                     role="option"
@@ -190,7 +190,7 @@ export function MultiSelect({
           {values.length > 0 ? (
             <div className="border-t p-1.5">
               <button
-                className="text-muted-foreground hover:bg-muted flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-bold transition"
+                className="text-muted-foreground hover:bg-muted flex w-full items-center justify-center gap-2 rounded-md px-3 py-2 text-xs font-bold transition"
                 onClick={() => onValueChange([])}
                 type="button"
               >

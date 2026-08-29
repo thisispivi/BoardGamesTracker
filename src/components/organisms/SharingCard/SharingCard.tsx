@@ -11,6 +11,7 @@ import {
   regenerateShareTokenAction,
   setSharingAction,
 } from "@/server/actions/preferences";
+import { cn } from "@/utils/cn";
 
 /** Public-library settings currently persisted for the account. */
 type SharingState = {
@@ -57,7 +58,10 @@ function ShareToggle({
 }: ShareToggleProps): ReactNode {
   return (
     <label
-      className={`flex items-start gap-3 rounded-2xl border p-3 transition sm:p-4 ${disabled ? "opacity-55" : "hover:bg-muted/50 cursor-pointer"}`}
+      className={cn(
+        "flex items-start gap-3 rounded-lg border p-3 transition sm:p-4",
+        disabled ? "opacity-55" : "hover:bg-muted/50 cursor-pointer",
+      )}
     >
       <input
         checked={checked}
@@ -167,7 +171,7 @@ export function SharingCard({
   return (
     <section
       aria-busy={pending}
-      className="bg-card shadow-soft relative overflow-hidden rounded-3xl border p-5 sm:p-8"
+      className="bg-card shadow-soft relative overflow-hidden rounded-xl border p-5 sm:p-8"
     >
       <div
         aria-hidden="true"
@@ -175,7 +179,7 @@ export function SharingCard({
       />
       <div className="relative flex flex-col gap-6">
         <div className="flex items-start gap-4">
-          <span className="bg-primary/10 text-primary grid size-12 shrink-0 place-items-center rounded-2xl">
+          <span className="bg-primary/10 text-primary grid size-12 shrink-0 place-items-center rounded-lg">
             <Share2 className="size-5" />
           </span>
           <div>
@@ -217,12 +221,12 @@ export function SharingCard({
             </p>
             <div className="flex flex-wrap items-center gap-2">
               {shareUrl ? (
-                <code className="bg-muted min-w-0 flex-1 truncate rounded-xl px-3 py-2 text-xs">
+                <code className="bg-muted min-w-0 flex-1 truncate rounded-lg px-3 py-2 text-xs">
                   {shareUrl}
                 </code>
               ) : null}
               <button
-                className="hover:bg-muted flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-bold transition"
+                className="hover:bg-muted flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-bold transition"
                 disabled={pending}
                 onClick={copyLink}
                 type="button"
@@ -235,7 +239,7 @@ export function SharingCard({
                 {copied ? t("sharing.copied") : t("sharing.copy")}
               </button>
               <button
-                className="hover:bg-muted flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-bold transition"
+                className="hover:bg-muted flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-bold transition"
                 disabled={pending}
                 onClick={regenerate}
                 type="button"

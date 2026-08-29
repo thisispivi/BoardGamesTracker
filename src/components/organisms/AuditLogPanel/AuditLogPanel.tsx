@@ -9,6 +9,7 @@ import { AppSpinner } from "@/components/atoms/AppSpinner/AppSpinner";
 import { Button } from "@/components/atoms/Button/Button";
 import type { AuditLogPage } from "@/core";
 import { getAuditLogPageAction } from "@/server/actions/admin";
+import { cn } from "@/utils/cn";
 
 /** Initial paginated audit records displayed by the administration panel. */
 type AuditLogPanelProps = { initialPage: AuditLogPage };
@@ -47,11 +48,14 @@ export function AuditLogPanel({ initialPage }: AuditLogPanelProps): ReactNode {
     <>
       <div aria-busy={pending} className="relative min-h-32">
         <div
-          className={`filter-options max-h-128 space-y-1 overflow-y-auto overscroll-contain pr-1 transition-opacity ${pending ? "opacity-35" : "opacity-100"}`}
+          className={cn(
+            "filter-options max-h-128 space-y-1 overflow-y-auto overscroll-contain pr-1 transition-opacity",
+            pending ? "opacity-35" : "opacity-100",
+          )}
         >
           {result.events.map((event) => (
             <div
-              className="hover:bg-muted/60 grid gap-1 rounded-xl px-3 py-3 text-sm sm:grid-cols-[1fr_180px] sm:items-center"
+              className="hover:bg-muted/60 grid gap-1 rounded-lg px-3 py-3 text-sm sm:grid-cols-[1fr_180px] sm:items-center"
               key={event.id}
             >
               <div>
@@ -75,7 +79,7 @@ export function AuditLogPanel({ initialPage }: AuditLogPanelProps): ReactNode {
           ) : null}
         </div>
         {pending ? (
-          <div className="bg-card/72 absolute inset-0 grid place-items-center rounded-2xl backdrop-blur-[2px]">
+          <div className="bg-card/72 absolute inset-0 grid place-items-center rounded-lg backdrop-blur-[2px]">
             <div className="text-primary flex flex-col items-center gap-3 text-sm font-bold">
               <AppSpinner className="size-7" label={t("admin.loading")} />
               <span>{t("admin.loading")}</span>

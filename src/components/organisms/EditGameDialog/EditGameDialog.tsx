@@ -54,7 +54,7 @@ export function EditGameDialog({
       <Dialog.Trigger asChild>
         <button
           aria-label={t("game.editAria", { name: game.name })}
-          className="text-muted-foreground hover:bg-muted hover:text-primary rounded-lg p-2 transition"
+          className="text-muted-foreground hover:bg-muted hover:text-primary rounded-md p-2 transition"
           type="button"
         >
           <Pencil className="size-4" />
@@ -62,7 +62,7 @@ export function EditGameDialog({
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="edit-dialog-overlay fixed inset-0 z-90 bg-black/55 backdrop-blur-sm" />
-        <Dialog.Content className="edit-dialog-content bg-card fixed inset-x-0 bottom-0 z-91 flex max-h-[calc(100dvh-0.5rem)] flex-col overflow-hidden rounded-t-3xl border p-0 shadow-2xl focus:outline-none sm:top-1/2 sm:right-auto sm:bottom-auto sm:left-1/2 sm:w-[min(calc(100vw-2rem),32rem)] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-3xl">
+        <Dialog.Content className="edit-dialog-content bg-card fixed inset-x-0 bottom-0 z-91 flex max-h-[calc(100dvh-0.5rem)] flex-col overflow-hidden rounded-t-xl border p-0 shadow-2xl focus:outline-none sm:top-1/2 sm:right-auto sm:bottom-auto sm:left-1/2 sm:w-[min(calc(100vw-2rem),32rem)] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl">
           <div className="flex shrink-0 items-start justify-between gap-4 px-5 pt-5 pb-4 sm:px-7 sm:pt-7">
             <div className="min-w-0">
               <p className="text-primary text-xs font-bold tracking-widest uppercase">

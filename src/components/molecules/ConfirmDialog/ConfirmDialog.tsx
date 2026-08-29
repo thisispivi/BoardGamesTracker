@@ -50,8 +50,8 @@ export function ConfirmDialog({
       <AlertDialog.Trigger asChild>{trigger}</AlertDialog.Trigger>
       <AlertDialog.Portal>
         <AlertDialog.Overlay className="dialog-overlay fixed inset-0 z-90 bg-black/55 backdrop-blur-sm" />
-        <AlertDialog.Content className="dialog-content bg-card fixed top-1/2 left-1/2 z-91 w-[calc(100%-2rem)] max-w-md rounded-3xl border p-6 shadow-2xl sm:p-8">
-          <span className="bg-danger/10 text-danger grid size-12 place-items-center rounded-2xl">
+        <AlertDialog.Content className="dialog-content bg-card fixed top-1/2 left-1/2 z-91 w-[calc(100%-2rem)] max-w-md rounded-xl border p-6 shadow-2xl sm:p-8">
+          <span className="bg-danger/10 text-danger grid size-12 place-items-center rounded-lg">
             <TriangleAlert className="size-5" />
           </span>
           <AlertDialog.Title className="font-display mt-5 text-2xl font-bold">

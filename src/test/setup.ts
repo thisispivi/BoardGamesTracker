@@ -1,5 +1,10 @@
 import "@testing-library/jest-dom/vitest";
 
+import { cleanup } from "@testing-library/react";
+import { afterEach } from "vitest";
+
+afterEach(cleanup);
+
 /** Minimal layout observer used by Radix floating controls in JSDOM. */
 class TestResizeObserver implements ResizeObserver {
   /**
