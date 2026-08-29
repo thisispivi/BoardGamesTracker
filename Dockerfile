@@ -1,16 +1,16 @@
-FROM node:24.19.0-slim AS dependencies
+FROM node:24.20.0-slim AS dependencies
 WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@11.21.0 --activate
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 
-FROM node:24.19.0-slim AS prod-dependencies
+FROM node:24.20.0-slim AS prod-dependencies
 WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@11.21.0 --activate
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile --prod --ignore-scripts
 
-FROM node:24.19.0-slim AS builder
+FROM node:24.20.0-slim AS builder
 WORKDIR /app
 ARG APP_URL=http://localhost:12500
 ARG NEXT_PUBLIC_SENTRY_DSN
@@ -40,7 +40,7 @@ RUN --mount=type=secret,id=sentry_auth_token,required=false \
     fi && \
     corepack enable && corepack prepare pnpm@11.21.0 --activate && pnpm build
 
-FROM node:24.19.0-slim AS runner
+FROM node:24.20.0-slim AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
