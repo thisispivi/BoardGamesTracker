@@ -10,6 +10,7 @@ import type { Metadata } from "next";
 import { getFormatter, getTranslations } from "next-intl/server";
 
 import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
+import { StatGrid } from "@/components/molecules/StatGrid/StatGrid";
 import { StatsCharts } from "@/components/organisms/StatsCharts/StatsCharts";
 import { getCollection } from "@/server/collection";
 import { getUserPreferences } from "@/server/preferences";
@@ -55,26 +56,27 @@ export default async function StatsPage() {
   const stats = calculateCollectionStats(collection);
   const cards = [
     {
+      icon: Banknote,
       label: t("stats.totalValue"),
       value: formatCurrency(stats.totalSpent),
-      icon: Banknote,
     },
     {
+      icon: Scale,
       label: t("stats.averagePrice"),
       value: formatCurrency(stats.averageSpent),
-      icon: Scale,
     },
     {
+      icon: ReceiptText,
       label: t("stats.medianPrice"),
       value: formatCurrency(stats.medianSpent),
-      icon: ReceiptText,
     },
     {
+      icon: ChartNoAxesCombined,
       label: t("stats.pricedCoverage"),
       value: `${format.number(stats.pricedItems)} / ${format.number(stats.totalItems)}`,
-      icon: ChartNoAxesCombined,
     },
     {
+      icon: Boxes,
       label: t("stats.expansionShare"),
       value: stats.totalItems
         ? format.number(stats.expansions / stats.totalItems, {
@@ -82,9 +84,9 @@ export default async function StatsPage() {
             maximumFractionDigits: 0,
           })
         : format.number(0, { style: "percent" }),
-      icon: Boxes,
     },
     {
+      icon: Heart,
       label: t("stats.favoriteShare"),
       value: stats.totalItems
         ? format.number(stats.favorites / stats.totalItems, {
@@ -92,7 +94,6 @@ export default async function StatsPage() {
             maximumFractionDigits: 0,
           })
         : format.number(0, { style: "percent" }),
-      icon: Heart,
     },
   ];
 
@@ -103,20 +104,7 @@ export default async function StatsPage() {
         eyebrow={t("stats.eyebrow")}
         title={t("stats.title")}
       />
-      <section className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-3 2xl:grid-cols-6">
-        {cards.map((card) => (
-          <article
-            className="bg-card shadow-soft min-w-0 rounded-2xl border p-5"
-            key={card.label}
-          >
-            <card.icon className="text-primary size-5" />
-            <p className="font-display mt-5 truncate text-2xl font-bold">
-              {card.value}
-            </p>
-            <p className="text-muted-foreground mt-1 text-xs">{card.label}</p>
-          </article>
-        ))}
-      </section>
+      <StatGrid className="mb-8 sm:grid-cols-3 2xl:grid-cols-6" stats={cards} />
       <StatsCharts
         categories={stats.categories}
         complexity={stats.complexity}

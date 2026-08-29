@@ -43,7 +43,7 @@ export default async function ResetPasswordPage({
         <div className="mb-8 flex justify-center">
           <Logo />
         </div>
-        <section className="bg-card shadow-soft rounded-3xl border p-6 sm:p-8">
+        <section className="bg-card shadow-soft rounded-xl border p-6 sm:p-8">
           <p className="text-primary text-xs font-bold tracking-widest uppercase">
             {t("reset.eyebrow")}
           </p>

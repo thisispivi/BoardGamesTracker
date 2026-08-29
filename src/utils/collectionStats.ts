@@ -53,7 +53,8 @@ export function calculateCollectionStats(collection: StatGame[]) {
       {
         key: "light" as const,
         value: collection.filter(
-          (game) => game.weight !== null && game.weight <= 2,
+          (game) =>
+            game.weight !== null && game.weight >= 1 && game.weight <= 2,
         ).length,
       },
       {

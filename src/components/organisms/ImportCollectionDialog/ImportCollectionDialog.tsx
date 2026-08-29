@@ -57,7 +57,7 @@ export function ImportCollectionDialog(): ReactNode {
           <section
             aria-labelledby="import-collection-title"
             aria-modal="true"
-            className="modal-content bg-card max-h-[calc(100dvh-2rem)] w-full max-w-lg min-w-0 overflow-x-hidden overflow-y-auto rounded-3xl border p-5 shadow-2xl sm:p-8"
+            className="modal-content bg-card max-h-[calc(100dvh-2rem)] w-full max-w-lg min-w-0 overflow-x-hidden overflow-y-auto rounded-xl border p-5 shadow-2xl sm:p-8"
             onMouseDown={(event) => event.stopPropagation()}
             role="dialog"
           >
@@ -91,13 +91,13 @@ export function ImportCollectionDialog(): ReactNode {
                 <span className="mb-2 block">{t("import.file")}</span>
                 <input
                   accept=".csv,text/csv"
-                  className="file:bg-primary file:text-primary-foreground bg-background block w-full max-w-full min-w-0 overflow-hidden rounded-xl border p-2 text-sm file:mr-3 file:max-w-full file:rounded-lg file:border-0 file:px-4 file:py-2 file:font-bold"
+                  className="file:bg-primary file:text-primary-foreground bg-background block w-full max-w-full min-w-0 overflow-hidden rounded-lg border p-2 text-sm file:mr-3 file:max-w-full file:rounded-md file:border-0 file:px-4 file:py-2 file:font-bold"
                   name="collection"
                   required
                   type="file"
                 />
               </label>
-              <div className="bg-muted/60 text-muted-foreground rounded-xl p-4 text-xs leading-5">
+              <div className="bg-muted/60 text-muted-foreground rounded-lg p-4 text-xs leading-5">
                 {t("import.limit")}
               </div>
               <div className="flex justify-end border-t pt-5">

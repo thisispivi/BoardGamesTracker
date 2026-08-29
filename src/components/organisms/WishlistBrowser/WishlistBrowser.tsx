@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { type ReactNode, useMemo, useState } from "react";
 
+import { EmptyState } from "@/components/molecules/EmptyState/EmptyState";
 import { WishlistCard } from "@/components/organisms/WishlistCard/WishlistCard";
 import type { CollectionGame } from "@/core";
 import { normalizeSearchText } from "@/utils/search";
@@ -50,12 +51,12 @@ export function WishlistBrowser({
 
   return (
     <>
-      <div className="bg-card mb-8 rounded-2xl border p-3 shadow-sm">
+      <div className="bg-card mb-8 rounded-lg border p-3 shadow-sm">
         <label className="relative flex-1">
           <span className="sr-only">{t("wishlist.searchLabel")}</span>
           <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
           <input
-            className="bg-muted/60 focus:ring-primary/20 h-11 w-full rounded-xl pr-4 pl-10 text-sm transition focus:ring-4 focus:outline-none"
+            className="bg-muted/60 h-11 w-full rounded-lg pr-4 pl-10 text-sm transition"
             onChange={(event) => setQuery(event.target.value)}
             placeholder={t("wishlist.searchPlaceholder")}
             type="search"
@@ -71,12 +72,7 @@ export function WishlistBrowser({
           ))}
         </div>
       ) : (
-        <div className="rounded-3xl border border-dashed py-20 text-center">
-          <Search className="text-primary mx-auto size-7" />
-          <p className="text-muted-foreground mt-4">
-            {t("wishlist.noMatches")}
-          </p>
-        </div>
+        <EmptyState description={t("wishlist.noMatches")} icon={Search} />
       )}
     </>
   );

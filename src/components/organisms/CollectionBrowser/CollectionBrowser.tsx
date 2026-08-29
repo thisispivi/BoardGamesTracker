@@ -5,9 +5,12 @@ import { BookOpen, Heart, RotateCcw, Search } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { type ReactNode, useMemo, useState } from "react";
 
+import { SectionHeading } from "@/components/atoms/SectionHeading/SectionHeading";
+import { EmptyState } from "@/components/molecules/EmptyState/EmptyState";
 import { MultiSelect } from "@/components/molecules/MultiSelect/MultiSelect";
 import { GameCard } from "@/components/organisms/GameCard/GameCard";
 import type { CollectionGame, MultiSelectOption } from "@/core";
+import { cn } from "@/utils/cn";
 import { groupCollection } from "@/utils/collectionGrouping";
 import { getTaxonomyLabel } from "@/utils/gameTaxonomy";
 import { normalizeSearchText } from "@/utils/search";
@@ -116,26 +119,22 @@ export function CollectionBrowser({
 
   if (games.length === 0) {
     return (
-      <div className="rounded-3xl border border-dashed p-16 text-center">
-        <BookOpen className="text-primary mx-auto size-9" />
-        <h2 className="font-display mt-5 text-2xl font-bold">
-          {t("collection.emptyTitle")}
-        </h2>
-        <p className="text-muted-foreground mx-auto mt-2 max-w-md">
-          {t("collection.emptyBody")}
-        </p>
-      </div>
+      <EmptyState
+        description={t("collection.emptyBody")}
+        icon={BookOpen}
+        title={t("collection.emptyTitle")}
+      />
     );
   }
 
   return (
     <>
-      <div className="bg-card mb-8 grid gap-3 rounded-2xl border p-3 shadow-sm lg:grid-cols-[minmax(16rem,1fr)_minmax(13rem,0.5fr)_minmax(13rem,0.5fr)_auto] lg:items-center">
+      <div className="bg-card mb-8 grid gap-3 rounded-lg border p-3 shadow-sm lg:grid-cols-[minmax(16rem,1fr)_minmax(13rem,0.5fr)_minmax(13rem,0.5fr)_auto] lg:items-center">
         <label className="relative flex-1">
           <span className="sr-only">{t("collection.searchLabel")}</span>
           <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
           <input
-            className="bg-muted/60 focus:ring-primary/20 h-11 w-full rounded-xl pr-4 pl-10 text-sm transition focus:ring-4 focus:outline-none"
+            className="bg-muted/60 h-11 w-full rounded-lg pr-4 pl-10 text-sm transition"
             onChange={(event) => setQuery(event.target.value)}
             placeholder={t("collection.searchPlaceholder")}
             type="search"
@@ -167,19 +166,22 @@ export function CollectionBrowser({
         <div className="flex items-center gap-2">
           <button
             aria-pressed={favoritesOnly}
-            className={`flex h-11 flex-1 items-center justify-center gap-2 rounded-xl border px-3 text-xs font-bold whitespace-nowrap transition lg:flex-none ${favoritesOnly ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+            className={cn(
+              "flex h-11 flex-1 items-center justify-center gap-2 rounded-lg border px-3 text-xs font-bold whitespace-nowrap transition lg:flex-none",
+              favoritesOnly
+                ? "bg-primary text-primary-foreground border-primary"
+                : "hover:bg-muted",
+            )}
             onClick={() => setFavoritesOnly((value) => !value)}
             type="button"
           >
-            <Heart
-              className={`size-4 ${favoritesOnly ? "fill-current" : ""}`}
-            />
+            <Heart className={cn("size-4", favoritesOnly && "fill-current")} />
             {t("collection.favorites")}
           </button>
           {hasFilters ? (
             <button
               aria-label={t("collection.clearFilters")}
-              className="hover:bg-muted grid size-11 shrink-0 place-items-center rounded-xl border transition"
+              className="hover:bg-muted grid size-11 shrink-0 place-items-center rounded-lg border transition"
               onClick={() => {
                 setQuery("");
                 setFavoritesOnly(false);
@@ -196,21 +198,17 @@ export function CollectionBrowser({
 
       {visible.length > 0 ? (
         <section>
-          <div className="mb-5 flex items-end justify-between gap-4">
-            <div>
-              <p className="text-primary text-xs font-bold tracking-widest uppercase">
-                {t("collection.mainShelf")}
+          <SectionHeading
+            eyebrow={t("collection.mainShelf")}
+            meta={
+              <p className="text-muted-foreground text-sm">
+                {t("collection.gameCount", { count: grouped.groups.length })}
+                {" · "}
+                {t("collection.expansionCount", { count: expansionCount })}
               </p>
-              <h2 className="font-display mt-1 text-2xl font-bold">
-                {t("collection.games")}
-              </h2>
-            </div>
-            <p className="text-muted-foreground text-sm">
-              {t("collection.gameCount", { count: grouped.groups.length })}
-              {" · "}
-              {t("collection.expansionCount", { count: expansionCount })}
-            </p>
-          </div>
+            }
+            title={t("collection.games")}
+          />
           <div className="grid items-start gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {grouped.groups.map((group, index) => (
               <GameCard
@@ -228,17 +226,12 @@ export function CollectionBrowser({
 
       {grouped.ungrouped.length > 0 ? (
         <section className="mt-12">
-          <div className="mb-5">
-            <p className="text-accent text-xs font-bold tracking-widest uppercase">
-              {t("collection.addons")}
-            </p>
-            <h2 className="font-display mt-1 text-2xl font-bold">
-              {t("collection.otherExpansions")}
-            </h2>
-            <p className="text-muted-foreground mt-1 text-sm">
-              {t("collection.otherExpansionsBody")}
-            </p>
-          </div>
+          <SectionHeading
+            description={t("collection.otherExpansionsBody")}
+            eyebrow={t("collection.addons")}
+            title={t("collection.otherExpansions")}
+            tone="accent"
+          />
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {grouped.ungrouped.map((expansion) => (
               <GameCard
@@ -254,12 +247,7 @@ export function CollectionBrowser({
       ) : null}
 
       {visible.length === 0 ? (
-        <div className="rounded-3xl border border-dashed py-20 text-center">
-          <Search className="text-primary mx-auto size-7" />
-          <p className="text-muted-foreground mt-4">
-            {t("collection.noMatches")}
-          </p>
-        </div>
+        <EmptyState description={t("collection.noMatches")} icon={Search} />
       ) : null}
     </>
   );

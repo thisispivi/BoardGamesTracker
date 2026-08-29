@@ -12,6 +12,7 @@ import { getAdminGamesPage } from "@/server/admin/games";
 import { db } from "@/server/db";
 import { collectionItems, user } from "@/server/db/schema";
 import { requireAdmin } from "@/server/session";
+import { cn } from "@/utils/cn";
 
 /**
  * Administrator page metadata.
@@ -80,7 +81,7 @@ export default async function AdminPage() {
           },
         ].map((stat) => (
           <article
-            className="bg-card shadow-soft rounded-xl border p-5"
+            className="bg-card shadow-soft rounded-lg border p-5"
             key={stat.label}
           >
             <stat.icon className="text-primary mb-5 size-5" />
@@ -90,7 +91,7 @@ export default async function AdminPage() {
         ))}
       </section>
 
-      <section className="bg-card shadow-soft mb-7 overflow-hidden rounded-3xl border">
+      <section className="bg-card shadow-soft mb-7 overflow-hidden rounded-xl border">
         <div className="flex items-center gap-3 border-b p-6">
           <Shield className="text-primary size-5" />
           <div>
@@ -113,7 +114,12 @@ export default async function AdminPage() {
                   </p>
                 </div>
                 <span
-                  className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-bold ${record.banned ? "bg-danger/10 text-danger" : "bg-primary/10 text-primary"}`}
+                  className={cn(
+                    "shrink-0 rounded-full px-2.5 py-1 text-xs font-bold",
+                    record.banned
+                      ? "bg-danger/10 text-danger"
+                      : "bg-primary/10 text-primary",
+                  )}
                 >
                   {record.banned ? t("admin.banned") : t("admin.active")}
                 </span>
@@ -160,7 +166,12 @@ export default async function AdminPage() {
                   <td className="px-6 py-4 capitalize">{record.role}</td>
                   <td className="px-6 py-4">
                     <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-bold ${record.banned ? "bg-danger/10 text-danger" : "bg-primary/10 text-primary"}`}
+                      className={cn(
+                        "rounded-full px-2.5 py-1 text-xs font-bold",
+                        record.banned
+                          ? "bg-danger/10 text-danger"
+                          : "bg-primary/10 text-primary",
+                      )}
                     >
                       {record.banned ? t("admin.banned") : t("admin.active")}
                     </span>
@@ -185,7 +196,7 @@ export default async function AdminPage() {
         </div>
       </section>
 
-      <section className="bg-card shadow-soft mb-6 rounded-3xl border p-6 sm:p-8">
+      <section className="bg-card shadow-soft mb-6 rounded-xl border p-6 sm:p-8">
         <div className="mb-6">
           <p className="text-primary text-xs font-bold tracking-widest uppercase">
             {t("adminGames.eyebrow")}
@@ -200,7 +211,7 @@ export default async function AdminPage() {
         <AdminGamesPanel initialPage={initialGamesPage} />
       </section>
 
-      <section className="bg-card shadow-soft rounded-3xl border p-6 sm:p-8">
+      <section className="bg-card shadow-soft rounded-xl border p-6 sm:p-8">
         <div className="mb-6">
           <p className="text-primary text-xs font-bold tracking-widest uppercase">
             {t("admin.trail")}

@@ -118,6 +118,7 @@
   },
   "game": {
     "addFavorite": "Aggiungi ai preferiti",
+    "artworkAlt": "Copertina di {name}",
     "removeFavorite": "Rimuovi dai preferiti",
     "removeAria": "Rimuovi {name}",
     "removeTitle": "Rimuovere {name}?",

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
 import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
+import { EmptyState } from "@/components/molecules/EmptyState/EmptyState";
 import { AddGameDialog } from "@/components/organisms/AddGameDialog/AddGameDialog";
 import { WishlistBrowser } from "@/components/organisms/WishlistBrowser/WishlistBrowser";
 import { getWishlist } from "@/server/collection";
@@ -48,15 +49,11 @@ export default async function WishlistPage() {
       {wishlist.length > 0 ? (
         <WishlistBrowser currency={preferences.currency} games={wishlist} />
       ) : (
-        <section className="bg-card rounded-3xl border border-dashed p-12 text-center">
-          <Heart className="text-primary mx-auto size-9" />
-          <h2 className="font-display mt-4 text-2xl font-bold">
-            {t("wishlist.emptyTitle")}
-          </h2>
-          <p className="text-muted-foreground mx-auto mt-2 max-w-lg text-sm">
-            {t("wishlist.emptyBody")}
-          </p>
-        </section>
+        <EmptyState
+          description={t("wishlist.emptyBody")}
+          icon={Heart}
+          title={t("wishlist.emptyTitle")}
+        />
       )}
     </>
   );

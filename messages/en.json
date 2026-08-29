@@ -118,6 +118,7 @@
   },
   "game": {
     "addFavorite": "Add to favorites",
+    "artworkAlt": "{name} box art",
     "removeFavorite": "Remove from favorites",
     "removeAria": "Remove {name}",
     "removeTitle": "Remove {name}?",

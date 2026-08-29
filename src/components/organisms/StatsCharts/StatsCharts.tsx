@@ -234,9 +234,9 @@ type ChartCardProps = {
  */
 function ChartCard({ children, title }: ChartCardProps): ReactNode {
   return (
-    <section className="bg-card shadow-soft overflow-hidden rounded-3xl border p-5 sm:p-7">
+    <section className="bg-card shadow-soft overflow-hidden rounded-xl border p-5 sm:p-7">
       <h2 className="font-display text-xl font-bold">{title}</h2>
-      <div className="bg-muted/25 mt-5 h-88 min-w-0 rounded-2xl p-3 sm:p-4">
+      <div className="bg-muted/25 mt-5 h-88 min-w-0 rounded-lg p-3 sm:p-4">
         {children}
       </div>
     </section>
@@ -344,7 +344,7 @@ function ChartTooltip({
   const name = entry.payload?.name ?? label;
 
   return (
-    <div className="bg-card/95 min-w-36 rounded-xl border p-3 shadow-2xl backdrop-blur-md">
+    <div className="bg-card/95 min-w-36 rounded-lg border p-3 shadow-2xl backdrop-blur-md">
       {name !== undefined ? (
         <p className="text-muted-foreground max-w-56 text-xs leading-4">
           {name}

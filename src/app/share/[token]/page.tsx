@@ -5,9 +5,11 @@ import { getFormatter, getTranslations } from "next-intl/server";
 
 import { Logo } from "@/components/atoms/Logo/Logo";
 import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
+import { StatGrid } from "@/components/molecules/StatGrid/StatGrid";
 import { CollectionBrowser } from "@/components/organisms/CollectionBrowser/CollectionBrowser";
 import type { CollectionGame } from "@/core";
 import { getSharedLibrary } from "@/server/sharing";
+import { cn } from "@/utils/cn";
 
 /** Properties supplied to the tokenized public-library route. */
 type SharedLibraryPageProps = {
@@ -69,35 +71,27 @@ async function SharedStats({ currency, games, sharePrices }: SharedStatsProps) {
   const spent = games.reduce((total, game) => total + game.moneySpent, 0);
 
   return (
-    <section
-      className={`mb-8 grid gap-4 ${sharePrices ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}
-    >
-      {cards.map(({ icon: Icon, label, value }) => (
-        <article
-          className="bg-card shadow-soft rounded-3xl border p-5"
-          key={label}
-        >
-          <Icon className="text-primary size-5" />
-          <p className="font-display mt-5 text-3xl font-bold tabular-nums">
-            {format.number(value)}
-          </p>
-          <p className="text-muted-foreground mt-1 text-sm font-semibold">
-            {label}
-          </p>
-        </article>
-      ))}
-      {sharePrices ? (
-        <article className="bg-card shadow-soft rounded-3xl border p-5">
-          <Banknote className="text-primary size-5" />
-          <p className="font-display mt-5 text-3xl font-bold tabular-nums">
-            {format.number(spent, { currency, style: "currency" })}
-          </p>
-          <p className="text-muted-foreground mt-1 text-sm font-semibold">
-            {t("sharing.moneySpent")}
-          </p>
-        </article>
-      ) : null}
-    </section>
+    <StatGrid
+      className={cn(
+        "mb-8",
+        sharePrices ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-2",
+      )}
+      stats={[
+        ...cards.map((card) => ({ ...card, value: format.number(card.value) })),
+        ...(sharePrices
+          ? [
+              {
+                icon: Banknote,
+                label: t("sharing.moneySpent"),
+                value: format.number(spent, {
+                  currency,
+                  style: "currency",
+                }),
+              },
+            ]
+          : []),
+      ]}
+    />
   );
 }
 

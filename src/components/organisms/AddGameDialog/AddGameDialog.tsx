@@ -210,7 +210,7 @@ export function AddGameDialog({
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="dialog-overlay fixed inset-0 z-50 bg-black/45 backdrop-blur-sm" />
-        <Dialog.Content className="dialog-content bg-card fixed top-1/2 left-1/2 z-51 flex max-h-[90vh] w-[calc(100%-2rem)] max-w-2xl flex-col overflow-hidden rounded-3xl border shadow-2xl focus:outline-none">
+        <Dialog.Content className="dialog-content bg-card fixed top-1/2 left-1/2 z-51 flex max-h-[90vh] w-[calc(100%-2rem)] max-w-2xl flex-col overflow-hidden rounded-xl border shadow-2xl focus:outline-none">
           <header className="flex shrink-0 items-start justify-between gap-5 border-b px-6 py-5 sm:px-8 sm:py-6">
             <div className="min-w-0">
               <p className="text-primary text-xs font-bold tracking-widest uppercase">
@@ -258,7 +258,7 @@ export function AddGameDialog({
                   <Search className="text-muted-foreground absolute top-1/2 left-4 size-4 -translate-y-1/2" />
                   <input
                     autoFocus
-                    className="bg-background focus:ring-primary/20 h-12 w-full rounded-xl border pr-12 pl-11 transition focus:ring-4 focus:outline-none"
+                    className="bg-background h-12 w-full rounded-lg border pr-12 pl-11 transition"
                     maxLength={500}
                     minLength={3}
                     onChange={(event) => changeQuery(event.target.value)}
@@ -276,12 +276,12 @@ export function AddGameDialog({
                 <div aria-live="polite" className="mt-5 space-y-2">
                   {visibleResults.map((result) => (
                     <button
-                      className="hover:bg-muted/60 focus:ring-primary/20 flex w-full items-center gap-4 rounded-2xl border p-3 text-left transition focus:ring-4 focus:outline-none"
+                      className="hover:bg-muted/60 flex w-full items-center gap-4 rounded-lg border p-3 text-left transition"
                       key={result.bggId}
                       onClick={() => setSelected(result)}
                       type="button"
                     >
-                      <span className="bg-muted relative grid size-16 shrink-0 place-items-center overflow-hidden rounded-xl">
+                      <span className="bg-muted relative grid size-16 shrink-0 place-items-center overflow-hidden rounded-lg">
                         {result.imageUrl ? (
                           <Image
                             alt=""
@@ -382,7 +382,7 @@ function SelectedGameForm({
         type="hidden"
         value={selected.selectionToken}
       />
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4">
         <button
           className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm font-bold"
           onClick={onChooseAnother}
@@ -401,7 +401,7 @@ function SelectedGameForm({
       </div>
 
       {details ? null : (
-        <p className="border-accent/40 bg-accent/10 rounded-xl border px-4 py-3 text-xs leading-5">
+        <p className="border-accent/40 bg-accent/10 rounded-lg border px-4 py-3 text-xs leading-5">
           {t("add.metadataUnavailable")}
         </p>
       )}

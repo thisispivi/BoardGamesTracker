@@ -65,6 +65,35 @@ const document: UserDataDocument = {
   ],
 };
 
+/**
+ * Builds a one-item JSON export whose complexity carries the given value.
+ *
+ * @param weight - Complexity written into the exported item.
+ * @returns UTF-8 bytes of the resulting document.
+ */
+function documentWithWeight(weight: number): Uint8Array {
+  const [item] = document.items;
+  if (!item) {
+    throw new Error("fixture document must contain an item");
+  }
+  return new TextEncoder().encode(
+    JSON.stringify({ ...document, items: [{ ...item, weight }] }),
+  );
+}
+
+describe("legacy complexity values", () => {
+  it("imports an export whose unrated complexity was written as zero", async () => {
+    const restored = await parseUserData(documentWithWeight(0), "json");
+    expect(restored.items[0]?.weight).toBeNull();
+  });
+
+  it("still rejects a complexity below BGG's scale", async () => {
+    await expect(
+      parseUserData(documentWithWeight(0.5), "json"),
+    ).rejects.toThrow();
+  });
+});
+
 describe("portable user data formats", () => {
   for (const format of ["json", "csv", "xlsx", "sql"] as UserDataFormat[]) {
     it(`round-trips ${format.toUpperCase()}`, async () => {

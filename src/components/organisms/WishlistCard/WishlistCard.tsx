@@ -69,7 +69,7 @@ function PurchaseDialog({ currency, game }: PurchaseDialogProps): ReactNode {
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="edit-dialog-overlay fixed inset-0 z-90 bg-black/55 backdrop-blur-sm" />
-        <Dialog.Content className="edit-dialog-content bg-card fixed inset-x-0 bottom-0 z-91 rounded-t-3xl border p-6 shadow-2xl focus:outline-none sm:top-1/2 sm:right-auto sm:bottom-auto sm:left-1/2 sm:w-[min(calc(100vw-2rem),30rem)] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-3xl sm:p-8">
+        <Dialog.Content className="edit-dialog-content bg-card fixed inset-x-0 bottom-0 z-91 rounded-t-xl border p-6 shadow-2xl focus:outline-none sm:top-1/2 sm:right-auto sm:bottom-auto sm:left-1/2 sm:w-[min(calc(100vw-2rem),30rem)] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl sm:p-8">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-primary text-xs font-bold tracking-widest uppercase">
@@ -139,10 +139,10 @@ export function WishlistCard({ currency, game }: WishlistCardProps): ReactNode {
   );
 
   return (
-    <article className="bg-card shadow-soft rounded-3xl border p-3">
-      <div className="group relative overflow-hidden rounded-[1.2rem]">
+    <article className="bg-card shadow-soft rounded-xl border p-3">
+      <div className="group relative overflow-hidden rounded-lg">
         <GameArtwork
-          className="rounded-[1.2rem]"
+          className="rounded-lg"
           imageClassName="transition duration-300 group-hover:scale-105 group-hover:blur-sm group-focus-within:scale-105 group-focus-within:blur-sm"
           imageUrl={game.imageUrl}
           name={game.name}
@@ -170,7 +170,7 @@ export function WishlistCard({ currency, game }: WishlistCardProps): ReactNode {
           <div className="mt-3 flex flex-wrap gap-1.5">
             {tags.map((tag) => (
               <span
-                className="bg-muted text-muted-foreground max-w-full truncate rounded-full px-2.5 py-1 text-[0.68rem] font-semibold"
+                className="bg-muted text-muted-foreground max-w-full truncate rounded-full px-2 py-0.5 text-xs font-semibold"
                 key={tag}
               >
                 {tag}

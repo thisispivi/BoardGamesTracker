@@ -92,7 +92,7 @@ export function AuthForm({
             {t("name")}
             <input
               autoComplete="name"
-              className="bg-card mt-2 h-12 w-full rounded-xl border px-4 font-normal"
+              className="bg-card mt-2 h-12 w-full rounded-lg border px-4 font-normal"
               maxLength={80}
               minLength={2}
               name="name"
@@ -105,7 +105,7 @@ export function AuthForm({
           {t("email")}
           <input
             autoComplete="email"
-            className="bg-card mt-2 h-12 w-full rounded-xl border px-4 font-normal"
+            className="bg-card mt-2 h-12 w-full rounded-lg border px-4 font-normal"
             maxLength={254}
             name="email"
             placeholder={t("emailPlaceholder")}
@@ -120,7 +120,7 @@ export function AuthForm({
               autoComplete={
                 mode === "signup" ? "new-password" : "current-password"
               }
-              className="bg-card h-12 w-full rounded-xl border px-4 pr-12 font-normal"
+              className="bg-card h-12 w-full rounded-lg border px-4 pr-12 font-normal"
               maxLength={128}
               minLength={12}
               name="password"
@@ -130,7 +130,7 @@ export function AuthForm({
             />
             <button
               aria-label={showPassword ? t("hidePassword") : t("showPassword")}
-              className="text-muted-foreground absolute top-1/2 right-3 -translate-y-1/2 rounded-lg p-2"
+              className="text-muted-foreground absolute top-1/2 right-3 -translate-y-1/2 rounded-md p-2"
               onClick={() => setShowPassword((value) => !value)}
               type="button"
             >

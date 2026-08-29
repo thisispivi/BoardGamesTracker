@@ -56,7 +56,7 @@ export function CurrencySelect({
           value,
           label: (
             <span className="flex items-center gap-3">
-              <span className="select-option-mark bg-primary/10 text-primary grid size-7 place-items-center rounded-lg text-xs font-black">
+              <span className="select-option-mark bg-primary/10 text-primary grid size-7 place-items-center rounded-md text-xs font-black">
                 {getCurrencySymbol(value)}
               </span>
               <span>{value}</span>

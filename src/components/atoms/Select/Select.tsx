@@ -50,7 +50,7 @@ export function Select({
       <SelectPrimitive.Trigger
         aria-label={ariaLabel}
         className={cn(
-          "bg-background hover:bg-muted/70 focus-visible:border-primary/50 focus-visible:ring-primary/20 data-[state=open]:border-primary/50 data-[state=open]:ring-primary/15 flex h-11 w-full items-center justify-between gap-3 rounded-xl border px-3 text-sm font-medium shadow-sm transition-colors focus-visible:ring-4 focus-visible:outline-none data-[state=open]:ring-4",
+          "bg-background hover:bg-muted/70 focus-visible:border-primary/50 data-[state=open]:border-primary/50 data-[state=open]:ring-primary/15 flex h-11 w-full items-center justify-between gap-3 rounded-lg border px-3 text-sm font-medium shadow-sm transition-colors data-[state=open]:ring-4",
           className,
         )}
       >
@@ -61,7 +61,7 @@ export function Select({
       </SelectPrimitive.Trigger>
       <SelectPrimitive.Portal>
         <SelectPrimitive.Content
-          className="select-content bg-card z-80 max-h-[min(19rem,var(--radix-select-content-available-height))] min-w-(--radix-select-trigger-width) overflow-hidden rounded-2xl border p-1.5 shadow-2xl"
+          className="select-content bg-card z-80 max-h-[min(19rem,var(--radix-select-content-available-height))] min-w-(--radix-select-trigger-width) overflow-hidden rounded-lg border p-1.5 shadow-2xl"
           collisionPadding={12}
           position="popper"
           sideOffset={8}
@@ -69,7 +69,7 @@ export function Select({
           <SelectPrimitive.Viewport className="filter-options max-h-72 space-y-1 overflow-y-auto overscroll-contain pr-1">
             {options.map((option) => (
               <SelectPrimitive.Item
-                className="select-item data-[state=checked]:bg-primary/10 data-[state=checked]:text-foreground relative flex cursor-pointer items-center rounded-xl py-2.5 pr-10 pl-3 text-sm font-semibold transition-colors outline-none select-none"
+                className="select-item data-[state=checked]:bg-primary/10 data-[state=checked]:text-foreground relative flex cursor-pointer items-center rounded-lg py-2.5 pr-10 pl-3 text-sm font-semibold transition-colors outline-none select-none"
                 key={option.value}
                 value={option.value}
               >

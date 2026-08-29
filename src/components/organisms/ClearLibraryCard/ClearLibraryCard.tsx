@@ -56,10 +56,10 @@ export function ClearLibraryCard({
   }, [router, state]);
 
   return (
-    <section className="bg-card shadow-soft h-full rounded-3xl border border-red-500/25 p-5 sm:p-8">
+    <section className="bg-card shadow-soft h-full rounded-xl border border-red-500/25 p-5 sm:p-8">
       <div className="flex h-full flex-col justify-between gap-7">
         <div className="flex items-start gap-4">
-          <span className="bg-danger/10 text-danger grid size-12 shrink-0 place-items-center rounded-2xl">
+          <span className="bg-danger/10 text-danger grid size-12 shrink-0 place-items-center rounded-lg">
             <TriangleAlert className="size-5" />
           </span>
           <div>
@@ -89,7 +89,7 @@ export function ClearLibraryCard({
           <section
             aria-labelledby={titleId}
             aria-modal="true"
-            className="modal-content bg-card w-full max-w-lg rounded-3xl border border-red-500/30 p-6 shadow-2xl sm:p-8"
+            className="modal-content bg-card w-full max-w-lg rounded-xl border border-red-500/30 p-6 shadow-2xl sm:p-8"
             onMouseDown={(event) => event.stopPropagation()}
             role="dialog"
           >

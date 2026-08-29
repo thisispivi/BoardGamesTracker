@@ -20,6 +20,7 @@ import {
   toggleUserBanAction,
   updateUserRoleAction,
 } from "@/server/actions/admin";
+import { cn } from "@/utils/cn";
 
 /** Administrative user record accepted by account-management controls. */
 type ManagedUser = { id: string; name: string; role: string; banned: boolean };
@@ -82,7 +83,12 @@ export function AdminUserActions({
     <div className="flex justify-end gap-1">
       <button
         aria-label={t("admin.resetPassword")}
-        className={`rounded-lg p-2 transition disabled:opacity-50 ${copied ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-primary"}`}
+        className={cn(
+          "rounded-md p-2 transition disabled:opacity-50",
+          copied
+            ? "bg-primary/10 text-primary"
+            : "text-muted-foreground hover:bg-muted hover:text-primary",
+        )}
         disabled={issuing}
         onClick={copyResetLink}
         title={t("admin.resetPassword")}
@@ -104,7 +110,7 @@ export function AdminUserActions({
           value={user.role === "admin" ? "user" : "admin"}
         />
         <button
-          className="text-muted-foreground hover:bg-muted hover:text-primary rounded-lg p-2"
+          className="text-muted-foreground hover:bg-muted hover:text-primary rounded-md p-2"
           title={
             user.role === "admin" ? t("admin.removeRole") : t("admin.makeAdmin")
           }
@@ -117,7 +123,7 @@ export function AdminUserActions({
         <input name="userId" type="hidden" value={user.id} />
         <input name="banned" type="hidden" value={String(!user.banned)} />
         <button
-          className="text-muted-foreground hover:bg-muted hover:text-danger rounded-lg p-2"
+          className="text-muted-foreground hover:bg-muted hover:text-danger rounded-md p-2"
           title={user.banned ? t("admin.restore") : t("admin.ban")}
           type="submit"
         >
@@ -137,7 +143,7 @@ export function AdminUserActions({
         title={t("admin.deleteTitle", { name: user.name })}
         trigger={
           <button
-            className="text-muted-foreground hover:bg-danger/10 hover:text-danger rounded-lg p-2"
+            className="text-muted-foreground hover:bg-danger/10 hover:text-danger rounded-md p-2"
             title={t("admin.delete")}
             type="button"
           >

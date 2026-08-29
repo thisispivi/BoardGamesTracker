@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 
 import { buttonVariants } from "@/components/atoms/Button/Button";
 import { Logo } from "@/components/atoms/Logo/Logo";
+import { cn } from "@/utils/cn";
 
 /**
  * Friendly application-wide 404 response.
@@ -22,7 +23,7 @@ export default async function NotFound() {
           {t("notFound.title")}
         </h1>
         <p className="text-muted-foreground mt-5">{t("notFound.body")}</p>
-        <Link className={`${buttonVariants({ size: "lg" })} mt-8`} href="/">
+        <Link className={cn(buttonVariants({ size: "lg" }), "mt-8")} href="/">
           {t("notFound.home")}
         </Link>
       </div>

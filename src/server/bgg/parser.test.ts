@@ -145,6 +145,16 @@ describe("parseBggJsonResponses", () => {
     );
   });
 
+  it("treats an unrated complexity of zero as unknown", () => {
+    expect(
+      parseBggJsonResponses(
+        magicItemResponse,
+        { item: { stats: { average: "7.59719", avgweight: "0" } } },
+        463,
+      ),
+    ).toEqual(expect.objectContaining({ bggRating: 7.59719, weight: null }));
+  });
+
   it("extracts exact expansion relationships from BGG link identifiers", () => {
     const relationshipResponse = {
       item: {

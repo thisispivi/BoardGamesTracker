@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
 import { cn } from "@/utils/cn";
@@ -30,16 +31,17 @@ export function GameArtwork({
   className,
   imageClassName,
 }: GameArtworkProps): ReactNode {
+  const t = useTranslations();
   if (imageUrl) {
     return (
       <div
         className={cn(
-          "bg-muted relative aspect-square overflow-hidden rounded-xl shadow-sm",
+          "bg-muted relative aspect-square overflow-hidden rounded-lg shadow-sm",
           className,
         )}
       >
         <Image
-          alt={`${name} box art`}
+          alt={t("game.artworkAlt", { name })}
           className={cn("object-cover", imageClassName)}
           fill
           loading={eager ? "eager" : "lazy"}
@@ -53,7 +55,7 @@ export function GameArtwork({
   return (
     <div
       className={cn(
-        "from-primary text-primary-foreground relative grid aspect-square place-items-center overflow-hidden rounded-xl bg-linear-to-br to-[#0d2923] p-5 text-center shadow-sm",
+        "from-primary text-primary-foreground relative grid aspect-square place-items-center overflow-hidden rounded-lg bg-linear-to-br to-[#0d2923] p-5 text-center shadow-sm",
         className,
       )}
     >
