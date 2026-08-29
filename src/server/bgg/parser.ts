@@ -260,7 +260,7 @@ export function parseBggJsonResponses(
     minPlayers,
     minPlaytime,
     name: item.name.trim(),
-    weight: jsonNumber(stats?.avgweight, 0, 5),
+    weight: jsonNumber(stats?.avgweight, 1, 5),
     yearPublished: jsonNumber(item.yearpublished, 1800, 2200),
   };
 }
@@ -347,7 +347,7 @@ export function parseBggHtmlPage(
     minPlaytime:
       pageNumber(html, ["minplaytime", "minPlaytime"], 0, 10_000) ?? 0,
     name: name.slice(0, 160),
-    weight: pageNumber(html, ["averageweight", "averageWeight"], 0, 5),
+    weight: pageNumber(html, ["averageweight", "averageWeight"], 1, 5),
     yearPublished:
       pageNumber(html, ["yearpublished", "yearPublished"], 1800, 2200) ??
       (titleYear ? Number(titleYear) : null),

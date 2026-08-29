@@ -17,7 +17,10 @@ export const portableGameSchema = z
     maxPlayers: z.number().int().min(1).max(99),
     minPlaytime: z.number().int().min(0).max(10_000),
     maxPlaytime: z.number().int().min(1).max(10_000),
-    weight: z.number().min(1).max(5).nullable(),
+    weight: z
+      .union([z.literal(0), z.number().min(1).max(5)])
+      .nullable()
+      .transform((value) => (value === 0 ? null : value)),
     bggRating: z.number().min(0).max(10).nullable(),
     isExpansion: z.boolean(),
     categories: z.array(labelSchema).max(50),
