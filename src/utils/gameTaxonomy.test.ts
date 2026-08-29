@@ -9,7 +9,6 @@ import {
 } from "@/utils/gameTaxonomy";
 
 describe("game taxonomy", () => {
-  /** Recognizes BGG's current expansion categories and the legacy import label. */
   it.each([
     "Expansion",
     "Expansion for Base-game",
@@ -19,12 +18,10 @@ describe("game taxonomy", () => {
     expect(isExpansionCategory(category)).toBe(true);
   });
 
-  /** Does not classify an ordinary thematic category as an expansion. */
   it("keeps base-game categories separate", () => {
     expect(hasExpansionCategory(["Card Game", "Trains"])).toBe(false);
   });
 
-  /** Locks complete i18n coverage to BGG's published browse taxonomies. */
   it("localizes every published BGG category and mechanic", () => {
     expect(bggCategories).toHaveLength(85);
     expect(bggMechanics).toHaveLength(200);

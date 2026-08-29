@@ -85,7 +85,6 @@ describe("BoardGameGeek URL parsing", () => {
 });
 
 describe("parseBoardGameResult", () => {
-  /** Accepts canonical HTTPS game links and normalizes their metadata. */
   it("parses a canonical BGG result", () => {
     expect(
       parseBoardGameResult(
@@ -117,7 +116,6 @@ describe("parseBoardGameResult", () => {
     ).toBe("Dead Cells: The Rogue-Lite Board Game");
   });
 
-  /** Surfaces expansions from metasearch so they can be saved like games. */
   it("parses an expansion result", () => {
     expect(
       parseBoardGameResult(
@@ -134,7 +132,6 @@ describe("parseBoardGameResult", () => {
     });
   });
 
-  /** Accepts a BGG result paired with artwork from the official image CDN. */
   it("parses a secure BGG image result", () => {
     expect(
       parseBoardGameImage(
@@ -147,7 +144,6 @@ describe("parseBoardGameResult", () => {
     });
   });
 
-  /** Rejects artwork hosted outside the allowlisted BGG image CDN. */
   it("rejects an untrusted image host", () => {
     expect(
       parseBoardGameImage(
@@ -177,7 +173,6 @@ describe("parseBoardGameResult", () => {
     ).toBeNull();
   });
 
-  /** Rejects lookalike hosts even when their path resembles a valid game. */
   it("rejects a spoofed BGG hostname", () => {
     expect(
       parseBoardGameResult(
@@ -187,7 +182,6 @@ describe("parseBoardGameResult", () => {
     ).toBeNull();
   });
 
-  /** Rejects non-game sections of the trusted hostname. */
   it("rejects non-game BGG links", () => {
     expect(
       parseBoardGameResult(

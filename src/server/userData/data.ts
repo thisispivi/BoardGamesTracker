@@ -37,6 +37,8 @@ export async function getUserDataDocument(
       weight: games.weight,
       bggRating: games.bggRating,
       isExpansion: games.isExpansion,
+      expandsBggIds: games.expandsBggIds,
+      expansionBggIds: games.expansionBggIds,
       categories: games.categories,
       mechanics: games.mechanics,
       families: games.families,
@@ -97,13 +99,21 @@ export async function importUserDataDocument(
           weight: item.weight,
           bggRating: item.bggRating,
           isExpansion: item.isExpansion,
+          expandsBggIds: item.expandsBggIds,
+          expansionBggIds: item.expansionBggIds,
           categories: item.categories,
           mechanics: item.mechanics,
           families: item.families,
           updatedAt: now,
         })),
       )
-      .onConflictDoNothing({ target: games.bggId });
+      .onConflictDoUpdate({
+        target: games.bggId,
+        set: {
+          expandsBggIds: sql`case when cardinality(excluded.expands_bgg_ids) > 0 then excluded.expands_bgg_ids else ${games.expandsBggIds} end`,
+          expansionBggIds: sql`case when cardinality(excluded.expansion_bgg_ids) > 0 then excluded.expansion_bgg_ids else ${games.expansionBggIds} end`,
+        },
+      });
     const savedGames = await transaction
       .select({ id: games.id, bggId: games.bggId })
       .from(games)

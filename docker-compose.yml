@@ -1,6 +1,6 @@
 services:
   database:
-    image: postgres:17.5-alpine
+    image: postgres:17.11-alpine
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-board_games_tracker}
@@ -21,7 +21,7 @@ services:
       - private
 
   searxng:
-    image: searxng/searxng:2026.8.11-e8e710e42
+    image: searxng/searxng:2026.8.29-d226b78bc
     restart: unless-stopped
     environment:
       SEARXNG_SECRET: ${SEARXNG_SECRET:?Set SEARXNG_SECRET in .env}
@@ -49,9 +49,6 @@ services:
       searxng:
         condition: service_started
     environment:
-      # Docker sets HOSTNAME to the container ID, which the Next.js standalone
-      # server would otherwise bind to instead of all interfaces, leaving the
-      # HEALTHCHECK's loopback probe unable to connect.
       HOSTNAME: "0.0.0.0"
       DATABASE_URL: postgresql://${POSTGRES_USER:-board_games_tracker}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB:-board_games_tracker}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Set BETTER_AUTH_SECRET in .env}

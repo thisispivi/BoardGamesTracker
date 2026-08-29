@@ -423,7 +423,7 @@
     "save": "Salva modifiche",
     "saved": "Metadati del gioco aggiornati",
     "refresh": "Aggiorna da BGG",
-    "refreshHelp": "Recupera i valori attuali da BoardGameGeek e sovrascrive questo record. Utile quando un gioco è stato aggiunto mentre BoardGameGeek non era raggiungibile.",
+    "refreshHelp": "Recupera da BoardGameGeek i metadati e i collegamenti alle espansioni attuali e sovrascrive questo record. Utile quando un gioco è stato aggiunto mentre BoardGameGeek non era raggiungibile.",
     "refreshed": "Metadati aggiornati da BoardGameGeek",
     "refreshFailed": "BoardGameGeek non ha restituito dati per questo gioco. Riprova tra poco."
   },

@@ -73,13 +73,6 @@ export const auth = betterAuth({
     },
   },
   hooks: {
-    /**
-     * Refuses every authenticated Better Auth endpoint to a suspended account.
-     *
-     * The admin plugin only blocks session creation, so without this a session
-     * issued before the ban could still drive `/api/auth/*` directly, which
-     * never passes through the application's own `getSession`.
-     */
     before: createAuthMiddleware(async (ctx) => {
       const active = await getSessionFromCtx(ctx, {
         disableCookieCache: true,

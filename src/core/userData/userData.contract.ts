@@ -28,12 +28,22 @@ export const portableGameSchema = z
     notes: z.string().max(2_000),
     moneySpent: z.number().min(0).max(999_999_999.99),
     gifted: z.boolean().default(false),
+    expandsBggIds: z
+      .array(z.number().int().min(1).max(10_000_000))
+      .max(200)
+      .default([]),
+    expansionBggIds: z
+      .array(z.number().int().min(1).max(10_000_000))
+      .max(200)
+      .default([]),
   })
   .refine((game) => game.maxPlayers >= game.minPlayers)
   .refine((game) => game.maxPlaytime >= game.minPlaytime)
   .transform((game) => ({
     ...game,
     categories: [...new Set(game.categories)],
+    expandsBggIds: [...new Set(game.expandsBggIds)],
+    expansionBggIds: [...new Set(game.expansionBggIds)],
     mechanics: [...new Set(game.mechanics)],
     families: [...new Set(game.families)],
     favorite: game.location === "collection" ? game.favorite : false,

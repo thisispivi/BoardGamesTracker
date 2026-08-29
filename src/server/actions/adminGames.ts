@@ -171,6 +171,12 @@ export async function refreshGameFromBggAction(
       bggRating: metadata.bggRating,
       categories: metadata.categories,
       description: metadata.description,
+      ...(metadata.expandsBggIds.length > 0
+        ? { expandsBggIds: metadata.expandsBggIds }
+        : {}),
+      ...(metadata.expansionBggIds.length > 0
+        ? { expansionBggIds: metadata.expansionBggIds }
+        : {}),
       families: metadata.families,
       isExpansion: metadata.isExpansion,
       maxPlayers: metadata.maxPlayers,

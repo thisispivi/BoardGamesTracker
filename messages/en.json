@@ -423,7 +423,7 @@
     "save": "Save changes",
     "saved": "Game metadata updated",
     "refresh": "Refresh from BGG",
-    "refreshHelp": "Pull the current values from BoardGameGeek and overwrite this record. Useful when a game was added while BoardGameGeek was unreachable.",
+    "refreshHelp": "Pull the current metadata and expansion relationships from BoardGameGeek and overwrite this record. Useful when a game was added while BoardGameGeek was unreachable.",
     "refreshed": "Metadata refreshed from BoardGameGeek",
     "refreshFailed": "BoardGameGeek did not return data for this game. Try again shortly."
   },

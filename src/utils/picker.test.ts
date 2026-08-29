@@ -26,9 +26,7 @@ const games: PickableGame[] = [
   },
 ];
 
-/** Verifies picker filtering and deterministic selection. */
 describe("game picker", () => {
-  /** Ensures player and preference constraints are combined. */
   it("filters by all active constraints", () => {
     expect(
       filterGames(games, {
@@ -41,7 +39,6 @@ describe("game picker", () => {
     ).toEqual([games[0]]);
   });
 
-  /** Ensures an empty candidate set produces no selection. */
   it("returns null when no games qualify", () => {
     expect(
       pickRandomGame(games, {
@@ -54,7 +51,6 @@ describe("game picker", () => {
     ).toBeNull();
   });
 
-  /** Ensures the injected random source controls selection. */
   it("uses the supplied random source", () => {
     expect(
       pickRandomGame(

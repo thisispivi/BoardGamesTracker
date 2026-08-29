@@ -8,6 +8,7 @@ const maxHtmlLength = 5_000_000;
 
 const geekdoLinkSchema = z.object({
   name: z.string().min(1).max(160),
+  objectid: z.coerce.number().int().min(1).max(10_000_000).optional(),
 });
 
 const geekdoItemResponseSchema = z.object({
@@ -16,8 +17,10 @@ const geekdoItemResponseSchema = z.object({
     links: z
       .object({
         boardgamecategory: z.array(geekdoLinkSchema).max(200).optional(),
+        boardgameexpansion: z.array(geekdoLinkSchema).max(200).optional(),
         boardgamefamily: z.array(geekdoLinkSchema).max(200).optional(),
         boardgamemechanic: z.array(geekdoLinkSchema).max(200).optional(),
+        expandsboardgame: z.array(geekdoLinkSchema).max(200).optional(),
       })
       .optional(),
     maxplayers: z.string().max(16).nullable().optional(),
@@ -224,6 +227,20 @@ export function parseBggJsonResponses(
       .replaceAll(/\s+/g, " ")
       .trim()
       .slice(0, 10_000),
+    expandsBggIds: [
+      ...new Set(
+        (item.links?.expandsboardgame ?? []).flatMap((link) =>
+          link.objectid === undefined ? [] : [link.objectid],
+        ),
+      ),
+    ],
+    expansionBggIds: [
+      ...new Set(
+        (item.links?.boardgameexpansion ?? []).flatMap((link) =>
+          link.objectid === undefined ? [] : [link.objectid],
+        ),
+      ),
+    ],
     families: (item.links?.boardgamefamily ?? [])
       .map((link) => link.name.trim())
       .filter(Boolean)
@@ -314,6 +331,8 @@ export function parseBggHtmlPage(
     bggRating: pageNumber(html, ["average", "averageRating"], 0, 10),
     categories,
     description: description.replaceAll(/\s+/g, " ").slice(0, 10_000),
+    expandsBggIds: [],
+    expansionBggIds: [],
     families: taxonomy(html, "boardgamefamily"),
     imageUrl: trustedImage(metaContent(html, "og:image")),
     isExpansion:

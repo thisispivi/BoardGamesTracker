@@ -91,6 +91,7 @@ export const account = pgTable(
   {
     id: text("id").primaryKey(),
     accountId: text("account_id").notNull(),
+    issuer: text("issuer").notNull(),
     providerId: text("provider_id").notNull(),
     userId: text("user_id")
       .notNull()
@@ -114,10 +115,7 @@ export const account = pgTable(
       .defaultNow(),
   },
   (table) => [
-    uniqueIndex("account_provider_unique").on(
-      table.providerId,
-      table.accountId,
-    ),
+    uniqueIndex("account_issuer_unique").on(table.issuer, table.accountId),
     index("account_user_idx").on(table.userId),
   ],
 );
@@ -195,6 +193,14 @@ export const games = pgTable(
       scale: 2,
     }),
     isExpansion: boolean("is_expansion").notNull().default(false),
+    expandsBggIds: integer("expands_bgg_ids")
+      .array()
+      .notNull()
+      .default(sql`'{}'::integer[]`),
+    expansionBggIds: integer("expansion_bgg_ids")
+      .array()
+      .notNull()
+      .default(sql`'{}'::integer[]`),
     categories: jsonb("categories").$type<string[]>().notNull().default([]),
     mechanics: jsonb("mechanics").$type<string[]>().notNull().default([]),
     families: jsonb("families").$type<string[]>().notNull().default([]),

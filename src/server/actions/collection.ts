@@ -90,6 +90,8 @@ async function upsertGame(
       (metadata?.isExpansion ?? false) ||
       selection.isExpansion ||
       hasExpansionCategory(categories),
+    expandsBggIds: metadata?.expandsBggIds ?? [],
+    expansionBggIds: metadata?.expansionBggIds ?? [],
     categories: metadata?.categories.length ? metadata.categories : categories,
     mechanics: metadata?.mechanics.length ? metadata.mechanics : mechanics,
     families: metadata?.families.length ? metadata.families : families,
@@ -108,6 +110,8 @@ async function upsertGame(
         target: games.bggId,
         set: {
           ...values,
+          expandsBggIds: sql`case when cardinality(excluded.expands_bgg_ids) > 0 then excluded.expands_bgg_ids else ${games.expandsBggIds} end`,
+          expansionBggIds: sql`case when cardinality(excluded.expansion_bgg_ids) > 0 then excluded.expansion_bgg_ids else ${games.expansionBggIds} end`,
           categories: sql`case when jsonb_array_length(excluded.categories) > 0 then excluded.categories else ${games.categories} end`,
           mechanics: sql`case when jsonb_array_length(excluded.mechanics) > 0 then excluded.mechanics else ${games.mechanics} end`,
           families: sql`case when jsonb_array_length(excluded.families) > 0 then excluded.families else ${games.families} end`,
@@ -222,6 +226,8 @@ export async function importBggCsvAction(
             weight: metadata?.weight ?? game.weight,
             bggRating: metadata?.bggRating ?? game.bggRating,
             isExpansion: metadata?.isExpansion ?? game.isExpansion,
+            expandsBggIds: metadata?.expandsBggIds ?? [],
+            expansionBggIds: metadata?.expansionBggIds ?? [],
             categories: metadata?.categories.length
               ? metadata.categories
               : game.categories,
@@ -247,6 +253,8 @@ export async function importBggCsvAction(
           weight: sql`excluded.weight`,
           bggRating: sql`excluded.bgg_rating`,
           isExpansion: sql`excluded.is_expansion`,
+          expandsBggIds: sql`case when cardinality(excluded.expands_bgg_ids) > 0 then excluded.expands_bgg_ids else ${games.expandsBggIds} end`,
+          expansionBggIds: sql`case when cardinality(excluded.expansion_bgg_ids) > 0 then excluded.expansion_bgg_ids else ${games.expansionBggIds} end`,
           categories: sql`case when jsonb_array_length(excluded.categories) > 0 then excluded.categories else ${games.categories} end`,
           mechanics: sql`case when jsonb_array_length(excluded.mechanics) > 0 then excluded.mechanics else ${games.mechanics} end`,
           families: sql`case when jsonb_array_length(excluded.families) > 0 then excluded.families else ${games.families} end`,

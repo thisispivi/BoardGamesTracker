@@ -21,7 +21,6 @@ const header = [
 ].join(",");
 
 describe("parseBggCollectionCsv", () => {
-  /** Preserves picker and personal fields from an owned BGG row. */
   it("normalizes an owned game", () => {
     const result = parseBggCollectionCsv(
       `${header}\n"Ticket to Ride",9209,1,2,5,30,60,2004,1.85,7.3,8,12,"Family favorite","Sleeved",standalone`,
@@ -43,7 +42,6 @@ describe("parseBggCollectionCsv", () => {
     });
   });
 
-  /** Preserves the expansion hint when a scrape is temporarily unavailable. */
   it("identifies an expansion from the CSV item type", () => {
     const result = parseBggCollectionCsv(
       `${header}\n"Ticket to Ride: Europa 1912",53383,1,2,5,30,60,2009,1.6,8,0,0,,,expansion`,
@@ -55,7 +53,6 @@ describe("parseBggCollectionCsv", () => {
     });
   });
 
-  /** Ignores wishlist-only entries rather than treating them as owned. */
   it("skips a game that is not owned", () => {
     const result = parseBggCollectionCsv(
       `${header}\nWanted Game,123,0,1,4,20,40,2020,2,7,0,0,,,standalone`,
@@ -63,7 +60,6 @@ describe("parseBggCollectionCsv", () => {
     expect(result).toEqual({ games: [], invalid: 0, skipped: 1 });
   });
 
-  /** Rejects files that do not expose the official BGG columns. */
   it("rejects an unrelated CSV", () => {
     expect(() => parseBggCollectionCsv("name,id\nExample,1")).toThrow(
       "not a supported BoardGameGeek collection export",

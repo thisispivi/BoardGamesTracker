@@ -19,6 +19,8 @@ export type CollectionGame = {
   weight: number | null;
   bggRating: number | null;
   isExpansion: boolean;
+  expandsBggIds: number[];
+  expansionBggIds: number[];
   categories: string[];
   mechanics: string[];
   families: string[];

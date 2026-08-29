@@ -26,6 +26,8 @@ const document: UserDataDocument = {
       weight: 2.32,
       bggRating: 7.7,
       isExpansion: false,
+      expandsBggIds: [],
+      expansionBggIds: [403_217],
       categories: ["Card Game", "Civilization"],
       mechanics: ["Drafting"],
       families: ["Ancient"],
@@ -49,6 +51,8 @@ const document: UserDataDocument = {
       weight: 3.86,
       bggRating: 8.6,
       isExpansion: false,
+      expandsBggIds: [],
+      expansionBggIds: [],
       categories: ["Economic", "Industry / Manufacturing"],
       mechanics: ["Hand Management", "Network and Route Building"],
       families: ["Brass"],
@@ -69,6 +73,25 @@ describe("portable user data formats", () => {
       expect(restored).toEqual(document);
     });
   }
+
+  it("imports legacy JSON backups without BGG relationship fields", async () => {
+    const legacy = JSON.stringify(document, (key, value: unknown) =>
+      ["expandsBggIds", "expansionBggIds"].includes(key) ? undefined : value,
+    );
+
+    const restored = await parseUserData(
+      new TextEncoder().encode(legacy),
+      "json",
+    );
+
+    expect(restored.items).toEqual(
+      document.items.map((item) => ({
+        ...item,
+        expandsBggIds: [],
+        expansionBggIds: [],
+      })),
+    );
+  });
 
   it("never executes arbitrary SQL uploads", async () => {
     await expect(

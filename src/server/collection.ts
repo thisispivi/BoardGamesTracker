@@ -35,6 +35,8 @@ async function getLibraryItems(userId: string, location: "owned" | "wishlist") {
       weight: games.weight,
       bggRating: games.bggRating,
       isExpansion: games.isExpansion,
+      expandsBggIds: games.expandsBggIds,
+      expansionBggIds: games.expansionBggIds,
       categories: games.categories,
       mechanics: games.mechanics,
       families: games.families,

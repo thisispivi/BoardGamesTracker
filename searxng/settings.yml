@@ -23,9 +23,6 @@ server:
   limiter: false
   image_proxy: false
 
-# Discovery uses only independent, keyless web and image engines. Keeping the
-# engine set narrow avoids sending BGG-specific queries to Wikipedia and other
-# vertical engines that cannot interpret them and only add errors or latency.
 engines:
   - name: bing images
     disabled: false

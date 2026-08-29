@@ -30,7 +30,11 @@ const gameHeaders = [
   "notes",
   "moneySpent",
   "gifted",
+  "expandsBggIds",
+  "expansionBggIds",
 ] as const;
+
+const legacyGameHeaders = gameHeaders.slice(0, -2);
 
 /** String-valued game row shared by tabular import and export formats. */
 type FlatGame = Record<(typeof gameHeaders)[number], string>;
@@ -218,7 +222,7 @@ async function serializeXlsx(document: UserDataDocument): Promise<Uint8Array> {
       formulae: ['"collection,wishlist"'],
     };
   }
-  gamesSheet.autoFilter = `A1:T${Math.max(1, document.items.length + 1)}`;
+  gamesSheet.autoFilter = `A1:W${Math.max(1, document.items.length + 1)}`;
   gamesSheet.getRow(1).height = 28;
   gamesSheet.getRow(1).font = { bold: true, color: { argb: "FFFFFFFF" } };
   gamesSheet.getRow(1).fill = {
@@ -228,7 +232,7 @@ async function serializeXlsx(document: UserDataDocument): Promise<Uint8Array> {
   };
   const widths = [
     14, 10, 30, 44, 42, 14, 11, 11, 13, 13, 10, 11, 12, 34, 34, 34, 10, 14, 38,
-    14,
+    14, 12, 34, 34,
   ];
   widths.forEach((width, index) => {
     gamesSheet.getColumn(index + 1).width = width;
@@ -259,17 +263,20 @@ async function parseXlsx(bytes: Uint8Array): Promise<UserDataDocument> {
   if (!profile || !gamesSheet)
     throw new Error("Required worksheets are missing.");
   const headers = gamesSheet.getRow(1).values;
-  if (
-    !Array.isArray(headers) ||
-    gameHeaders.some((header, index) => String(headers[index + 1]) !== header)
-  ) {
+  if (!Array.isArray(headers)) {
     throw new Error("Invalid Games worksheet.");
   }
+  const activeHeaders = matchesWorksheetHeaders(headers, gameHeaders)
+    ? gameHeaders
+    : matchesWorksheetHeaders(headers, legacyGameHeaders)
+      ? legacyGameHeaders
+      : null;
+  if (!activeHeaders) throw new Error("Invalid Games worksheet.");
   const items: PortableGame[] = [];
   gamesSheet.eachRow((row, rowNumber) => {
     if (rowNumber === 1) return;
     const flat = Object.fromEntries(
-      gameHeaders.map((header, index) => [
+      activeHeaders.map((header, index) => [
         header,
         unprotectCell(row.getCell(index + 1).text),
       ]),
@@ -350,6 +357,8 @@ function gameToFlatValues(game: PortableGame): string[] {
     safeSpreadsheetText(game.notes),
     String(game.moneySpent),
     String(game.gifted),
+    safeSpreadsheetText(JSON.stringify(game.expandsBggIds)),
+    safeSpreadsheetText(JSON.stringify(game.expansionBggIds)),
   ];
 }
 
@@ -382,6 +391,8 @@ function gameToWorksheetValues(game: PortableGame): unknown[] {
     safeSpreadsheetText(game.notes),
     game.moneySpent,
     game.gifted,
+    safeSpreadsheetText(JSON.stringify(game.expandsBggIds)),
+    safeSpreadsheetText(JSON.stringify(game.expansionBggIds)),
   ];
 }
 
@@ -414,6 +425,8 @@ function flatToGame(row: FlatGame): PortableGame {
     notes: unprotectCell(row.notes),
     moneySpent: requiredNumber(row.moneySpent),
     gifted: row.gifted === "true",
+    expandsBggIds: parseBggIds(row.expandsBggIds),
+    expansionBggIds: parseBggIds(row.expansionBggIds),
   };
 }
 
@@ -503,4 +516,38 @@ function parseLabels(value: string): string[] {
   const parsed: unknown = JSON.parse(unprotectCell(value));
   if (!Array.isArray(parsed)) throw new Error("Invalid taxonomy list.");
   return parsed as string[];
+}
+
+/**
+ * Parses optional BGG relationship identifiers from new portable exports.
+ *
+ * @param value - JSON array text, or an absent value from a legacy export.
+ * @returns Relationship identifiers for final bounded schema validation.
+ */
+function parseBggIds(value: string | undefined): number[] {
+  if (value === undefined || value === "") return [];
+  const parsed: unknown = JSON.parse(unprotectCell(value));
+  if (!Array.isArray(parsed)) throw new Error("Invalid BGG relationship list.");
+  return parsed.map((entry) => {
+    if (typeof entry !== "number") {
+      throw new Error("Invalid BGG relationship identifier.");
+    }
+    return entry;
+  });
+}
+
+/**
+ * Checks an XLSX header row against one supported portable schema.
+ *
+ * @param headers - Worksheet cell values including ExcelJS's empty zero index.
+ * @param expected - Ordered field names accepted for the Games worksheet.
+ * @returns Whether every expected column is present in the declared position.
+ */
+function matchesWorksheetHeaders(
+  headers: readonly unknown[],
+  expected: readonly string[],
+): boolean {
+  return expected.every(
+    (header, index) => String(headers[index + 1]) === header,
+  );
 }

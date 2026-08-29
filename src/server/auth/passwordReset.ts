@@ -2,6 +2,8 @@ import "server-only";
 
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 
+import { createLocalAccountIssuer } from "better-auth/db";
+
 import { passwordResetTokenSchema } from "@/core";
 import { env } from "@/env";
 import { auth } from "@/server/auth";
@@ -120,6 +122,7 @@ export async function applyPasswordReset(
   } else {
     await context.internalAdapter.createAccount({
       accountId: userId,
+      issuer: createLocalAccountIssuer("credential"),
       password: hashed,
       providerId: "credential",
       userId,

@@ -30,6 +30,8 @@ describe("parseBggHtmlPage", () => {
       bggRating: 7.4,
       categories: ["Trains"],
       description: "Build railway routes & connect cities.",
+      expandsBggIds: [],
+      expansionBggIds: [],
       families: ["Series: Ticket to Ride"],
       imageUrl: "https://cf.geekdo-images.com/ticket/pic.jpg",
       isExpansion: false,
@@ -117,6 +119,8 @@ describe("parseBggJsonResponses", () => {
       categories: ["Card Game", "Collectible Components"],
       description:
         "Cast spells & summon fantasy monsters in the original collectible card game.",
+      expandsBggIds: [],
+      expansionBggIds: [],
       families: ["Game: Magic The Gathering"],
       imageUrl: "https://cf.geekdo-images.com/magic/pic.jpg",
       isExpansion: false,
@@ -137,6 +141,31 @@ describe("parseBggJsonResponses", () => {
         bggRating: null,
         name: "Magic: The Gathering",
         weight: null,
+      }),
+    );
+  });
+
+  it("extracts exact expansion relationships from BGG link identifiers", () => {
+    const relationshipResponse = {
+      item: {
+        ...magicItemResponse.item,
+        links: {
+          ...magicItemResponse.item.links,
+          boardgameexpansion: [
+            { name: "Vudù: Double Trouble", objectid: "191182" },
+          ],
+          expandsboardgame: [
+            { name: "Voodoo", objectid: 154_880 },
+            { name: "Voodoo duplicate", objectid: 154_880 },
+          ],
+        },
+      },
+    };
+
+    expect(parseBggJsonResponses(relationshipResponse, null, 463)).toEqual(
+      expect.objectContaining({
+        expandsBggIds: [154_880],
+        expansionBggIds: [191_182],
       }),
     );
   });

@@ -4,6 +4,8 @@ export type BggMetadata = {
   bggRating: number | null;
   categories: string[];
   description: string;
+  expandsBggIds: number[];
+  expansionBggIds: number[];
   families: string[];
   imageUrl: string | null;
   isExpansion: boolean;

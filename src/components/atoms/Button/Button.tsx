@@ -3,7 +3,8 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 import { cn } from "@/utils/cn";
 
-const buttonVariants = cva(
+/** Defines the reusable visual variants shared by buttons and button-like links. */
+export const buttonVariants = cva(
   "inline-flex cursor-pointer items-center justify-center gap-2 rounded-full text-sm font-semibold transition duration-200 focus-visible:outline-2 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
@@ -51,6 +52,3 @@ export function Button({
     />
   );
 }
-
-/** Returns variant classes for link-styled buttons. */
-export { buttonVariants };

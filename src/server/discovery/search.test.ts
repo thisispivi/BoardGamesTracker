@@ -52,6 +52,8 @@ describe("searchBoardGames", () => {
             bggRating: 7.4,
             categories: ["Trains"],
             description: "Build railway routes across North America.",
+            expandsBggIds: [],
+            expansionBggIds: [],
             families: [],
             imageUrl: "https://cf.geekdo-images.com/ticket/pic.jpg",
             isExpansion: false,

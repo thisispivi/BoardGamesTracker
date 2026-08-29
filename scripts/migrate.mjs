@@ -24,22 +24,18 @@ async function runMigrations() {
   }
 }
 
-/**
- * Retries startup migrations while the database finishes accepting connections.
- *
- * Docker's restart policy ignores `depends_on` health checks, so a restarted
- * application can outrace PostgreSQL. Ten attempts three seconds apart covers
- * normal startup; raise it where the database performs slow crash recovery.
- */
+const maxAttempts = 10;
+const retryDelayMs = 3_000;
+
 for (let attempt = 1; ; attempt++) {
   try {
     await runMigrations();
     break;
   } catch (error) {
-    if (attempt >= 10 || !process.env.DATABASE_URL) throw error;
+    if (attempt >= maxAttempts || !process.env.DATABASE_URL) throw error;
     console.warn(
-      `Database not ready (attempt ${attempt}/10): ${error.cause?.message ?? error.message}`,
+      `Database not ready (attempt ${attempt}/${maxAttempts}): ${error.cause?.message ?? error.message}`,
     );
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
   }
 }

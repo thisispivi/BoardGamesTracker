@@ -1,0 +1,2 @@
+ALTER TABLE "games" ADD COLUMN "expands_bgg_ids" integer[] DEFAULT '{}'::integer[] NOT NULL;--> statement-breakpoint
+ALTER TABLE "games" ADD COLUMN "expansion_bgg_ids" integer[] DEFAULT '{}'::integer[] NOT NULL;

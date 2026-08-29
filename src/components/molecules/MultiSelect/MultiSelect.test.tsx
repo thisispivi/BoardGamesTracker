@@ -34,7 +34,6 @@ function MultiSelectFixture() {
 }
 
 describe("MultiSelect", () => {
-  /** Filters a long option list and retains multiple checked values. */
   it("searches and selects more than one option", async () => {
     const user = userEvent.setup();
     render(<MultiSelectFixture />);
