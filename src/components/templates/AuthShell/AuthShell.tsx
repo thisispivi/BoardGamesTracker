@@ -14,9 +14,9 @@ type AuthShellProps = {
 /**
  * Branded canvas shared by every page reachable without a session.
  *
- * Sign-in, account recovery, and the error screens all render here so the
- * gradient background, language switch, and theme toggle stay identical
- * wherever an account owner lands before the application shell takes over.
+ * Sign-in, account recovery, and the error screens all render here, so the
+ * background, language switch, and theme toggle stay identical wherever a
+ * signed-out visitor lands.
  *
  * @param root0 - Properties that configure auth shell.
  * @param root0.children - Content rendered inside the centered column.

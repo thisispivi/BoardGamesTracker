@@ -20,10 +20,9 @@ type RangeFieldProps = {
 /**
  * Selects an inclusive numeric range with a two-thumb slider and paired entries.
  *
- * Every proposed value is clamped into the supplied bounds and reordered so the
- * lower endpoint can never overtake the upper one, whichever control changed it.
- * Each entry field selects its content on focus so a typed value replaces the
- * current one, and a partial entry is ignored until it parses as a number.
+ * Every proposed value is clamped into the supplied bounds and reordered, so
+ * the lower endpoint can never overtake the upper one whichever control moved.
+ * A half-typed entry is ignored until it parses as a number.
  *
  * @param root0 - Properties that configure range field.
  * @param root0.bounds - Inclusive lowest and highest values the control offers.

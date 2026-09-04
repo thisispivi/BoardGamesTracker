@@ -572,7 +572,7 @@ type FieldProps = {
 /**
  * Consistent label wrapper for local game metadata inputs.
  *
- * @param root0 - Properties that configure field.
+ * @param root0 - Properties that configure one labelled add-game field.
  * @param root0.children - Content rendered inside the component.
  * @param root0.label - Localized label displayed by the control.
  * @returns A labeled form-field wrapper.

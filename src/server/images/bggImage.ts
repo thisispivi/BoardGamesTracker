@@ -96,7 +96,7 @@ async function readBoundedBody(response: Response): Promise<Buffer> {
  * Downloads and authenticates one bounded image from the BGG image CDN.
  *
  * @param rawUrl - Untrusted artwork URL to validate against the BGG allowlist.
- * @returns The downloaded bgg image.
+ * @returns The verified image with its SHA-256 checksum, bytes, and MIME type.
  */
 export async function downloadBggImage(
   rawUrl: string,
@@ -146,7 +146,7 @@ export async function downloadBggImage(
  * Downloads a bounded image map with limited outbound concurrency.
  *
  * @param sources - BoardGameGeek artwork URLs keyed by stable game identifier.
- * @returns The downloaded bgg images.
+ * @returns The images that downloaded successfully, keyed by game identifier.
  */
 export async function downloadBggImages(
   sources: Map<number, string>,

@@ -48,7 +48,7 @@ type EditDialogProps = {
 /**
  * Labelled input used throughout the metadata editor.
  *
- * @param root0 - Properties that configure field.
+ * @param root0 - Properties that configure one labelled metadata field.
  * @param root0.children - Content rendered inside the component.
  * @param root0.label - Localized label displayed by the control.
  * @returns The rendered field.

@@ -8,8 +8,8 @@ import { gameImages } from "@/server/db/schema";
  * Serves immutable, content-addressed game artwork stored in PostgreSQL.
  *
  * @param request - The incoming request.
- * @param context - The route or operation context.
- * @param context.params - The resolved route parameters.
+ * @param context - Route context supplied by Next.js.
+ * @param context.params - Route parameters carrying the requested checksum.
  * @returns The HTTP response for the request.
  */
 export async function GET(

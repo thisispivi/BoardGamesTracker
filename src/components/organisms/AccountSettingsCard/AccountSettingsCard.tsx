@@ -19,7 +19,7 @@ type AccountSettingsCardProps = {
 /**
  * Lets an account owner update credentials or permanently delete the account.
  *
- * @param root0 - Component properties.
+ * @param root0 - Properties that configure the account settings card.
  * @param root0.email - The account's current email address.
  * @param root0.mailEnabled - Whether sensitive account actions require email confirmation.
  * @returns The rendered account settings controls.

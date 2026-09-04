@@ -28,7 +28,7 @@ const blockedKeys = new Set([
  *
  * @param level - Severity used for the structured log entry.
  * @param message - Stable event name recorded by the logger.
- * @param context - The route or operation context.
+ * @param context - Scalar fields to record; secret-looking keys are dropped.
  * @returns Nothing.
  */
 export function log(

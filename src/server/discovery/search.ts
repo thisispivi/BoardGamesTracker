@@ -102,10 +102,9 @@ async function enrichCandidates(
 /**
  * Reports whether a result set is worth caching.
  *
- * Only a result set that actually found something is stored. An empty answer,
- * or one where nothing resolved artwork, is far more often a starved upstream
- * than a real answer, and caching it would keep serving that failure for the
- * whole cache lifetime instead of letting the next keystroke retry.
+ * An empty answer, or one where no artwork resolved, is usually a starved
+ * upstream rather than a real result. Caching it would serve that failure for
+ * the whole lifetime instead of letting the next keystroke retry.
  *
  * @param games - The freshly discovered games.
  * @returns Whether the results may be stored.

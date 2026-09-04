@@ -9,7 +9,7 @@ import { env } from "@/env";
  * Creates an authenticated, short-lived token for a discovery result.
  *
  * @param selection - The game selection to sign.
- * @returns The newly created selection token.
+ * @returns A signed token carrying the selection, valid for one hour.
  */
 export function createSelectionToken(selection: GameSelection): string {
   const payload = Buffer.from(

@@ -124,10 +124,8 @@ type GameFiltersProps = {
 /**
  * Renders the search, range, facet, and ordering panel shared by every game view.
  *
- * Searching and ordering sit in their own row above a grid of equal-height
- * facet controls, and the column count follows the width of the container, so
- * the same markup serves both the wide library toolbar and the narrow picker
- * sidebar without leaving ragged gaps between rows.
+ * The layout responds to its container rather than the viewport, so one panel
+ * serves both the wide library toolbar and the narrow picker sidebar.
  *
  * @param root0 - Properties that configure the controlled filter panel.
  * @param root0.className - Optional classes merged with the component styles.

@@ -18,11 +18,11 @@ function stripUrlSecrets(value: string): string {
 }
 
 /**
- * Strips user identity and sensitive request or navigation data from an outgoing error event.
+ * Strips user identity and sensitive request data from an outgoing error event.
  *
- * Fixing an error only requires the exception, stack trace, and request path; it never requires
- * who made the request or what they sent, so this runs as a defense-in-depth layer even though the
- * SDK's own conservative defaults already withhold this data.
+ * Fixing an error needs the exception, stack trace, and request path, never who
+ * made the request or what they sent. The SDK's defaults already withhold most
+ * of this; stripping it again means a change to those defaults cannot leak it.
  *
  * @param event - The captured error event about to be sent to Sentry/Bugsink.
  * @returns The same event with sensitive request and user fields removed.

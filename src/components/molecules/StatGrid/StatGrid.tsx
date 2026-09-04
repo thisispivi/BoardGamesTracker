@@ -19,9 +19,7 @@ type StatGridProps = {
 /**
  * Presents headline figures together on a single surface.
  *
- * Groups the figures inside one bordered surface rather than one card each, so
- * the numerals rather than the containers carry the hierarchy. Each figure is a
- * term-description pair, with the caption before the value in the document so
+ * Each figure is a term-description pair with the caption before the value, so
  * assistive technology reads them in the order the list declares.
  *
  * @param root0 - Properties that configure stat grid.

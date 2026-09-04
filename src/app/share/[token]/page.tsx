@@ -49,7 +49,7 @@ type SharedStatsProps = {
 /**
  * Summarizes the deliberately shared games without exposing extra personal data.
  *
- * @param root0 - Component properties.
+ * @param root0 - Properties that configure the shared library page.
  * @param root0.currency - The owner's display currency.
  * @param root0.games - The games the owner chose to publish.
  * @param root0.sharePrices - Whether the owner chose to reveal prices.

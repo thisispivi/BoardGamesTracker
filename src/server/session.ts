@@ -25,11 +25,10 @@ type ValidatedSession = NonNullable<
 /**
  * Per-user allowance enforced once a session has been resolved.
  *
- * This sits deliberately above the proxy's per-caller limit so the proxy
- * answers an ordinary flood with 429 first. Requests the proxy does not see,
- * such as router prefetches, still land here, and tripping this limit reads to
- * the user as being signed out — so it has to stay a genuine backstop rather
- * than a second limit with the same budget.
+ * Deliberately above the proxy's per-caller limit so the proxy answers an
+ * ordinary flood with 429 first. Tripping this one reads to the user as being
+ * signed out, so it stays a backstop for requests the proxy never sees, such
+ * as router prefetches.
  */
 const userRequestLimit = 600;
 const userRequestWindowMs = 60_000;
@@ -77,10 +76,9 @@ const getCachedSession = cache(async () => {
 /**
  * Returns the fully validated session for the current request.
  *
- * A banned account, or one past its per-user request allowance, is treated as
- * signed out rather than given a distinct outcome: every caller already has to
- * handle an absent session, and the alternative is a second failure mode in
- * every page and route that reads one.
+ * A banned account, or one past its request allowance, reads as signed out
+ * rather than as a distinct outcome. Every caller already handles an absent
+ * session; a second failure mode would have to be handled everywhere.
  *
  * @returns The active session, or null when the request may not proceed.
  */

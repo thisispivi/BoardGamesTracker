@@ -277,10 +277,9 @@ async function serializeXlsx(document: UserDataDocument): Promise<Uint8Array> {
 /**
  * Hands uploaded bytes to ExcelJS in the buffer shape it actually reads.
  *
- * ExcelJS types `load` against the DOM `Buffer` interface rather than Node's,
- * which no Node value satisfies. Passing a Node buffer is the documented usage
- * and the only supported input, so the assertion is the type declaration being
- * wrong, not the value. Remove it once ExcelJS ships accurate Node typings.
+ * ExcelJS types `load` against the DOM `Buffer`, which no Node value satisfies,
+ * while a Node buffer is its documented and only supported input. The assertion
+ * corrects the declaration, not the value. Drop it once ExcelJS types Node.
  *
  * @param bytes - The uploaded workbook bytes.
  * @returns The same bytes typed as the workbook loader's parameter.

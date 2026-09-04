@@ -265,7 +265,7 @@
     "button": "Importa CSV BGG",
     "eyebrow": "Importa collezione",
     "title": "Importa da BoardGameGeek",
-    "body": "Esporta la collezione in CSV da BGG e caricala qui. Board Games Tracker importa giochi posseduti, valutazioni, note, categorie e meccaniche e salva le copertine BGG corrispondenti in PostgreSQL.",
+    "body": "Esporta la collezione in CSV da BGG e caricala qui. Vengono importati giochi posseduti, valutazioni, note, categorie, meccaniche e copertine.",
     "file": "Esportazione collezione BGG",
     "limit": "Massimo 5 MB e 2.000 righe. I giochi esistenti vengono aggiornati; quelli non posseduti vengono ignorati.",
     "pending": "Importazione dettagli BGG e copertine…",

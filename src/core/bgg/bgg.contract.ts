@@ -8,11 +8,11 @@ const bggObjectIdSchema = z.number().int().min(1).max(10_000_000);
 /**
  * Validates normalized metadata scraped from BoardGameGeek's public sources.
  *
- * Bounds match what the scraper is allowed to emit, so the same schema serves
- * as the browser's check on the metadata route. Player counts and play times
- * are validated field by field rather than against each other: a partially
- * readable page legitimately yields a maximum below the minimum, and dropping
- * the whole record over it would lose metadata the add form can still use.
+ * Bounds match what the scraper may emit, so this is also what the browser
+ * checks the metadata route against. Player counts and play times are checked
+ * field by field, never against each other: a half-readable page can give a
+ * maximum below the minimum, and rejecting the record over that would lose
+ * metadata the add form can still use.
  */
 export const bggMetadataSchema = z.object({
   bggId: bggObjectIdSchema,

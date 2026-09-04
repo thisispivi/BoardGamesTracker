@@ -41,7 +41,7 @@ type LocalGameDetails = z.infer<typeof gameDetailsSchema>;
 /**
  * Inserts or refreshes user-supplied local metadata and returns the game ID.
  *
- * @param selection - The game selection to sign.
+ * @param selection - The verified identity decoded from the selection token.
  * @param details - Validated local fields supplied by the user.
  * @param metadata - Validated BoardGameGeek metadata for the game.
  * @returns The stored game identifier and whether artwork was cached.
