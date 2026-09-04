@@ -18,6 +18,7 @@ import { SharingCard } from "@/components/organisms/SharingCard/SharingCard";
 import { UserDataCard } from "@/components/organisms/UserDataCard/UserDataCard";
 import { env } from "@/env";
 import { getCollection } from "@/server/collection";
+import { isMailConfigured } from "@/server/mail/config";
 import { getUserPreferences } from "@/server/preferences";
 import { requireUser } from "@/server/session";
 
@@ -118,7 +119,10 @@ export default async function SettingsPage() {
           shareToken={preferences.shareToken}
           shareWishlist={preferences.shareWishlist}
         />
-        <AccountSettingsCard email={session.user.email} />
+        <AccountSettingsCard
+          email={session.user.email}
+          mailEnabled={isMailConfigured()}
+        />
         <div className="grid items-stretch gap-5 lg:grid-cols-2">
           <section className="bg-card shadow-soft flex flex-col justify-between gap-7 rounded-xl border p-5 sm:p-8">
             <div className="flex items-start gap-4">

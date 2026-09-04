@@ -69,6 +69,8 @@ or review the [security model](#security).
 
 - The first registered account becomes the administrator.
 - Administrators control registration and manage users and audit events.
+- Optional SMTP delivery supports email verification, password recovery,
+  confirmed email changes, and confirmed account deletion.
 - Share links expose only the collection data explicitly selected for sharing.
 - English and Italian interfaces, light and dark themes, and a responsive
   mobile layout.
@@ -157,6 +159,7 @@ Docker Compose is the deployment baseline:
 - Keep PostgreSQL and SearXNG on the private Compose network.
 - Persist and back up the PostgreSQL volume.
 - Configure Sentry-compatible monitoring only if you want it.
+- Configure transactional SMTP before enabling public registration.
 
 The application container runs pending migrations before starting the
 production server. Review generated migrations and take a database backup
@@ -190,25 +193,48 @@ instance to a group.
 [`.env.example`](./.env.example) documents every supported setting. The
 application variables that matter most:
 
-| Variable                         | Required | Purpose                                                       |
-| -------------------------------- | -------- | ------------------------------------------------------------- |
-| `DATABASE_URL`                   | Yes      | PostgreSQL connection string                                  |
-| `BETTER_AUTH_SECRET`             | Yes      | Authentication signing secret with at least 32 characters     |
-| `BETTER_AUTH_URL`                | Yes      | Canonical application origin for local or non-Compose runs    |
-| `NEXT_PUBLIC_APP_URL`            | Yes      | Public application origin exposed to the browser              |
-| `SEARXNG_URL`                    | Yes      | Server-side SearXNG endpoint                                  |
-| `ADMIN_EMAIL`                    | No       | Additional email address eligible for administrator bootstrap |
-| `ALLOW_SIGN_UP`                  | No       | Enables registration when set to `true`                       |
-| `HEALTH_CHECK_TOKEN`             | No       | Protects detailed health-check output                         |
-| `LOG_LEVEL`                      | No       | Server log verbosity                                          |
-| `SENTRY_DSN`                     | No       | Server-side Sentry-compatible error reporting                 |
-| `NEXT_PUBLIC_SENTRY_DSN`         | No       | Browser-side Sentry-compatible error reporting                |
-| `NEXT_PUBLIC_SENTRY_ENVIRONMENT` | No       | Monitoring environment name                                   |
-| `NEXT_PUBLIC_SENTRY_RELEASE`     | No       | Monitoring release identifier                                 |
-| `SENTRY_AUTH_TOKEN_FILE`         | No       | File containing the source-map upload token                   |
+| Variable                         | Required | Purpose                                                               |
+| -------------------------------- | -------- | --------------------------------------------------------------------- |
+| `DATABASE_URL`                   | Yes      | PostgreSQL connection string                                          |
+| `BETTER_AUTH_SECRET`             | Yes      | Authentication signing secret with at least 32 characters             |
+| `BETTER_AUTH_URL`                | Yes      | Canonical application origin for local or non-Compose runs            |
+| `NEXT_PUBLIC_APP_URL`            | Yes      | Public application origin exposed to the browser                      |
+| `SEARXNG_URL`                    | Yes      | Server-side SearXNG endpoint                                          |
+| `ADMIN_EMAIL`                    | No       | Additional email address eligible for administrator bootstrap         |
+| `ALLOW_SIGN_UP`                  | No       | Enables registration when set to `true`                               |
+| `HEALTH_CHECK_TOKEN`             | No       | Protects detailed health-check output                                 |
+| `LOG_LEVEL`                      | No       | Server log verbosity                                                  |
+| `SENTRY_DSN`                     | No       | Server-side Sentry-compatible error reporting                         |
+| `NEXT_PUBLIC_SENTRY_DSN`         | No       | Browser-side Sentry-compatible error reporting                        |
+| `NEXT_PUBLIC_SENTRY_ENVIRONMENT` | No       | Monitoring environment name                                           |
+| `NEXT_PUBLIC_SENTRY_RELEASE`     | No       | Monitoring release identifier                                         |
+| `SENTRY_AUTH_TOKEN_FILE`         | No       | File containing the source-map upload token                           |
+| `SMTP_HOST`                      | No       | Transactional SMTP server; enables email flows with `SMTP_FROM_EMAIL` |
+| `SMTP_PORT`                      | No       | SMTP port, normally `465` or `587`                                    |
+| `SMTP_SECURE`                    | No       | Uses implicit TLS; set to `true` for port `465`                       |
+| `SMTP_REQUIRE_TLS`               | No       | Requires STARTTLS when implicit TLS is disabled                       |
+| `SMTP_USER`                      | No       | SMTP username; must be paired with `SMTP_PASSWORD`                    |
+| `SMTP_PASSWORD`                  | No       | SMTP password or provider API credential                              |
+| `SMTP_FROM_NAME`                 | No       | Display name used for transactional messages                          |
+| `SMTP_FROM_EMAIL`                | No       | Verified sender address; enables email flows with `SMTP_HOST`         |
+| `SMTP_REPLY_TO`                  | No       | Optional monitored reply address                                      |
 
 Compose deployments use `APP_URL` for the public origin and derive the internal
 database and SearXNG addresses automatically.
+
+### Transactional email
+
+Set both `SMTP_HOST` and `SMTP_FROM_EMAIL` to enable email verification and
+self-service password recovery. Port `465` normally uses `SMTP_SECURE=true`;
+port `587` uses `SMTP_SECURE=false` and `SMTP_REQUIRE_TLS=true`. Credentials are
+optional only for SMTP relays that explicitly allow unauthenticated delivery.
+
+For reliable production delivery, verify the sender domain with your email
+provider and publish its SPF, DKIM, and DMARC records. Use a dedicated
+transactional sender, keep `SMTP_REPLY_TO` monitored if replies should reach a
+person, and rotate SMTP credentials as you would any production secret. The
+application sends multipart English or Italian messages through a pooled TLS
+connection and does not log recipient addresses or action links.
 
 ## Development workflow
 

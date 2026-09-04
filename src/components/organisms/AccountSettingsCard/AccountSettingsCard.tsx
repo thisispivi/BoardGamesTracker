@@ -13,6 +13,7 @@ import { authClient } from "@/utils/authClient";
 /** Account preferences displayed and edited by the settings card. */
 type AccountSettingsCardProps = {
   email: string;
+  mailEnabled: boolean;
 };
 
 /**
@@ -20,10 +21,12 @@ type AccountSettingsCardProps = {
  *
  * @param root0 - Component properties.
  * @param root0.email - The account's current email address.
+ * @param root0.mailEnabled - Whether sensitive account actions require email confirmation.
  * @returns The rendered account settings controls.
  */
 export function AccountSettingsCard({
   email,
+  mailEnabled,
 }: AccountSettingsCardProps): ReactNode {
   const [emailValue, setEmailValue] = useState(email);
   const [isPending, startTransition] = useTransition();
@@ -39,9 +42,17 @@ export function AccountSettingsCard({
   function changeEmail(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault();
     startTransition(async () => {
-      const { error } = await authClient.changeEmail({ newEmail: emailValue });
+      const { error } = await authClient.changeEmail({
+        newEmail: emailValue,
+        ...(mailEnabled ? { callbackURL: "/settings" } : {}),
+      });
       if (error) {
         toast.error(t("settings.emailFailed"));
+        return;
+      }
+      if (mailEnabled) {
+        setEmailValue(email);
+        toast.success(t("settings.emailConfirmationSent"));
         return;
       }
       router.refresh();
@@ -84,9 +95,16 @@ export function AccountSettingsCard({
    */
   async function deleteAccount(formData: FormData): Promise<void> {
     const password = String(formData.get("password") ?? "");
-    const { error } = await authClient.deleteUser({ password });
+    const { error } = await authClient.deleteUser({
+      password,
+      ...(mailEnabled ? { callbackURL: "/login" } : {}),
+    });
     if (error) {
       toast.error(t("settings.deleteFailed"));
+      return;
+    }
+    if (mailEnabled) {
+      toast.success(t("settings.deleteConfirmationSent"));
       return;
     }
     router.push("/login");

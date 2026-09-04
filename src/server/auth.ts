@@ -10,14 +10,18 @@ import { betterAuth } from "better-auth/minimal";
 import { nextCookies } from "better-auth/next-js";
 import { admin } from "better-auth/plugins";
 import { eq } from "drizzle-orm";
+import { after } from "next/server";
 
 import { env } from "@/env";
 import { isBootstrapRequired } from "@/server/bootstrap";
 import { db } from "@/server/db";
 import * as schema from "@/server/db/schema";
+import { sendAuthActionMail } from "@/server/mail/authMail";
+import { isMailConfigured } from "@/server/mail/config";
 import { isCurrentlyBanned } from "@/server/security/ban";
 
 const bannedUserMessage = "This account has been suspended.";
+const mailEnabled = isMailConfigured();
 
 /** Better Auth server with hardened email/password sessions and RBAC. */
 export const auth = betterAuth({
@@ -35,15 +39,104 @@ export const auth = betterAuth({
     disableSignUp: false,
     minPasswordLength: 12,
     maxPasswordLength: 128,
-    autoSignIn: true,
+    autoSignIn: !mailEnabled,
     revokeSessionsOnPasswordReset: true,
+    requireEmailVerification: mailEnabled,
+    ...(mailEnabled
+      ? {
+          resetPasswordTokenExpiresIn: 60 * 60,
+          sendResetPassword: async (
+            {
+              user,
+              url,
+            }: { user: { email: string; name: string }; url: string },
+            request?: Request,
+          ) =>
+            sendAuthActionMail({
+              kind: "passwordReset",
+              name: user.name,
+              recipient: user.email,
+              url,
+              ...(request === undefined ? {} : { request }),
+            }),
+        }
+      : {}),
   },
+  ...(mailEnabled
+    ? {
+        emailVerification: {
+          autoSignInAfterVerification: true,
+          expiresIn: 60 * 60,
+          sendOnSignIn: true,
+          sendOnSignUp: true,
+          sendVerificationEmail: async (
+            {
+              user,
+              url,
+            }: { user: { email: string; name: string }; url: string },
+            request?: Request,
+          ) =>
+            sendAuthActionMail({
+              kind: "verification",
+              name: user.name,
+              recipient: user.email,
+              url,
+              ...(request === undefined ? {} : { request }),
+            }),
+        },
+      }
+    : {}),
   user: {
     changeEmail: {
       enabled: true,
-      updateEmailWithoutVerification: true,
+      updateEmailWithoutVerification: !mailEnabled,
+      ...(mailEnabled
+        ? {
+            sendChangeEmailConfirmation: async (
+              {
+                user,
+                newEmail,
+                url,
+              }: {
+                user: { email: string; name: string };
+                newEmail: string;
+                url: string;
+              },
+              request?: Request,
+            ) =>
+              sendAuthActionMail({
+                kind: "emailChange",
+                name: user.name,
+                newEmail,
+                recipient: user.email,
+                url,
+                ...(request === undefined ? {} : { request }),
+              }),
+          }
+        : {}),
     },
-    deleteUser: { enabled: true },
+    deleteUser: {
+      enabled: true,
+      ...(mailEnabled
+        ? {
+            deleteTokenExpiresIn: 60 * 60 * 24,
+            sendDeleteAccountVerification: async (
+              {
+                user,
+                url,
+              }: { user: { email: string; name: string }; url: string },
+              request?: Request,
+            ) =>
+              sendAuthActionMail({
+                kind: "accountDeletion",
+                name: user.name,
+                recipient: user.email,
+                url,
+                ...(request === undefined ? {} : { request }),
+              }),
+          }
+        : {}),
+    },
   },
   session: {
     expiresIn: 60 * 60 * 24 * 14,
@@ -59,10 +152,16 @@ export const auth = betterAuth({
     customRules: {
       "/sign-in/email": { window: 60, max: 8 },
       "/sign-up/email": { window: 300, max: 5 },
-      "/forget-password": { window: 300, max: 3 },
+      "/request-password-reset": { window: 300, max: 3 },
+      "/send-verification-email": { window: 300, max: 3 },
+      "/change-email": { window: 300, max: 3 },
+      "/delete-user": { window: 300, max: 3 },
     },
   },
   advanced: {
+    backgroundTasks: {
+      handler: (promise) => after(() => promise),
+    },
     cookiePrefix: "board_games_tracker",
     useSecureCookies: process.env.NODE_ENV === "production",
     defaultCookieAttributes: {

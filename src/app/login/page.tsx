@@ -8,6 +8,7 @@ import { ThemeToggle } from "@/components/molecules/ThemeToggle/ThemeToggle";
 import { AuthForm } from "@/components/organisms/AuthForm/AuthForm";
 import { env } from "@/env";
 import { isBootstrapRequired } from "@/server/bootstrap";
+import { isMailConfigured } from "@/server/mail/config";
 import { getSession } from "@/server/session";
 
 /**
@@ -66,6 +67,7 @@ export default async function LoginPage({
               allowSignUp={allowSignUp}
               bootstrapRequired={bootstrapRequired}
               initialMode={mode}
+              mailEnabled={isMailConfigured()}
             />
           </div>
         </section>

@@ -8,6 +8,7 @@ export * from "@/core/collection/collection.contract";
 export * from "@/core/collectionStats/collectionStats";
 export * from "@/core/discovery/discovery";
 export * from "@/core/discovery/discovery.contract";
+export * from "@/core/mail/mail";
 export * from "@/core/picker/picker";
 export * from "@/core/preferences/preferences.contract";
 export * from "@/core/selection/selection.contract";

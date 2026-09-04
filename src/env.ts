@@ -16,6 +16,26 @@ export const env = createEnv({
     LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
     SEARXNG_URL: z.url(),
     SENTRY_DSN: z.url().optional(),
+    SMTP_FROM_EMAIL: z.email().optional(),
+    SMTP_FROM_NAME: z
+      .string()
+      .trim()
+      .min(1)
+      .max(100)
+      .default("Board Games Tracker"),
+    SMTP_HOST: z.string().trim().min(1).max(253).optional(),
+    SMTP_PASSWORD: z.string().min(1).max(1_000).optional(),
+    SMTP_PORT: z.coerce.number().int().min(1).max(65_535).default(587),
+    SMTP_REPLY_TO: z.email().optional(),
+    SMTP_REQUIRE_TLS: z
+      .enum(["true", "false"])
+      .default("true")
+      .transform((value) => value === "true"),
+    SMTP_SECURE: z
+      .enum(["true", "false"])
+      .default("false")
+      .transform((value) => value === "true"),
+    SMTP_USER: z.string().min(1).max(500).optional(),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.url(),
@@ -42,6 +62,15 @@ export const env = createEnv({
     NEXT_PUBLIC_SENTRY_RELEASE: process.env.NEXT_PUBLIC_SENTRY_RELEASE,
     SEARXNG_URL: process.env.SEARXNG_URL,
     SENTRY_DSN: process.env.SENTRY_DSN,
+    SMTP_FROM_EMAIL: process.env.SMTP_FROM_EMAIL,
+    SMTP_FROM_NAME: process.env.SMTP_FROM_NAME,
+    SMTP_HOST: process.env.SMTP_HOST,
+    SMTP_PASSWORD: process.env.SMTP_PASSWORD,
+    SMTP_PORT: process.env.SMTP_PORT,
+    SMTP_REPLY_TO: process.env.SMTP_REPLY_TO,
+    SMTP_REQUIRE_TLS: process.env.SMTP_REQUIRE_TLS,
+    SMTP_SECURE: process.env.SMTP_SECURE,
+    SMTP_USER: process.env.SMTP_USER,
   },
   emptyStringAsUndefined: true,
   skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
