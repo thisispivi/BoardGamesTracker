@@ -24,13 +24,12 @@ jobs:
       SEARXNG_URL: http://127.0.0.1:8080
     steps:
       - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/setup@v2
         with:
           version: 11.24.0
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24.20.0
-          cache: pnpm
+          runtime: node@24.20.0
+          cache: true
+          install: false
       - name: Install dependencies
         if: github.actor != 'dependabot[bot]'
         run: pnpm install --frozen-lockfile
