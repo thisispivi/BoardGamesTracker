@@ -33,7 +33,7 @@ export function AppShell({ children, user }: AppShellProps): ReactNode {
         <Logo className="px-2" />
         <AppNavigation isAdmin={user.role === "admin"} />
         <div className="mt-auto space-y-4">
-          <div className="bg-muted/70 flex items-center justify-between rounded-lg p-2 pl-4">
+          <div className="bg-muted/70 flex items-center gap-1 rounded-lg p-1">
             <LocaleSelect />
             <ThemeToggle />
           </div>

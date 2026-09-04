@@ -5,11 +5,11 @@ import {
   BookOpen,
   ChartNoAxesCombined,
   Dices,
-  Heart,
   House,
   Menu,
   Settings,
   Shield,
+  ShoppingBag,
   X,
 } from "lucide-react";
 import Link, { useLinkStatus } from "next/link";
@@ -53,7 +53,7 @@ export function AppNavigation({
   const links = [
     { href: "/dashboard", label: t("navigation.dashboard"), icon: House },
     { href: "/collection", label: t("navigation.collection"), icon: BookOpen },
-    { href: "/wishlist", label: t("navigation.wishlist"), icon: Heart },
+    { href: "/wishlist", label: t("navigation.wishlist"), icon: ShoppingBag },
     { href: "/play", label: t("navigation.play"), icon: Dices },
     { href: "/stats", label: t("navigation.stats"), icon: ChartNoAxesCombined },
     { href: "/settings", label: t("navigation.settings"), icon: Settings },
@@ -127,7 +127,7 @@ export function AppNavigation({
           </div>
           {content}
           {localeSelect ? (
-            <div className="bg-muted/70 mt-4 flex shrink-0 items-center rounded-lg p-1 pl-3">
+            <div className="bg-muted/70 mt-4 flex shrink-0 items-center rounded-lg p-1">
               {localeSelect}
             </div>
           ) : null}

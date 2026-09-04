@@ -1,4 +1,4 @@
-import { Banknote, BookOpen, Boxes, Heart, Puzzle } from "lucide-react";
+import { Banknote, BookOpen, Puzzle, ShoppingBag } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
@@ -59,7 +59,7 @@ async function SharedStats({ currency, games, sharePrices }: SharedStatsProps) {
   const [format, t] = await Promise.all([getFormatter(), getTranslations()]);
   const cards = [
     {
-      icon: Boxes,
+      icon: BookOpen,
       label: t("sharing.games"),
       value: games.filter((game) => !game.isExpansion).length,
     },
@@ -169,7 +169,7 @@ export default async function SharedLibraryPage({
         <SharedSection
           currency={shared.currency}
           games={shared.wishlist}
-          icon={Heart}
+          icon={ShoppingBag}
           sharePrices={shared.sharePrices}
           title={t("navigation.wishlist")}
         />

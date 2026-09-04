@@ -1,4 +1,4 @@
-import { ArrowRight, Banknote, BookOpen, Boxes, Heart } from "lucide-react";
+import { ArrowRight, Banknote, BookOpen, Heart, Puzzle } from "lucide-react";
 import Link from "next/link";
 import { getFormatter, getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
@@ -59,7 +59,7 @@ export default async function DashboardPage(): Promise<ReactNode> {
         stats={[
           { icon: BookOpen, label: t("dashboard.games"), value: games.length },
           {
-            icon: Boxes,
+            icon: Puzzle,
             label: t("dashboard.expansions"),
             value: expansions.length,
           },

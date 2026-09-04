@@ -172,7 +172,7 @@ textarea {
 }
 
 .glass-panel {
-  background: color-mix(in srgb, var(--card) 66%, transparent);
+  background: color-mix(in srgb, var(--card) 82%, transparent);
   border: 1px solid color-mix(in srgb, var(--card-foreground) 9%, transparent);
   backdrop-filter: blur(20px) saturate(160%);
   box-shadow:
@@ -181,30 +181,10 @@ textarea {
 }
 
 .dark .glass-panel {
-  background: color-mix(in srgb, var(--card) 58%, transparent);
+  background: color-mix(in srgb, var(--card) 74%, transparent);
   box-shadow:
     inset 0 1px 0 0 color-mix(in srgb, #ffffff 7%, transparent),
     0 22px 48px -30px rgb(0 0 0 / 0.75);
-}
-
-.stats-aurora {
-  background-image:
-    radial-gradient(
-      38rem 22rem at 8% 0%,
-      color-mix(in srgb, var(--primary) 26%, transparent),
-      transparent 70%
-    ),
-    radial-gradient(
-      32rem 20rem at 92% 12%,
-      color-mix(in srgb, var(--accent) 24%, transparent),
-      transparent 70%
-    ),
-    radial-gradient(
-      40rem 26rem at 50% 100%,
-      color-mix(in srgb, var(--primary) 16%, transparent),
-      transparent 72%
-    );
-  filter: blur(6px);
 }
 
 .noise {

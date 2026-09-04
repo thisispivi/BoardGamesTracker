@@ -1,4 +1,4 @@
-import { Banknote, Boxes, Gift, Heart, ShieldCheck } from "lucide-react";
+import { Banknote, BookOpen, Gift, Heart, ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
@@ -41,7 +41,7 @@ export default async function SettingsPage(): Promise<ReactNode> {
   ]);
   const collectionFacts = [
     {
-      icon: Boxes,
+      icon: BookOpen,
       label: t("settings.libraryItems"),
       value: collection.length,
     },

@@ -4,7 +4,7 @@ import {
   Check,
   KeyRound,
   LoaderCircle,
-  ShieldCheck,
+  Shield,
   Trash2,
   UserRoundCheck,
   UserRoundX,
@@ -116,7 +116,7 @@ export function AdminUserActions({
           }
           type="submit"
         >
-          <ShieldCheck className="size-4" />
+          <Shield className="size-4" />
         </button>
       </form>
       <form action={toggleUserBanAction}>

@@ -1,13 +1,13 @@
 import {
   Banknote,
-  Boxes,
+  BookOpen,
   ChartNoAxesCombined,
+  Clock3,
   Gauge,
   Heart,
-  Library,
+  Puzzle,
   ReceiptText,
   Scale,
-  Timer,
 } from "lucide-react";
 import type { Metadata } from "next";
 import { getFormatter, getTranslations } from "next-intl/server";
@@ -75,7 +75,7 @@ export default async function StatsPage(): Promise<ReactNode> {
 
   const cards = [
     {
-      icon: Library,
+      icon: BookOpen,
       label: t("stats.totalItems"),
       value: format.number(stats.totalItems),
     },
@@ -112,7 +112,7 @@ export default async function StatsPage(): Promise<ReactNode> {
             }),
     },
     {
-      icon: Timer,
+      icon: Clock3,
       label: t("stats.averagePlaytime"),
       value:
         stats.averagePlaytime === null
@@ -122,7 +122,7 @@ export default async function StatsPage(): Promise<ReactNode> {
             }),
     },
     {
-      icon: Boxes,
+      icon: Puzzle,
       label: t("stats.expansionShare"),
       value: formatShare(stats.expansions),
     },
@@ -140,26 +140,17 @@ export default async function StatsPage(): Promise<ReactNode> {
         eyebrow={t("stats.eyebrow")}
         title={t("stats.title")}
       />
-      <div className="relative isolate min-w-0">
-        <div
-          aria-hidden="true"
-          className="stats-aurora pointer-events-none absolute -inset-x-10 -top-48 -z-10 h-200 opacity-80"
-        />
-        <StatGrid
-          className="mb-5 sm:grid-cols-3 2xl:grid-cols-5"
-          stats={cards}
-        />
-        <StatsCharts
-          categories={stats.categories}
-          complexity={stats.complexity}
-          currency={preferences.currency}
-          decades={stats.decades}
-          mechanics={stats.mechanics}
-          mostExpensive={stats.mostExpensive}
-          playerCounts={stats.playerCounts}
-          playtime={stats.playtime}
-        />
-      </div>
+      <StatGrid className="mb-5 sm:grid-cols-3 2xl:grid-cols-5" stats={cards} />
+      <StatsCharts
+        categories={stats.categories}
+        complexity={stats.complexity}
+        currency={preferences.currency}
+        decades={stats.decades}
+        mechanics={stats.mechanics}
+        mostExpensive={stats.mostExpensive}
+        playerCounts={stats.playerCounts}
+        playtime={stats.playtime}
+      />
     </>
   );
 }

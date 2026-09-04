@@ -1,4 +1,4 @@
-import { Heart } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
@@ -52,7 +52,7 @@ export default async function WishlistPage(): Promise<ReactNode> {
       ) : (
         <EmptyState
           description={t("wishlist.emptyBody")}
-          icon={Heart}
+          icon={ShoppingBag}
           title={t("wishlist.emptyTitle")}
         />
       )}
