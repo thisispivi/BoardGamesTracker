@@ -46,6 +46,7 @@ export function WishlistBrowser({
         filters={filters}
         games={games}
         onChange={setFilters}
+        showBrowseControls
       />
 
       {visible.length > 0 ? (

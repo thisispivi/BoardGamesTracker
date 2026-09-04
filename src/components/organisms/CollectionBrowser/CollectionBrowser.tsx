@@ -63,6 +63,7 @@ export function CollectionBrowser({
         filters={filters}
         games={games}
         onChange={setFilters}
+        showBrowseControls
         showFavorites
       />
 

@@ -158,7 +158,6 @@
     },
     "playersLabel": "Filtra per numero di giocatori",
     "anyPlayers": "Qualsiasi numero di giocatori",
-    "playersRange": "{from}–{to} giocatori",
     "minPlayers": "Giocatori minimi",
     "maxPlayers": "Giocatori massimi",
     "weightLabel": "Filtra per complessità",
@@ -171,9 +170,9 @@
     },
     "timeLabel": "Filtra per durata",
     "anyTime": "Qualsiasi durata",
-    "playtimeRange": "da {from} a {to}",
     "minPlaytime": "Durata minima in minuti",
     "maxPlaytime": "Durata massima in minuti",
+    "minutesUnit": "min",
     "gameTypeLabel": "Filtra per tipo di gioco",
     "gameType": {
       "all": "Tutti i tipi di gioco",

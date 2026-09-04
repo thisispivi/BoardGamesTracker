@@ -22,7 +22,7 @@ function RangeFieldFixture() {
       minimumLabel="Minimum players"
       onValueChange={setValue}
       step={1}
-      summary={`${value.min}–${value.max} players`}
+      unit="players"
       value={value}
     />
   );
@@ -52,7 +52,9 @@ describe("RangeField", () => {
       initialSelectionStart: 0,
     });
 
-    expect(screen.getByText("2–12 players")).toBeVisible();
+    expect(
+      screen.getByRole("textbox", { name: "Maximum players" }),
+    ).toHaveValue("12");
   });
 
   it("reorders the range when the lower entry overtakes the upper one", async () => {
@@ -67,6 +69,11 @@ describe("RangeField", () => {
       initialSelectionStart: 0,
     });
 
-    expect(screen.getByText("6–9 players")).toBeVisible();
+    expect(
+      screen.getByRole("textbox", { name: "Minimum players" }),
+    ).toHaveValue("6");
+    expect(
+      screen.getByRole("textbox", { name: "Maximum players" }),
+    ).toHaveValue("9");
   });
 });

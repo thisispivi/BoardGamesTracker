@@ -2,6 +2,7 @@
 
 import type { LucideIcon } from "lucide-react";
 import {
+  ArrowDownUp,
   Clock3,
   Gauge,
   Heart,
@@ -28,7 +29,6 @@ import type {
   MultiSelectOption,
   SelectOption,
 } from "@/core";
-import { useDurationFormatter } from "@/hooks/useDurationFormatter";
 import { cn } from "@/utils/cn";
 import { getTaxonomyLabel, isExpansionCategory } from "@/utils/gameTaxonomy";
 import {
@@ -116,20 +116,24 @@ type GameFiltersProps = {
   filters: LibraryFilters;
   games: CollectionGame[];
   onChange: (filters: LibraryFilters) => void;
+  showBrowseControls?: boolean;
   showFavorites?: boolean;
 };
 
 /**
  * Renders the search, range, facet, and ordering panel shared by every game view.
  *
- * The panel adapts its column count to the width of its container, so the same
- * markup serves both the wide library toolbar and the narrow picker sidebar.
+ * Searching and ordering sit in their own row above a grid of equal-height
+ * facet controls, and the column count follows the width of the container, so
+ * the same markup serves both the wide library toolbar and the narrow picker
+ * sidebar without leaving ragged gaps between rows.
  *
  * @param root0 - Properties that configure the controlled filter panel.
  * @param root0.className - Optional classes merged with the component styles.
  * @param root0.filters - Current filter and ordering state.
  * @param root0.games - Games used to derive the available taxonomy options.
  * @param root0.onChange - Callback receiving the complete next filter state.
+ * @param root0.showBrowseControls - Whether searching and ordering apply to this view.
  * @param root0.showFavorites - Whether the favorites filter applies to this library.
  * @returns The rendered filter panel.
  */
@@ -138,11 +142,11 @@ export function GameFilters({
   filters,
   games,
   onChange,
+  showBrowseControls = false,
   showFavorites = false,
 }: GameFiltersProps): ReactNode {
   const locale = useLocale();
   const t = useTranslations("libraryFilters");
-  const formatDuration = useDurationFormatter();
   const categories = useMemo(
     () => facetOptions(games, "categories", locale),
     [games, locale],
@@ -166,7 +170,7 @@ export function GameFilters({
   const playersActive = !isFullRange(filters.players, playerRangeBounds);
   const playtimeActive = !isFullRange(filters.playtime, playtimeRangeBounds);
   const activeFilterCount = [
-    Boolean(filters.query.trim()),
+    showBrowseControls && Boolean(filters.query.trim()),
     playersActive,
     playtimeActive,
     filters.weight !== "all",
@@ -175,7 +179,9 @@ export function GameFilters({
     filters.mechanics.length > 0,
     showFavorites && filters.favoritesOnly,
   ].filter(Boolean).length;
-  const hasChanges = activeFilterCount > 0 || filters.sort !== "nameAscending";
+  const hasChanges =
+    activeFilterCount > 0 ||
+    (showBrowseControls && filters.sort !== "nameAscending");
 
   return (
     <section
@@ -210,74 +216,71 @@ export function GameFilters({
         ) : null}
       </div>
 
-      <div className="grid gap-4 @2xl:grid-cols-2 @4xl:grid-cols-3">
-        <FilterField icon={Search} label={t("names.search")}>
-          <label className="relative block">
-            <span className="sr-only">{t("searchLabel")}</span>
-            <Search
-              aria-hidden="true"
-              className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2"
-            />
-            <input
-              className="bg-background hover:bg-muted/40 focus-visible:border-primary/50 h-11 w-full rounded-lg border pr-3 pl-10 text-sm shadow-sm transition-colors"
-              onChange={(event) =>
-                onChange({ ...filters, query: event.target.value })
+      {showBrowseControls ? (
+        <div className="mb-4 grid gap-4 border-b pb-4 @2xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+          <FilterField icon={Search} label={t("names.search")}>
+            <label className="relative block">
+              <span className="sr-only">{t("searchLabel")}</span>
+              <Search
+                aria-hidden="true"
+                className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2"
+              />
+              <input
+                className="bg-background hover:bg-muted/40 focus-visible:border-primary/50 h-11 w-full rounded-lg border pr-3 pl-10 text-sm shadow-sm transition-colors"
+                onChange={(event) =>
+                  onChange({ ...filters, query: event.target.value })
+                }
+                placeholder={t("searchPlaceholder")}
+                type="search"
+                value={filters.query}
+              />
+            </label>
+          </FilterField>
+
+          <FilterField icon={ArrowDownUp} label={t("names.sort")}>
+            <Select
+              ariaLabel={t("sortLabel")}
+              onValueChange={(value) =>
+                onChange({
+                  ...filters,
+                  sort: selectValue(value, librarySorts, "nameAscending"),
+                })
               }
-              placeholder={t("searchPlaceholder")}
-              type="search"
-              value={filters.query}
+              options={sortOptions}
+              value={filters.sort}
             />
-          </label>
-        </FilterField>
+          </FilterField>
+        </div>
+      ) : null}
 
-        <FilterField icon={SlidersHorizontal} label={t("names.sort")}>
-          <Select
-            ariaLabel={t("sortLabel")}
-            onValueChange={(value) =>
-              onChange({
-                ...filters,
-                sort: selectValue(value, librarySorts, "nameAscending"),
-              })
-            }
-            options={sortOptions}
-            value={filters.sort}
-          />
-        </FilterField>
-
-        <FilterField icon={Users} label={t("names.players")}>
+      <div className="grid gap-4 @2xl:grid-cols-2 @4xl:grid-cols-3">
+        <FilterField
+          hint={playersActive ? "" : t("anyPlayers")}
+          icon={Users}
+          label={t("names.players")}
+        >
           <RangeField
             bounds={playerRangeBounds}
             maximumLabel={t("maxPlayers")}
             minimumLabel={t("minPlayers")}
             onValueChange={(players) => onChange({ ...filters, players })}
             step={1}
-            summary={
-              playersActive
-                ? t("playersRange", {
-                    from: filters.players.min,
-                    to: filters.players.max,
-                  })
-                : t("anyPlayers")
-            }
             value={filters.players}
           />
         </FilterField>
 
-        <FilterField icon={Clock3} label={t("names.playtime")}>
+        <FilterField
+          hint={playtimeActive ? "" : t("anyTime")}
+          icon={Clock3}
+          label={t("names.playtime")}
+        >
           <RangeField
             bounds={playtimeRangeBounds}
             maximumLabel={t("maxPlaytime")}
             minimumLabel={t("minPlaytime")}
             onValueChange={(playtime) => onChange({ ...filters, playtime })}
             step={playtimeRangeStep}
-            summary={
-              playtimeActive
-                ? t("playtimeRange", {
-                    from: formatDuration(filters.playtime.min),
-                    to: formatDuration(filters.playtime.max),
-                  })
-                : t("anyTime")
-            }
+            unit={t("minutesUnit")}
             value={filters.playtime}
           />
         </FilterField>
@@ -385,10 +388,11 @@ export function GameFilters({
   );
 }
 
-/** Visible name, icon, and selection count rendered above one filter control. */
+/** Visible name, icon, and state summary rendered above one filter control. */
 type FilterFieldProps = {
   children: ReactNode;
   count?: number;
+  hint?: string;
   icon: LucideIcon;
   label: string;
 };
@@ -399,6 +403,7 @@ type FilterFieldProps = {
  * @param root0 - Properties that configure filter field.
  * @param root0.children - The filter control the label describes.
  * @param root0.count - Number of active selections shown beside the label.
+ * @param root0.hint - Summary shown when the control is not narrowing anything, or empty.
  * @param root0.icon - Decorative icon rendered beside the label.
  * @param root0.label - Localized name of the facet being filtered.
  * @returns A labeled filter control.
@@ -406,6 +411,7 @@ type FilterFieldProps = {
 function FilterField({
   children,
   count = 0,
+  hint,
   icon: Icon,
   label,
 }: FilterFieldProps): ReactNode {
@@ -418,6 +424,9 @@ function FilterField({
           <span className="bg-primary text-primary-foreground min-w-4 rounded-full px-1 text-center text-[0.625rem] tabular-nums">
             {count}
           </span>
+        ) : null}
+        {hint ? (
+          <span className="ml-auto truncate normal-case">{hint}</span>
         ) : null}
       </p>
       {children}

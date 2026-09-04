@@ -6,19 +6,19 @@ import type { ReactNode } from "react";
 import type { NumberRange } from "@/core";
 import { clampRange } from "@/utils/libraryFilters";
 
-/** Bounded range control backed by a dual-thumb slider and two numeric inputs. */
+/** Bounded range control backed by a dual-thumb slider and two numeric entries. */
 type RangeFieldProps = {
   bounds: NumberRange;
   maximumLabel: string;
   minimumLabel: string;
   onValueChange: (value: NumberRange) => void;
   step: number;
-  summary: string;
+  unit?: string;
   value: NumberRange;
 };
 
 /**
- * Selects an inclusive numeric range with a two-thumb slider and paired inputs.
+ * Selects an inclusive numeric range with a two-thumb slider and paired entries.
  *
  * Every proposed value is clamped into the supplied bounds and reordered so the
  * lower endpoint can never overtake the upper one, whichever control changed it.
@@ -27,11 +27,11 @@ type RangeFieldProps = {
  *
  * @param root0 - Properties that configure range field.
  * @param root0.bounds - Inclusive lowest and highest values the control offers.
- * @param root0.maximumLabel - Accessible name for the upper thumb and input.
- * @param root0.minimumLabel - Accessible name for the lower thumb and input.
+ * @param root0.maximumLabel - Accessible name for the upper thumb and entry.
+ * @param root0.minimumLabel - Accessible name for the lower thumb and entry.
  * @param root0.onValueChange - Callback invoked with the next clamped range.
- * @param root0.step - Increment applied by the slider and the numeric inputs.
- * @param root0.summary - Localized description of the currently selected range.
+ * @param root0.step - Increment applied by the slider and the numeric entries.
+ * @param root0.unit - Localized unit suffix shown inside both entries.
  * @param root0.value - Currently selected inclusive range.
  * @returns The rendered range field.
  */
@@ -41,14 +41,14 @@ export function RangeField({
   minimumLabel,
   onValueChange,
   step,
-  summary,
+  unit,
   value,
 }: RangeFieldProps): ReactNode {
   /**
    * Applies one edited endpoint while ignoring an incomplete numeric entry.
    *
-   * @param endpoint - Range endpoint the numeric input controls.
-   * @param entry - Raw text currently held by the numeric input.
+   * @param endpoint - Range endpoint the numeric entry controls.
+   * @param entry - Raw text currently held by the numeric entry.
    * @returns Nothing.
    */
   function commitEndpoint(endpoint: "max" | "min", entry: string): void {
@@ -58,12 +58,15 @@ export function RangeField({
   }
 
   return (
-    <div className="bg-background rounded-lg border px-3 py-2.5 shadow-sm">
-      <p className="text-muted-foreground mb-2 text-xs font-semibold">
-        {summary}
-      </p>
+    <div className="flex h-11 items-center gap-2">
+      <RangeEntry
+        label={minimumLabel}
+        onCommit={(entry) => commitEndpoint("min", entry)}
+        {...(unit === undefined ? {} : { unit })}
+        value={value.min}
+      />
       <SliderPrimitive.Root
-        className="relative flex h-5 w-full touch-none items-center select-none"
+        className="relative flex h-11 min-w-0 flex-1 touch-none items-center select-none"
         max={bounds.max}
         min={bounds.min}
         minStepsBetweenThumbs={0}
@@ -90,30 +93,62 @@ export function RangeField({
           className="border-primary bg-background focus-visible:outline-primary block size-4 rounded-full border-2 shadow transition focus-visible:outline-2"
         />
       </SliderPrimitive.Root>
-      <div className="mt-2.5 grid grid-cols-2 gap-2">
-        <label className="block">
-          <span className="sr-only">{minimumLabel}</span>
-          <input
-            className="bg-muted/50 h-8 w-full rounded-md px-2 text-sm font-semibold tabular-nums"
-            inputMode="numeric"
-            onChange={(event) => commitEndpoint("min", event.target.value)}
-            onFocus={(event) => event.target.select()}
-            type="text"
-            value={value.min}
-          />
-        </label>
-        <label className="block">
-          <span className="sr-only">{maximumLabel}</span>
-          <input
-            className="bg-muted/50 h-8 w-full rounded-md px-2 text-sm font-semibold tabular-nums"
-            inputMode="numeric"
-            onChange={(event) => commitEndpoint("max", event.target.value)}
-            onFocus={(event) => event.target.select()}
-            type="text"
-            value={value.max}
-          />
-        </label>
-      </div>
+      <RangeEntry
+        label={maximumLabel}
+        onCommit={(entry) => commitEndpoint("max", entry)}
+        {...(unit === undefined ? {} : { unit })}
+        value={value.max}
+      />
     </div>
+  );
+}
+
+/** One labelled range endpoint entry with an optional unit suffix. */
+type RangeEntryProps = {
+  label: string;
+  onCommit: (entry: string) => void;
+  unit?: string;
+  value: number;
+};
+
+/**
+ * Renders one range endpoint as a compact entry field carrying its unit.
+ *
+ * The unit is decorative: the accessible name supplied by the caller already
+ * states it, so repeating it would double the announcement.
+ *
+ * @param root0 - Properties that configure range entry.
+ * @param root0.label - Accessible name announced for the endpoint.
+ * @param root0.onCommit - Callback invoked with the raw text of every edit.
+ * @param root0.unit - Localized unit suffix displayed after the value.
+ * @param root0.value - Endpoint currently selected for this side of the range.
+ * @returns The rendered endpoint entry.
+ */
+function RangeEntry({
+  label,
+  onCommit,
+  unit,
+  value,
+}: RangeEntryProps): ReactNode {
+  return (
+    <label className="bg-background focus-within:border-primary/50 flex h-11 w-20 shrink-0 items-center gap-1 rounded-lg border px-2 shadow-sm transition-colors">
+      <span className="sr-only">{label}</span>
+      <input
+        className="w-full min-w-0 bg-transparent text-sm font-semibold tabular-nums outline-none"
+        inputMode="numeric"
+        onChange={(event) => onCommit(event.target.value)}
+        onFocus={(event) => event.target.select()}
+        type="text"
+        value={value}
+      />
+      {unit ? (
+        <span
+          aria-hidden="true"
+          className="text-muted-foreground shrink-0 text-xs"
+        >
+          {unit}
+        </span>
+      ) : null}
+    </label>
   );
 }
