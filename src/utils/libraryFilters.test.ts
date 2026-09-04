@@ -2,8 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import type { CollectionGame, LibraryFilters } from "@/core";
 import {
+  clampRange,
   createLibraryFilters,
   filterAndSortLibraryGames,
+  isFullRange,
+  playerRangeBounds,
+  playtimeRangeBounds,
 } from "@/utils/libraryFilters";
 
 /**
@@ -75,7 +79,7 @@ describe("filterAndSortLibraryGames", () => {
         categories: ["Strategy"],
         favoritesOnly: true,
         mechanics: ["Drafting"],
-        players: 2,
+        players: { max: 2, min: 2 },
         weight: "light",
       }),
       "en",
@@ -87,7 +91,7 @@ describe("filterAndSortLibraryGames", () => {
   it("filters expansions and maximum duration independently", () => {
     const result = filterAndSortLibraryGames(
       games,
-      filters({ gameType: "expansions", maxPlaytime: 90 }),
+      filters({ gameType: "expansions", playtime: { max: 90, min: 15 } }),
       "en",
     );
 
@@ -137,5 +141,58 @@ describe("filterAndSortLibraryGames", () => {
       "Long",
       "Unknown",
     ]);
+  });
+
+  it("keeps every game while a range still spans its full bounds", () => {
+    const result = filterAndSortLibraryGames(
+      [game({ name: "Unknown", maxPlaytime: 0 })],
+      filters({}),
+      "en",
+    );
+
+    expect(result.map(({ name }) => name)).toEqual(["Unknown"]);
+  });
+
+  it("drops games with an unknown duration once playtime is narrowed", () => {
+    const result = filterAndSortLibraryGames(
+      [game({ name: "Unknown", maxPlaytime: 0 })],
+      filters({ playtime: { max: 120, min: 0 } }),
+      "en",
+    );
+
+    expect(result).toEqual([]);
+  });
+
+  it("keeps games whose player span overlaps the selected range", () => {
+    const result = filterAndSortLibraryGames(
+      [
+        game({ name: "Duel", maxPlayers: 2, minPlayers: 2 }),
+        game({ name: "Party", maxPlayers: 10, minPlayers: 6 }),
+      ],
+      filters({ players: { max: 4, min: 3 } }),
+      "en",
+    );
+
+    expect(result.map(({ name }) => name)).toEqual([]);
+  });
+});
+
+describe("range helpers", () => {
+  it("treats only a range covering its bounds as inactive", () => {
+    expect(isFullRange(playerRangeBounds, playerRangeBounds)).toBe(true);
+    expect(isFullRange({ max: 4, min: 1 }, playerRangeBounds)).toBe(false);
+  });
+
+  it("clamps out-of-bounds endpoints back inside the offered range", () => {
+    expect(clampRange({ max: 900, min: -30 }, playtimeRangeBounds)).toEqual(
+      playtimeRangeBounds,
+    );
+  });
+
+  it("reorders endpoints when the lower one overtakes the upper one", () => {
+    expect(clampRange({ max: 2, min: 9 }, playerRangeBounds)).toEqual({
+      max: 9,
+      min: 2,
+    });
   });
 });

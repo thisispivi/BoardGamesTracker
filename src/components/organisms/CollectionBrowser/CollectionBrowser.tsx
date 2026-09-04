@@ -6,7 +6,7 @@ import { type ReactNode, useMemo, useState } from "react";
 
 import { SectionHeading } from "@/components/atoms/SectionHeading/SectionHeading";
 import { EmptyState } from "@/components/molecules/EmptyState/EmptyState";
-import { LibraryControls } from "@/components/molecules/LibraryControls/LibraryControls";
+import { GameFilters } from "@/components/molecules/GameFilters/GameFilters";
 import { GameCard } from "@/components/organisms/GameCard/GameCard";
 import type { CollectionGame, LibraryFilters } from "@/core";
 import { groupCollection } from "@/utils/collectionGrouping";
@@ -58,7 +58,8 @@ export function CollectionBrowser({
 
   return (
     <>
-      <LibraryControls
+      <GameFilters
+        className="mb-8"
         filters={filters}
         games={games}
         onChange={setFilters}

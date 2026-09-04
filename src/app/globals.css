@@ -354,6 +354,10 @@ textarea {
   animation: popover-in 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+.filter-options :focus-visible {
+  outline-offset: -2px;
+}
+
 .filter-options,
 .modal-scroll-area {
   scrollbar-color: color-mix(in srgb, var(--muted-foreground) 48%, transparent)

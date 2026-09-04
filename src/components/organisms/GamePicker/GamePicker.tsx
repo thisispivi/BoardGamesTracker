@@ -1,21 +1,12 @@
 "use client";
 
 import * as Dialog from "@radix-ui/react-dialog";
-import type { LucideIcon } from "lucide-react";
 import {
   ChevronDown,
-  Clock3,
   Dices,
-  Gauge,
-  Heart,
   LayoutGrid,
   ListFilter,
-  PackageX,
   RotateCcw,
-  Shapes,
-  Sparkles,
-  Tags,
-  Users,
   X,
 } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
@@ -24,13 +15,14 @@ import { type ReactNode, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/atoms/Button/Button";
 import { GameArtwork } from "@/components/atoms/GameArtwork/GameArtwork";
-import { Select } from "@/components/atoms/Select/Select";
-import { MultiSelect } from "@/components/molecules/MultiSelect/MultiSelect";
-import type { CollectionGame, MultiSelectOption } from "@/core";
+import { GameFilters } from "@/components/molecules/GameFilters/GameFilters";
+import type { CollectionGame, LibraryFilters } from "@/core";
 import { useDurationFormatter } from "@/hooks/useDurationFormatter";
-import { cn } from "@/utils/cn";
-import { getTaxonomyLabel, isExpansionCategory } from "@/utils/gameTaxonomy";
-import { filterGames, pickRandomGame } from "@/utils/picker";
+import {
+  createLibraryFilters,
+  filterAndSortLibraryGames,
+} from "@/utils/libraryFilters";
+import { pickRandomGame } from "@/utils/picker";
 
 /** A game duplicated into the animated picker reel. */
 type ReelGame = {
@@ -63,57 +55,21 @@ export function GamePicker({ games }: GamePickerProps): ReactNode {
   const t = useTranslations();
   const formatDuration = useDurationFormatter();
   const reduceMotion = useReducedMotion();
-  const [players, setPlayers] = useState(4);
-  const [maxMinutes, setMaxMinutes] = useState(120);
-  const [maxWeight, setMaxWeight] = useState(0);
-  const [favoritesOnly, setFavoritesOnly] = useState(false);
-  const [mechanics, setMechanics] = useState<string[]>([]);
-  const [themes, setThemes] = useState<string[]>([]);
-  const [excludeExpansions, setExcludeExpansions] = useState(true);
+  const [filters, setFilters] = useState<LibraryFilters>(() => ({
+    ...createLibraryFilters(),
+    gameType: "baseGames",
+  }));
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [spinning, setSpinning] = useState(false);
-  const [filtersOpen, setFiltersOpen] = useState(false);
   const [reelRun, setReelRun] = useState<ReelRun | null>(null);
   const reelCardRef = useRef<HTMLDivElement>(null);
   const reelStageRef = useRef<HTMLElement>(null);
   const reelTrackRef = useRef<HTMLDivElement>(null);
   const reelRunId = useRef(0);
-  const filters = {
-    players,
-    maxMinutes,
-    maxWeight,
-    favoritesOnly,
-    mechanics,
-    themes,
-    excludeExpansions,
-  };
-  const pickable = useMemo(
-    () =>
-      games.map((game) => ({
-        gameId: game.gameId,
-        name: game.name,
-        imageUrl: game.imageUrl,
-        isExpansion: game.isExpansion,
-        minPlayers: game.minPlayers,
-        maxPlayers: game.maxPlayers,
-        maxPlaytime: game.maxPlaytime,
-        weight: game.weight,
-        favorite: game.favorite,
-        categories: game.categories,
-        mechanics: game.mechanics,
-        families: game.families,
-      })),
-    [games],
+  const candidates = useMemo(
+    () => filterAndSortLibraryGames(games, filters, locale),
+    [filters, games, locale],
   );
-  const mechanicOptions = useMemo(
-    () => pickerOptions(games, "mechanic", locale),
-    [games, locale],
-  );
-  const themeOptions = useMemo(
-    () => pickerOptions(games, "theme", locale),
-    [games, locale],
-  );
-  const candidates = filterGames(pickable, filters);
   const selected = games.find((game) => game.gameId === selectedId) ?? null;
 
   /**
@@ -126,7 +82,7 @@ export function GamePicker({ games }: GamePickerProps): ReactNode {
       return;
     }
 
-    const picked = pickRandomGame(pickable, filters);
+    const picked = pickRandomGame(candidates);
     if (!picked) return;
 
     const { cardWidth, gap } = getReelMetrics(
@@ -177,152 +133,13 @@ export function GamePicker({ games }: GamePickerProps): ReactNode {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
-      <aside className="bg-card shadow-soft order-2 rounded-xl border p-4 sm:p-7 lg:order-1">
-        <button
-          aria-expanded={filtersOpen}
-          className="flex w-full items-center justify-between gap-4 rounded-lg p-2 text-left lg:hidden"
-          onClick={() => setFiltersOpen((open) => !open)}
-          type="button"
-        >
-          <span>
-            <span className="font-display block text-lg font-bold">
-              {t("picker.filters")}
-            </span>
-            <span className="text-muted-foreground mt-0.5 block text-xs">
-              {t("picker.optional")}
-            </span>
-          </span>
-          <span className="bg-muted grid size-9 shrink-0 place-items-center rounded-lg">
-            <ChevronDown
-              className={cn(
-                "size-4 transition-transform",
-                filtersOpen && "rotate-180",
-              )}
-            />
-          </span>
-        </button>
-        <div
-          className={cn(
-            filtersOpen ? "mt-5 block" : "hidden",
-            "lg:mt-0 lg:block",
-          )}
-        >
-          <div className="mb-7 flex items-center gap-3">
-            <span className="bg-primary/10 text-primary grid size-10 place-items-center rounded-lg">
-              <Sparkles className="size-4" />
-            </span>
-            <div>
-              <h2 className="font-display text-xl font-bold">
-                {t("picker.setTable")}
-              </h2>
-              <p className="text-muted-foreground text-xs">
-                {t("picker.optional")}
-              </p>
-            </div>
-          </div>
-          <div className="space-y-7">
-            <label className="block">
-              <FilterLabel icon={Users} label={t("picker.players")}>
-                <strong className="bg-muted rounded-full px-3 py-1 text-xs">
-                  {players}
-                </strong>
-              </FilterLabel>
-              <input
-                className="w-full accent-(--primary)"
-                max={12}
-                min={1}
-                onChange={(event) => setPlayers(Number(event.target.value))}
-                type="range"
-                value={players}
-              />
-            </label>
-            <label className="block">
-              <FilterLabel icon={Clock3} label={t("picker.maxTime")}>
-                <strong className="bg-muted rounded-full px-3 py-1 text-xs">
-                  {maxMinutes === 0
-                    ? t("picker.any")
-                    : formatDuration(maxMinutes)}
-                </strong>
-              </FilterLabel>
-              <input
-                className="w-full accent-(--primary)"
-                max={240}
-                min={0}
-                onChange={(event) => setMaxMinutes(Number(event.target.value))}
-                step={30}
-                type="range"
-                value={maxMinutes}
-              />
-            </label>
-            <div className="text-sm font-bold">
-              <FilterLabel icon={Gauge} label={t("picker.complexity")} />
-              <Select
-                ariaLabel={t("picker.complexity")}
-                onValueChange={(value) => setMaxWeight(Number(value))}
-                options={[
-                  { value: "0", label: t("picker.anyComplexity") },
-                  { value: "2", label: t("picker.light") },
-                  { value: "3", label: t("picker.medium") },
-                  { value: "4", label: t("picker.heavy") },
-                ]}
-                value={String(maxWeight)}
-              />
-            </div>
-            <div className="text-sm font-bold">
-              <FilterLabel icon={Shapes} label={t("picker.mechanics")} />
-              <MultiSelect
-                ariaLabel={t("picker.mechanics")}
-                clearLabel={t("picker.clearSelection")}
-                emptyLabel={t("picker.noFilterOptions")}
-                onValueChange={setMechanics}
-                options={mechanicOptions}
-                placeholder={t("picker.allMechanics")}
-                searchPlaceholder={t("picker.searchMechanics")}
-                selectedSummary={t("picker.selectedFilters")}
-                values={mechanics}
-              />
-            </div>
-            <div className="text-sm font-bold">
-              <FilterLabel icon={Tags} label={t("picker.themes")} />
-              <MultiSelect
-                ariaLabel={t("picker.themes")}
-                clearLabel={t("picker.clearSelection")}
-                emptyLabel={t("picker.noFilterOptions")}
-                onValueChange={setThemes}
-                options={themeOptions}
-                placeholder={t("picker.allThemes")}
-                searchPlaceholder={t("picker.searchThemes")}
-                selectedSummary={t("picker.selectedFilters")}
-                values={themes}
-              />
-            </div>
-            <label className="bg-muted/70 flex cursor-pointer items-center justify-between rounded-lg p-4 text-sm font-bold">
-              <span className="flex items-center gap-3">
-                <FilterIcon icon={Heart} tone="danger" />
-                {t("picker.favoritesOnly")}
-              </span>
-              <input
-                checked={favoritesOnly}
-                className="size-4 accent-(--primary)"
-                onChange={(event) => setFavoritesOnly(event.target.checked)}
-                type="checkbox"
-              />
-            </label>
-            <label className="bg-muted/70 flex cursor-pointer items-center justify-between rounded-lg p-4 text-sm font-bold">
-              <span className="flex items-center gap-3">
-                <FilterIcon icon={PackageX} />
-                {t("picker.excludeExpansions")}
-              </span>
-              <input
-                checked={excludeExpansions}
-                className="size-4 accent-(--primary)"
-                onChange={(event) => setExcludeExpansions(event.target.checked)}
-                type="checkbox"
-              />
-            </label>
-          </div>
-        </div>
-      </aside>
+      <GameFilters
+        className="order-2 lg:order-1"
+        filters={filters}
+        games={games}
+        onChange={setFilters}
+        showFavorites
+      />
 
       <section
         className="bg-card shadow-soft relative order-1 grid min-h-117.5 min-w-0 scroll-mt-24 place-items-center overflow-hidden rounded-xl border px-4 pt-20 pb-5 sm:min-h-142.5 sm:px-6 sm:pt-24 sm:pb-6 lg:order-2"
@@ -414,66 +231,6 @@ export function GamePicker({ games }: GamePickerProps): ReactNode {
         </AnimatePresence>
       </section>
     </div>
-  );
-}
-
-/** Icon, label, and content rendered by a picker filter group. */
-type FilterLabelProps = {
-  children?: React.ReactNode;
-  icon: LucideIcon;
-  label: string;
-};
-
-/**
- * Shared icon-and-label treatment for every picker filter.
- *
- * @param root0 - Properties that configure filter label.
- * @param root0.children - Content rendered inside the component.
- * @param root0.icon - Decorative icon rendered beside the label.
- * @param root0.label - Localized label displayed by the control.
- * @returns A labeled picker filter group.
- */
-function FilterLabel({ children, icon, label }: FilterLabelProps): ReactNode {
-  return (
-    <span className="mb-3 flex items-center justify-between gap-3 text-sm font-bold">
-      <span className="flex items-center gap-3">
-        <FilterIcon icon={icon} />
-        {label}
-      </span>
-      {children}
-    </span>
-  );
-}
-
-/** Icon and semantic tone rendered inside a filter label. */
-type FilterIconProps = {
-  icon: LucideIcon;
-  tone?: "danger" | "primary";
-};
-
-/**
- * Consistent compact icon tile used across filter rows.
- *
- * @param root0 - Properties that configure filter icon.
- * @param root0.icon - Decorative icon rendered beside the label.
- * @param root0.tone - Semantic color treatment applied to the icon.
- * @returns A semantically colored filter icon.
- */
-function FilterIcon({
-  icon: Icon,
-  tone = "primary",
-}: FilterIconProps): ReactNode {
-  return (
-    <span
-      className={cn(
-        "grid size-8 shrink-0 place-items-center rounded-md",
-        tone === "danger"
-          ? "bg-danger/10 text-danger"
-          : "bg-primary/10 text-primary",
-      )}
-    >
-      <Icon className="size-3.5" />
-    </span>
   );
 }
 
@@ -716,47 +473,4 @@ function getReelMetrics(
         ? 16
         : 12,
   };
-}
-
-/**
- * Builds localized picker facets with occurrence counts for quick scanning.
- *
- * @param games - The candidate games.
- * @param facet - Picker facet whose label needs translation.
- * @param locale - Active application locale used for translated labels.
- * @returns Sorted picker options with localized taxonomy labels.
- */
-function pickerOptions(
-  games: CollectionGame[],
-  facet: "mechanic" | "theme",
-  locale: string,
-): MultiSelectOption[] {
-  const options = new Map<string, { count: number; label: string }>();
-  for (const game of games) {
-    const categories = game.categories.filter(
-      (category) => !isExpansionCategory(category),
-    );
-    const values =
-      facet === "mechanic" ? game.mechanics : [...categories, ...game.families];
-    for (const value of new Set(values)) {
-      const existing = options.get(value);
-      const isCategory = categories.includes(value);
-      options.set(value, {
-        count: (existing?.count ?? 0) + 1,
-        label:
-          existing?.label ??
-          (facet === "mechanic" || isCategory
-            ? getTaxonomyLabel(
-                value,
-                facet === "mechanic" ? "mechanic" : "category",
-                locale,
-              )
-            : value),
-      });
-    }
-  }
-
-  return [...options]
-    .map(([value, option]) => ({ value, ...option }))
-    .sort((left, right) => left.label.localeCompare(right.label, locale));
 }

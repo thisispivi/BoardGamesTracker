@@ -1,91 +1,56 @@
 import { describe, expect, it } from "vitest";
 
-import type { PickableGame } from "@/core";
-import { filterGames, pickRandomGame } from "@/utils/picker";
+import type { CollectionGame } from "@/core";
+import { pickRandomGame } from "@/utils/picker";
 
-const games: PickableGame[] = [
-  {
-    gameId: "1",
-    name: "Duel",
-    minPlayers: 2,
-    maxPlayers: 2,
-    maxPlaytime: 30,
-    weight: 2.1,
-    favorite: true,
-    isExpansion: false,
-  },
-  {
-    gameId: "2",
-    name: "Party",
-    minPlayers: 4,
-    maxPlayers: 10,
-    maxPlaytime: 60,
-    weight: 1.2,
+/**
+ * Builds a minimal candidate record for the random selection tests.
+ *
+ * @param overrides - Fields that distinguish the candidate under test.
+ * @returns A collection game usable as a picker candidate.
+ */
+function candidate(overrides: Partial<CollectionGame>): CollectionGame {
+  return {
+    bggId: 1,
+    bggRating: null,
+    categories: [],
+    expansionBggIds: [],
+    expandsBggIds: [],
+    families: [],
     favorite: false,
+    gameId: "game-id",
+    gifted: false,
+    id: "item-id",
+    imageUrl: null,
     isExpansion: false,
-  },
-];
+    maxPlayers: 4,
+    maxPlaytime: 60,
+    mechanics: [],
+    minPlayers: 2,
+    minPlaytime: 30,
+    moneySpent: 0,
+    name: "Arboretum",
+    notes: "",
+    personalRating: null,
+    thumbnailUrl: null,
+    weight: null,
+    yearPublished: null,
+    ...overrides,
+  };
+}
 
-describe("game picker", () => {
-  it("filters by all active constraints", () => {
-    expect(
-      filterGames(games, {
-        players: 2,
-        maxMinutes: 45,
-        maxWeight: 3,
-        favoritesOnly: true,
-        excludeExpansions: true,
-      }),
-    ).toEqual([games[0]]);
-  });
+describe("pickRandomGame", () => {
+  const games = [
+    candidate({ id: "duel", name: "Duel" }),
+    candidate({ id: "party", name: "Party" }),
+  ];
 
-  it("returns null when no games qualify", () => {
-    expect(
-      pickRandomGame(games, {
-        players: 3,
-        maxMinutes: 0,
-        maxWeight: 0,
-        favoritesOnly: false,
-        excludeExpansions: true,
-      }),
-    ).toBeNull();
+  it("returns null when no candidate qualifies", () => {
+    expect(pickRandomGame([])).toBeNull();
   });
 
   it("uses the supplied random source", () => {
-    expect(
-      pickRandomGame(
-        games,
-        {
-          players: 4,
-          maxMinutes: 0,
-          maxWeight: 0,
-          favoritesOnly: false,
-          excludeExpansions: true,
-        },
-        () => 0,
-      ),
-    )?.toBe(games[1]);
-  });
-
-  it("combines multi-select mechanic, theme, and expansion filters", () => {
-    const expansion: PickableGame = {
-      ...games[0]!,
-      gameId: "3",
-      isExpansion: true,
-      mechanics: ["Drafting"],
-      families: ["Fantasy"],
-    };
-
-    expect(
-      filterGames([...games, expansion], {
-        players: 2,
-        maxMinutes: 0,
-        maxWeight: 0,
-        favoritesOnly: false,
-        mechanics: ["Drafting"],
-        themes: ["Fantasy"],
-        excludeExpansions: true,
-      }),
-    ).toEqual([]);
+    expect(pickRandomGame(games, () => 0)).toBe(games[0]);
+    expect(pickRandomGame(games, () => 0.99)).toBe(games[1]);
   });
 });

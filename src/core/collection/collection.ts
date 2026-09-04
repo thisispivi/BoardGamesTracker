@@ -42,14 +42,20 @@ export type LibrarySort =
   | "timeAscending"
   | "timeDescending";
 
-/** Search, facet, and ordering state shared by collection and wishlist views. */
+/** Inclusive lower and upper bounds selected with a dual-thumb range control. */
+export type NumberRange = {
+  max: number;
+  min: number;
+};
+
+/** Search, facet, and ordering state shared by every game browsing surface. */
 export type LibraryFilters = {
   categories: string[];
   favoritesOnly: boolean;
   gameType: LibraryGameType;
-  maxPlaytime: number | null;
   mechanics: string[];
-  players: number | null;
+  players: NumberRange;
+  playtime: NumberRange;
   query: string;
   sort: LibrarySort;
   weight: LibraryWeightFilter;

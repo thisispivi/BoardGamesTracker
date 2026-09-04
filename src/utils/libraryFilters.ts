@@ -4,8 +4,45 @@ import type {
   CollectionGame,
   LibraryFilters,
   LibraryWeightFilter,
+  NumberRange,
 } from "@/core";
 import { normalizeSearchText } from "@/utils/search";
+
+/** Inclusive player-count bounds offered by the shared filter panel. */
+export const playerRangeBounds: NumberRange = { max: 12, min: 1 };
+
+/** Inclusive playtime bounds in minutes offered by the shared filter panel. */
+export const playtimeRangeBounds: NumberRange = { max: 360, min: 0 };
+
+/** Minute increment applied to the shared playtime range control. */
+export const playtimeRangeStep = 15;
+
+/**
+ * Reports whether a range still spans its full bounds and filters nothing out.
+ *
+ * @param range - Range currently selected by the user.
+ * @param bounds - Inclusive bounds offered by the control.
+ * @returns Whether the range leaves every value eligible.
+ */
+export function isFullRange(range: NumberRange, bounds: NumberRange): boolean {
+  return range.min <= bounds.min && range.max >= bounds.max;
+}
+
+/**
+ * Constrains a range to its bounds while keeping the lower value below the upper one.
+ *
+ * @param range - Range proposed by a slider or numeric input.
+ * @param bounds - Inclusive bounds offered by the control.
+ * @returns A range inside the bounds with ordered endpoints.
+ */
+export function clampRange(
+  range: NumberRange,
+  bounds: NumberRange,
+): NumberRange {
+  const min = Math.min(Math.max(range.min, bounds.min), bounds.max);
+  const max = Math.min(Math.max(range.max, bounds.min), bounds.max);
+  return { max: Math.max(min, max), min: Math.min(min, max) };
+}
 
 /**
  * Creates an independent default state for a library browser.
@@ -17,9 +54,9 @@ export function createLibraryFilters(): LibraryFilters {
     categories: [],
     favoritesOnly: false,
     gameType: "all",
-    maxPlaytime: null,
     mechanics: [],
-    players: null,
+    players: { ...playerRangeBounds },
+    playtime: { ...playtimeRangeBounds },
     query: "",
     sort: "nameAscending",
     weight: "all",
@@ -65,7 +102,10 @@ function compareNullableMetric(
 }
 
 /**
- * Filters and sorts games for either personal library location.
+ * Filters and sorts games for every browsing surface that shares these filters.
+ *
+ * A player or playtime range still spanning its full bounds excludes nothing,
+ * so games with an unknown duration only disappear once the range is narrowed.
  *
  * @param games - Collection or wishlist records available to browse.
  * @param filters - Current search, facet, and ordering choices.
@@ -77,16 +117,20 @@ export function filterAndSortLibraryGames(
   filters: LibraryFilters,
   locale: string,
 ): CollectionGame[] {
+  const playersActive = !isFullRange(filters.players, playerRangeBounds);
+  const playtimeActive = !isFullRange(filters.playtime, playtimeRangeBounds);
   const filtered = games.filter(
     (game) =>
       (!filters.favoritesOnly || game.favorite) &&
       (filters.gameType === "all" ||
         (filters.gameType === "expansions") === game.isExpansion) &&
-      (filters.players === null ||
-        (game.minPlayers <= filters.players &&
-          game.maxPlayers >= filters.players)) &&
-      (filters.maxPlaytime === null ||
-        (game.maxPlaytime > 0 && game.maxPlaytime <= filters.maxPlaytime)) &&
+      (!playersActive ||
+        (game.minPlayers <= filters.players.max &&
+          game.maxPlayers >= filters.players.min)) &&
+      (!playtimeActive ||
+        (game.maxPlaytime > 0 &&
+          game.maxPlaytime >= filters.playtime.min &&
+          game.maxPlaytime <= filters.playtime.max)) &&
       matchesWeight(game.weight, filters.weight) &&
       (filters.categories.length === 0 ||
         filters.categories.some((category) =>
