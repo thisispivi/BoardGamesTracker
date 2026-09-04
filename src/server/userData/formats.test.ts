@@ -65,6 +65,31 @@ const document: UserDataDocument = {
   ],
 };
 
+/** Game columns written by exports made before BGG relationships were stored. */
+const legacyGameColumns = [
+  "location",
+  "bggId",
+  "name",
+  "description",
+  "imageUrl",
+  "yearPublished",
+  "minPlayers",
+  "maxPlayers",
+  "minPlaytime",
+  "maxPlaytime",
+  "weight",
+  "bggRating",
+  "isExpansion",
+  "categories",
+  "mechanics",
+  "families",
+  "favorite",
+  "personalRating",
+  "notes",
+  "moneySpent",
+  "gifted",
+];
+
 /**
  * Builds a one-item JSON export whose complexity carries the given value.
  *
@@ -79,6 +104,67 @@ function documentWithWeight(weight: number): Uint8Array {
   return new TextEncoder().encode(
     JSON.stringify({ ...document, items: [{ ...item, weight }] }),
   );
+}
+
+/**
+ * Writes a one-game CSV export in the older layout that had no BGG
+ * relationship columns.
+ *
+ * @returns The serialized legacy CSV document.
+ */
+function legacyCsv(): string {
+  const columns = [
+    "recordType",
+    "formatVersion",
+    "exportedAt",
+    "profileName",
+    "profileEmail",
+    "profileCurrency",
+    ...legacyGameColumns,
+  ];
+  const profile = [
+    "profile",
+    "1",
+    document.exportedAt,
+    document.profile.name,
+    document.profile.email,
+    document.profile.currency,
+    ...legacyGameColumns.map(() => ""),
+  ];
+  const game = [
+    "game",
+    "1",
+    document.exportedAt,
+    "",
+    "",
+    "",
+    "collection",
+    "68448",
+    "7 Wonders",
+    "Draft a civilization.",
+    "https://cf.geekdo-images.com/example.jpg",
+    "2010",
+    "2",
+    "7",
+    "30",
+    "30",
+    "2.32",
+    "7.7",
+    "false",
+    '["Card Game"]',
+    '["Drafting"]',
+    '["Ancient"]',
+    "true",
+    "9",
+    "Sleeved",
+    "29.99",
+    "false",
+  ];
+  return [columns, profile, game]
+    .map((row) =>
+      row.map((cell) => `"${cell.replaceAll('"', '""')}"`).join(","),
+    )
+    .join("\r\n");
 }
 
 describe("legacy complexity values", () => {
@@ -120,6 +206,36 @@ describe("portable user data formats", () => {
         expansionBggIds: [],
       })),
     );
+  });
+
+  it("imports a legacy export without the BGG relationship columns", async () => {
+    const legacy = legacyCsv();
+
+    const restored = await parseUserData(
+      new TextEncoder().encode(legacy),
+      "csv",
+    );
+
+    expect(restored.items).toEqual([
+      expect.objectContaining({
+        bggId: 68448,
+        expandsBggIds: [],
+        expansionBggIds: [],
+        name: "7 Wonders",
+      }),
+    ]);
+  });
+
+  it("rejects a CSV whose header row is missing required columns", async () => {
+    const csv = [
+      "recordType,formatVersion,exportedAt,profileName,profileEmail,profileCurrency,location,bggId",
+      `profile,1,${document.exportedAt},Andrea Piras,andrea@example.com,EUR,,`,
+      "game,1,,,,,collection,68448",
+    ].join("\n");
+
+    await expect(
+      parseUserData(new TextEncoder().encode(csv), "csv"),
+    ).rejects.toThrow("missing a required column");
   });
 
   it("never executes arbitrary SQL uploads", async () => {

@@ -10,6 +10,14 @@ export const bggCategories = Object.keys(bggCategoryLabels);
 /** Canonical BoardGameGeek mechanic names. */
 export const bggMechanics = Object.keys(bggMechanicLabels);
 
+/**
+ * Longest taxonomy label the application stores.
+ *
+ * Every path that writes a label caps it here so a category typed in the edit
+ * form, or scraped from BoardGameGeek, still survives an export and re-import.
+ */
+export const maxTaxonomyLabelLength = 120;
+
 const expansionCategories = new Set([
   "expansion",
   "expansion for base-game",
@@ -64,14 +72,14 @@ export function hasExpansionCategory(categories: readonly string[]): boolean {
  * capped before it reaches the database.
  *
  * @param value - The raw comma-separated field submitted with a form.
- * @returns At most fifty trimmed, non-empty, deduplicated labels.
+ * @returns At most fifty trimmed, non-empty, deduplicated, bounded labels.
  */
 export function parseTaxonomyLabels(value: string): string[] {
   return [
     ...new Set(
       value
         .split(",")
-        .map((label) => label.trim())
+        .map((label) => label.trim().slice(0, maxTaxonomyLabelLength))
         .filter(Boolean),
     ),
   ].slice(0, 50);

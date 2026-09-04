@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
@@ -146,14 +146,22 @@ export async function getShareTokenAction(): Promise<string | null> {
 /**
  * Replaces the share token, revoking every link handed out so far.
  *
- * @returns The new token, or null when the account no longer exists.
+ * An account that shares nothing holds no token, so rotation only applies to
+ * an account that is actually sharing a library.
+ *
+ * @returns The new token, or null when the account is not sharing anything.
  */
 export async function regenerateShareTokenAction(): Promise<string | null> {
   const session = await requireUser();
   const [updated] = await db
     .update(user)
     .set({ shareToken: createShareToken(), updatedAt: new Date() })
-    .where(eq(user.id, session.user.id))
+    .where(
+      and(
+        eq(user.id, session.user.id),
+        or(eq(user.shareCollection, true), eq(user.shareWishlist, true)),
+      ),
+    )
     .returning({ shareToken: user.shareToken });
   if (!updated) {
     return null;

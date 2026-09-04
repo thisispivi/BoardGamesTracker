@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 import { Button, buttonVariants } from "@/components/atoms/Button/Button";
 import { ImportCollectionDialog } from "@/components/organisms/ImportCollectionDialog/ImportCollectionDialog";
+import { userDataImportResponseSchema } from "@/core";
 import { cn } from "@/utils/cn";
 
 const formats = ["json", "csv", "xlsx", "sql"] as const;
@@ -37,24 +38,23 @@ export function UserDataCard(): ReactNode {
         method: "POST",
         body: new FormData(form),
       });
-      const payload = (await response.json()) as {
-        success?: boolean;
-        imported?: number;
-        error?: string;
-      };
-      if (!response.ok || !payload.success) {
+      const payload = userDataImportResponseSchema.safeParse(
+        await response.json(),
+      );
+      if (!response.ok || !payload.success || !payload.data.success) {
+        const error = payload.success ? payload.data.error : undefined;
         toast.error(
-          payload.error === "too_large"
+          error === "too_large"
             ? t("tooLarge")
-            : payload.error === "too_many_requests"
+            : error === "too_many_requests"
               ? t("tooMany")
-              : payload.error === "unsupported_format"
+              : error === "unsupported_format"
                 ? t("unsupported")
                 : t("invalid"),
         );
         return;
       }
-      toast.success(t("imported", { count: payload.imported ?? 0 }));
+      toast.success(t("imported", { count: payload.data.imported }));
       form.reset();
       router.refresh();
     } catch {

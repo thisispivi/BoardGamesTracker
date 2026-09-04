@@ -1,13 +1,4 @@
-/** Board-game result discovered through the configured metasearch service. */
-export type GameDiscoveryResult = {
-  bggId: number;
-  bggUrl: string;
-  imageUrl: string | null;
-  isExpansion: boolean;
-  name: string;
-  selectionToken: string;
-  yearPublished: number | null;
-};
+import type { GameDiscoveryResult } from "@/core/discovery/discovery.contract";
 
 /** A discovery candidate before artwork and metadata enrichment. */
 export type DiscoveredGame = Omit<GameDiscoveryResult, "selectionToken">;

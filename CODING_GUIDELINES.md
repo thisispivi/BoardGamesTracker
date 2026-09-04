@@ -18,7 +18,10 @@ Zod, Vitest, ESLint, Prettier, and pnpm. Its main boundaries are:
 src/app/          Routes, layouts, metadata, and HTTP handlers
 src/components/   Atomic Design UI: atoms -> molecules -> organisms -> templates
 src/core/         Framework-free shared types and validation contracts
+src/hooks/        Client-only React hooks shared by more than one component
+src/i18n/         Locale list, request configuration, and taxonomy data
 src/server/       Authentication, persistence, actions, and external services
+src/test/         Vitest setup shared by every suite
 src/utils/        Isomorphic helpers with a single named responsibility
 messages/         Structurally identical English and Italian message catalogs
 drizzle/          Generated migrations and snapshots
@@ -113,6 +116,7 @@ this order:
 | A JSON endpoint, upload, or download               | `src/app/api/<name>/route.ts`                              |
 | A page, and the data it loads                      | `src/app/(app)/<route>/page.tsx`                           |
 | A reusable pure function with no React and no `db` | `src/utils/<name>.ts`                                      |
+| A React hook used by more than one component       | `src/hooks/use<Name>.ts`                                   |
 | UI                                                 | `src/components/<layer>/<Name>/<Name>.tsx`                 |
 | User-visible copy                                  | `messages/en.json` **and** `messages/it.json`              |
 
@@ -259,6 +263,13 @@ before writing routing, caching, or data-fetching code.**
    and foreign-key constraints — so a bug cannot corrupt state.
 9. Schema changes are made in `src/server/db/schema.ts` and then generated with
    `pnpm db:generate`. Never hand-write or edit a file under `drizzle/`.
+10. `await response.json()` returns `unknown`. Never cast it — parse it with the
+    route's schema from `src/core/api/api.contract.ts`. That applies to this
+    application's own routes too: the browser is a separate process, so a
+    response is a runtime value, not a compile-time guarantee.
+11. When a Zod schema is the runtime contract, it owns the type: put it in a
+    `.contract.ts` and export `z.infer` beside it. Do not restate the same
+    shape as a hand-written `type`, where the two can drift apart.
 
 ## 9. Server boundaries and security
 

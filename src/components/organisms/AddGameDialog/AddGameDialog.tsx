@@ -11,10 +11,12 @@ import { toast } from "sonner";
 import { AppSpinner } from "@/components/atoms/AppSpinner/AppSpinner";
 import { Button } from "@/components/atoms/Button/Button";
 import { GiftedPriceField } from "@/components/molecules/GiftedPriceField/GiftedPriceField";
-import type {
-  BggMetadata,
-  CollectionActionState,
-  GameDiscoveryResult,
+import {
+  type BggMetadata,
+  type CollectionActionState,
+  type GameDiscoveryResult,
+  gameMetadataResponseSchema,
+  gameSearchResponseSchema,
 } from "@/core";
 import { addGameAction } from "@/server/actions/collection";
 import { normalizeSearchText } from "@/utils/search";
@@ -137,10 +139,13 @@ export function AddGameDialog({
       signal: controller.signal,
     })
       .then(async (response) => {
-        const payload = (await response.json()) as {
-          metadata?: BggMetadata | null;
-        };
-        setLoaded({ bggId, metadata: payload.metadata ?? null });
+        const payload = gameMetadataResponseSchema.safeParse(
+          await response.json(),
+        );
+        setLoaded({
+          bggId,
+          metadata: payload.success ? payload.data.metadata : null,
+        });
       })
       .catch((error: unknown) => {
         if (error instanceof DOMException && error.name === "AbortError") {
@@ -164,16 +169,18 @@ export function AddGameDialog({
         signal: controller.signal,
       })
         .then(async (response) => {
-          const payload = (await response.json()) as {
-            results?: GameDiscoveryResult[];
-            error?: string;
-          };
-          if (!response.ok) {
-            setSearchError(payload.error ?? "unavailable");
+          const payload = gameSearchResponseSchema.safeParse(
+            await response.json(),
+          );
+          if (!response.ok || !payload.success) {
+            setSearchError(
+              (payload.success ? payload.data.error : undefined) ??
+                "unavailable",
+            );
             setResults([]);
             return;
           }
-          const found = payload.results ?? [];
+          const found = payload.data.results;
           if (found.length > 0) {
             resultCache.set(cacheKey(term), found);
           }

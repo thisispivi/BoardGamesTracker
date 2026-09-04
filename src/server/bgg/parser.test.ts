@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { bggMetadataSchema } from "@/core";
 import { parseBggHtmlPage, parseBggJsonResponses } from "@/server/bgg/parser";
 
 const ticketToRideHtml = `
@@ -185,5 +186,27 @@ describe("parseBggJsonResponses", () => {
       parseBggJsonResponses(magicItemResponse, magicDynamicResponse, 9209),
     ).toBeNull();
     expect(parseBggJsonResponses({ item: {} }, null, 463)).toBeNull();
+  });
+});
+
+describe("scraped metadata contract", () => {
+  it("emits a page scrape the metadata route's schema accepts", () => {
+    const parsed = bggMetadataSchema.safeParse(
+      parseBggHtmlPage(ticketToRideHtml, 9209),
+    );
+
+    expect(parsed.success).toBe(true);
+  });
+
+  it("rounds a fractional duration to the whole minutes the schema allows", () => {
+    const fractional = ticketToRideHtml.replace(
+      '"maxplaytime":"60"',
+      '"maxplaytime":"60.5"',
+    );
+
+    const metadata = parseBggHtmlPage(fractional, 9209);
+
+    expect(metadata?.maxPlaytime).toBe(61);
+    expect(bggMetadataSchema.safeParse(metadata).success).toBe(true);
   });
 });

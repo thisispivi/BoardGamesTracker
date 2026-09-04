@@ -2,6 +2,7 @@ export * from "@/core/admin/admin.contract";
 export * from "@/core/api/api.contract";
 export * from "@/core/auditLog/auditLog";
 export * from "@/core/bgg/bgg";
+export * from "@/core/bgg/bgg.contract";
 export * from "@/core/bggCsv/bggCsv.contract";
 export * from "@/core/collection/collection";
 export * from "@/core/collection/collection.contract";

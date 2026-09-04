@@ -1,5 +1,6 @@
 import { parse } from "csv-parse/sync";
 import ExcelJS from "exceljs";
+import { z } from "zod";
 
 import {
   type PortableGame,
@@ -36,8 +37,17 @@ const gameHeaders = [
 
 const legacyGameHeaders = gameHeaders.slice(0, -2);
 
-/** String-valued game row shared by tabular import and export formats. */
-type FlatGame = Record<(typeof gameHeaders)[number], string>;
+/**
+ * A decoded tabular row keyed by canonical header.
+ *
+ * Columns are optional because an uploaded document controls its own header
+ * row: an export written by an older version legitimately omits the trailing
+ * relationship columns, and an arbitrary upload may omit anything at all.
+ */
+type FlatGame = Partial<Record<(typeof gameHeaders)[number], string>>;
+
+/** Validates that a decoded tabular document is string-valued throughout. */
+const tabularRowsSchema = z.array(z.record(z.string(), z.string()));
 
 /**
  * A decoded tabular row before `userDataDocumentSchema` validates it.
@@ -167,13 +177,15 @@ function serializeCsv(document: UserDataDocument): string {
  * @returns An untrusted portable-document candidate decoded from CSV.
  */
 function parseCsv(text: string): unknown {
-  const rows = parse(text, {
-    bom: true,
-    columns: true,
-    max_record_size: 100_000,
-    relax_column_count: false,
-    skip_empty_lines: true,
-  }) as Record<string, string>[];
+  const rows = tabularRowsSchema.parse(
+    parse(text, {
+      bom: true,
+      columns: true,
+      max_record_size: 100_000,
+      relax_column_count: false,
+      skip_empty_lines: true,
+    }),
+  );
   const profile = rows.find((row) => row.recordType === "profile");
   if (!profile || rows.length > 2_001) throw new Error("Invalid CSV export.");
   return buildDocument(
@@ -184,9 +196,7 @@ function parseCsv(text: string): unknown {
       email: unprotectCell(profile.profileEmail ?? ""),
       currency: profile.profileCurrency ?? "",
     },
-    rows
-      .filter((row) => row.recordType === "game")
-      .map((row) => flatToGame(row as FlatGame)),
+    rows.filter((row) => row.recordType === "game").map(flatToGame),
   );
 }
 
@@ -265,6 +275,23 @@ async function serializeXlsx(document: UserDataDocument): Promise<Uint8Array> {
 }
 
 /**
+ * Hands uploaded bytes to ExcelJS in the buffer shape it actually reads.
+ *
+ * ExcelJS types `load` against the DOM `Buffer` interface rather than Node's,
+ * which no Node value satisfies. Passing a Node buffer is the documented usage
+ * and the only supported input, so the assertion is the type declaration being
+ * wrong, not the value. Remove it once ExcelJS ships accurate Node typings.
+ *
+ * @param bytes - The uploaded workbook bytes.
+ * @returns The same bytes typed as the workbook loader's parameter.
+ */
+function toWorkbookInput(
+  bytes: Uint8Array,
+): Parameters<ExcelJS.Xlsx["load"]>[0] {
+  return Buffer.from(bytes) as unknown as Parameters<ExcelJS.Xlsx["load"]>[0];
+}
+
+/**
  * Reads the two-sheet Board Games Tracker workbook representation.
  *
  * @param bytes - The serialized input bytes.
@@ -272,10 +299,7 @@ async function serializeXlsx(document: UserDataDocument): Promise<Uint8Array> {
  */
 async function parseXlsx(bytes: Uint8Array): Promise<UserDataDocument> {
   const workbook = new ExcelJS.Workbook();
-  const input = Buffer.from(bytes) as unknown as Parameters<
-    typeof workbook.xlsx.load
-  >[0];
-  await workbook.xlsx.load(input);
+  await workbook.xlsx.load(toWorkbookInput(bytes));
   const profile = workbook.getWorksheet("Profile");
   const gamesSheet = workbook.getWorksheet("Games");
   if (!profile || !gamesSheet)
@@ -293,12 +317,12 @@ async function parseXlsx(bytes: Uint8Array): Promise<UserDataDocument> {
   const items: DecodedGame[] = [];
   gamesSheet.eachRow((row, rowNumber) => {
     if (rowNumber === 1) return;
-    const flat = Object.fromEntries(
+    const flat: FlatGame = Object.fromEntries(
       activeHeaders.map((header, index) => [
         header,
         unprotectCell(row.getCell(index + 1).text),
       ]),
-    ) as FlatGame;
+    );
     if (flat.bggId) items.push(flatToGame(flat));
   });
   return userDataDocumentSchema.parse(
@@ -421,12 +445,13 @@ function gameToWorksheetValues(game: PortableGame): unknown[] {
  * @returns A decoded row awaiting document-schema validation.
  */
 function flatToGame(row: FlatGame): DecodedGame {
+  const imageUrl = requiredCell(row.imageUrl);
   return {
-    location: row.location,
+    location: requiredCell(row.location),
     bggId: requiredNumber(row.bggId),
-    name: unprotectCell(row.name),
-    description: unprotectCell(row.description),
-    imageUrl: row.imageUrl === "" ? null : row.imageUrl,
+    name: unprotectCell(requiredCell(row.name)),
+    description: unprotectCell(requiredCell(row.description)),
+    imageUrl: imageUrl === "" ? null : imageUrl,
     yearPublished: optionalNumber(row.yearPublished),
     minPlayers: requiredNumber(row.minPlayers),
     maxPlayers: requiredNumber(row.maxPlayers),
@@ -435,12 +460,12 @@ function flatToGame(row: FlatGame): DecodedGame {
     weight: optionalNumber(row.weight),
     bggRating: optionalNumber(row.bggRating),
     isExpansion: row.isExpansion === "true",
-    categories: parseLabels(row.categories),
-    mechanics: parseLabels(row.mechanics),
-    families: parseLabels(row.families),
+    categories: parseLabels(requiredCell(row.categories)),
+    mechanics: parseLabels(requiredCell(row.mechanics)),
+    families: parseLabels(requiredCell(row.families)),
     favorite: row.favorite === "true",
     personalRating: optionalNumber(row.personalRating),
-    notes: unprotectCell(row.notes),
+    notes: unprotectCell(requiredCell(row.notes)),
     moneySpent: requiredNumber(row.moneySpent),
     gifted: row.gifted === "true",
     expandsBggIds: parseBggIds(row.expandsBggIds),
@@ -469,6 +494,19 @@ function buildDocument(
     profile,
     items,
   };
+}
+
+/**
+ * Reads a column that every supported export is required to carry.
+ *
+ * @param value - The cell text, or undefined when the document omits the column.
+ * @returns The cell text.
+ */
+function requiredCell(value: string | undefined): string {
+  if (value === undefined) {
+    throw new Error("The document is missing a required column.");
+  }
+  return value;
 }
 
 /**
@@ -505,10 +543,10 @@ function unprotectCell(value: string): string {
 /**
  * Parses a finite required number before bounded schema validation.
  *
- * @param value - A numeric cell that the format requires to be present.
+ * @param value - A numeric cell the format requires, or undefined when absent.
  * @returns A finite required number decoded from the imported value.
  */
-function requiredNumber(value: string): number {
+function requiredNumber(value: string | undefined): number {
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) throw new Error("Invalid numeric value.");
   return parsed;
@@ -517,10 +555,10 @@ function requiredNumber(value: string): number {
 /**
  * Parses an empty nullable number or delegates to the finite parser.
  *
- * @param value - A numeric cell the format allows to be blank.
+ * @param value - A numeric cell the format allows to be blank or absent.
  * @returns A finite number, or null when the imported value is absent.
  */
-function optionalNumber(value: string): number | null {
+function optionalNumber(value: string | undefined): number | null {
   return value === "" ? null : requiredNumber(value);
 }
 

@@ -1,24 +1,3 @@
-/** Normalized metadata parsed from BoardGameGeek. */
-export type BggMetadata = {
-  bggId: number;
-  bggRating: number | null;
-  categories: string[];
-  description: string;
-  expandsBggIds: number[];
-  expansionBggIds: number[];
-  families: string[];
-  imageUrl: string | null;
-  isExpansion: boolean;
-  maxPlayers: number;
-  maxPlaytime: number;
-  mechanics: string[];
-  minPlayers: number;
-  minPlaytime: number;
-  name: string;
-  weight: number | null;
-  yearPublished: number | null;
-};
-
 /** Normalized owned game read from an official BGG collection export. */
 export type ImportedBggGame = {
   bggId: number;

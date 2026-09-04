@@ -207,7 +207,7 @@ application variables that matter most:
 | `SEARXNG_URL`                    | Yes      | Server-side SearXNG endpoint                                          |
 | `ADMIN_EMAIL`                    | No       | Additional email address eligible for administrator bootstrap         |
 | `ALLOW_SIGN_UP`                  | No       | Enables registration when set to `true`                               |
-| `HEALTH_CHECK_TOKEN`             | No       | Protects detailed health-check output                                 |
+| `HEALTH_CHECK_TOKEN`             | No       | Requires a bearer token on `/api/health`                              |
 | `LOG_LEVEL`                      | No       | Server log verbosity                                                  |
 | `SENTRY_DSN`                     | No       | Server-side Sentry-compatible error reporting                         |
 | `NEXT_PUBLIC_SENTRY_DSN`         | No       | Browser-side Sentry-compatible error reporting                        |

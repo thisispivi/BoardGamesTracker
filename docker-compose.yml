@@ -56,6 +56,7 @@ services:
       NEXT_PUBLIC_APP_URL: ${APP_URL:?Set APP_URL in .env}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-}
       ALLOW_SIGN_UP: ${ALLOW_SIGN_UP:-false}
+      HEALTH_CHECK_TOKEN: ${HEALTH_CHECK_TOKEN:-}
       LOG_LEVEL: ${LOG_LEVEL:-info}
       SEARXNG_URL: http://searxng:8080
       SENTRY_DSN: ${SENTRY_DSN:-}

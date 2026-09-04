@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 
+import { labelSchema } from "@/core";
 import {
   bggCategories,
   bggMechanics,
   getTaxonomyLabel,
   hasExpansionCategory,
   isExpansionCategory,
+  maxTaxonomyLabelLength,
   parseTaxonomyLabels,
 } from "@/utils/gameTaxonomy";
 
@@ -17,6 +19,15 @@ describe("game taxonomy", () => {
     "Third-party Expansion",
   ])("recognizes %s as an expansion category", (category) => {
     expect(isExpansionCategory(category)).toBe(true);
+  });
+
+  it("caps a label at the length the portable export can re-import", () => {
+    const long = "x".repeat(maxTaxonomyLabelLength + 40);
+
+    const [label] = parseTaxonomyLabels(long);
+
+    expect(label).toHaveLength(maxTaxonomyLabelLength);
+    expect(labelSchema.safeParse(label).success).toBe(true);
   });
 
   it("keeps base-game categories separate", () => {

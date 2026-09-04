@@ -1,7 +1,10 @@
 import { z } from "zod";
 
 import type { BggMetadata } from "@/core";
-import { hasExpansionCategory } from "@/utils/gameTaxonomy";
+import {
+  hasExpansionCategory,
+  maxTaxonomyLabelLength,
+} from "@/utils/gameTaxonomy";
 
 /** Maximum public page size accepted by the metadata parser. */
 const maxHtmlLength = 5_000_000;
@@ -115,6 +118,19 @@ function jsonNumber(
 }
 
 /**
+ * Rounds a bounded value to the whole number its field actually holds.
+ *
+ * Player counts, durations, and years are integers everywhere they are stored,
+ * but BGG's public sources are free-form text and occasionally carry a decimal.
+ *
+ * @param value - A bounded value read from a public BGG source.
+ * @returns The value as a whole number, or null when it was absent.
+ */
+function wholeNumber(value: number | null): number | null {
+  return value === null ? null : Math.round(value);
+}
+
+/**
  * Reads a content attribute from a standard metadata tag.
  *
  * @param html - The bounded BGG page markup.
@@ -159,13 +175,26 @@ function taxonomy(html: string, type: string): string[] {
     try {
       const value = JSON.parse(`"${rawValue}"`);
       if (typeof value === "string" && value.trim()) {
-        values.add(value.trim().slice(0, 160));
+        values.add(value.trim().slice(0, maxTaxonomyLabelLength));
       }
     } catch {
       continue;
     }
   }
   return [...values].slice(0, 50);
+}
+
+/**
+ * Bounds the taxonomy labels read from one BGG link collection.
+ *
+ * @param links - Untrusted link objects from the public JSON response.
+ * @returns At most fifty trimmed, bounded labels.
+ */
+function linkLabels(links: readonly { name: string }[] | undefined): string[] {
+  return (links ?? [])
+    .map((link) => link.name.trim().slice(0, maxTaxonomyLabelLength))
+    .filter(Boolean)
+    .slice(0, 50);
 }
 
 /**
@@ -212,12 +241,9 @@ export function parseBggJsonResponses(
   const stats = parsedDynamic.success
     ? parsedDynamic.data.item.stats
     : undefined;
-  const categories = (item.links?.boardgamecategory ?? [])
-    .map((link) => link.name.trim())
-    .filter(Boolean)
-    .slice(0, 50);
-  const minPlayers = jsonNumber(item.minplayers, 1, 99) ?? 1;
-  const minPlaytime = jsonNumber(item.minplaytime, 0, 10_000) ?? 0;
+  const categories = linkLabels(item.links?.boardgamecategory);
+  const minPlayers = wholeNumber(jsonNumber(item.minplayers, 1, 99)) ?? 1;
+  const minPlaytime = wholeNumber(jsonNumber(item.minplaytime, 0, 10_000)) ?? 0;
 
   return {
     bggId: expectedBggId,
@@ -241,27 +267,23 @@ export function parseBggJsonResponses(
         ),
       ),
     ],
-    families: (item.links?.boardgamefamily ?? [])
-      .map((link) => link.name.trim())
-      .filter(Boolean)
-      .slice(0, 50),
+    families: linkLabels(item.links?.boardgamefamily),
     imageUrl: trustedImage(item.imageurl ?? null),
     isExpansion:
       (item.subtypes ?? []).some((subtype) =>
         ["boardgameaccessory", "boardgameexpansion"].includes(subtype),
       ) || hasExpansionCategory(categories),
-    maxPlayers: jsonNumber(item.maxplayers, minPlayers, 99) ?? minPlayers,
+    maxPlayers:
+      wholeNumber(jsonNumber(item.maxplayers, minPlayers, 99)) ?? minPlayers,
     maxPlaytime:
-      jsonNumber(item.maxplaytime, minPlaytime, 10_000) ?? minPlaytime,
-    mechanics: (item.links?.boardgamemechanic ?? [])
-      .map((link) => link.name.trim())
-      .filter(Boolean)
-      .slice(0, 50),
+      wholeNumber(jsonNumber(item.maxplaytime, minPlaytime, 10_000)) ??
+      minPlaytime,
+    mechanics: linkLabels(item.links?.boardgamemechanic),
     minPlayers,
     minPlaytime,
     name: item.name.trim(),
     weight: jsonNumber(stats?.avgweight, 1, 5),
-    yearPublished: jsonNumber(item.yearpublished, 1800, 2200),
+    yearPublished: wholeNumber(jsonNumber(item.yearpublished, 1800, 2200)),
   };
 }
 
@@ -339,17 +361,24 @@ export function parseBggHtmlPage(
       /\/boardgame(?:expansion|accessory)\//i.test(canonical) ||
       /"subtype"\s*:\s*"boardgameexpansion"/i.test(decodeHtml(html)) ||
       hasExpansionCategory(categories),
-    maxPlayers: pageNumber(html, ["maxplayers", "maxPlayers"], 1, 99) ?? 1,
+    maxPlayers:
+      wholeNumber(pageNumber(html, ["maxplayers", "maxPlayers"], 1, 99)) ?? 1,
     maxPlaytime:
-      pageNumber(html, ["maxplaytime", "maxPlaytime"], 0, 10_000) ?? 0,
+      wholeNumber(
+        pageNumber(html, ["maxplaytime", "maxPlaytime"], 0, 10_000),
+      ) ?? 0,
     mechanics: taxonomy(html, "boardgamemechanic"),
-    minPlayers: pageNumber(html, ["minplayers", "minPlayers"], 1, 99) ?? 1,
+    minPlayers:
+      wholeNumber(pageNumber(html, ["minplayers", "minPlayers"], 1, 99)) ?? 1,
     minPlaytime:
-      pageNumber(html, ["minplaytime", "minPlaytime"], 0, 10_000) ?? 0,
+      wholeNumber(
+        pageNumber(html, ["minplaytime", "minPlaytime"], 0, 10_000),
+      ) ?? 0,
     name: name.slice(0, 160),
     weight: pageNumber(html, ["averageweight", "averageWeight"], 1, 5),
     yearPublished:
-      pageNumber(html, ["yearpublished", "yearPublished"], 1800, 2200) ??
-      (titleYear ? Number(titleYear) : null),
+      wholeNumber(
+        pageNumber(html, ["yearpublished", "yearPublished"], 1800, 2200),
+      ) ?? (titleYear ? Number(titleYear) : null),
   };
 }

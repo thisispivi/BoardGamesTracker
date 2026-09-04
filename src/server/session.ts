@@ -68,7 +68,12 @@ const getCachedSession = cache(async () => {
 /**
  * Returns the fully validated session for the current request.
  *
- * @returns The active session, or null when the request is unauthenticated.
+ * A banned account, or one past its per-user request allowance, is treated as
+ * signed out rather than given a distinct outcome: every caller already has to
+ * handle an absent session, and the alternative is a second failure mode in
+ * every page and route that reads one.
+ *
+ * @returns The active session, or null when the request may not proceed.
  */
 export async function getSession(): Promise<ValidatedSession | null> {
   return getCachedSession();
