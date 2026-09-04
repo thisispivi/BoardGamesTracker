@@ -10,9 +10,9 @@ export type AppLocale = (typeof locales)[number];
 /**
  * Narrows an arbitrary value to a supported locale.
  *
- * @param value - Untrusted input being validated or normalized.
+ * @param value - A locale read from a preference cookie or a caller argument.
  * @returns Whether the value is a supported application locale.
  */
 export function isLocale(value: unknown): value is AppLocale {
-  return typeof value === "string" && locales.includes(value as AppLocale);
+  return locales.some((locale) => locale === value);
 }

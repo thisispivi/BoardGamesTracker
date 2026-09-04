@@ -6,6 +6,7 @@ import {
   getTaxonomyLabel,
   hasExpansionCategory,
   isExpansionCategory,
+  parseTaxonomyLabels,
 } from "@/utils/gameTaxonomy";
 
 describe("game taxonomy", () => {
@@ -37,5 +38,25 @@ describe("game taxonomy", () => {
     expect(getTaxonomyLabel("Card Game", "category", "it")).toBe(
       "Gioco di carte",
     );
+  });
+});
+
+describe("parseTaxonomyLabels", () => {
+  it("trims entries and drops blanks and repeats", () => {
+    expect(parseTaxonomyLabels(" Deck  ,, Deck ,Trains,")).toEqual([
+      "Deck",
+      "Trains",
+    ]);
+  });
+
+  it("returns nothing for an empty or separator-only field", () => {
+    expect(parseTaxonomyLabels("")).toEqual([]);
+    expect(parseTaxonomyLabels(" , , ")).toEqual([]);
+  });
+
+  it("caps a hostile field at fifty labels", () => {
+    const flood = Array.from({ length: 500 }, (_, index) => `label-${index}`);
+
+    expect(parseTaxonomyLabels(flood.join(","))).toHaveLength(50);
   });
 });

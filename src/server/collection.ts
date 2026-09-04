@@ -2,6 +2,7 @@ import "server-only";
 
 import { and, asc, eq } from "drizzle-orm";
 
+import type { CollectionGame } from "@/core";
 import { db } from "@/server/db";
 import { collectionItems, games } from "@/server/db/schema";
 
@@ -12,7 +13,10 @@ import { collectionItems, games } from "@/server/db/schema";
  * @param location - Library section used to constrain the collection query.
  * @returns Games owned by the user in the requested library section.
  */
-async function getLibraryItems(userId: string, location: "owned" | "wishlist") {
+async function getLibraryItems(
+  userId: string,
+  location: "owned" | "wishlist",
+): Promise<CollectionGame[]> {
   const collection = await db
     .select({
       id: collectionItems.id,
@@ -71,7 +75,7 @@ async function getLibraryItems(userId: string, location: "owned" | "wishlist") {
  * @param userId - The authenticated user identifier.
  * @returns Owned games with their personal metadata.
  */
-export function getCollection(userId: string) {
+export function getCollection(userId: string): Promise<CollectionGame[]> {
   return getLibraryItems(userId, "owned");
 }
 
@@ -81,6 +85,6 @@ export function getCollection(userId: string) {
  * @param userId - The authenticated user identifier.
  * @returns Wishlist games with their personal metadata.
  */
-export function getWishlist(userId: string) {
+export function getWishlist(userId: string): Promise<CollectionGame[]> {
   return getLibraryItems(userId, "wishlist");
 }

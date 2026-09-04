@@ -86,7 +86,7 @@ async function enrichCandidates(
       imageBudgetMs,
     ),
   ]);
-  const enriched = candidates.map((game) => {
+  return candidates.map((game) => {
     const details = metadata.get(game.bggId);
     return {
       ...game,
@@ -97,7 +97,6 @@ async function enrichCandidates(
       yearPublished: details?.yearPublished ?? game.yearPublished,
     };
   });
-  return enriched;
 }
 
 /**

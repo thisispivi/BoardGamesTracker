@@ -25,10 +25,10 @@ type SelectProps = {
  * @param root0.ariaLabel - Accessible name announced for the control.
  * @param root0.className - Optional classes merged with the component styles.
  * @param root0.defaultValue - Initial value shown before the user changes the selection.
- * @param root0.name - Game name used for accessible artwork text.
+ * @param root0.name - Form field name submitted with the selected value.
  * @param root0.onValueChange - Callback invoked with the next selected value or values.
  * @param root0.options - Selectable values displayed by the control.
- * @param root0.value - Untrusted input being validated or normalized.
+ * @param root0.value - Selected value when the caller controls the component.
  * @returns The rendered select.
  */
 export function Select({

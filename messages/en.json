@@ -391,7 +391,7 @@
       "light": "Light",
       "medium": "Medium",
       "heavy": "Heavy",
-      "expert": "Expert"
+      "veryHeavy": "Very heavy"
     },
     "noData": "Add more collection details to unlock this chart."
   },
@@ -408,6 +408,7 @@
     "imported": "Imported {count} library items.",
     "invalid": "This is not a valid Board Games Tracker data export.",
     "tooLarge": "The import must be no larger than 10 MB.",
+    "tooMany": "Too many data transfers. Try again in ten minutes.",
     "unsupported": "Choose a JSON, CSV, XLSX, or SQL file.",
     "bggTitle": "Import from BoardGameGeek",
     "bggBody": "Use an official BGG collection CSV as a one-way source."

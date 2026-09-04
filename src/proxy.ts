@@ -50,12 +50,13 @@ async function fingerprint(value: string): Promise<string> {
  * backstop for that case, not this one.
  *
  * @param request - The incoming request.
+ * @param sessionCookie - The session cookie presented by the caller, when any.
  * @returns A stable rate-limit key for the caller.
  */
-async function getCallerKey(request: NextRequest): Promise<string> {
-  const sessionCookie = getSessionCookie(request, {
-    cookiePrefix: "board_games_tracker",
-  });
+async function getCallerKey(
+  request: NextRequest,
+  sessionCookie: string | null,
+): Promise<string> {
   if (sessionCookie) {
     return `session:${await fingerprint(sessionCookie)}`;
   }
@@ -90,7 +91,10 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     return tooManyRequests();
   }
 
-  const callerKey = await getCallerKey(request);
+  const sessionCookie = getSessionCookie(request, {
+    cookiePrefix: "board_games_tracker",
+  });
+  const callerKey = await getCallerKey(request, sessionCookie);
   if (!consumeRateLimit(callerKey, identityRequestLimit, rateLimitWindowMs)) {
     return tooManyRequests();
   }
@@ -118,10 +122,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   const isProtected = protectedPrefixes.some((prefix) =>
     request.nextUrl.pathname.startsWith(prefix),
   );
-  const hasSessionCookie = Boolean(
-    getSessionCookie(request, { cookiePrefix: "board_games_tracker" }),
-  );
-  if (isProtected && !hasSessionCookie) {
+  if (isProtected && !sessionCookie) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 

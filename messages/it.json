@@ -391,7 +391,7 @@
       "light": "Leggero",
       "medium": "Medio",
       "heavy": "Pesante",
-      "expert": "Esperto"
+      "veryHeavy": "Molto pesante"
     },
     "noData": "Aggiungi più dettagli alla collezione per sbloccare questo grafico."
   },
@@ -408,6 +408,7 @@
     "imported": "Importati {count} elementi della libreria.",
     "invalid": "Il file non è un’esportazione Board Games Tracker valida.",
     "tooLarge": "Il file non può superare 10 MB.",
+    "tooMany": "Troppi trasferimenti di dati. Riprova tra dieci minuti.",
     "unsupported": "Scegli un file JSON, CSV, XLSX o SQL.",
     "bggTitle": "Importa da BoardGameGeek",
     "bggBody": "Usa un CSV ufficiale BGG come sorgente unidirezionale."

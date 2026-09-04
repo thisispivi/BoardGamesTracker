@@ -73,7 +73,7 @@ export function MultiSelect({
   /**
    * Toggles one facet while preserving the order of the available options.
    *
-   * @param value - Untrusted input being validated or normalized.
+   * @param value - The facet value whose selected state is being flipped.
    * @returns Nothing.
    */
   function toggleValue(value: string) {

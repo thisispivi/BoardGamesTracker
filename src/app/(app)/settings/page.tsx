@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import type { ReactNode } from "react";
 
 import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
 import { CurrencySelect } from "@/components/molecules/CurrencySelect/CurrencySelect";
@@ -37,7 +38,7 @@ export async function generateMetadata(): Promise<Metadata> {
  *
  * @returns The rendered settings page.
  */
-export default async function SettingsPage() {
+export default async function SettingsPage(): Promise<ReactNode> {
   const session = await requireUser();
   const [preferences, t, collection] = await Promise.all([
     getUserPreferences(session.user.id),

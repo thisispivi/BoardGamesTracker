@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import type { ReactNode } from "react";
 
 import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
 import { AddGameDialog } from "@/components/organisms/AddGameDialog/AddGameDialog";
@@ -23,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
  *
  * @returns The rendered collection page.
  */
-export default async function CollectionPage() {
+export default async function CollectionPage(): Promise<ReactNode> {
   const session = await requireUser();
   const [collection, preferences, t] = await Promise.all([
     getCollection(session.user.id),

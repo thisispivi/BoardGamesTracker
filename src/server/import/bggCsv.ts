@@ -24,7 +24,7 @@ const requiredColumns = [
 /**
  * Parses a bounded integer field while rejecting malformed values.
  *
- * @param value - Untrusted input being validated or normalized.
+ * @param value - A digits-only CSV cell; anything else is treated as absent.
  * @param minimum - Smallest accepted numeric value.
  * @param maximum - Largest accepted numeric value.
  * @returns A bounded integer, or null when the source is absent or invalid.
@@ -47,7 +47,7 @@ function integer(
 /**
  * Parses a bounded decimal, treating zero as an unset value when requested.
  *
- * @param value - Untrusted input being validated or normalized.
+ * @param value - A numeric CSV cell, which BGG leaves blank or zero when unrated.
  * @param minimum - Smallest accepted numeric value.
  * @param maximum - Largest accepted numeric value.
  * @param zeroIsNull - Whether a zero in the source represents missing data.

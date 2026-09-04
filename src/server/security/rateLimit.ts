@@ -31,7 +31,7 @@ function sweepEntries(now: number, enforceCapacity: boolean): void {
   nextSweepAt = now + sweepIntervalMs;
 
   while (entries.size >= maxEntries) {
-    const oldestKey = entries.keys().next().value as string | undefined;
+    const oldestKey = entries.keys().next().value;
     if (oldestKey === undefined) {
       return;
     }

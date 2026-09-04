@@ -5,7 +5,7 @@ const stopwords = [...eng, ...ita];
 /**
  * Normalizes multilingual game-search text for fuzzy and remote matching.
  *
- * @param value - Untrusted input being validated or normalized.
+ * @param value - A game title or query in any supported language.
  * @returns The normalized search text.
  */
 export function normalizeSearchText(value: string): string {

@@ -15,7 +15,7 @@ import {
   YAxis,
 } from "recharts";
 
-import type { CountDatum } from "@/core";
+import type { ComplexityDatum, CountDatum } from "@/core";
 import { getTaxonomyLabel } from "@/utils/gameTaxonomy";
 
 const chartColors = ["var(--primary)", "var(--accent)", "#3f8fba", "#b86b8f"];
@@ -23,7 +23,7 @@ const chartColors = ["var(--primary)", "var(--accent)", "#3f8fba", "#b86b8f"];
 /** Aggregated collection statistics rendered across the chart dashboard. */
 type StatsChartsProps = {
   categories: CountDatum[];
-  complexity: { key: "light" | "medium" | "heavy" | "expert"; value: number }[];
+  complexity: ComplexityDatum[];
   currency: string;
   mechanics: CountDatum[];
   mostExpensive: CountDatum[];
@@ -382,8 +382,8 @@ function ChartGrid(): ReactNode {
 /**
  * Ellipsizes an axis label while the tooltip retains the complete title.
  *
- * @param value - Untrusted input being validated or normalized.
- * @param maximum - Largest accepted numeric value.
+ * @param value - The full category or mechanic name.
+ * @param maximum - Character budget for the rendered label, including the ellipsis.
  * @returns The original text or a shortened ellipsis-terminated label.
  */
 function truncate(value: string, maximum: number): string {

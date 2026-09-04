@@ -10,7 +10,7 @@
 
 A self-hosted board-game collection manager and game-night picker built with
 Next.js, TypeScript, and PostgreSQL. Board Games Tracker keeps a household's
-collection, wishlist, ratings, notes, plays, and game-night decisions in one
+collection, wishlist, ratings, notes, prices, and game-night decisions in one
 private application you run yourself.
 
 ![Next.js](https://img.shields.io/badge/next.js-000000.svg?style=for-the-badge&logo=nextdotjs&logoColor=white) ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB) ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white) ![Tailwind CSS](https://img.shields.io/badge/tailwind_css-06B6D4.svg?style=for-the-badge&logo=tailwindcss&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/postgresql-4169E1.svg?style=for-the-badge&logo=postgresql&logoColor=white) ![Drizzle](https://img.shields.io/badge/drizzle-C5F74F.svg?style=for-the-badge&logo=drizzle&logoColor=black) ![Zod](https://img.shields.io/badge/zod-3E67B1.svg?style=for-the-badge&logo=zod&logoColor=white) ![Radix UI](https://img.shields.io/badge/radix_ui-161618.svg?style=for-the-badge&logo=radixui&logoColor=white) ![Vitest](https://img.shields.io/badge/vitest-6E9F18.svg?style=for-the-badge&logo=vitest&logoColor=white) ![ESLint](https://img.shields.io/badge/eslint-4B3263.svg?style=for-the-badge&logo=eslint&logoColor=white) ![Prettier](https://img.shields.io/badge/prettier-F7B93E.svg?style=for-the-badge&logo=prettier&logoColor=black) ![pnpm](https://img.shields.io/badge/pnpm-%23F69220.svg?style=for-the-badge&logo=pnpm&logoColor=white) ![Node.js](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white) ![Docker](https://img.shields.io/badge/docker-2496ED.svg?style=for-the-badge&logo=docker&logoColor=white) ![SearXNG](https://img.shields.io/badge/searxng-3050FF.svg?style=for-the-badge&logo=searxng&logoColor=white)
@@ -43,8 +43,11 @@ or review the [security model](#security).
 - Separate collection and wishlist views with ownership, favorites, and gifted
   status.
 - Personal ratings, notes, tags, player counts, play times, and money spent.
-- Search, filtering, sorting, pagination, batch actions, and bulk deletion.
-- Duplicate detection when adding or importing a game.
+- Fuzzy search plus filters for player count, duration, complexity, categories,
+  mechanics, favorites, and base games versus expansions.
+- Expansions grouped under the base game they belong to.
+- Moving a wishlist entry into the collection, and clearing either library
+  behind a typed confirmation.
 
 ### Metadata discovery and imports
 
@@ -52,7 +55,8 @@ or review the [security model](#security).
   so the browser never reaches it directly.
 - A preview step before a game is added, with manual resolution of incomplete
   metadata.
-- BoardGameGeek-compatible CSV import with matching and duplicate decisions.
+- BoardGameGeek collection CSV import that keeps only owned rows and reports
+  what it skipped.
 - Remote artwork fetched, cached, and served from same-origin routes.
 
 > BoardGameGeek is a trademark of BoardGameGeek, LLC. This project is
@@ -63,7 +67,8 @@ or review the [security model](#security).
 - A shared candidate pool for the table, constrained by player count and
   duration.
 - A picker that makes the final call so the group does not have to.
-- Charts for status, rating, player count, and the rest of the stored metadata.
+- Charts for complexity spread, top categories and mechanics, and the most
+  expensive games, alongside total, average, and median spend.
 
 ### Accounts, sharing, and administration
 
@@ -254,6 +259,14 @@ pnpm check && pnpm build
 `pnpm check` runs TypeScript, ESLint, Prettier, Vitest, and Knip in parallel.
 `pnpm lint:fix` and `pnpm format` fix the mechanical failures. Dependency
 advisories are checked separately with `pnpm audit --audit-level=moderate`.
+
+Git hooks are installed by `pnpm install`. Committing formats and lints the
+staged files; pushing runs the whole `pnpm check` gate. CI repeats both and adds
+the production build, so a hook is a fast warning, not the real gate.
+
+ESLint enforces the architectural boundaries rather than leaving them to review:
+imports go through the `@/` alias, `src/core` cannot import `src/server`, and
+Atomic Design stays one-way, so an atom cannot reach for an organism.
 
 ## Security
 

@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import { formatSchema, type UserDataFormat } from "@/core";
 import { writeAuditEvent } from "@/server/audit";
 import { hasTrustedOrigin } from "@/server/security/origin";
+import { consumeRateLimit } from "@/server/security/rateLimit";
 import { getSession } from "@/server/session";
 import {
   getUserDataDocument,
@@ -18,6 +19,16 @@ import {
 const maxImportBytes = 10 * 1024 * 1024;
 
 /**
+ * Allowance for whole-account transfers.
+ *
+ * Both directions read or rewrite the caller's entire library, and a workbook
+ * export is the most expensive response the application produces, so the limit
+ * is well below what an interactive user needs.
+ */
+const transferLimit = 10;
+const transferWindowMs = 10 * 60_000;
+
+/**
  * Exports only the signed-in user's portable application data.
  *
  * @param request - The incoming request.
@@ -27,6 +38,15 @@ export async function GET(request: NextRequest): Promise<Response> {
   const session = await getSession();
   if (!session)
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  if (
+    !consumeRateLimit(
+      `userDataExport:${session.user.id}`,
+      transferLimit,
+      transferWindowMs,
+    )
+  ) {
+    return NextResponse.json({ error: "too_many_requests" }, { status: 429 });
+  }
   const parsedFormat = formatSchema.safeParse(
     request.nextUrl.searchParams.get("format") ?? "json",
   );
@@ -67,6 +87,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   if (!hasTrustedOrigin(request)) {
     return NextResponse.json({ error: "cross_origin" }, { status: 403 });
+  }
+  if (
+    !consumeRateLimit(
+      `userDataImport:${session.user.id}`,
+      transferLimit,
+      transferWindowMs,
+    )
+  ) {
+    return NextResponse.json({ error: "too_many_requests" }, { status: 429 });
   }
   const declaredLength = Number(request.headers.get("content-length") ?? 0);
   if (declaredLength > maxImportBytes + 256_000) {

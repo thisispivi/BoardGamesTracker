@@ -3,7 +3,7 @@
 import * as Sentry from "@sentry/nextjs";
 import { RotateCcw } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect } from "react";
+import { type ReactNode, useEffect } from "react";
 
 import { Button } from "@/components/atoms/Button/Button";
 import { AuthShell } from "@/components/templates/AuthShell/AuthShell";
@@ -22,7 +22,7 @@ export default function ErrorBoundary({
 }: {
   error: Error & { digest?: string };
   reset: () => void;
-}) {
+}): ReactNode {
   const t = useTranslations("error");
   useEffect(() => {
     Sentry.captureException(error);

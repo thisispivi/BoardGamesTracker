@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import type { ReactNode } from "react";
 
 import { PasswordResetPanel } from "@/components/molecules/PasswordResetPanel/PasswordResetPanel";
 import { MailResetPasswordForm } from "@/components/organisms/MailResetPasswordForm/MailResetPasswordForm";
@@ -35,7 +36,7 @@ export async function generateMetadata(): Promise<Metadata> {
  */
 export default async function MailResetPasswordPage({
   searchParams,
-}: MailResetPasswordPageProps) {
+}: MailResetPasswordPageProps): Promise<ReactNode> {
   const parameters = await searchParams;
   const token =
     typeof parameters.token === "string" && !parameters.error

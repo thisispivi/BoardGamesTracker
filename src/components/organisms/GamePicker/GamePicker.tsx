@@ -439,14 +439,19 @@ function buildReelSequence(
   candidates: ReelGame[],
   winnerId: string,
 ): { items: ReelGame[]; winnerIndex: number } {
+  if (candidates.length === 0) {
+    return { items: [], winnerIndex: 0 };
+  }
+
   const itemCount = Math.max(20, Math.min(32, candidates.length * 4));
   const winnerIndex = itemCount - 3;
   const start = Math.floor(Math.random() * candidates.length);
+  const items: ReelGame[] = [];
+  for (let index = 0; index < itemCount; index += 1) {
+    const game = candidates[(start + index) % candidates.length];
+    if (game) items.push(game);
+  }
   const winner = candidates.find((game) => game.gameId === winnerId);
-  const items = Array.from(
-    { length: itemCount },
-    (_, index) => candidates[(start + index) % candidates.length]!,
-  );
   if (winner) items[winnerIndex] = winner;
   return { items, winnerIndex };
 }

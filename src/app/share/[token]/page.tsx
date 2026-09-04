@@ -2,6 +2,7 @@ import { Banknote, BookOpen, Boxes, Heart, Puzzle } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
+import type { ReactNode } from "react";
 
 import { Logo } from "@/components/atoms/Logo/Logo";
 import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
@@ -138,7 +139,7 @@ function SharedSection({
  */
 export default async function SharedLibraryPage({
   params,
-}: SharedLibraryPageProps) {
+}: SharedLibraryPageProps): Promise<ReactNode> {
   const [{ token }, t] = await Promise.all([params, getTranslations()]);
   const shared = await getSharedLibrary(token);
   if (!shared) {

@@ -20,7 +20,7 @@ const formats = ["json", "csv", "xlsx", "sql"] as const;
 export function UserDataCard(): ReactNode {
   const [importing, setImporting] = useState(false);
   const router = useRouter();
-  const t = useTranslations();
+  const t = useTranslations("data");
 
   /**
    * Uploads a bounded portable export to the authenticated import endpoint.
@@ -45,18 +45,20 @@ export function UserDataCard(): ReactNode {
       if (!response.ok || !payload.success) {
         toast.error(
           payload.error === "too_large"
-            ? t("data.tooLarge")
-            : payload.error === "unsupported_format"
-              ? t("data.unsupported")
-              : t("data.invalid"),
+            ? t("tooLarge")
+            : payload.error === "too_many_requests"
+              ? t("tooMany")
+              : payload.error === "unsupported_format"
+                ? t("unsupported")
+                : t("invalid"),
         );
         return;
       }
-      toast.success(t("data.imported", { count: payload.imported ?? 0 }));
+      toast.success(t("imported", { count: payload.imported ?? 0 }));
       form.reset();
       router.refresh();
     } catch {
-      toast.error(t("data.invalid"));
+      toast.error(t("invalid"));
     } finally {
       setImporting(false);
     }
@@ -69,16 +71,16 @@ export function UserDataCard(): ReactNode {
           <FileArchive className="size-5" />
         </span>
         <div className="min-w-0">
-          <h2 className="font-display text-xl font-bold">{t("data.title")}</h2>
-          <p className="text-muted-foreground text-sm">{t("data.body")}</p>
+          <h2 className="font-display text-xl font-bold">{t("title")}</h2>
+          <p className="text-muted-foreground text-sm">{t("body")}</p>
         </div>
       </div>
 
       <div className="mt-7 grid min-w-0 gap-6 lg:grid-cols-2">
         <div className="min-w-0 rounded-lg border p-4 sm:p-5">
-          <h3 className="font-bold">{t("data.exportTitle")}</h3>
+          <h3 className="font-bold">{t("exportTitle")}</h3>
           <p className="text-muted-foreground mt-1 text-sm leading-6">
-            {t("data.exportBody")}
+            {t("exportBody")}
           </p>
           <div className="mt-4 grid grid-cols-2 gap-2">
             {formats.map((format) => (
@@ -100,12 +102,12 @@ export function UserDataCard(): ReactNode {
           className="min-w-0 rounded-lg border p-4 sm:p-5"
           onSubmit={importData}
         >
-          <h3 className="font-bold">{t("data.importTitle")}</h3>
+          <h3 className="font-bold">{t("importTitle")}</h3>
           <p className="text-muted-foreground mt-1 text-sm leading-6">
-            {t("data.importBody")}
+            {t("importBody")}
           </p>
           <label className="mt-4 block min-w-0 text-sm font-bold">
-            <span className="sr-only">{t("data.file")}</span>
+            <span className="sr-only">{t("file")}</span>
             <input
               accept=".json,.csv,.xlsx,.sql,application/json,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/sql"
               className="file:bg-primary file:text-primary-foreground bg-background block w-full max-w-full min-w-0 cursor-pointer overflow-hidden rounded-lg border p-2 text-sm file:mr-3 file:max-w-full file:cursor-pointer file:rounded-md file:border-0 file:px-3 file:py-2 file:font-bold"
@@ -125,17 +127,15 @@ export function UserDataCard(): ReactNode {
             ) : (
               <Upload className="size-4" />
             )}
-            {importing ? t("data.importing") : t("data.import")}
+            {importing ? t("importing") : t("import")}
           </Button>
         </form>
       </div>
 
       <div className="mt-6 flex min-w-0 flex-col justify-between gap-4 rounded-lg border border-dashed p-4 sm:flex-row sm:items-center sm:p-5">
         <div className="min-w-0">
-          <h3 className="font-bold">{t("data.bggTitle")}</h3>
-          <p className="text-muted-foreground mt-1 text-sm">
-            {t("data.bggBody")}
-          </p>
+          <h3 className="font-bold">{t("bggTitle")}</h3>
+          <p className="text-muted-foreground mt-1 text-sm">{t("bggBody")}</p>
         </div>
         <ImportCollectionDialog />
       </div>

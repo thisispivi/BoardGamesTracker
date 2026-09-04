@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import type { ReactNode } from "react";
 
 import { PasswordResetPanel } from "@/components/molecules/PasswordResetPanel/PasswordResetPanel";
 import { ResetPasswordForm } from "@/components/organisms/ResetPasswordForm/ResetPasswordForm";
@@ -33,7 +34,7 @@ export async function generateMetadata(): Promise<Metadata> {
  */
 export default async function ResetPasswordPage({
   params,
-}: ResetPasswordPageProps) {
+}: ResetPasswordPageProps): Promise<ReactNode> {
   const { token } = await params;
   const userId = await verifyPasswordResetToken(token);
 

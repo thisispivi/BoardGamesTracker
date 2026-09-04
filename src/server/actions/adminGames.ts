@@ -1,13 +1,13 @@
 "use server";
 
 import { eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 
 import {
   type AdminGamesPage,
   adminPageSchema,
   adminSearchSchema,
+  type BggMetadata,
   type CollectionActionState,
   gameMetadataSchema,
   itemIdSchema,
@@ -17,7 +17,9 @@ import { writeAuditEvent } from "@/server/audit";
 import { scrapeBggMetadata } from "@/server/bgg/scrape";
 import { db } from "@/server/db";
 import { games } from "@/server/db/schema";
+import { revalidateSharedGameRoutes } from "@/server/revalidate";
 import { requireAdmin } from "@/server/session";
+import { parseTaxonomyLabels } from "@/utils/gameTaxonomy";
 
 /**
  * Returns an authorized page of shared games without navigating away from the console.
@@ -35,37 +37,6 @@ export async function getAdminGamesPageAction(
     adminPageSchema.parse(page),
     adminSearchSchema.parse(search),
   );
-}
-
-/**
- * Splits and deduplicates comma-separated taxonomy labels.
- *
- * @param value - The raw comma-separated input.
- * @returns Bounded, trimmed, unique labels.
- */
-function parseLabels(value: string): string[] {
-  return [
-    ...new Set(
-      value
-        .split(",")
-        .map((label) => label.trim())
-        .filter(Boolean),
-    ),
-  ].slice(0, 50);
-}
-
-/**
- * Revalidates every route that renders shared game metadata.
- *
- * @returns Nothing.
- */
-function revalidateGameViews(): void {
-  revalidatePath("/admin/games");
-  revalidatePath("/collection");
-  revalidatePath("/wishlist");
-  revalidatePath("/dashboard");
-  revalidatePath("/stats");
-  revalidatePath("/play");
 }
 
 /**
@@ -106,9 +77,9 @@ export async function updateGameMetadataAction(
     .update(games)
     .set({
       ...values,
-      categories: parseLabels(categories),
-      families: parseLabels(families),
-      mechanics: parseLabels(mechanics),
+      categories: parseTaxonomyLabels(categories),
+      families: parseTaxonomyLabels(families),
+      mechanics: parseTaxonomyLabels(mechanics),
       updatedAt: new Date(),
     })
     .where(eq(games.id, gameId))
@@ -124,7 +95,7 @@ export async function updateGameMetadataAction(
     targetId: updated.id,
     metadata: { bggId: updated.bggId },
   });
-  revalidateGameViews();
+  revalidateSharedGameRoutes();
   return { success: true, message: t("adminGames.saved") };
 }
 
@@ -159,7 +130,9 @@ export async function refreshGameFromBggAction(
   }
 
   const metadata = (
-    await scrapeBggMetadata([record.bggId]).catch(() => new Map())
+    await scrapeBggMetadata([record.bggId]).catch(
+      () => new Map<number, BggMetadata>(),
+    )
   ).get(record.bggId);
   if (!metadata) {
     return { success: false, message: t("adminGames.refreshFailed") };
@@ -197,6 +170,6 @@ export async function refreshGameFromBggAction(
     targetId: gameId.data,
     metadata: { bggId: record.bggId },
   });
-  revalidateGameViews();
+  revalidateSharedGameRoutes();
   return { success: true, message: t("adminGames.refreshed") };
 }

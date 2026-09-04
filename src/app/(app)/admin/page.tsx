@@ -2,6 +2,7 @@ import { count, desc } from "drizzle-orm";
 import { Activity, BookOpen, Shield, Users } from "lucide-react";
 import type { Metadata } from "next";
 import { getFormatter, getTranslations } from "next-intl/server";
+import type { ReactNode } from "react";
 
 import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
 import { AdminGamesPanel } from "@/components/organisms/AdminGamesPanel/AdminGamesPanel";
@@ -29,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
  *
  * @returns The rendered admin page.
  */
-export default async function AdminPage() {
+export default async function AdminPage(): Promise<ReactNode> {
   const [actor, t, format] = await Promise.all([
     requireAdmin(),
     getTranslations(),

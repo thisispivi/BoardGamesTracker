@@ -3,6 +3,20 @@ import { scrubSentryEvent } from "@/utils/sentryScrub";
 /** Execution environments with distinct Sentry integration settings. */
 type SentryRuntime = "browser" | "edge" | "server";
 
+/** Error-only Sentry SDK options accepted by every Next.js runtime. */
+type SentryOptions = {
+  attachStacktrace: boolean;
+  beforeSend: typeof scrubSentryEvent;
+  dsn: string;
+  enableLogs: boolean;
+  environment: string;
+  initialScope: { tags: { application: string; runtime: SentryRuntime } };
+  release?: string;
+  sendClientReports: boolean;
+  sendDefaultPii: boolean;
+  tracesSampleRate: number;
+};
+
 /**
  * Builds the error-only Sentry SDK options shared by every Next.js runtime.
  *
@@ -22,7 +36,7 @@ export function createSentryOptions(
   environment: string,
   release: string | undefined,
   runtime: SentryRuntime,
-) {
+): SentryOptions {
   return {
     dsn,
     environment,

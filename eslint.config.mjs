@@ -4,6 +4,39 @@ import nextTs from "eslint-config-next/typescript";
 import jsdoc from "eslint-plugin-jsdoc";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
 
+/** Message shared by every rule that forbids escaping a module with `../`. */
+const relativeParentImports = {
+  group: ["../*"],
+  message: "Import through the @/ alias instead of a relative parent path.",
+};
+
+/** Atomic Design layers, outermost last. A layer may only import earlier ones. */
+const componentLayers = ["atoms", "molecules", "organisms", "templates"];
+
+/**
+ * Builds one ESLint override per Atomic Design layer.
+ *
+ * The dependency direction is documented in CODING_GUIDELINES.md; expressing it
+ * here is what actually stops an atom from reaching for an organism.
+ */
+const atomicDesignBoundaries = componentLayers.map((layer, index) => ({
+  files: [`src/components/${layer}/**/*.tsx`],
+  rules: {
+    "no-restricted-imports": [
+      "error",
+      {
+        patterns: [
+          relativeParentImports,
+          ...componentLayers.slice(index + 1).map((outerLayer) => ({
+            group: [`@/components/${outerLayer}/**`],
+            message: `Atomic Design is one-way: ${layer} must not import ${outerLayer}.`,
+          })),
+        ],
+      },
+    ],
+  },
+}));
+
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
@@ -65,6 +98,33 @@ const eslintConfig = defineConfig([
       "simple-import-sort/imports": "error",
     },
   },
+  {
+    files: ["src/**/*.{ts,tsx}"],
+    rules: {
+      "@typescript-eslint/consistent-type-imports": "error",
+      "@typescript-eslint/no-non-null-assertion": "error",
+      "no-restricted-imports": ["error", { patterns: [relativeParentImports] }],
+    },
+  },
+  {
+    files: ["src/core/**/*.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            relativeParentImports,
+            {
+              group: ["@/server", "@/server/**"],
+              message:
+                "src/core holds framework-free contracts and must not depend on src/server.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  ...atomicDesignBoundaries,
   globalIgnores([
     ".next/**",
     "out/**",

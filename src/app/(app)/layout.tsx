@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import { AppShell } from "@/components/templates/AppShell/AppShell";
 import { requireUser } from "@/server/session";
 
@@ -12,7 +14,7 @@ export default async function AuthenticatedLayout({
   children,
 }: {
   children: React.ReactNode;
-}) {
+}): Promise<ReactNode> {
   const session = await requireUser();
 
   return <AppShell user={session.user}>{children}</AppShell>;

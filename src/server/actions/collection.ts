@@ -1,11 +1,11 @@
 "use server";
 
 import { and, eq, sql } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 
 import {
+  type BggCsvImport,
   type BggMetadata,
   type CollectionActionState,
   editCollectionItemSchema,
@@ -23,30 +23,20 @@ import { discoverBoardGameImages } from "@/server/discovery/searxng";
 import { verifySelectionToken } from "@/server/discovery/selectionToken";
 import { downloadBggImage, downloadBggImages } from "@/server/images/bggImage";
 import { parseBggCollectionCsv } from "@/server/import/bggCsv";
+import {
+  revalidateAccountRoutes,
+  revalidateLibraryRoutes,
+} from "@/server/revalidate";
 import { consumeRateLimit } from "@/server/security/rateLimit";
 import { requireUser } from "@/server/session";
 import { clearCollectionConfirmation } from "@/utils/collectionConfirmation";
-import { hasExpansionCategory } from "@/utils/gameTaxonomy";
+import {
+  hasExpansionCategory,
+  parseTaxonomyLabels,
+} from "@/utils/gameTaxonomy";
 
 /** Validated local metadata accepted when a user adds a custom game. */
 type LocalGameDetails = z.infer<typeof gameDetailsSchema>;
-
-/**
- * Splits and deduplicates user-maintained taxonomy labels.
- *
- * @param value - Untrusted input being validated or normalized.
- * @returns Normalized, unique labels from the delimited source text.
- */
-function parseLabels(value: string): string[] {
-  return [
-    ...new Set(
-      value
-        .split(",")
-        .map((label) => label.trim())
-        .filter(Boolean),
-    ),
-  ].slice(0, 50);
-}
 
 /**
  * Inserts or refreshes user-supplied local metadata and returns the game ID.
@@ -61,9 +51,9 @@ async function upsertGame(
   details: LocalGameDetails,
   metadata?: BggMetadata,
 ): Promise<{ id: string; imageCached: boolean }> {
-  const categories = parseLabels(details.categories);
-  const mechanics = parseLabels(details.mechanics);
-  const families = parseLabels(details.families);
+  const categories = parseTaxonomyLabels(details.categories);
+  const mechanics = parseTaxonomyLabels(details.mechanics);
+  const families = parseTaxonomyLabels(details.families);
   const sourceUrl =
     metadata?.imageUrl ?? details.imageUrl ?? selection.imageUrl;
   const image = sourceUrl
@@ -130,6 +120,20 @@ async function upsertGame(
 }
 
 /**
+ * Reads an uploaded CSV, turning an unparseable document into a null result.
+ *
+ * @param file - The uploaded collection export.
+ * @returns The parsed import, or null when the document is not readable.
+ */
+async function readBggCollectionCsv(file: File): Promise<BggCsvImport | null> {
+  try {
+    return parseBggCollectionCsv(await file.text());
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Imports owned games from a bounded official BoardGameGeek CSV export.
  *
  * @param _previous - The previous server-action state.
@@ -162,10 +166,8 @@ export async function importBggCsvAction(
     };
   }
 
-  let imported;
-  try {
-    imported = parseBggCollectionCsv(await file.text());
-  } catch {
+  const imported = await readBggCollectionCsv(file);
+  if (!imported) {
     return {
       success: false,
       message: t("action.invalidCsv"),
@@ -267,15 +269,22 @@ export async function importBggCsvAction(
     await transaction
       .insert(collectionItems)
       .values(
-        imported.games.map((game) => ({
-          userId: session.user.id,
-          gameId: ids.get(game.bggId)!,
-          owned: true,
-          wishlist: false,
-          personalRating: game.personalRating,
-          notes: game.notes,
-          updatedAt: now,
-        })),
+        imported.games.flatMap((game) => {
+          const gameId = ids.get(game.bggId);
+          return gameId === undefined
+            ? []
+            : [
+                {
+                  userId: session.user.id,
+                  gameId,
+                  owned: true,
+                  wishlist: false,
+                  personalRating: game.personalRating,
+                  notes: game.notes,
+                  updatedAt: now,
+                },
+              ];
+        }),
       )
       .onConflictDoUpdate({
         target: [collectionItems.userId, collectionItems.gameId],
@@ -300,9 +309,7 @@ export async function importBggCsvAction(
       invalid: imported.invalid,
     },
   });
-  revalidatePath("/collection");
-  revalidatePath("/dashboard");
-  revalidatePath("/play");
+  revalidateLibraryRoutes();
 
   return {
     success: true,
@@ -389,7 +396,9 @@ export async function addGameAction(
   }
 
   const metadata = (
-    await scrapeBggMetadata([selection.bggId]).catch(() => new Map())
+    await scrapeBggMetadata([selection.bggId]).catch(
+      () => new Map<number, BggMetadata>(),
+    )
   ).get(selection.bggId);
   const savedGame = await upsertGame(selection, details.data, metadata);
   const isWishlist = destination.data === "wishlist";
@@ -423,9 +432,7 @@ export async function addGameAction(
       imageCached: savedGame.imageCached,
     },
   });
-  revalidatePath("/collection");
-  revalidatePath("/wishlist");
-  revalidatePath("/dashboard");
+  revalidateLibraryRoutes();
   return {
     success: true,
     message: t(isWishlist ? "action.wishlisted" : "action.added", {
@@ -494,10 +501,7 @@ export async function updateCollectionItemAction(
       moneySpent: parsed.data.moneySpent,
     },
   });
-  revalidatePath("/collection");
-  revalidatePath("/stats");
-  revalidatePath("/dashboard");
-  revalidatePath("/play");
+  revalidateLibraryRoutes();
   return {
     success: true,
     message: t("action.gameUpdated"),
@@ -532,10 +536,7 @@ export async function removeGameAction(formData: FormData): Promise<void> {
     });
   }
 
-  revalidatePath("/collection");
-  revalidatePath("/wishlist");
-  revalidatePath("/dashboard");
-  revalidatePath("/stats");
+  revalidateLibraryRoutes();
 }
 
 /**
@@ -558,9 +559,7 @@ export async function toggleFavoriteAction(formData: FormData): Promise<void> {
         eq(collectionItems.userId, session.user.id),
       ),
     );
-  revalidatePath("/collection");
-  revalidatePath("/stats");
-  revalidatePath("/play");
+  revalidateLibraryRoutes();
 }
 
 /**
@@ -632,11 +631,7 @@ export async function moveWishlistToCollectionAction(
       moneySpent: parsed.data.moneySpent,
     },
   });
-  revalidatePath("/wishlist");
-  revalidatePath("/collection");
-  revalidatePath("/dashboard");
-  revalidatePath("/stats");
-  revalidatePath("/play");
+  revalidateLibraryRoutes();
   return {
     success: true,
     message: t("action.movedToCollection"),
@@ -689,12 +684,7 @@ export async function clearLibraryAction(
     targetType: library.data,
     metadata: { removed: deleted.length },
   });
-  revalidatePath("/settings");
-  revalidatePath("/collection");
-  revalidatePath("/wishlist");
-  revalidatePath("/dashboard");
-  revalidatePath("/stats");
-  revalidatePath("/play");
+  revalidateAccountRoutes();
   return {
     success: true,
     message: t("action.cleared", { count: deleted.length }),

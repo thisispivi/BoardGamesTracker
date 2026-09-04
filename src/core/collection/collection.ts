@@ -33,6 +33,9 @@ export type LibraryGameType = "all" | "baseGames" | "expansions";
 export type LibraryWeightFilter =
   "all" | "light" | "medium" | "heavy" | "veryHeavy";
 
+/** One complexity band over BoardGameGeek's inclusive one-to-five weight scale. */
+export type GameWeightBand = Exclude<LibraryWeightFilter, "all">;
+
 /** Stable ordering choices available to the shared library browser. */
 export type LibrarySort =
   | "nameAscending"

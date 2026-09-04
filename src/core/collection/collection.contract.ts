@@ -18,7 +18,10 @@ export const giftedSchema = z.preprocess(
  * @param maximum - Largest accepted numeric value.
  * @returns A schema that accepts a bounded optional integer.
  */
-export function optionalInteger(minimum: number, maximum: number) {
+export function optionalInteger(
+  minimum: number,
+  maximum: number,
+): z.ZodType<number | null, unknown> {
   return z.preprocess(
     (value) => (value === "" || value === null ? null : value),
     z.coerce.number().int().min(minimum).max(maximum).nullable(),

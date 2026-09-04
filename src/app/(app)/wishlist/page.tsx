@@ -1,6 +1,7 @@
 import { Heart } from "lucide-react";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import type { ReactNode } from "react";
 
 import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
 import { EmptyState } from "@/components/molecules/EmptyState/EmptyState";
@@ -25,7 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
  *
  * @returns The rendered wishlist page.
  */
-export default async function WishlistPage() {
+export default async function WishlistPage(): Promise<ReactNode> {
   const session = await requireUser();
   const [wishlist, preferences, t] = await Promise.all([
     getWishlist(session.user.id),

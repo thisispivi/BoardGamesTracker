@@ -128,18 +128,25 @@ export async function importUserDataDocument(
     await transaction
       .insert(collectionItems)
       .values(
-        document.items.map((item) => ({
-          userId,
-          gameId: gameIds.get(item.bggId)!,
-          owned: item.location === "collection",
-          wishlist: item.location === "wishlist",
-          favorite: item.favorite,
-          personalRating: item.personalRating,
-          notes: item.notes,
-          moneySpent: item.moneySpent,
-          gifted: item.gifted,
-          updatedAt: now,
-        })),
+        document.items.flatMap((item) => {
+          const gameId = gameIds.get(item.bggId);
+          return gameId === undefined
+            ? []
+            : [
+                {
+                  userId,
+                  gameId,
+                  owned: item.location === "collection",
+                  wishlist: item.location === "wishlist",
+                  favorite: item.favorite,
+                  personalRating: item.personalRating,
+                  notes: item.notes,
+                  moneySpent: item.moneySpent,
+                  gifted: item.gifted,
+                  updatedAt: now,
+                },
+              ];
+        }),
       )
       .onConflictDoUpdate({
         target: [collectionItems.userId, collectionItems.gameId],

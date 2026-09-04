@@ -12,6 +12,16 @@ import { isCurrentlyBanned } from "@/server/security/ban";
 import { consumeRateLimit } from "@/server/security/rateLimit";
 import { log } from "@/utils/logger";
 
+/**
+ * A session that passed validation, ban checks, and per-user rate limiting.
+ *
+ * Better Auth owns the shape, so it is derived from the API rather than
+ * restated here where it could drift from the installed version.
+ */
+type ValidatedSession = NonNullable<
+  Awaited<ReturnType<typeof auth.api.getSession>>
+>;
+
 const userRequestLimit = 300;
 const userRequestWindowMs = 60_000;
 
@@ -60,7 +70,7 @@ const getCachedSession = cache(async () => {
  *
  * @returns The active session, or null when the request is unauthenticated.
  */
-export async function getSession() {
+export async function getSession(): Promise<ValidatedSession | null> {
   return getCachedSession();
 }
 
@@ -69,7 +79,7 @@ export async function getSession() {
  *
  * @returns The authenticated session after account-access checks.
  */
-export async function requireUser() {
+export async function requireUser(): Promise<ValidatedSession> {
   const session = await getSession();
 
   if (!session) {
@@ -84,7 +94,7 @@ export async function requireUser() {
  *
  * @returns The authenticated administrator session.
  */
-export async function requireAdmin() {
+export async function requireAdmin(): Promise<ValidatedSession> {
   const session = await requireUser();
 
   if (session.user.role !== "admin") {

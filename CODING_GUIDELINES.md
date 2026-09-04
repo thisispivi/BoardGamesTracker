@@ -95,6 +95,37 @@ Additional rules:
    `camelCase`. Never `snake_case` or `kebab-case` in `src/`.
 6. Tests live next to the code they cover, never in a separate `__tests__` tree.
 
+Rules 1 and 4 are enforced by `no-restricted-imports` in `eslint.config.mjs`,
+along with the ban on `src/core` importing `src/server`. Extend that config
+rather than this list when a new boundary needs protecting.
+
+### Where a new feature goes
+
+Work outwards from the data. A feature usually touches several of these, in
+this order:
+
+| You are adding                                     | It goes in                                                 |
+| -------------------------------------------------- | ---------------------------------------------------------- |
+| A column, constraint, or index                     | `src/server/db/schema.ts`, then `pnpm db:generate`         |
+| A type or Zod schema more than one layer reads     | `src/core/<domain>/`, re-exported from `src/core/index.ts` |
+| A query, or anything touching the database         | `src/server/<area>/`                                       |
+| A mutation a form submits                          | `src/server/actions/<domain>.ts`                           |
+| A JSON endpoint, upload, or download               | `src/app/api/<name>/route.ts`                              |
+| A page, and the data it loads                      | `src/app/(app)/<route>/page.tsx`                           |
+| A reusable pure function with no React and no `db` | `src/utils/<name>.ts`                                      |
+| UI                                                 | `src/components/<layer>/<Name>/<Name>.tsx`                 |
+| User-visible copy                                  | `messages/en.json` **and** `messages/it.json`              |
+
+Dependencies point one way: `app` → `components` → `utils`, and `app` →
+`server` → `core`. Nothing imports `app`. `core` imports nothing but `core`
+and `utils`. `utils` holds pure, isomorphic helpers only — a file there that
+reaches for the database, `env`, or React is in the wrong place, and a file
+named for a grab bag (`helpers.ts`, `misc.ts`) does not belong there at all.
+
+Reach for a shared abstraction when two call sites express the _same_ rule, not
+when they merely look alike. Two similar-looking validations of different
+domain concepts stay separate.
+
 ## 3. Documentation and comments
 
 JSDoc is enforced by `eslint-plugin-jsdoc` at error level. It is part of the

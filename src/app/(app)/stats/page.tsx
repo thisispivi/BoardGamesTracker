@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import type { Metadata } from "next";
 import { getFormatter, getTranslations } from "next-intl/server";
+import type { ReactNode } from "react";
 
 import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
 import { StatGrid } from "@/components/molecules/StatGrid/StatGrid";
@@ -32,7 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
  *
  * @returns The rendered stats page.
  */
-export default async function StatsPage() {
+export default async function StatsPage(): Promise<ReactNode> {
   const session = await requireUser();
   const [collection, preferences, format, t] = await Promise.all([
     getCollection(session.user.id),

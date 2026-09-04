@@ -1,6 +1,7 @@
 import { ArrowRight, Banknote, BookOpen, Boxes, Heart } from "lucide-react";
 import Link from "next/link";
 import { getFormatter, getTranslations } from "next-intl/server";
+import type { ReactNode } from "react";
 
 import { buttonVariants } from "@/components/atoms/Button/Button";
 import { GameArtwork } from "@/components/atoms/GameArtwork/GameArtwork";
@@ -18,7 +19,7 @@ import { cn } from "@/utils/cn";
  *
  * @returns The rendered dashboard page.
  */
-export default async function DashboardPage() {
+export default async function DashboardPage(): Promise<ReactNode> {
   const session = await requireUser();
   const [collection, preferences, format, t] = await Promise.all([
     getCollection(session.user.id),

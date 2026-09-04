@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import type { ReactNode } from "react";
 
 import { AuthForm } from "@/components/organisms/AuthForm/AuthForm";
 import { AuthShell } from "@/components/templates/AuthShell/AuthShell";
@@ -30,7 +31,7 @@ export default async function LoginPage({
   searchParams,
 }: {
   searchParams: Promise<{ mode?: string | string[] }>;
-}) {
+}): Promise<ReactNode> {
   const [session, bootstrapRequired] = await Promise.all([
     getSession(),
     isBootstrapRequired(),

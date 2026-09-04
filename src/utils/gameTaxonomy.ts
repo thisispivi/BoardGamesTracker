@@ -20,7 +20,7 @@ const expansionCategories = new Set([
 /**
  * Returns a localized taxonomy label while preserving unknown imported values.
  *
- * @param value - Untrusted input being validated or normalized.
+ * @param value - A BoardGameGeek label, possibly one this app has no translation for.
  * @param taxonomy - Taxonomy namespace used to resolve the translated label.
  * @param locale - Active application locale used for translated labels.
  * @returns The translated label, or the imported source value when unknown.
@@ -33,7 +33,7 @@ export function getTaxonomyLabel(
   if (!locale.toLocaleLowerCase().startsWith("it")) return value;
   const labels =
     taxonomy === "category" ? bggCategoryLabels : bggMechanicLabels;
-  return (labels as Readonly<Record<string, string>>)[value] ?? value;
+  return labels[value] ?? value;
 }
 
 /**
@@ -54,4 +54,25 @@ export function isExpansionCategory(category: string): boolean {
  */
 export function hasExpansionCategory(categories: readonly string[]): boolean {
   return categories.some(isExpansionCategory);
+}
+
+/**
+ * Splits a comma-separated taxonomy field into bounded, unique labels.
+ *
+ * Users and administrators edit categories, mechanics, and families as plain
+ * comma-separated text, so blanks and repeats are expected and the list is
+ * capped before it reaches the database.
+ *
+ * @param value - The raw comma-separated field submitted with a form.
+ * @returns At most fifty trimmed, non-empty, deduplicated labels.
+ */
+export function parseTaxonomyLabels(value: string): string[] {
+  return [
+    ...new Set(
+      value
+        .split(",")
+        .map((label) => label.trim())
+        .filter(Boolean),
+    ),
+  ].slice(0, 50);
 }

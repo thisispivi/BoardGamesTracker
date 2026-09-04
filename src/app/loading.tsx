@@ -1,4 +1,5 @@
 import { useTranslations } from "next-intl";
+import type { ReactNode } from "react";
 
 import { AppSpinner } from "@/components/atoms/AppSpinner/AppSpinner";
 
@@ -7,7 +8,7 @@ import { AppSpinner } from "@/components/atoms/AppSpinner/AppSpinner";
  *
  * @returns A localized full-page loading indicator.
  */
-export default function Loading() {
+export default function Loading(): ReactNode {
   const t = useTranslations();
   return (
     <div className="bg-background grid min-h-screen place-items-center">

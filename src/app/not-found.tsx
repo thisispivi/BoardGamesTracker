@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import type { ReactNode } from "react";
 
 import { buttonVariants } from "@/components/atoms/Button/Button";
 import { AuthShell } from "@/components/templates/AuthShell/AuthShell";
@@ -10,7 +11,7 @@ import { cn } from "@/utils/cn";
  *
  * @returns The rendered not found.
  */
-export default async function NotFound() {
+export default async function NotFound(): Promise<ReactNode> {
   const t = await getTranslations("notFound");
   return (
     <AuthShell className="max-w-lg text-center">

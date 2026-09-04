@@ -34,6 +34,12 @@ const minimumCandidates = 1;
 /** Free general engines tried one at a time to preserve healthy fallbacks. */
 const generalEngines = ["pw", "mjk", "yd", "zpm"] as const;
 
+/** Image engines tried in order; the second only sees what the first missed. */
+const imageEngines = ["bii", "ddi"] as const;
+
+/** Concurrent image lookups, kept low so a free engine is not overrun. */
+const imageBatchSize = 4;
+
 /**
  * Quotes one bounded term without allowing nested search-engine operators.
  *
@@ -110,6 +116,39 @@ function artworkForCandidate(
 }
 
 /**
+ * Resolves artwork for one bounded candidate list through a single engine.
+ *
+ * @param candidates - The games still needing artwork.
+ * @param engine - The configured SearXNG image-engine shortcut.
+ * @param into - Artwork map extended with every resolved candidate.
+ * @returns A promise that resolves once every candidate has been attempted.
+ */
+async function collectArtwork(
+  candidates: Array<{ bggId: number; name: string }>,
+  engine: string,
+  into: Map<number, string>,
+): Promise<void> {
+  for (let index = 0; index < candidates.length; index += imageBatchSize) {
+    const group = candidates.slice(index, index + imageBatchSize);
+    const responses = await Promise.all(
+      group.map((game) =>
+        requestResults(
+          `${quotedTerm(game.name)} BoardGameGeek cover`,
+          "images",
+          engine,
+        ).catch(() => []),
+      ),
+    );
+    for (const [position, candidate] of group.entries()) {
+      const artwork = artworkForCandidate(candidate, responses[position] ?? []);
+      if (artwork) {
+        into.set(candidate.bggId, artwork);
+      }
+    }
+  }
+}
+
+/**
  * Resolves BGG-hosted artwork for a bounded set of exact game IDs.
  *
  * @param candidates - The games needing artwork, by ID and name.
@@ -132,55 +171,12 @@ export async function discoverBoardGameImages(
   ].slice(0, 2_000);
 
   const images = new Map<number, string>();
-  for (let index = 0; index < uniqueCandidates.length; index += 4) {
-    const group = uniqueCandidates.slice(index, index + 4);
-    const responses = await Promise.all(
-      group.map((game) =>
-        requestResults(
-          `${quotedTerm(game.name)} BoardGameGeek cover`,
-          "images",
-          "bii",
-        ).catch(() => []),
-      ),
-    );
-    for (let resultIndex = 0; resultIndex < responses.length; resultIndex++) {
-      const candidate = group[resultIndex];
-      if (!candidate) continue;
-      const artwork = artworkForCandidate(
-        candidate,
-        responses[resultIndex] ?? [],
-      );
-      if (artwork) {
-        images.set(candidate.bggId, artwork);
-      }
+  for (const engine of imageEngines) {
+    const missing = uniqueCandidates.filter((game) => !images.has(game.bggId));
+    if (missing.length === 0) {
+      break;
     }
-  }
-
-  const missing = uniqueCandidates.filter((game) => !images.has(game.bggId));
-  for (let index = 0; index < missing.length; index += 4) {
-    const group = missing.slice(index, index + 4);
-    const responses = await Promise.all(
-      group.map((game) =>
-        requestResults(
-          `${quotedTerm(game.name)} BoardGameGeek cover`,
-          "images",
-          "ddi",
-        ).catch(() => []),
-      ),
-    );
-    for (let resultIndex = 0; resultIndex < responses.length; resultIndex++) {
-      const candidate = group[resultIndex];
-      if (!candidate) {
-        continue;
-      }
-      const artwork = artworkForCandidate(
-        candidate,
-        responses[resultIndex] ?? [],
-      );
-      if (artwork) {
-        images.set(candidate.bggId, artwork);
-      }
-    }
+    await collectArtwork(missing, engine, images);
   }
   return images;
 }

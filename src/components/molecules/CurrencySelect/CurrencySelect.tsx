@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 import { Select } from "@/components/atoms/Select/Select";
 import { setCurrencyAction } from "@/server/actions/preferences";
-import { currencies, type Currency, getCurrencySymbol } from "@/utils/currency";
+import { currencies, getCurrencySymbol, isCurrency } from "@/utils/currency";
 
 /** Properties that initialize the account currency selector. */
 type CurrencySelectProps = {
@@ -36,7 +36,7 @@ export function CurrencySelect({
    * @returns Nothing.
    */
   function changeCurrency(value: string): void {
-    if (!currencies.includes(value as Currency)) return;
+    if (!isCurrency(value)) return;
     setCurrency(value);
     const formData = new FormData();
     formData.set("currency", value);

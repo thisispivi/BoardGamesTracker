@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import type { ReactNode } from "react";
 
 import { getSession } from "@/server/session";
 
@@ -7,7 +8,7 @@ import { getSession } from "@/server/session";
  *
  * @returns The rendered home page.
  */
-export default async function HomePage() {
+export default async function HomePage(): Promise<ReactNode> {
   const session = await getSession();
   redirect(session ? "/dashboard" : "/login");
 }

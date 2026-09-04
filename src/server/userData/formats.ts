@@ -40,6 +40,23 @@ const legacyGameHeaders = gameHeaders.slice(0, -2);
 type FlatGame = Record<(typeof gameHeaders)[number], string>;
 
 /**
+ * A decoded tabular row before `userDataDocumentSchema` validates it.
+ *
+ * A spreadsheet cell carries no type, so the library section and the taxonomy
+ * entries are still arbitrary values here; only the document schema narrows
+ * them to the portable shape.
+ */
+type DecodedGame = Omit<
+  PortableGame,
+  "categories" | "families" | "location" | "mechanics"
+> & {
+  categories: unknown[];
+  families: unknown[];
+  location: string;
+  mechanics: unknown[];
+};
+
+/**
  * Serializes canonical data into the user-selected portable format.
  *
  * @param document - The portable user-data document.
@@ -82,24 +99,25 @@ export async function parseUserData(
   return userDataDocumentSchema.parse(raw);
 }
 
+/** Download content type served for each supported export format. */
+const exportContentTypes: Record<UserDataFormat, string> = {
+  csv: "text/csv; charset=utf-8",
+  json: "application/json; charset=utf-8",
+  sql: "application/sql; charset=utf-8",
+  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+};
+
 /**
- * Returns download metadata for one export format.
+ * Returns the filename extension and content type for one export format.
  *
  * @param format - The requested data format.
- * @returns Version, timestamp, and profile metadata shared by every export.
+ * @returns The download extension and content type for that format.
  */
-export function getExportMetadata(format: UserDataFormat) {
-  return {
-    extension: format,
-    contentType:
-      format === "json"
-        ? "application/json; charset=utf-8"
-        : format === "csv"
-          ? "text/csv; charset=utf-8"
-          : format === "xlsx"
-            ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            : "application/sql; charset=utf-8",
-  };
+export function getExportMetadata(format: UserDataFormat): {
+  contentType: string;
+  extension: UserDataFormat;
+} {
+  return { extension: format, contentType: exportContentTypes[format] };
 }
 
 /**
@@ -272,7 +290,7 @@ async function parseXlsx(bytes: Uint8Array): Promise<UserDataDocument> {
       ? legacyGameHeaders
       : null;
   if (!activeHeaders) throw new Error("Invalid Games worksheet.");
-  const items: PortableGame[] = [];
+  const items: DecodedGame[] = [];
   gamesSheet.eachRow((row, rowNumber) => {
     if (rowNumber === 1) return;
     const flat = Object.fromEntries(
@@ -400,11 +418,11 @@ function gameToWorksheetValues(game: PortableGame): unknown[] {
  * Restores one flat game row into strongly typed primitive values.
  *
  * @param row - Untrusted row read from the uploaded document.
- * @returns A normalized portable game decoded from a flat row.
+ * @returns A decoded row awaiting document-schema validation.
  */
-function flatToGame(row: FlatGame): PortableGame {
+function flatToGame(row: FlatGame): DecodedGame {
   return {
-    location: row.location as PortableGame["location"],
+    location: row.location,
     bggId: requiredNumber(row.bggId),
     name: unprotectCell(row.name),
     description: unprotectCell(row.description),
@@ -436,15 +454,15 @@ function flatToGame(row: FlatGame): PortableGame {
  * @param formatVersion - Portable document version declared by the import.
  * @param exportedAt - ISO timestamp recorded in the imported document.
  * @param profile - Portable user preferences included in the import.
- * @param items - Portable game records included in the import.
- * @returns A validated portable document assembled from imported values.
+ * @param items - Decoded game rows included in the import.
+ * @returns An untrusted document candidate for schema validation.
  */
 function buildDocument(
   formatVersion: string,
   exportedAt: string,
   profile: UserDataDocument["profile"],
-  items: PortableGame[],
-) {
+  items: DecodedGame[],
+): unknown {
   return {
     formatVersion: requiredNumber(formatVersion),
     exportedAt,
@@ -456,7 +474,7 @@ function buildDocument(
 /**
  * Quotes a CSV cell and protects spreadsheet viewers from formula injection.
  *
- * @param value - Untrusted input being validated or normalized.
+ * @param value - The field text going into one CSV cell.
  * @returns A quoted CSV cell safe from spreadsheet formula execution.
  */
 function csvCell(value: string): string {
@@ -467,7 +485,7 @@ function csvCell(value: string): string {
 /**
  * Prefixes text that spreadsheet programs could otherwise treat as a formula.
  *
- * @param value - Untrusted input being validated or normalized.
+ * @param value - Exported text that a user could have started with `=`, `+`, `-`, or `@`.
  * @returns Text prefixed when necessary to prevent spreadsheet formula execution.
  */
 function safeSpreadsheetText(value: string): string {
@@ -477,7 +495,7 @@ function safeSpreadsheetText(value: string): string {
 /**
  * Reverses the explicit formula-injection protection on trusted export fields.
  *
- * @param value - Untrusted input being validated or normalized.
+ * @param value - A cell that may still carry the leading quote this app added.
  * @returns Original text recovered from a formula-protected spreadsheet cell.
  */
 function unprotectCell(value: string): string {
@@ -487,7 +505,7 @@ function unprotectCell(value: string): string {
 /**
  * Parses a finite required number before bounded schema validation.
  *
- * @param value - Untrusted input being validated or normalized.
+ * @param value - A numeric cell that the format requires to be present.
  * @returns A finite required number decoded from the imported value.
  */
 function requiredNumber(value: string): number {
@@ -499,7 +517,7 @@ function requiredNumber(value: string): number {
 /**
  * Parses an empty nullable number or delegates to the finite parser.
  *
- * @param value - Untrusted input being validated or normalized.
+ * @param value - A numeric cell the format allows to be blank.
  * @returns A finite number, or null when the imported value is absent.
  */
 function optionalNumber(value: string): number | null {
@@ -507,15 +525,18 @@ function optionalNumber(value: string): number | null {
 }
 
 /**
- * Parses JSON taxonomy arrays; the document schema validates every label.
+ * Decodes a JSON taxonomy array from one cell.
  *
- * @param value - Untrusted input being validated or normalized.
- * @returns Normalized, unique labels from the delimited source text.
+ * Entries stay unknown here: the document schema is what rejects a label that
+ * is not bounded text.
+ *
+ * @param value - The JSON array text stored in a taxonomy column.
+ * @returns The decoded entries, before label validation.
  */
-function parseLabels(value: string): string[] {
+function parseLabels(value: string): unknown[] {
   const parsed: unknown = JSON.parse(unprotectCell(value));
   if (!Array.isArray(parsed)) throw new Error("Invalid taxonomy list.");
-  return parsed as string[];
+  return parsed;
 }
 
 /**

@@ -54,7 +54,7 @@ describe("calculateCollectionStats", () => {
       { key: "light", value: 0 },
       { key: "medium", value: 1 },
       { key: "heavy", value: 0 },
-      { key: "expert", value: 1 },
+      { key: "veryHeavy", value: 1 },
     ]);
   });
 

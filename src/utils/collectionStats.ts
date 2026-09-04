@@ -1,5 +1,6 @@
-import type { CountDatum, StatGame } from "@/core";
+import type { CollectionStats, CountDatum, StatGame } from "@/core";
 import { isExpansionCategory } from "@/utils/gameTaxonomy";
+import { gameWeightBands, getGameWeightBand } from "@/utils/gameWeight";
 
 /**
  * Computes deterministic user-facing insights from owned collection data.
@@ -7,7 +8,9 @@ import { isExpansionCategory } from "@/utils/gameTaxonomy";
  * @param collection - The collection items to analyze.
  * @returns The calculated collection stats.
  */
-export function calculateCollectionStats(collection: StatGame[]) {
+export function calculateCollectionStats(
+  collection: StatGame[],
+): CollectionStats {
   const priced = collection
     .filter((game) => game.moneySpent > 0 || game.gifted)
     .toSorted((left, right) => right.moneySpent - left.moneySpent);
@@ -49,34 +52,30 @@ export function calculateCollectionStats(collection: StatGame[]) {
       0,
       8,
     ),
-    complexity: [
-      {
-        key: "light" as const,
-        value: collection.filter(
-          (game) =>
-            game.weight !== null && game.weight >= 1 && game.weight <= 2,
-        ).length,
-      },
-      {
-        key: "medium" as const,
-        value: collection.filter(
-          (game) => game.weight !== null && game.weight > 2 && game.weight <= 3,
-        ).length,
-      },
-      {
-        key: "heavy" as const,
-        value: collection.filter(
-          (game) => game.weight !== null && game.weight > 3 && game.weight <= 4,
-        ).length,
-      },
-      {
-        key: "expert" as const,
-        value: collection.filter(
-          (game) => game.weight !== null && game.weight > 4,
-        ).length,
-      },
-    ],
+    complexity: countWeightBands(collection),
   };
+}
+
+/**
+ * Counts rated games per complexity band, keeping every band in the output.
+ *
+ * Empty bands are retained so the chart keeps a stable four-column shape
+ * instead of silently changing scale as a collection grows.
+ *
+ * @param collection - The collection items to analyze.
+ * @returns One count per band, in ascending complexity order.
+ */
+function countWeightBands(
+  collection: StatGame[],
+): CollectionStats["complexity"] {
+  const counts = new Map(gameWeightBands.map((band) => [band, 0]));
+  for (const game of collection) {
+    const band = getGameWeightBand(game.weight);
+    if (band !== null) {
+      counts.set(band, (counts.get(band) ?? 0) + 1);
+    }
+  }
+  return gameWeightBands.map((key) => ({ key, value: counts.get(key) ?? 0 }));
 }
 
 /**

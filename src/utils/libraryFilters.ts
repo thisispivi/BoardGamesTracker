@@ -6,6 +6,7 @@ import type {
   LibraryWeightFilter,
   NumberRange,
 } from "@/core";
+import { getGameWeightBand } from "@/utils/gameWeight";
 import { normalizeSearchText } from "@/utils/search";
 
 /** Inclusive player-count bounds offered by the shared filter panel. */
@@ -66,6 +67,9 @@ export function createLibraryFilters(): LibraryFilters {
 /**
  * Checks whether a known complexity belongs to the requested BGG weight band.
  *
+ * An unrated game matches no band, so narrowing the complexity filter always
+ * hides it rather than guessing where it belongs.
+ *
  * @param weight - BGG complexity on its inclusive one-to-five scale, or null when unrated.
  * @param filter - Complexity band selected by the user.
  * @returns Whether the game belongs in the selected band.
@@ -74,12 +78,7 @@ function matchesWeight(
   weight: number | null,
   filter: LibraryWeightFilter,
 ): boolean {
-  if (filter === "all") return true;
-  if (weight === null) return false;
-  if (filter === "light") return weight <= 2;
-  if (filter === "medium") return weight > 2 && weight <= 3;
-  if (filter === "heavy") return weight > 3 && weight <= 4;
-  return weight > 4;
+  return filter === "all" || getGameWeightBand(weight) === filter;
 }
 
 /**

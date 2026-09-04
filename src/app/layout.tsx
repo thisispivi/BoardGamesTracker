@@ -4,6 +4,7 @@ import type { Metadata, Viewport } from "next";
 import { cookies, headers } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
+import type { ReactNode } from "react";
 
 import { Providers } from "@/components/templates/Providers/Providers";
 import { env } from "@/env";
@@ -46,7 +47,7 @@ export const viewport: Viewport = {
  */
 export default async function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: Readonly<{ children: React.ReactNode }>): Promise<ReactNode> {
   const cookieStore = await cookies();
   const nonce = (await headers()).get("x-nonce") ?? undefined;
   const locale = await getLocale();

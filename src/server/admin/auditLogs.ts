@@ -1,3 +1,5 @@
+import "server-only";
+
 import { count, desc, eq } from "drizzle-orm";
 
 import type { AuditLogPage } from "@/core";
