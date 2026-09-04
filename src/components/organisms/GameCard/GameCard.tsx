@@ -109,7 +109,7 @@ function ArtworkLink({
     <div className="group/art relative">
       <GameArtwork
         className={
-          compact ? "size-14 shrink-0 rounded-md sm:size-16" : "rounded-lg"
+          compact ? "size-12 shrink-0 rounded-md sm:size-16" : "rounded-lg"
         }
         eager={eager}
         imageClassName="transition duration-300 group-hover/art:scale-105 group-hover/art:blur-sm group-focus-within/art:scale-105 group-focus-within/art:blur-sm"
@@ -141,16 +141,17 @@ function ArtworkLink({
 }
 
 /** Game taxonomy rendered as localized category pills. */
-type TaxonomyPillsProps = { game: CollectionGame };
+type TaxonomyPillsProps = { className?: string; game: CollectionGame };
 
 /**
  * Shows a concise mix of scraped BGG categories and mechanics.
  *
  * @param root0 - Properties that configure taxonomy pills.
+ * @param root0.className - Optional classes merged with the pill row styles.
  * @param root0.game - Game record displayed or changed by the component.
  * @returns Localized category and mechanic pills for the game.
  */
-function TaxonomyPills({ game }: TaxonomyPillsProps): ReactNode {
+function TaxonomyPills({ className, game }: TaxonomyPillsProps): ReactNode {
   const categories = game.categories
     .filter((value) => !isExpansionCategory(value))
     .slice(0, 2)
@@ -170,7 +171,7 @@ function TaxonomyPills({ game }: TaxonomyPillsProps): ReactNode {
   if (tags.length === 0) return null;
 
   return (
-    <div className="mt-3 flex flex-wrap gap-1.5">
+    <div className={cn("mt-3 flex flex-wrap gap-1.5", className)}>
       {tags.map((tag) => (
         <span
           className={cn(
@@ -191,6 +192,38 @@ function TaxonomyPills({ game }: TaxonomyPillsProps): ReactNode {
         </span>
       ) : null}
     </div>
+  );
+}
+
+/** Rating value and placement used by the BoardGameGeek score badge. */
+type RatingBadgeProps = {
+  className?: string;
+  rating: number;
+};
+
+/**
+ * Shows a BoardGameGeek score rounded to a single decimal.
+ *
+ * @param root0 - Properties that configure the rating badge.
+ * @param root0.className - Optional classes merged with the badge styles.
+ * @param root0.rating - BoardGameGeek score on its ten-point scale.
+ * @returns The rendered rating badge.
+ */
+function RatingBadge({ className, rating }: RatingBadgeProps): ReactNode {
+  const format = useFormatter();
+  return (
+    <span
+      className={cn(
+        "bg-muted flex shrink-0 items-center gap-1 rounded-full px-2 py-1 text-xs font-bold",
+        className,
+      )}
+    >
+      <Star aria-hidden="true" className="fill-accent text-accent size-3" />
+      {format.number(rating, {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1,
+      })}
+    </span>
   );
 }
 
@@ -224,21 +257,22 @@ export function GameCard({
   game,
   readOnly = false,
 }: GameCardProps): ReactNode {
-  const format = useFormatter();
   const t = useTranslations();
   if (compact) {
     return (
-      <article className="hover:bg-muted/60 flex items-center gap-3 rounded-lg p-2 transition duration-200">
+      <article className="hover:bg-muted/60 flex flex-wrap items-center gap-2 rounded-lg p-1.5 transition duration-200 sm:flex-nowrap sm:gap-3 sm:p-2">
         <ArtworkLink compact game={game} />
-        <div className="min-w-0 flex-1">
-          <h3 className="line-clamp-2 text-sm font-bold">{game.name}</h3>
-          <p className="text-muted-foreground mt-1 text-xs">
+        <div className="min-w-0 flex-1 basis-[calc(100%-3.5rem)] sm:basis-auto">
+          <h3 className="line-clamp-2 text-xs font-bold sm:text-sm">
+            {game.name}
+          </h3>
+          <p className="text-muted-foreground mt-0.5 truncate text-[0.6875rem] sm:mt-1 sm:text-xs">
             {game.yearPublished ?? t("common.yearUnknown")}
             <CollectionCost currency={currency} game={game} />
           </p>
         </div>
         {readOnly ? null : (
-          <div className="flex shrink-0 items-center gap-0.5">
+          <div className="ml-auto flex shrink-0 items-center sm:ml-0">
             <EditGameDialog currency={currency} game={game} />
             <RemoveControl game={game} />
           </div>
@@ -248,53 +282,56 @@ export function GameCard({
   }
 
   return (
-    <article className="group bg-card shadow-soft hover:border-primary/30 overflow-hidden rounded-xl border p-3 transition-colors duration-200">
+    <article className="group bg-card shadow-soft hover:border-primary/30 flex flex-col overflow-hidden rounded-xl border p-2 transition-colors duration-200 sm:p-3">
       <div className="relative">
         <ArtworkLink eager={eager} game={game} />
         {readOnly ? null : (
-          <div className="absolute top-3 right-3">
+          <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
             <FavoriteControl game={game} />
           </div>
         )}
+        {game.bggRating !== null ? (
+          <RatingBadge
+            className="bg-card/90 absolute bottom-2 left-2 shadow-sm backdrop-blur sm:hidden"
+            rating={game.bggRating}
+          />
+        ) : null}
       </div>
-      <div className="px-1 pt-4">
+      <div className="flex min-w-0 flex-1 flex-col px-0.5 pt-2 sm:px-1 sm:pt-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h2 className="font-display line-clamp-2 text-lg font-bold">
+            <h2 className="font-display line-clamp-2 text-sm font-bold sm:text-lg">
               {game.name}
             </h2>
-            <p className="text-muted-foreground mt-1 text-xs">
+            <p className="text-muted-foreground mt-0.5 text-[0.6875rem] sm:mt-1 sm:text-xs">
               {game.yearPublished ?? t("common.yearUnknown")}
               <CollectionCost currency={currency} game={game} />
             </p>
           </div>
           {game.bggRating !== null ? (
-            <span className="bg-muted flex shrink-0 items-center gap-1 rounded-full px-2 py-1 text-xs font-bold">
-              <Star className="fill-accent text-accent size-3" />
-              {format.number(game.bggRating, {
-                minimumFractionDigits: 1,
-                maximumFractionDigits: 1,
-              })}
-            </span>
+            <RatingBadge className="hidden sm:flex" rating={game.bggRating} />
           ) : null}
         </div>
-        <TaxonomyPills game={game} />
-        <div className="mt-4 flex min-w-0 items-center border-t pt-3">
-          <GameFacts className="min-w-0 flex-1" game={game} />
+        <TaxonomyPills className="hidden sm:flex" game={game} />
+        <div className="mt-2 flex min-w-0 flex-col gap-1 border-t pt-2 sm:mt-4 sm:flex-row sm:items-center sm:pt-3">
+          <GameFacts
+            className="min-w-0 flex-1 gap-x-2.5 sm:gap-x-4"
+            game={game}
+          />
           {readOnly ? null : (
-            <div className="ml-2 flex shrink-0 items-center gap-0.5">
+            <div className="-mx-1 flex shrink-0 items-center justify-end sm:mx-0 sm:ml-2 sm:gap-0.5">
               <EditGameDialog currency={currency} game={game} />
               <RemoveControl game={game} />
             </div>
           )}
         </div>
         {expansions.length > 0 ? (
-          <section className="mt-4 border-t pt-3">
-            <div className="text-muted-foreground flex items-center justify-between gap-2 px-2 pb-1 text-xs font-bold">
+          <section className="mt-auto border-t pt-2 sm:pt-3">
+            <div className="text-muted-foreground flex items-center justify-between gap-2 px-1 pb-1 text-[0.6875rem] font-bold sm:px-2 sm:text-xs">
               <span>{t("game.expansions")}</span>
               <span className="tabular-nums">{expansions.length}</span>
             </div>
-            <div className="max-h-52 space-y-1 overflow-y-auto overscroll-contain pr-1">
+            <div className="max-h-44 space-y-1 overflow-y-auto overscroll-contain pr-1 sm:max-h-52">
               {expansions.map((expansion) => (
                 <GameCard
                   compact

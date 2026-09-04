@@ -144,6 +144,8 @@
       "timeDescending": "Durata · più lunghi prima"
     },
     "filters": "Filtri",
+    "openFilters": "Mostra filtri",
+    "closeFilters": "Chiudi filtri",
     "reset": "Reimposta",
     "names": {
       "search": "Ricerca",

@@ -6,7 +6,7 @@ import { type ReactNode, useMemo, useState } from "react";
 
 import { SectionHeading } from "@/components/atoms/SectionHeading/SectionHeading";
 import { EmptyState } from "@/components/molecules/EmptyState/EmptyState";
-import { GameFilters } from "@/components/molecules/GameFilters/GameFilters";
+import { GameFiltersSheet } from "@/components/molecules/GameFiltersSheet/GameFiltersSheet";
 import { GameCard } from "@/components/organisms/GameCard/GameCard";
 import type { CollectionGame, LibraryFilters } from "@/core";
 import { groupCollection } from "@/utils/collectionGrouping";
@@ -58,12 +58,10 @@ export function CollectionBrowser({
 
   return (
     <>
-      <GameFilters
-        className="mb-8"
+      <GameFiltersSheet
         filters={filters}
         games={games}
         onChange={setFilters}
-        showBrowseControls
         showFavorites
       />
 
@@ -80,7 +78,7 @@ export function CollectionBrowser({
             }
             title={t("collection.games")}
           />
-          <div className="grid items-start gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+          <div className="grid grid-cols-2 items-start gap-3 sm:gap-5 xl:grid-cols-3 2xl:grid-cols-4">
             {grouped.groups.map((group, index) => (
               <GameCard
                 currency={currency}
@@ -120,6 +118,8 @@ export function CollectionBrowser({
       {visible.length === 0 ? (
         <EmptyState description={t("collection.noMatches")} icon={Search} />
       ) : null}
+
+      <div aria-hidden="true" className="h-16 md:hidden" />
     </>
   );
 }

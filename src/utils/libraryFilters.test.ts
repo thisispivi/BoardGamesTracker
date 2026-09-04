@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { CollectionGame, LibraryFilters } from "@/core";
 import {
   clampRange,
+  countActiveFilters,
   createLibraryFilters,
   filterAndSortLibraryGames,
   isFullRange,
@@ -194,5 +195,43 @@ describe("range helpers", () => {
       max: 9,
       min: 2,
     });
+  });
+});
+
+describe("countActiveFilters", () => {
+  it("counts nothing for a freshly created filter state", () => {
+    expect(
+      countActiveFilters(createLibraryFilters(), {
+        favorites: true,
+        query: true,
+      }),
+    ).toBe(0);
+  });
+
+  it("ignores ordering and facets the surface does not expose", () => {
+    const filters: LibraryFilters = {
+      ...createLibraryFilters(),
+      favoritesOnly: true,
+      query: "  root  ",
+      sort: "weightDescending",
+    };
+    expect(
+      countActiveFilters(filters, { favorites: false, query: false }),
+    ).toBe(0);
+    expect(countActiveFilters(filters, { favorites: true, query: true })).toBe(
+      2,
+    );
+  });
+
+  it("counts a narrowed range but not a blank search", () => {
+    const filters: LibraryFilters = {
+      ...createLibraryFilters(),
+      players: { max: 4, min: 3 },
+      query: "   ",
+      weight: "heavy",
+    };
+    expect(countActiveFilters(filters, { favorites: true, query: true })).toBe(
+      2,
+    );
   });
 });

@@ -186,3 +186,36 @@ export function filterAndSortLibraryGames(
     );
   });
 }
+
+/** Facets a browsing surface exposes and therefore counts as active. */
+type ActiveFilterScope = {
+  favorites: boolean;
+  query: boolean;
+};
+
+/**
+ * Counts the facets currently narrowing a library view.
+ *
+ * Ordering is deliberately excluded because sorting hides nothing, and facets
+ * a surface does not expose are ignored so its badge can never report a filter
+ * the user cannot see or clear.
+ *
+ * @param filters - Current search, facet, and ordering choices.
+ * @param scope - Facets the calling surface actually renders.
+ * @returns The number of facets excluding at least one game.
+ */
+export function countActiveFilters(
+  filters: LibraryFilters,
+  scope: ActiveFilterScope,
+): number {
+  return [
+    scope.query && filters.query.trim().length > 0,
+    !isFullRange(filters.players, playerRangeBounds),
+    !isFullRange(filters.playtime, playtimeRangeBounds),
+    filters.weight !== "all",
+    filters.gameType !== "all",
+    filters.categories.length > 0,
+    filters.mechanics.length > 0,
+    scope.favorites && filters.favoritesOnly,
+  ].filter(Boolean).length;
+}

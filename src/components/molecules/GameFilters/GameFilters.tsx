@@ -32,6 +32,7 @@ import type {
 import { cn } from "@/utils/cn";
 import { getTaxonomyLabel, isExpansionCategory } from "@/utils/gameTaxonomy";
 import {
+  countActiveFilters,
   createLibraryFilters,
   isFullRange,
   playerRangeBounds,
@@ -169,16 +170,10 @@ export function GameFilters({
   }));
   const playersActive = !isFullRange(filters.players, playerRangeBounds);
   const playtimeActive = !isFullRange(filters.playtime, playtimeRangeBounds);
-  const activeFilterCount = [
-    showBrowseControls && Boolean(filters.query.trim()),
-    playersActive,
-    playtimeActive,
-    filters.weight !== "all",
-    filters.gameType !== "all",
-    filters.categories.length > 0,
-    filters.mechanics.length > 0,
-    showFavorites && filters.favoritesOnly,
-  ].filter(Boolean).length;
+  const activeFilterCount = countActiveFilters(filters, {
+    favorites: showFavorites,
+    query: showBrowseControls,
+  });
   const hasChanges =
     activeFilterCount > 0 ||
     (showBrowseControls && filters.sort !== "nameAscending");

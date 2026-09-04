@@ -144,6 +144,8 @@
       "timeDescending": "Playtime · longest first"
     },
     "filters": "Filters",
+    "openFilters": "Show filters",
+    "closeFilters": "Close filters",
     "reset": "Reset",
     "names": {
       "search": "Search",

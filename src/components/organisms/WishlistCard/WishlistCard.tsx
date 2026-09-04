@@ -64,8 +64,9 @@ function PurchaseDialog({ currency, game }: PurchaseDialogProps): ReactNode {
   return (
     <Dialog.Root onOpenChange={setOpen} open={open}>
       <Dialog.Trigger asChild>
-        <Button className="flex-1" size="sm" type="button">
-          <ShoppingBag className="size-4" /> {t("wishlist.purchased")}
+        <Button className="min-w-0 flex-1 px-3 sm:px-4" size="sm" type="button">
+          <ShoppingBag aria-hidden="true" className="size-4 shrink-0" />
+          <span className="truncate">{t("wishlist.purchased")}</span>
         </Button>
       </Dialog.Trigger>
       <Dialog.Portal>
@@ -140,7 +141,7 @@ export function WishlistCard({ currency, game }: WishlistCardProps): ReactNode {
   );
 
   return (
-    <article className="bg-card shadow-soft rounded-xl border p-3">
+    <article className="bg-card shadow-soft flex flex-col rounded-xl border p-2 sm:p-3">
       <div className="group relative overflow-hidden rounded-lg">
         <GameArtwork
           className="rounded-lg"
@@ -160,15 +161,15 @@ export function WishlistCard({ currency, game }: WishlistCardProps): ReactNode {
           </span>
         </a>
       </div>
-      <div className="px-1 pt-4">
-        <h2 className="font-display line-clamp-2 text-lg font-bold">
+      <div className="flex min-w-0 flex-1 flex-col px-0.5 pt-2 sm:px-1 sm:pt-4">
+        <h2 className="font-display line-clamp-2 text-sm font-bold sm:text-lg">
           {game.name}
         </h2>
-        <p className="text-muted-foreground mt-1 text-xs">
+        <p className="text-muted-foreground mt-0.5 text-[0.6875rem] sm:mt-1 sm:text-xs">
           {game.yearPublished ?? t("common.yearUnknown")}
         </p>
         {tags.length > 0 ? (
-          <div className="mt-3 flex flex-wrap gap-1.5">
+          <div className="mt-3 hidden flex-wrap gap-1.5 sm:flex">
             {tags.map((tag) => (
               <span
                 className="bg-muted text-muted-foreground max-w-full truncate rounded-full px-2 py-0.5 text-xs font-semibold"
@@ -179,8 +180,11 @@ export function WishlistCard({ currency, game }: WishlistCardProps): ReactNode {
             ))}
           </div>
         ) : null}
-        <GameFacts className="mt-4 border-t pt-3" game={game} />
-        <div className="mt-4 flex items-center gap-2 border-t pt-3">
+        <GameFacts
+          className="mt-2 gap-x-2.5 border-t pt-2 sm:mt-4 sm:gap-x-4 sm:pt-3"
+          game={game}
+        />
+        <div className="mt-2 flex items-center gap-2 border-t pt-2 sm:mt-4 sm:pt-3">
           <PurchaseDialog currency={currency} game={game} />
           <ConfirmDialog
             action={removeGameAction}
