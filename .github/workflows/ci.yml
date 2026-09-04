@@ -48,4 +48,6 @@ jobs:
           done
           exit 1
       - run: pnpm check
+      - name: Enforce the coverage floor
+        run: pnpm test:coverage
       - run: pnpm build

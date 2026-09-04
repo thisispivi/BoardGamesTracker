@@ -78,7 +78,7 @@ export function AddGameDialog({
   const [state, action, adding] = useActionState(addGameAction, initialState);
   const router = useRouter();
   const term = query.trim();
-  const cached = term.length < 3 ? undefined : resultCache.get(cacheKey(term));
+  const cached = term.length < 3 ? undefined : resultCache.peek(cacheKey(term));
   const visibleResults = cached ?? results;
   const loadingDetails = selected !== null && loaded?.bggId !== selected.bggId;
   const details =

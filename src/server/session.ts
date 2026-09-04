@@ -22,7 +22,16 @@ type ValidatedSession = NonNullable<
   Awaited<ReturnType<typeof auth.api.getSession>>
 >;
 
-const userRequestLimit = 300;
+/**
+ * Per-user allowance enforced once a session has been resolved.
+ *
+ * This sits deliberately above the proxy's per-caller limit so the proxy
+ * answers an ordinary flood with 429 first. Requests the proxy does not see,
+ * such as router prefetches, still land here, and tripping this limit reads to
+ * the user as being signed out — so it has to stay a genuine backstop rather
+ * than a second limit with the same budget.
+ */
+const userRequestLimit = 600;
 const userRequestWindowMs = 60_000;
 
 const getCachedSession = cache(async () => {

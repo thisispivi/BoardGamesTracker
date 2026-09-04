@@ -260,6 +260,10 @@ pnpm check && pnpm build
 `pnpm lint:fix` and `pnpm format` fix the mechanical failures. Dependency
 advisories are checked separately with `pnpm audit --audit-level=moderate`.
 
+CI additionally runs `pnpm test:coverage`, which fails below the floor set in
+`vitest.config.ts`. That floor covers the modules the suite already reaches, so
+adding an untested branch to tested code breaks the build.
+
 Git hooks are installed by `pnpm install`. Committing formats and lints the
 staged files; pushing runs the whole `pnpm check` gate. CI repeats both and adds
 the production build, so a hook is a fast warning, not the real gate.

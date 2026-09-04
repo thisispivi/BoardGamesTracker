@@ -10,6 +10,7 @@ import { getCollection, getWishlist } from "@/server/collection";
 import { db } from "@/server/db";
 import { user } from "@/server/db/schema";
 import { isCurrentlyBanned } from "@/server/security/ban";
+import { redactSharedGames } from "@/utils/shareRedaction";
 
 /** A shared library with prices already removed when the owner opted out. */
 export type SharedLibrary = {
@@ -30,26 +31,6 @@ export type SharedLibrary = {
  */
 export function createShareToken(): string {
   return randomBytes(16).toString("hex");
-}
-
-/**
- * Strips the personal fields that are never part of a shared library.
- *
- * @param games - The owner's library entries.
- * @param includePrices - Whether the owner shares what they paid.
- * @returns Entries safe to serialize to an anonymous visitor.
- */
-function redact(
-  games: CollectionGame[],
-  includePrices: boolean,
-): CollectionGame[] {
-  return games.map((game) => ({
-    ...game,
-    gifted: includePrices ? game.gifted : false,
-    moneySpent: includePrices ? game.moneySpent : 0,
-    notes: "",
-    personalRating: null,
-  }));
 }
 
 /**
@@ -95,10 +76,10 @@ export const getSharedLibrary = cache(async function getSharedLibrary(
     owner.shareWishlist ? getWishlist(owner.id) : null,
   ]);
   return {
-    collection: collection && redact(collection, owner.sharePrices),
+    collection: collection && redactSharedGames(collection, owner.sharePrices),
     currency: owner.currency,
     name: owner.name,
     sharePrices: owner.sharePrices,
-    wishlist: wishlist && redact(wishlist, owner.sharePrices),
+    wishlist: wishlist && redactSharedGames(wishlist, owner.sharePrices),
   };
 });

@@ -47,6 +47,21 @@ export class TtlCache<TValue> {
   }
 
   /**
+   * Reads a live entry without recording the access.
+   *
+   * A React render must not mutate what it reads, so a component deriving
+   * state from the cache uses this rather than `get`, which reorders entries
+   * and drops expired ones as a side effect.
+   *
+   * @param key - Stable cache key.
+   * @returns The cached value, or undefined when absent or expired.
+   */
+  peek(key: string): TValue | undefined {
+    const entry = this.#entries.get(key);
+    return entry && entry.expiresAt > Date.now() ? entry.value : undefined;
+  }
+
+  /**
    * Stores a value and evicts the oldest entries once at capacity.
    *
    * @param key - Stable cache key.
