@@ -471,7 +471,7 @@ function SelectedGameForm({
             max={5}
             min={1}
             name="weight"
-            step={0.1}
+            step="any"
             type="number"
           />
         </Field>

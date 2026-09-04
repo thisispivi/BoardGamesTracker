@@ -116,6 +116,52 @@
     "gameCount": "{count, plural, one {# game} other {# games}}",
     "expansionCount": "{count, plural, one {# expansion} other {# expansions}}"
   },
+  "libraryFilters": {
+    "controls": "Browse games",
+    "searchLabel": "Search games",
+    "searchPlaceholder": "Search by title, category, mechanic, or theme…",
+    "sortLabel": "Sort games",
+    "sort": {
+      "nameAscending": "Name · A–Z",
+      "nameDescending": "Name · Z–A",
+      "weightAscending": "Complexity · lightest first",
+      "weightDescending": "Complexity · heaviest first",
+      "timeAscending": "Playtime · shortest first",
+      "timeDescending": "Playtime · longest first"
+    },
+    "filters": "Filters",
+    "reset": "Reset",
+    "playersLabel": "Filter by player count",
+    "anyPlayers": "Any player count",
+    "playerCount": "{count, plural, one {# player} other {# players}}",
+    "weightLabel": "Filter by complexity",
+    "weight": {
+      "all": "Any complexity",
+      "light": "Light · up to 2",
+      "medium": "Medium · over 2 to 3",
+      "heavy": "Heavy · over 3 to 4",
+      "veryHeavy": "Very heavy · over 4"
+    },
+    "timeLabel": "Filter by maximum playtime",
+    "anyTime": "Any playtime",
+    "timeUpTo": "Up to {duration}",
+    "gameTypeLabel": "Filter by game type",
+    "gameType": {
+      "all": "All game types",
+      "baseGames": "Base games only",
+      "expansions": "Expansions only"
+    },
+    "categoryFilter": "Filter by category",
+    "allCategories": "All categories",
+    "mechanicFilter": "Filter by mechanic",
+    "allMechanics": "All mechanics",
+    "searchCategories": "Search categories…",
+    "searchMechanics": "Search mechanics…",
+    "selectedFilters": "Selected",
+    "clearSelection": "Clear selection",
+    "noFilterOptions": "No matching options.",
+    "favorites": "Favorites"
+  },
   "game": {
     "addFavorite": "Add to favorites",
     "artworkAlt": "{name} box art",
@@ -131,7 +177,11 @@
     "gifted": "Gifted",
     "giftedLong": "This game was gifted",
     "markGiftedShort": "Gifted game",
-    "giftedHelp": "Gifted games count as having a recorded price, without adding to your spending total."
+    "giftedHelp": "Gifted games count as having a recorded price, without adding to your spending total.",
+    "facts": "Game details",
+    "playerCount": "Players: {count}",
+    "playtime": "Playtime: {duration}",
+    "weight": "Complexity: {weight}"
   },
   "edit": {
     "eyebrow": "Personal details",

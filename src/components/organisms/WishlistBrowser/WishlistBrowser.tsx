@@ -1,14 +1,17 @@
 "use client";
 
-import Fuse from "fuse.js";
 import { Search } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { type ReactNode, useMemo, useState } from "react";
 
 import { EmptyState } from "@/components/molecules/EmptyState/EmptyState";
+import { LibraryControls } from "@/components/molecules/LibraryControls/LibraryControls";
 import { WishlistCard } from "@/components/organisms/WishlistCard/WishlistCard";
-import type { CollectionGame } from "@/core";
-import { normalizeSearchText } from "@/utils/search";
+import type { CollectionGame, LibraryFilters } from "@/core";
+import {
+  createLibraryFilters,
+  filterAndSortLibraryGames,
+} from "@/utils/libraryFilters";
 
 /** Wishlist games and currency rendered by the browser. */
 type WishlistBrowserProps = {
@@ -28,42 +31,17 @@ export function WishlistBrowser({
   currency,
   games,
 }: WishlistBrowserProps): ReactNode {
+  const locale = useLocale();
   const t = useTranslations();
-  const [query, setQuery] = useState("");
-  const visible = useMemo(() => {
-    const term = normalizeSearchText(query);
-    if (!term) return games;
-
-    return new Fuse(games, {
-      keys: [
-        { name: "name", weight: 0.8 },
-        { name: "categories", weight: 0.25 },
-        { name: "mechanics", weight: 0.35 },
-        { name: "families", weight: 0.15 },
-      ],
-      threshold: 0.42,
-      ignoreLocation: true,
-      useTokenSearch: true,
-    })
-      .search(term)
-      .map((result) => result.item);
-  }, [games, query]);
+  const [filters, setFilters] = useState<LibraryFilters>(createLibraryFilters);
+  const visible = useMemo(
+    () => filterAndSortLibraryGames(games, filters, locale),
+    [filters, games, locale],
+  );
 
   return (
     <>
-      <div className="bg-card mb-8 rounded-lg border p-3 shadow-sm">
-        <label className="relative flex-1">
-          <span className="sr-only">{t("wishlist.searchLabel")}</span>
-          <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-          <input
-            className="bg-muted/60 h-11 w-full rounded-lg pr-4 pl-10 text-sm transition"
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder={t("wishlist.searchPlaceholder")}
-            type="search"
-            value={query}
-          />
-        </label>
-      </div>
+      <LibraryControls filters={filters} games={games} onChange={setFilters} />
 
       {visible.length > 0 ? (
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">

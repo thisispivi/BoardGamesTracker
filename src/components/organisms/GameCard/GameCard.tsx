@@ -1,21 +1,14 @@
 "use client";
 
-import {
-  Clock3,
-  Heart,
-  Link as LinkIcon,
-  Star,
-  Trash2,
-  Users,
-} from "lucide-react";
+import { Heart, Link as LinkIcon, Star, Trash2 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
 import { GameArtwork } from "@/components/atoms/GameArtwork/GameArtwork";
 import { ConfirmDialog } from "@/components/molecules/ConfirmDialog/ConfirmDialog";
+import { GameFacts } from "@/components/molecules/GameFacts/GameFacts";
 import { EditGameDialog } from "@/components/organisms/EditGameDialog/EditGameDialog";
 import type { CollectionGame } from "@/core";
-import { useDurationFormatter } from "@/hooks/useDurationFormatter";
 import {
   removeGameAction,
   toggleFavoriteAction,
@@ -231,7 +224,6 @@ export function GameCard({
   game,
   readOnly = false,
 }: GameCardProps): ReactNode {
-  const formatDuration = useDurationFormatter();
   const format = useFormatter();
   const t = useTranslations();
   if (compact) {
@@ -287,19 +279,8 @@ export function GameCard({
           ) : null}
         </div>
         <TaxonomyPills game={game} />
-        <div className="text-muted-foreground mt-4 flex min-w-0 items-center border-t pt-3 text-xs">
-          <div className="flex min-w-0 flex-1 items-center gap-4">
-            <span className="flex items-center gap-1.5 whitespace-nowrap">
-              <Users className="size-3.5" />
-              {game.minPlayers}–{game.maxPlayers}
-            </span>
-            <span className="flex min-w-0 items-center gap-1.5">
-              <Clock3 className="size-3.5 shrink-0" />
-              <span className="truncate">
-                {formatDuration(game.maxPlaytime)}
-              </span>
-            </span>
-          </div>
+        <div className="mt-4 flex min-w-0 items-center border-t pt-3">
+          <GameFacts className="min-w-0 flex-1" game={game} />
           {readOnly ? null : (
             <div className="ml-2 flex shrink-0 items-center gap-0.5">
               <EditGameDialog currency={currency} game={game} />

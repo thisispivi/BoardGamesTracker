@@ -222,7 +222,7 @@ function EditGameMetadataDialog({ game, onClose }: EditDialogProps): ReactNode {
                     max={5}
                     min={0}
                     name="weight"
-                    step={0.01}
+                    step="any"
                     type="number"
                   />
                 </Field>

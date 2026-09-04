@@ -116,6 +116,52 @@
     "gameCount": "{count, plural, one {# gioco} other {# giochi}}",
     "expansionCount": "{count, plural, one {# espansione} other {# espansioni}}"
   },
+  "libraryFilters": {
+    "controls": "Sfoglia i giochi",
+    "searchLabel": "Cerca giochi",
+    "searchPlaceholder": "Cerca per titolo, categoria, meccanica o tema…",
+    "sortLabel": "Ordina i giochi",
+    "sort": {
+      "nameAscending": "Nome · A–Z",
+      "nameDescending": "Nome · Z–A",
+      "weightAscending": "Complessità · più leggeri prima",
+      "weightDescending": "Complessità · più pesanti prima",
+      "timeAscending": "Durata · più brevi prima",
+      "timeDescending": "Durata · più lunghi prima"
+    },
+    "filters": "Filtri",
+    "reset": "Reimposta",
+    "playersLabel": "Filtra per numero di giocatori",
+    "anyPlayers": "Qualsiasi numero di giocatori",
+    "playerCount": "{count, plural, one {# giocatore} other {# giocatori}}",
+    "weightLabel": "Filtra per complessità",
+    "weight": {
+      "all": "Qualsiasi complessità",
+      "light": "Leggero · fino a 2",
+      "medium": "Medio · oltre 2 fino a 3",
+      "heavy": "Pesante · oltre 3 fino a 4",
+      "veryHeavy": "Molto pesante · oltre 4"
+    },
+    "timeLabel": "Filtra per durata massima",
+    "anyTime": "Qualsiasi durata",
+    "timeUpTo": "Fino a {duration}",
+    "gameTypeLabel": "Filtra per tipo di gioco",
+    "gameType": {
+      "all": "Tutti i tipi di gioco",
+      "baseGames": "Solo giochi base",
+      "expansions": "Solo espansioni"
+    },
+    "categoryFilter": "Filtra per categoria",
+    "allCategories": "Tutte le categorie",
+    "mechanicFilter": "Filtra per meccanica",
+    "allMechanics": "Tutte le meccaniche",
+    "searchCategories": "Cerca categorie…",
+    "searchMechanics": "Cerca meccaniche…",
+    "selectedFilters": "Selezionati",
+    "clearSelection": "Cancella selezione",
+    "noFilterOptions": "Nessuna opzione corrispondente.",
+    "favorites": "Preferiti"
+  },
   "game": {
     "addFavorite": "Aggiungi ai preferiti",
     "artworkAlt": "Copertina di {name}",
@@ -131,7 +177,11 @@
     "gifted": "Regalo",
     "giftedLong": "Questo gioco è stato regalato",
     "markGiftedShort": "Gioco regalato",
-    "giftedHelp": "I giochi ricevuti in regalo contano come prezzo registrato senza aumentare la spesa totale."
+    "giftedHelp": "I giochi ricevuti in regalo contano come prezzo registrato senza aumentare la spesa totale.",
+    "facts": "Dettagli del gioco",
+    "playerCount": "Giocatori: {count}",
+    "playtime": "Durata: {duration}",
+    "weight": "Complessità: {weight}"
   },
   "edit": {
     "eyebrow": "Dettagli personali",

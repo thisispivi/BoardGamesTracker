@@ -23,8 +23,11 @@ overrides:
   # in by ExcelJS and ESLint still requires the 1.x line, so pin the patched
   # 1.x release instead of ignoring the advisory.
   brace-expansion: 1.1.18
+  # Security fixes for the transitive build-tool chains used by Next.js and Sentry.
+  browserslist: 4.28.8
   exceljs>uuid: 11.1.1
   esbuild: 0.28.2
+  fast-uri: 3.1.6
   postcss: 8.5.26
   sharp: 0.35.3
 packages:

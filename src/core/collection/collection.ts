@@ -26,6 +26,35 @@ export type CollectionGame = {
   families: string[];
 };
 
+/** Game kinds available to the shared library browser. */
+export type LibraryGameType = "all" | "baseGames" | "expansions";
+
+/** Complexity bands available to the shared library browser. */
+export type LibraryWeightFilter =
+  "all" | "light" | "medium" | "heavy" | "veryHeavy";
+
+/** Stable ordering choices available to the shared library browser. */
+export type LibrarySort =
+  | "nameAscending"
+  | "nameDescending"
+  | "weightAscending"
+  | "weightDescending"
+  | "timeAscending"
+  | "timeDescending";
+
+/** Search, facet, and ordering state shared by collection and wishlist views. */
+export type LibraryFilters = {
+  categories: string[];
+  favoritesOnly: boolean;
+  gameType: LibraryGameType;
+  maxPlaytime: number | null;
+  mechanics: string[];
+  players: number | null;
+  query: string;
+  sort: LibrarySort;
+  weight: LibraryWeightFilter;
+};
+
 /** Serializable result returned by collection mutations. */
 export type CollectionActionState = {
   success: boolean;

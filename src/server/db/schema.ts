@@ -186,7 +186,7 @@ export const games = pgTable(
     maxPlayers: integer("max_players").notNull().default(1),
     minPlaytime: integer("min_playtime").notNull().default(0),
     maxPlaytime: integer("max_playtime").notNull().default(0),
-    weight: numeric("weight", { mode: "number", precision: 4, scale: 2 }),
+    weight: numeric("weight", { mode: "number", precision: 6, scale: 5 }),
     bggRating: numeric("bgg_rating", {
       mode: "number",
       precision: 4,

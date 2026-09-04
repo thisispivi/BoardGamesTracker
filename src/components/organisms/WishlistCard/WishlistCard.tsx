@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/atoms/Button/Button";
 import { GameArtwork } from "@/components/atoms/GameArtwork/GameArtwork";
 import { ConfirmDialog } from "@/components/molecules/ConfirmDialog/ConfirmDialog";
+import { GameFacts } from "@/components/molecules/GameFacts/GameFacts";
 import { GiftedPriceField } from "@/components/molecules/GiftedPriceField/GiftedPriceField";
 import type { CollectionActionState, CollectionGame } from "@/core";
 import {
@@ -178,6 +179,7 @@ export function WishlistCard({ currency, game }: WishlistCardProps): ReactNode {
             ))}
           </div>
         ) : null}
+        <GameFacts className="mt-4 border-t pt-3" game={game} />
         <div className="mt-4 flex items-center gap-2 border-t pt-3">
           <PurchaseDialog currency={currency} game={game} />
           <ConfirmDialog
