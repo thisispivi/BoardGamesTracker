@@ -6,6 +6,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { Providers } from "@/components/templates/Providers/Providers";
+import { env } from "@/env";
 import { isAppTheme } from "@/utils/theme";
 
 /**
@@ -16,9 +17,7 @@ import { isAppTheme } from "@/utils/theme";
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
   return {
-    metadataBase: new URL(
-      process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:12500",
-    ),
+    metadataBase: new URL(env.NEXT_PUBLIC_APP_URL),
     title: {
       default: "Board Games Tracker",
       template: "%s · Board Games Tracker",

@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
-import { Logo } from "@/components/atoms/Logo/Logo";
+import { PasswordResetPanel } from "@/components/molecules/PasswordResetPanel/PasswordResetPanel";
 import { MailResetPasswordForm } from "@/components/organisms/MailResetPasswordForm/MailResetPasswordForm";
+import { AuthShell } from "@/components/templates/AuthShell/AuthShell";
 
 /** Query values accepted from Better Auth's reset redirect. */
 type MailResetPasswordPageProps = {
@@ -19,9 +19,9 @@ type MailResetPasswordPageProps = {
  * @returns Metadata that prevents recovery links from being indexed.
  */
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations();
+  const t = await getTranslations("reset");
   return {
-    title: t("reset.metaTitle"),
+    title: t("metaTitle"),
     robots: { index: false, follow: false },
   };
 }
@@ -36,47 +36,17 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function MailResetPasswordPage({
   searchParams,
 }: MailResetPasswordPageProps) {
-  const [parameters, t] = await Promise.all([searchParams, getTranslations()]);
+  const parameters = await searchParams;
   const token =
     typeof parameters.token === "string" && !parameters.error
       ? parameters.token
       : null;
 
   return (
-    <main className="mx-auto grid min-h-screen w-full max-w-md place-items-center px-4 py-12">
-      <div className="w-full">
-        <div className="mb-8 flex justify-center">
-          <Logo />
-        </div>
-        <section className="bg-card shadow-soft rounded-xl border p-6 sm:p-8">
-          <p className="text-primary text-xs font-bold tracking-widest uppercase">
-            {t("reset.eyebrow")}
-          </p>
-          <h1 className="font-display mt-1 text-2xl font-bold">
-            {t("reset.title")}
-          </h1>
-          {token ? (
-            <>
-              <p className="text-muted-foreground mt-2 text-sm leading-6">
-                {t("reset.body")}
-              </p>
-              <MailResetPasswordForm token={token} />
-            </>
-          ) : (
-            <>
-              <p className="text-muted-foreground mt-2 text-sm leading-6">
-                {t("reset.expired")}
-              </p>
-              <Link
-                className="text-primary mt-6 inline-block text-sm font-bold hover:underline"
-                href="/login"
-              >
-                {t("reset.backToLogin")}
-              </Link>
-            </>
-          )}
-        </section>
-      </div>
-    </main>
+    <AuthShell>
+      <PasswordResetPanel>
+        {token ? <MailResetPasswordForm token={token} /> : null}
+      </PasswordResetPanel>
+    </AuthShell>
   );
 }

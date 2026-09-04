@@ -1,20 +1,34 @@
 import "server-only";
 
-import type {
-  MailLocale,
-  TransactionalMail,
-  TransactionalMailInput,
-} from "@/core";
+import { getTranslations } from "next-intl/server";
 
-/** Localized semantic content inserted into the shared email frame. */
-type MailCopy = {
-  action: string;
-  body: string;
-  heading: string;
-  preview: string;
-  safety: string;
-  subject: string;
-};
+import type { TransactionalMail, TransactionalMailInput } from "@/core";
+import { type AppLocale, defaultLocale, isLocale } from "@/i18n/config";
+
+/** Light-theme palette mirroring the application tokens in `globals.css`. */
+const palette = {
+  accent: "#ef8354",
+  background: "#f6f4ed",
+  border: "#dedbd0",
+  card: "#fffdf8",
+  foreground: "#20231d",
+  muted: "#6e7268",
+  primary: "#18594b",
+  primaryForeground: "#f9fff9",
+} as const;
+
+/** Dark-theme palette applied by mail clients that report a dark colour scheme. */
+const darkPalette = {
+  background: "#111511",
+  border: "#30372f",
+  card: "#191e19",
+  foreground: "#edf0e8",
+  muted: "#a3aa9d",
+  primary: "#62c6a5",
+  primaryForeground: "#092119",
+} as const;
+
+const fontStack = "'Avenir Next', 'Inter', 'Segoe UI', Arial, sans-serif";
 
 /**
  * Escapes dynamic text before inserting it into an HTML email.
@@ -32,167 +46,102 @@ function escapeHtml(value: string): string {
 }
 
 /**
- * Selects the supported mail language from an authentication request.
+ * Selects the language of an authentication email for one recipient.
+ *
+ * The locale preference cookie set by the language switcher wins, so a message
+ * matches the language the account owner reads the application in; the browser
+ * `Accept-Language` header is only consulted when no preference exists.
  *
  * @param request - Request whose language preference may be available.
- * @returns Italian for an Italian primary preference, otherwise English.
+ * @returns The supported locale used to render the message.
  */
-export function getMailLocale(request?: Request): MailLocale {
+export function getMailLocale(request?: Request): AppLocale {
+  const preference = request?.headers
+    .get("cookie")
+    ?.match(/(?:^|;\s*)locale=([^;]*)/)?.[1];
+  if (isLocale(preference)) return preference;
+
   const primary = request?.headers
     .get("accept-language")
     ?.split(",")[0]
     ?.trim()
     .toLowerCase();
-  return primary === "it" || primary?.startsWith("it-") ? "it" : "en";
+  return primary === "it" || primary?.startsWith("it-") ? "it" : defaultLocale;
 }
 
 /**
- * Produces localized copy for one authentication email purpose.
+ * Renders a responsive, themed authentication email with a visible fallback URL.
  *
- * @param input - Trusted action URL and bounded recipient details.
- * @returns Semantic text used by both HTML and plain-text bodies.
- */
-function getMailCopy(input: TransactionalMailInput): MailCopy {
-  const newEmail = input.newEmail ?? "";
-  if (input.locale === "it") {
-    if (input.kind === "verification") {
-      return {
-        action: "Verifica indirizzo email",
-        body: "Conferma che questo indirizzo email appartiene a te per completare la configurazione dell’account.",
-        heading: "Verifica il tuo indirizzo email",
-        preview: "Completa la verifica dell’account Board Games Tracker.",
-        safety:
-          "Se non hai creato questo account, puoi ignorare questa email. Il link scade tra 60 minuti.",
-        subject: "Verifica il tuo indirizzo email",
-      };
-    }
-    if (input.kind === "passwordReset") {
-      return {
-        action: "Reimposta password",
-        body: "Abbiamo ricevuto una richiesta di reimpostazione della password del tuo account.",
-        heading: "Scegli una nuova password",
-        preview: "Usa questo link sicuro per reimpostare la password.",
-        safety:
-          "Se non hai richiesto la reimpostazione, ignora questa email. Il link scade tra 60 minuti e può essere usato una sola volta.",
-        subject: "Reimposta la password",
-      };
-    }
-    if (input.kind === "emailChange") {
-      return {
-        action: "Conferma modifica email",
-        body: `È stata richiesta la sostituzione del tuo indirizzo email con ${newEmail}. Conferma la modifica dal tuo indirizzo attuale.`,
-        heading: "Conferma il nuovo indirizzo email",
-        preview: "Autorizza la modifica dell’indirizzo email del tuo account.",
-        safety:
-          "Se non hai richiesto questa modifica, non usare il link e cambia la password. Il link scade tra 60 minuti.",
-        subject: "Conferma la modifica dell’indirizzo email",
-      };
-    }
-    return {
-      action: "Conferma eliminazione account",
-      body: "È stata richiesta l’eliminazione definitiva del tuo account e dei dati associati.",
-      heading: "Conferma l’eliminazione dell’account",
-      preview: "Conferma la richiesta di eliminazione dell’account.",
-      safety:
-        "Non usare il link se non hai richiesto l’eliminazione. Il link scade tra 24 ore.",
-      subject: "Conferma l’eliminazione dell’account",
-    };
-  }
-
-  if (input.kind === "verification") {
-    return {
-      action: "Verify email address",
-      body: "Confirm that this email address belongs to you to finish setting up your account.",
-      heading: "Verify your email address",
-      preview: "Complete your Board Games Tracker account verification.",
-      safety:
-        "If you did not create this account, you can ignore this email. The link expires in 60 minutes.",
-      subject: "Verify your email address",
-    };
-  }
-  if (input.kind === "passwordReset") {
-    return {
-      action: "Reset password",
-      body: "We received a request to reset the password for your account.",
-      heading: "Choose a new password",
-      preview: "Use this secure link to reset your password.",
-      safety:
-        "If you did not request a reset, ignore this email. The link expires in 60 minutes and can be used only once.",
-      subject: "Reset your password",
-    };
-  }
-  if (input.kind === "emailChange") {
-    return {
-      action: "Confirm email change",
-      body: `A request was made to replace your email address with ${newEmail}. Confirm the change from your current address.`,
-      heading: "Confirm your new email address",
-      preview: "Authorize the email-address change for your account.",
-      safety:
-        "If you did not request this change, do not use the link and change your password. The link expires in 60 minutes.",
-      subject: "Confirm your email-address change",
-    };
-  }
-  return {
-    action: "Confirm account deletion",
-    body: "A request was made to permanently delete your account and its associated data.",
-    heading: "Confirm account deletion",
-    preview: "Confirm your account-deletion request.",
-    safety:
-      "Do not use the link if you did not request deletion. The link expires in 24 hours.",
-    subject: "Confirm account deletion",
-  };
-}
-
-/**
- * Renders a responsive multipart authentication email with a visible fallback URL.
+ * Copy comes from the message catalog of the recipient's own locale, and every
+ * dynamic value is HTML-escaped before it reaches the markup.
  *
  * @param input - Trusted action URL and localized recipient details.
  * @returns Plain-text and HTML bodies with a matching subject.
  */
-export function buildTransactionalMail(
+export async function buildTransactionalMail(
   input: TransactionalMailInput,
-): TransactionalMail {
-  const copy = getMailCopy(input);
-  const safeBody = escapeHtml(copy.body);
+): Promise<TransactionalMail> {
+  const t = await getTranslations({ locale: input.locale, namespace: "mail" });
+  const body = t(`${input.kind}.body`, { email: input.newEmail ?? "" });
+  const action = t(`${input.kind}.action`);
+  const safety = t(`${input.kind}.safety`);
+  const subject = t(`${input.kind}.subject`);
+  const greeting = t("greeting", { name: input.name });
+  const footer = t("footer");
   const safeUrl = escapeHtml(input.actionUrl);
-  const greeting =
-    input.locale === "it" ? `Ciao ${input.name},` : `Hi ${input.name},`;
-  const footer =
-    input.locale === "it"
-      ? "Questa email è stata inviata automaticamente da Board Games Tracker."
-      : "This email was sent automatically by Board Games Tracker.";
-  const fallback =
-    input.locale === "it"
-      ? "Se il pulsante non funziona, copia questo indirizzo nel browser:"
-      : "If the button does not work, copy this address into your browser:";
+  const logoUrl = escapeHtml(new URL("/icon-192.png", input.appUrl).toString());
 
   return {
-    subject: copy.subject,
-    text: `${greeting}\n\n${copy.body}\n\n${copy.action}: ${input.actionUrl}\n\n${copy.safety}\n\n${footer}`,
+    subject,
+    text: `${greeting}\n\n${body}\n\n${action}: ${input.actionUrl}\n\n${safety}\n\n${footer}`,
     html: `<!doctype html>
 <html lang="${input.locale}">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>${escapeHtml(copy.subject)}</title>
+    <meta name="color-scheme" content="light dark">
+    <meta name="supported-color-schemes" content="light dark">
+    <title>${escapeHtml(subject)}</title>
+    <style>
+      @media (prefers-color-scheme: dark) {
+        .mail-canvas { background: ${darkPalette.background} !important; }
+        .mail-card {
+          background: ${darkPalette.card} !important;
+          border-color: ${darkPalette.border} !important;
+        }
+        .mail-strong { color: ${darkPalette.foreground} !important; }
+        .mail-quiet { color: ${darkPalette.muted} !important; }
+        .mail-rule { border-top-color: ${darkPalette.border} !important; }
+        .mail-action {
+          background: ${darkPalette.primary} !important;
+          color: ${darkPalette.primaryForeground} !important;
+        }
+        .mail-link { color: ${darkPalette.primary} !important; }
+      }
+    </style>
   </head>
-  <body style="margin:0;background:#f6f4ed;color:#20231d;font-family:Arial,sans-serif">
-    <div style="display:none;max-height:0;overflow:hidden;opacity:0">${escapeHtml(copy.preview)}</div>
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f6f4ed;padding:32px 16px">
+  <body class="mail-canvas" style="margin:0;background:${palette.background};color:${palette.foreground};font-family:${fontStack}">
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0">${escapeHtml(t(`${input.kind}.preview`))}</div>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" class="mail-canvas" style="background:${palette.background};padding:32px 16px">
       <tr><td align="center">
-        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#fffdf8;border:1px solid #dedbd0;border-radius:18px;overflow:hidden">
-          <tr><td style="padding:28px 32px 18px;font-size:18px;font-weight:700;color:#18594b">Board Games Tracker</td></tr>
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" class="mail-card" style="max-width:560px;background:${palette.card};border:1px solid ${palette.border};border-radius:22px;overflow:hidden">
+          <tr><td style="padding:28px 32px 18px">
+            <table role="presentation" cellspacing="0" cellpadding="0"><tr>
+              <td style="padding-right:12px"><img alt="${escapeHtml(t("logoAlt"))}" height="40" src="${logoUrl}" style="display:block;border:0;border-radius:12px" width="40"></td>
+              <td class="mail-strong" style="font-size:18px;font-weight:700;color:${palette.foreground}">Board Games Tracker</td>
+            </tr></table>
+          </td></tr>
           <tr><td style="padding:0 32px 32px">
-            <p style="margin:0 0 18px;font-size:15px;line-height:24px">${escapeHtml(greeting)}</p>
-            <h1 style="margin:0 0 14px;font-size:28px;line-height:34px;letter-spacing:-0.5px">${escapeHtml(copy.heading)}</h1>
-            <p style="margin:0 0 26px;color:#5f645b;font-size:15px;line-height:24px">${safeBody}</p>
-            <p style="margin:0 0 26px"><a href="${safeUrl}" style="display:inline-block;background:#18594b;color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;padding:13px 20px;border-radius:999px">${escapeHtml(copy.action)}</a></p>
-            <p style="margin:0 0 8px;color:#6e7268;font-size:12px;line-height:19px">${escapeHtml(fallback)}</p>
-            <p style="margin:0 0 24px;word-break:break-all;font-size:12px;line-height:19px"><a href="${safeUrl}" style="color:#18594b">${safeUrl}</a></p>
-            <p style="margin:0;padding-top:20px;border-top:1px solid #dedbd0;color:#6e7268;font-size:12px;line-height:19px">${escapeHtml(copy.safety)}</p>
+            <p class="mail-strong" style="margin:0 0 18px;font-size:15px;line-height:24px;color:${palette.foreground}">${escapeHtml(greeting)}</p>
+            <h1 class="mail-strong" style="margin:0 0 14px;font-size:28px;line-height:34px;letter-spacing:-0.5px;color:${palette.foreground}">${escapeHtml(t(`${input.kind}.heading`))}</h1>
+            <p class="mail-quiet" style="margin:0 0 26px;color:${palette.muted};font-size:15px;line-height:24px">${escapeHtml(body)}</p>
+            <p style="margin:0 0 26px"><a class="mail-action" href="${safeUrl}" style="display:inline-block;background:${palette.primary};color:${palette.primaryForeground};text-decoration:none;font-size:15px;font-weight:700;padding:13px 22px;border-radius:999px">${escapeHtml(action)}</a></p>
+            <p class="mail-quiet" style="margin:0 0 8px;color:${palette.muted};font-size:12px;line-height:19px">${escapeHtml(t("fallback"))}</p>
+            <p style="margin:0 0 24px;word-break:break-all;font-size:12px;line-height:19px"><a class="mail-link" href="${safeUrl}" style="color:${palette.primary}">${safeUrl}</a></p>
+            <p class="mail-quiet mail-rule" style="margin:0;padding-top:20px;border-top:1px solid ${palette.border};color:${palette.muted};font-size:12px;line-height:19px">${escapeHtml(safety)}</p>
           </td></tr>
         </table>
-        <p style="margin:18px 0 0;color:#777b72;font-size:11px;line-height:18px">${escapeHtml(footer)}</p>
+        <p class="mail-quiet" style="margin:18px 0 0;color:${palette.muted};font-size:11px;line-height:18px">${escapeHtml(footer)}</p>
       </td></tr>
     </table>
   </body>

@@ -36,8 +36,9 @@ export async function sendAuthActionMail(
     return;
   }
 
-  const mail = buildTransactionalMail({
+  const mail = await buildTransactionalMail({
     actionUrl,
+    appUrl: env.NEXT_PUBLIC_APP_URL,
     kind: input.kind,
     locale: getMailLocale(input.request),
     name: input.name,

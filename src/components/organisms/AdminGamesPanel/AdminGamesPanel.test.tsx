@@ -1,3 +1,4 @@
+import messages from "@messages/en.json";
 import {
   act,
   cleanup,
@@ -11,8 +12,6 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { AdminGamesPanel } from "@/components/organisms/AdminGamesPanel/AdminGamesPanel";
 import type { AdminGame, AdminGamesPage } from "@/core";
-
-import messages from "../../../../messages/en.json";
 
 const { getAdminGamesPageAction } = vi.hoisted(() => ({
   getAdminGamesPageAction: vi.fn(),

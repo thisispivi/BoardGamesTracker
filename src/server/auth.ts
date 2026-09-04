@@ -163,10 +163,10 @@ export const auth = betterAuth({
       handler: (promise) => after(() => promise),
     },
     cookiePrefix: "board_games_tracker",
-    useSecureCookies: process.env.NODE_ENV === "production",
+    useSecureCookies: env.NODE_ENV === "production",
     defaultCookieAttributes: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
     },

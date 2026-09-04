@@ -43,7 +43,8 @@
     "verificationResent": "Se l’indirizzo è idoneo, riceverai un’altra email di verifica.",
     "backToSignIn": "Torna all'accesso",
     "failure": "Autenticazione non riuscita. Riprova.",
-    "banned": "Questo account è stato sospeso. Contatta un amministratore."
+    "banned": "Questo account è stato sospeso. Contatta un amministratore.",
+    "signUpDisabled": "Le registrazioni sono chiuse su questa istanza."
   },
   "reset": {
     "metaTitle": "Reimposta password",
@@ -515,5 +516,43 @@
     "movedToCollection": "Il gioco è ora nella tua collezione.",
     "confirmClear": "Digita {confirmation} per confermare lo svuotamento della collezione.",
     "cleared": "{count, plural, one {Rimosso # gioco dalla collezione.} other {Rimossi # giochi dalla collezione.}}"
+  },
+  "mail": {
+    "logoAlt": "Board Games Tracker",
+    "greeting": "Ciao {name},",
+    "fallback": "Se il pulsante non funziona, copia questo indirizzo nel browser:",
+    "footer": "Questa email è stata inviata automaticamente da Board Games Tracker.",
+    "verification": {
+      "subject": "Verifica il tuo indirizzo email",
+      "preview": "Completa la verifica dell’account Board Games Tracker.",
+      "heading": "Verifica il tuo indirizzo email",
+      "body": "Conferma che questo indirizzo email appartiene a te per completare la configurazione dell’account.",
+      "action": "Verifica indirizzo email",
+      "safety": "Se non hai creato questo account, puoi ignorare questa email. Il link scade tra 60 minuti."
+    },
+    "passwordReset": {
+      "subject": "Reimposta la password",
+      "preview": "Usa questo link sicuro per reimpostare la password.",
+      "heading": "Scegli una nuova password",
+      "body": "Abbiamo ricevuto una richiesta di reimpostazione della password del tuo account.",
+      "action": "Reimposta password",
+      "safety": "Se non hai richiesto la reimpostazione, ignora questa email. Il link scade tra 60 minuti e può essere usato una sola volta."
+    },
+    "emailChange": {
+      "subject": "Conferma la modifica dell’indirizzo email",
+      "preview": "Autorizza la modifica dell’indirizzo email del tuo account.",
+      "heading": "Conferma il nuovo indirizzo email",
+      "body": "È stata richiesta la sostituzione del tuo indirizzo email con {email}. Conferma la modifica dal tuo indirizzo attuale.",
+      "action": "Conferma modifica email",
+      "safety": "Se non hai richiesto questa modifica, non usare il link e cambia la password. Il link scade tra 60 minuti."
+    },
+    "accountDeletion": {
+      "subject": "Conferma l’eliminazione dell’account",
+      "preview": "Conferma la richiesta di eliminazione dell’account.",
+      "heading": "Conferma l’eliminazione dell’account",
+      "body": "È stata richiesta l’eliminazione definitiva del tuo account e dei dati associati.",
+      "action": "Conferma eliminazione account",
+      "safety": "Non usare il link se non hai richiesto l’eliminazione. Il link scade tra 24 ore."
+    }
   }
 }

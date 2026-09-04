@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
 import { currencySchema, sharingSchema } from "@/core";
+import { env } from "@/env";
 import { isLocale } from "@/i18n/config";
 import { writeAuditEvent } from "@/server/audit";
 import { db } from "@/server/db";
@@ -27,7 +28,7 @@ export async function setLocaleAction(formData: FormData): Promise<void> {
   (await cookies()).set("locale", locale, {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: env.NODE_ENV === "production",
     path: "/",
     maxAge: 60 * 60 * 24 * 365,
   });

@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 
 import type { StoredGameImage } from "@/core";
 
-const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const maxImageBytes = 5 * 1024 * 1024;
 const allowedMimeTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 /**
@@ -80,7 +80,7 @@ async function readBoundedBody(response: Response): Promise<Buffer> {
       break;
     }
     size += result.value.byteLength;
-    if (size > MAX_IMAGE_BYTES) {
+    if (size > maxImageBytes) {
       await reader.cancel();
       throw new Error("The image exceeded the 5 MB limit.");
     }
@@ -116,7 +116,7 @@ export async function downloadBggImage(
   }
 
   const declaredSize = Number(response.headers.get("content-length"));
-  if (Number.isFinite(declaredSize) && declaredSize > MAX_IMAGE_BYTES) {
+  if (Number.isFinite(declaredSize) && declaredSize > maxImageBytes) {
     throw new Error("The image exceeded the 5 MB limit.");
   }
   const declaredMime = response.headers

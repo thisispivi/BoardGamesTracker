@@ -1,10 +1,9 @@
+import messages from "@messages/en.json";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { describe, expect, it, vi } from "vitest";
 
 import { AuthForm } from "@/components/organisms/AuthForm/AuthForm";
-
-import messages from "../../../../messages/en.json";
 
 const { requestPasswordReset } = vi.hoisted(() => ({
   requestPasswordReset: vi.fn(),

@@ -13,14 +13,14 @@ const globalDatabase = globalThis as unknown as {
 const sqlClient =
   globalDatabase.sqlClient ??
   postgres(env.DATABASE_URL, {
-    max: process.env.NODE_ENV === "production" ? 10 : 3,
+    max: env.NODE_ENV === "production" ? 10 : 3,
     idle_timeout: 20,
     connect_timeout: 10,
     prepare: false,
     onnotice: () => undefined,
   });
 
-if (process.env.NODE_ENV !== "production") {
+if (env.NODE_ENV !== "production") {
   globalDatabase.sqlClient = sqlClient;
 }
 

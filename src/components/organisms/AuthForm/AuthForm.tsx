@@ -15,6 +15,23 @@ type AuthMode = "forgot" | "login" | "signup";
 /** Completed email-based actions displayed without exposing account existence. */
 type AuthNotice = "passwordReset" | "verification";
 
+/**
+ * Maps a Better Auth failure code onto a translated, non-revealing message.
+ *
+ * Unrecognized codes fall back to the generic failure text so upstream wording
+ * never reaches the account owner.
+ *
+ * @param code - Failure code reported by the authentication client.
+ * @returns The message catalog key describing the failure.
+ */
+function authErrorKey(
+  code: string | undefined,
+): "banned" | "failure" | "signUpDisabled" {
+  if (code === "BANNED_USER") return "banned";
+  if (code === "SIGN_UP_DISABLED") return "signUpDisabled";
+  return "failure";
+}
+
 /** Authentication modes available for the current installation state. */
 type AuthFormProps = {
   initialMode: "login" | "signup";
@@ -117,9 +134,7 @@ export function AuthForm({
         setNotice("verification");
         return;
       }
-      toast.error(
-        result.error.code === "BANNED_USER" ? t("banned") : t("failure"),
-      );
+      toast.error(t(authErrorKey(result.error.code)));
       return;
     }
 

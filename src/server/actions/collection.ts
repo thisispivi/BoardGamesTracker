@@ -25,7 +25,7 @@ import { downloadBggImage, downloadBggImages } from "@/server/images/bggImage";
 import { parseBggCollectionCsv } from "@/server/import/bggCsv";
 import { consumeRateLimit } from "@/server/security/rateLimit";
 import { requireUser } from "@/server/session";
-import { CLEAR_COLLECTION_CONFIRMATION } from "@/utils/collectionConfirmation";
+import { clearCollectionConfirmation } from "@/utils/collectionConfirmation";
 import { hasExpansionCategory } from "@/utils/gameTaxonomy";
 
 /** Validated local metadata accepted when a user adds a custom game. */
@@ -660,13 +660,13 @@ export async function clearLibraryAction(
     formData.get("library") ?? "collection",
   );
   const confirmation = z
-    .literal(CLEAR_COLLECTION_CONFIRMATION)
+    .literal(clearCollectionConfirmation)
     .safeParse(formData.get("confirmation"));
   if (!confirmation.success || !library.success) {
     return {
       success: false,
       message: t("action.confirmClear", {
-        confirmation: CLEAR_COLLECTION_CONFIRMATION,
+        confirmation: clearCollectionConfirmation,
       }),
     };
   }

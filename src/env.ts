@@ -14,6 +14,9 @@ export const env = createEnv({
     DATABASE_URL: z.url(),
     HEALTH_CHECK_TOKEN: z.string().min(16).optional(),
     LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
+    NODE_ENV: z
+      .enum(["development", "production", "test"])
+      .default("development"),
     SEARXNG_URL: z.url(),
     SENTRY_DSN: z.url().optional(),
     SMTP_FROM_EMAIL: z.email().optional(),
@@ -56,6 +59,7 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     HEALTH_CHECK_TOKEN: process.env.HEALTH_CHECK_TOKEN,
     LOG_LEVEL: process.env.LOG_LEVEL,
+    NODE_ENV: process.env.NODE_ENV,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
     NEXT_PUBLIC_SENTRY_ENVIRONMENT: process.env.NEXT_PUBLIC_SENTRY_ENVIRONMENT,

@@ -1,5 +1,4 @@
-/** Languages supported by authentication email templates. */
-export type MailLocale = "en" | "it";
+import type { AppLocale } from "@/i18n/config";
 
 /** Transactional authentication messages delivered through SMTP. */
 export type TransactionalMailKind =
@@ -8,8 +7,9 @@ export type TransactionalMailKind =
 /** Safe dynamic values accepted by the transactional email renderer. */
 export type TransactionalMailInput = {
   actionUrl: string;
+  appUrl: string;
   kind: TransactionalMailKind;
-  locale: MailLocale;
+  locale: AppLocale;
   name: string;
   newEmail?: string;
 };

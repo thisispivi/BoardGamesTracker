@@ -1,11 +1,10 @@
+import messages from "@messages/en.json";
 import { render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { describe, expect, it } from "vitest";
 
 import { GameFacts } from "@/components/molecules/GameFacts/GameFacts";
 import type { CollectionGame } from "@/core";
-
-import messages from "../../../../messages/en.json";
 
 const game: CollectionGame = {
   bggId: 1,

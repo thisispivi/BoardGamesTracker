@@ -96,7 +96,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   }
 
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
-  const isDevelopment = process.env.NODE_ENV === "development";
+  const isDevelopment = env.NODE_ENV === "development";
   const policy = [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDevelopment ? " 'unsafe-eval'" : ""}`,
@@ -135,7 +135,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
   response.headers.set("Cross-Origin-Resource-Policy", "same-origin");
-  if (process.env.NODE_ENV === "production") {
+  if (env.NODE_ENV === "production") {
     response.headers.set(
       "Strict-Transport-Security",
       "max-age=63072000; includeSubDomains; preload",

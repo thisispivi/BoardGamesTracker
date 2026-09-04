@@ -7,6 +7,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
+      "@messages": fileURLToPath(new URL("./messages", import.meta.url)),
     },
   },
   test: {
