@@ -18,6 +18,7 @@ import { useTranslations } from "next-intl";
 import { type ReactNode, useState } from "react";
 
 import { AppSpinner } from "@/components/atoms/AppSpinner/AppSpinner";
+import { Avatar } from "@/components/atoms/Avatar/Avatar";
 import { Logo } from "@/components/atoms/Logo/Logo";
 import { SignOutButton } from "@/components/molecules/SignOutButton/SignOutButton";
 import { cn } from "@/utils/cn";
@@ -25,6 +26,7 @@ import { cn } from "@/utils/cn";
 /** Authenticated user and viewport mode shown by application navigation. */
 type AppNavigationProps = {
   isAdmin: boolean;
+  localeSelect?: ReactNode;
   mobile?: boolean;
   user?: { name: string; email: string };
 };
@@ -34,12 +36,14 @@ type AppNavigationProps = {
  *
  * @param root0 - Properties that configure app navigation.
  * @param root0.isAdmin - Whether the managed user currently has administrator privileges.
+ * @param root0.localeSelect - Server-rendered language control shown in the drawer, where the sidebar is unavailable.
  * @param root0.mobile - Whether to render the navigation for a narrow viewport.
  * @param root0.user - Authenticated user displayed by the application shell.
  * @returns The rendered app navigation.
  */
 export function AppNavigation({
   isAdmin,
+  localeSelect,
   mobile = false,
   user,
 }: AppNavigationProps): ReactNode {
@@ -122,12 +126,15 @@ export function AppNavigation({
             </Dialog.Close>
           </div>
           {content}
+          {localeSelect ? (
+            <div className="bg-muted/70 mt-4 flex shrink-0 items-center rounded-lg p-1 pl-3">
+              {localeSelect}
+            </div>
+          ) : null}
           {user ? (
-            <div className="mt-5 shrink-0 border-t pt-5">
+            <div className="mt-4 shrink-0 border-t pt-5">
               <div className="flex items-center gap-3">
-                <span className="bg-primary text-primary-foreground grid size-11 shrink-0 place-items-center rounded-lg text-sm font-bold">
-                  {user.name.slice(0, 2).toUpperCase()}
-                </span>
+                <Avatar className="size-11" name={user.name} />
                 <div className="min-w-0">
                   <p className="truncate text-sm font-bold">{user.name}</p>
                   <p className="text-muted-foreground truncate text-xs">

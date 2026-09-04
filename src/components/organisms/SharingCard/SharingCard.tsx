@@ -171,13 +171,9 @@ export function SharingCard({
   return (
     <section
       aria-busy={pending}
-      className="bg-card shadow-soft relative overflow-hidden rounded-xl border p-5 sm:p-8"
+      className="bg-card shadow-soft overflow-hidden rounded-xl border p-5 sm:p-8"
     >
-      <div
-        aria-hidden="true"
-        className="bg-primary/7 pointer-events-none absolute -top-16 -right-12 size-56 rounded-full blur-2xl"
-      />
-      <div className="relative flex flex-col gap-6">
+      <div className="flex flex-col gap-6">
         <div className="flex items-start gap-4">
           <span className="bg-primary/10 text-primary grid size-12 shrink-0 place-items-center rounded-lg">
             <Share2 className="size-5" />

@@ -1,15 +1,9 @@
-import {
-  Banknote,
-  Boxes,
-  Gift,
-  Heart,
-  ShieldCheck,
-  UserRound,
-} from "lucide-react";
+import { Banknote, Boxes, Gift, Heart, ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 
+import { Avatar } from "@/components/atoms/Avatar/Avatar";
 import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
 import { CurrencySelect } from "@/components/molecules/CurrencySelect/CurrencySelect";
 import { StatGrid } from "@/components/molecules/StatGrid/StatGrid";
@@ -45,12 +39,6 @@ export default async function SettingsPage(): Promise<ReactNode> {
     getTranslations(),
     getCollection(session.user.id),
   ]);
-  const initials = session.user.name
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase();
   const collectionFacts = [
     {
       icon: Boxes,
@@ -81,11 +69,7 @@ export default async function SettingsPage(): Promise<ReactNode> {
           <div className="bg-card shadow-soft rounded-xl border p-5 sm:p-8">
             <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-start">
               <div className="flex min-w-0 items-center gap-4">
-                <span className="bg-primary text-primary-foreground font-display grid size-14 shrink-0 place-items-center rounded-lg text-lg font-bold">
-                  {initials || (
-                    <UserRound aria-hidden="true" className="size-6" />
-                  )}
-                </span>
+                <Avatar className="size-14 text-lg" name={session.user.name} />
                 <div className="min-w-0">
                   <p className="text-primary text-xs font-bold tracking-[0.18em] uppercase">
                     {t("settings.account")}

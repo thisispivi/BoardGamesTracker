@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { Avatar } from "@/components/atoms/Avatar/Avatar";
 import { Logo } from "@/components/atoms/Logo/Logo";
 import { LocaleSelect } from "@/components/molecules/LocaleSelect/LocaleSelect";
 import { SignOutButton } from "@/components/molecules/SignOutButton/SignOutButton";
@@ -37,9 +38,7 @@ export function AppShell({ children, user }: AppShellProps): ReactNode {
             <ThemeToggle />
           </div>
           <div className="flex items-center gap-3 border-t pt-5">
-            <span className="bg-primary text-primary-foreground grid size-10 shrink-0 place-items-center rounded-full text-sm font-bold">
-              {user.name.slice(0, 2).toUpperCase()}
-            </span>
+            <Avatar name={user.name} />
             <div className="min-w-0">
               <p className="truncate text-sm font-bold">{user.name}</p>
               <p className="text-muted-foreground truncate text-xs">
@@ -55,7 +54,12 @@ export function AppShell({ children, user }: AppShellProps): ReactNode {
         <Logo className="hidden min-[360px]:inline-flex" />
         <div className="flex items-center gap-1">
           <ThemeToggle />
-          <AppNavigation isAdmin={user.role === "admin"} mobile user={user} />
+          <AppNavigation
+            isAdmin={user.role === "admin"}
+            localeSelect={<LocaleSelect />}
+            mobile
+            user={user}
+          />
         </div>
       </header>
       <div className="isolate max-w-full min-w-0 overflow-x-clip">

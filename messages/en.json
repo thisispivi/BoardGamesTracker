@@ -393,7 +393,26 @@
       "heavy": "Heavy",
       "veryHeavy": "Very heavy"
     },
-    "noData": "Add more collection details to unlock this chart."
+    "noData": "Add more collection details to unlock this chart.",
+    "totalItems": "Games tracked",
+    "averageWeight": "Average weight",
+    "averagePlaytime": "Average length",
+    "weightValue": "{value} / 5",
+    "minutes": "{minutes} min",
+    "playersChart": "Plays well at",
+    "playersHint": "A game counts for every table size it supports.",
+    "playtimeChart": "Session length",
+    "decadesChart": "Published by decade",
+    "playersOpen": "{count}+",
+    "gamesCount": "{count, plural, =1 {# game} other {# games}}",
+    "playtime": {
+      "quick": "Under 30 min",
+      "short": "30–60 min",
+      "medium": "1–2 h",
+      "long": "Over 2 h"
+    },
+    "decade": "{decade}s",
+    "noValue": "—"
   },
   "data": {
     "title": "Your data",

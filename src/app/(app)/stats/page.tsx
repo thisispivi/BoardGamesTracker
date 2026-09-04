@@ -2,9 +2,12 @@ import {
   Banknote,
   Boxes,
   ChartNoAxesCombined,
+  Gauge,
   Heart,
+  Library,
   ReceiptText,
   Scale,
+  Timer,
 } from "lucide-react";
 import type { Metadata } from "next";
 import { getFormatter, getTranslations } from "next-intl/server";
@@ -41,6 +44,8 @@ export default async function StatsPage(): Promise<ReactNode> {
     getFormatter(),
     getTranslations(),
   ]);
+  const stats = calculateCollectionStats(collection);
+
   /**
    * Formats a monetary statistic in the user's preferred currency.
    *
@@ -54,8 +59,26 @@ export default async function StatsPage(): Promise<ReactNode> {
       maximumFractionDigits: 2,
     });
   }
-  const stats = calculateCollectionStats(collection);
+
+  /**
+   * Formats a share of the collection, reporting an empty shelf as zero.
+   *
+   * @param part - Number of items in the subset being described.
+   * @returns The localized percentage.
+   */
+  function formatShare(part: number): string {
+    return format.number(stats.totalItems ? part / stats.totalItems : 0, {
+      style: "percent",
+      maximumFractionDigits: 0,
+    });
+  }
+
   const cards = [
+    {
+      icon: Library,
+      label: t("stats.totalItems"),
+      value: format.number(stats.totalItems),
+    },
     {
       icon: Banknote,
       label: t("stats.totalValue"),
@@ -77,24 +100,36 @@ export default async function StatsPage(): Promise<ReactNode> {
       value: `${format.number(stats.pricedItems)} / ${format.number(stats.totalItems)}`,
     },
     {
+      icon: Gauge,
+      label: t("stats.averageWeight"),
+      value:
+        stats.averageWeight === null
+          ? t("stats.noValue")
+          : t("stats.weightValue", {
+              value: format.number(stats.averageWeight, {
+                maximumFractionDigits: 1,
+              }),
+            }),
+    },
+    {
+      icon: Timer,
+      label: t("stats.averagePlaytime"),
+      value:
+        stats.averagePlaytime === null
+          ? t("stats.noValue")
+          : t("stats.minutes", {
+              minutes: format.number(Math.round(stats.averagePlaytime)),
+            }),
+    },
+    {
       icon: Boxes,
       label: t("stats.expansionShare"),
-      value: stats.totalItems
-        ? format.number(stats.expansions / stats.totalItems, {
-            style: "percent",
-            maximumFractionDigits: 0,
-          })
-        : format.number(0, { style: "percent" }),
+      value: formatShare(stats.expansions),
     },
     {
       icon: Heart,
       label: t("stats.favoriteShare"),
-      value: stats.totalItems
-        ? format.number(stats.favorites / stats.totalItems, {
-            style: "percent",
-            maximumFractionDigits: 0,
-          })
-        : format.number(0, { style: "percent" }),
+      value: formatShare(stats.favorites),
     },
   ];
 
@@ -105,14 +140,26 @@ export default async function StatsPage(): Promise<ReactNode> {
         eyebrow={t("stats.eyebrow")}
         title={t("stats.title")}
       />
-      <StatGrid className="mb-8 sm:grid-cols-3 2xl:grid-cols-6" stats={cards} />
-      <StatsCharts
-        categories={stats.categories}
-        complexity={stats.complexity}
-        currency={preferences.currency}
-        mechanics={stats.mechanics}
-        mostExpensive={stats.mostExpensive}
-      />
+      <div className="relative isolate min-w-0">
+        <div
+          aria-hidden="true"
+          className="stats-aurora pointer-events-none absolute -inset-x-10 -top-48 -z-10 h-200 opacity-80"
+        />
+        <StatGrid
+          className="mb-5 sm:grid-cols-3 2xl:grid-cols-5"
+          stats={cards}
+        />
+        <StatsCharts
+          categories={stats.categories}
+          complexity={stats.complexity}
+          currency={preferences.currency}
+          decades={stats.decades}
+          mechanics={stats.mechanics}
+          mostExpensive={stats.mostExpensive}
+          playerCounts={stats.playerCounts}
+          playtime={stats.playtime}
+        />
+      </div>
     </>
   );
 }

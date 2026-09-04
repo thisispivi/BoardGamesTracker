@@ -3,30 +3,57 @@
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import {
+  Area,
+  AreaChart,
   Bar,
   BarChart,
   CartesianGrid,
   Cell,
   Pie,
   PieChart,
+  PolarAngleAxis,
+  PolarGrid,
+  PolarRadiusAxis,
+  Radar,
+  RadarChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
 
-import type { ComplexityDatum, CountDatum } from "@/core";
+import type {
+  ComplexityDatum,
+  CountDatum,
+  DecadeDatum,
+  PlayerCountDatum,
+  PlaytimeDatum,
+} from "@/core";
+import { cn } from "@/utils/cn";
 import { getTaxonomyLabel } from "@/utils/gameTaxonomy";
 
+/** Series colors reused by every categorical chart, in assignment order. */
 const chartColors = ["var(--primary)", "var(--accent)", "#3f8fba", "#b86b8f"];
+
+/** Smallest number of axes that makes a radar readable rather than degenerate. */
+const minimumRadarAxes = 3;
+
+/** Shared axis label styling for every Cartesian chart. */
+const axisTick = { fill: "var(--muted-foreground)", fontSize: 11 };
+
+/** Hover highlight drawn behind the active bar. */
+const tooltipCursor = { fill: "var(--muted)", opacity: 0.5 };
 
 /** Aggregated collection statistics rendered across the chart dashboard. */
 type StatsChartsProps = {
   categories: CountDatum[];
   complexity: ComplexityDatum[];
   currency: string;
+  decades: DecadeDatum[];
   mechanics: CountDatum[];
   mostExpensive: CountDatum[];
+  playerCounts: PlayerCountDatum[];
+  playtime: PlaytimeDatum[];
 };
 
 /** Recharts tooltip datum normalized for the shared tooltip renderer. */
@@ -44,20 +71,27 @@ type TooltipEntry = {
  * @param root0.categories - BoardGameGeek categories associated with the games.
  * @param root0.complexity - Complexity distribution rendered by the charts.
  * @param root0.currency - ISO currency code used to format monetary values.
+ * @param root0.decades - Publication counts per decade, in chronological order.
  * @param root0.mechanics - BoardGameGeek mechanics associated with the games.
  * @param root0.mostExpensive - Highest-cost games included in the ranking.
+ * @param root0.playerCounts - Base games playable at each exact table size.
+ * @param root0.playtime - Base games grouped by declared session length.
  * @returns The rendered stats charts.
  */
 export function StatsCharts({
   categories,
   complexity,
   currency,
+  decades,
   mechanics,
   mostExpensive,
+  playerCounts,
+  playtime,
 }: StatsChartsProps): ReactNode {
   const format = useFormatter();
   const locale = useLocale();
   const t = useTranslations();
+
   /**
    * Formats a chart value in the user's preferred currency.
    *
@@ -71,6 +105,17 @@ export function StatsCharts({
       maximumFractionDigits: 2,
     });
   }
+
+  /**
+   * Describes a chart count as a pluralized number of games.
+   *
+   * @param value - Count reported by the hovered chart datum.
+   * @returns The localized game count.
+   */
+  function formatGameCount(value: number | string): string {
+    return t("stats.gamesCount", { count: Number(value) });
+  }
+
   const complexityData = complexity.map((datum) => ({
     name: t(`stats.complexity.${datum.key}`),
     value: datum.value,
@@ -82,6 +127,21 @@ export function StatsCharts({
   const mechanicData = mechanics.map((datum) => ({
     ...datum,
     name: getTaxonomyLabel(datum.name, "mechanic", locale),
+  }));
+  const playerData = playerCounts.map((datum, index) => ({
+    name:
+      index === playerCounts.length - 1
+        ? t("stats.playersOpen", { count: datum.players })
+        : String(datum.players),
+    value: datum.value,
+  }));
+  const playtimeData = playtime.map((datum) => ({
+    name: t(`stats.playtime.${datum.key}`),
+    value: datum.value,
+  }));
+  const decadeData = decades.map((datum) => ({
+    name: t("stats.decade", { decade: String(datum.decade) }),
+    value: datum.value,
   }));
 
   return (
@@ -95,10 +155,7 @@ export function StatsCharts({
               margin={{ left: 8, right: 12 }}
             >
               <defs>
-                <linearGradient id="purchase-bars" x1="0" x2="1" y1="0" y2="0">
-                  <stop offset="0%" stopColor="var(--primary)" />
-                  <stop offset="100%" stopColor="var(--accent)" />
-                </linearGradient>
+                <BarGradient id="purchase-bars" />
               </defs>
               <ChartGrid />
               <XAxis
@@ -158,17 +215,11 @@ export function StatsCharts({
                     strokeWidth={3}
                   >
                     {complexityData.map((datum, index) => (
-                      <Cell
-                        fill={
-                          chartColors[index % chartColors.length] ??
-                          "var(--primary)"
-                        }
-                        key={datum.name}
-                      />
+                      <Cell fill={seriesColor(index)} key={datum.name} />
                     ))}
                   </Pie>
                   <Tooltip
-                    content={<ChartTooltip />}
+                    content={<ChartTooltip valueFormatter={formatGameCount} />}
                     isAnimationActive={false}
                   />
                 </PieChart>
@@ -182,11 +233,7 @@ export function StatsCharts({
                 >
                   <span
                     className="size-2 rounded-full"
-                    style={{
-                      background:
-                        chartColors[index % chartColors.length] ??
-                        "var(--primary)",
-                    }}
+                    style={{ background: seriesColor(index) }}
                   />
                   {datum.name}
                   <strong className="text-foreground tabular-nums">
@@ -201,117 +248,331 @@ export function StatsCharts({
         )}
       </ChartCard>
 
-      <RankingCard
-        data={categoryData}
-        gradientId="category-bars"
-        title={t("stats.categoriesChart")}
-      />
-      <RankingCard
-        data={mechanicData}
-        gradientId="mechanic-bars"
-        title={t("stats.mechanicsChart")}
-      />
+      <ChartCard title={t("stats.categoriesChart")}>
+        {categoryData.length >= minimumRadarAxes ? (
+          <ResponsiveContainer height="100%" width="100%">
+            <RadarChart data={categoryData} outerRadius="72%">
+              <PolarGrid stroke="var(--border)" />
+              <PolarAngleAxis
+                dataKey="name"
+                tick={axisTick}
+                tickFormatter={(value: string) => truncate(value, 16)}
+              />
+              <PolarRadiusAxis
+                allowDecimals={false}
+                axisLine={false}
+                tick={axisTick}
+                tickCount={4}
+              />
+              <Radar
+                dataKey="value"
+                fill="var(--primary)"
+                fillOpacity={0.32}
+                stroke="var(--primary)"
+                strokeWidth={2}
+              />
+              <Tooltip
+                content={<ChartTooltip valueFormatter={formatGameCount} />}
+                isAnimationActive={false}
+              />
+            </RadarChart>
+          </ResponsiveContainer>
+        ) : (
+          <RankingChart
+            data={categoryData}
+            gradientId="category-bars"
+            valueFormatter={formatGameCount}
+          />
+        )}
+      </ChartCard>
+
+      <ChartCard title={t("stats.mechanicsChart")}>
+        <RankingChart
+          data={mechanicData}
+          gradientId="mechanic-bars"
+          valueFormatter={formatGameCount}
+        />
+      </ChartCard>
+
+      <ChartCard hint={t("stats.playersHint")} title={t("stats.playersChart")}>
+        {playerData.some((datum) => datum.value > 0) ? (
+          <ColumnChart
+            data={playerData}
+            gradientId="player-bars"
+            valueFormatter={formatGameCount}
+          />
+        ) : (
+          <EmptyChart />
+        )}
+      </ChartCard>
+
+      <ChartCard title={t("stats.playtimeChart")}>
+        {playtimeData.some((datum) => datum.value > 0) ? (
+          <ColumnChart
+            data={playtimeData}
+            gradientId="playtime-bars"
+            valueFormatter={formatGameCount}
+          />
+        ) : (
+          <EmptyChart />
+        )}
+      </ChartCard>
+
+      <ChartCard className="xl:col-span-2" title={t("stats.decadesChart")}>
+        {decadeData.length ? (
+          <ResponsiveContainer height="100%" width="100%">
+            <AreaChart
+              data={decadeData}
+              margin={{ left: 0, right: 12, top: 8 }}
+            >
+              <defs>
+                <linearGradient id="decade-area" x1="0" x2="0" y1="0" y2="1">
+                  <stop
+                    offset="0%"
+                    stopColor="var(--primary)"
+                    stopOpacity={0.55}
+                  />
+                  <stop
+                    offset="100%"
+                    stopColor="var(--primary)"
+                    stopOpacity={0.04}
+                  />
+                </linearGradient>
+              </defs>
+              <ChartGrid horizontal />
+              <XAxis
+                axisLine={false}
+                dataKey="name"
+                tick={axisTick}
+                tickLine={false}
+              />
+              <YAxis
+                allowDecimals={false}
+                axisLine={false}
+                tick={axisTick}
+                tickLine={false}
+                width={32}
+              />
+              <Tooltip
+                content={<ChartTooltip valueFormatter={formatGameCount} />}
+                cursor={{ stroke: "var(--border)" }}
+                isAnimationActive={false}
+              />
+              <Area
+                activeDot={{ r: 5, strokeWidth: 0 }}
+                dataKey="value"
+                dot={{ fill: "var(--primary)", r: 3, strokeWidth: 0 }}
+                fill="url(#decade-area)"
+                stroke="var(--primary)"
+                strokeWidth={2}
+                type="monotone"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        ) : (
+          <EmptyChart />
+        )}
+      </ChartCard>
     </div>
   );
 }
 
-const axisTick = { fill: "var(--muted-foreground)", fontSize: 11 };
-const tooltipCursor = { fill: "var(--muted)", opacity: 0.5 };
-
-/** Heading and visualization rendered inside a statistics card. */
+/** Heading, optional caption, and visualization rendered inside a card. */
 type ChartCardProps = {
-  children: React.ReactNode;
+  children: ReactNode;
+  className?: string;
+  hint?: string;
   title: string;
 };
 
 /**
- * Consistent chart frame with a softly tinted plotting area.
+ * Translucent chart frame with a softly tinted plotting area.
  *
  * @param root0 - Properties that configure chart card.
  * @param root0.children - Content rendered inside the component.
+ * @param root0.className - Optional classes merged with the component styles, typically a column span.
+ * @param root0.hint - Localized caption explaining how the chart counts its data.
  * @param root0.title - Localized heading displayed by the component.
  * @returns A titled card containing the supplied chart.
  */
-function ChartCard({ children, title }: ChartCardProps): ReactNode {
+function ChartCard({
+  children,
+  className,
+  hint,
+  title,
+}: ChartCardProps): ReactNode {
   return (
-    <section className="bg-card shadow-soft overflow-hidden rounded-xl border p-5 sm:p-7">
+    <section
+      className={cn(
+        "glass-panel min-w-0 overflow-hidden rounded-xl p-5 sm:p-7",
+        className,
+      )}
+    >
       <h2 className="font-display text-xl font-bold">{title}</h2>
-      <div className="bg-muted/25 mt-5 h-88 min-w-0 rounded-lg p-3 sm:p-4">
+      {hint ? (
+        <p className="text-muted-foreground mt-1 text-xs leading-5">{hint}</p>
+      ) : null}
+      <div
+        className={cn(
+          "bg-muted/25 h-88 min-w-0 rounded-lg p-3 sm:p-4",
+          hint ? "mt-3" : "mt-5",
+        )}
+      >
         {children}
       </div>
     </section>
   );
 }
 
-/** Ranked data and chart settings rendered by a horizontal bar card. */
-type RankingCardProps = {
-  title: string;
+/** Ranked data and chart settings rendered by a horizontal bar chart. */
+type RankingChartProps = {
   data: CountDatum[];
   gradientId: string;
+  valueFormatter: (value: number | string) => string;
 };
 
 /**
  * Ranked horizontal bars suited to long taxonomy labels.
  *
- * @param root0 - Properties that configure ranking card.
- * @param root0.title - Localized heading displayed by the component.
- * @param root0.data - Untrusted bytes received from the remote image host.
+ * @param root0 - Properties that configure ranking chart.
+ * @param root0.data - Labeled counts drawn in descending order.
  * @param root0.gradientId - Stable SVG identifier used by the chart gradient.
+ * @param root0.valueFormatter - Function that formats a value for the tooltip.
  * @returns A horizontal ranking chart, or its localized empty state.
  */
-function RankingCard({ title, data, gradientId }: RankingCardProps): ReactNode {
+function RankingChart({
+  data,
+  gradientId,
+  valueFormatter,
+}: RankingChartProps): ReactNode {
+  if (data.length === 0) {
+    return <EmptyChart />;
+  }
+
   return (
-    <ChartCard title={title}>
-      {data.length ? (
-        <ResponsiveContainer height="100%" width="100%">
-          <BarChart
-            data={data}
-            layout="vertical"
-            margin={{ left: 8, right: 12 }}
-          >
-            <defs>
-              <linearGradient id={gradientId} x1="0" x2="1" y1="0" y2="0">
-                <stop offset="0%" stopColor="var(--primary)" />
-                <stop
-                  offset="100%"
-                  stopColor="color-mix(in srgb, var(--primary) 60%, var(--accent))"
-                />
-              </linearGradient>
-            </defs>
-            <ChartGrid />
-            <XAxis
-              allowDecimals={false}
-              axisLine={false}
-              tick={axisTick}
-              tickLine={false}
-              type="number"
+    <ResponsiveContainer height="100%" width="100%">
+      <BarChart data={data} layout="vertical" margin={{ left: 8, right: 12 }}>
+        <defs>
+          <BarGradient id={gradientId} />
+        </defs>
+        <ChartGrid />
+        <XAxis
+          allowDecimals={false}
+          axisLine={false}
+          tick={axisTick}
+          tickLine={false}
+          type="number"
+        />
+        <YAxis
+          axisLine={false}
+          dataKey="name"
+          tick={axisTick}
+          tickFormatter={(value: string) => truncate(value, 24)}
+          tickLine={false}
+          type="category"
+          width={144}
+        />
+        <Tooltip
+          content={<ChartTooltip valueFormatter={valueFormatter} />}
+          cursor={tooltipCursor}
+          isAnimationActive={false}
+        />
+        <Bar
+          dataKey="value"
+          fill={`url(#${gradientId})`}
+          maxBarSize={25}
+          radius={[0, 9, 9, 0]}
+        />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
+/** Short-labelled data rendered as vertical columns. */
+type ColumnChartProps = {
+  data: CountDatum[];
+  gradientId: string;
+  valueFormatter: (value: number | string) => string;
+};
+
+/**
+ * Vertical columns suited to short ordered labels such as table sizes.
+ *
+ * @param root0 - Properties that configure column chart.
+ * @param root0.data - Labeled counts drawn in their natural order.
+ * @param root0.gradientId - Stable SVG identifier used by the chart gradient.
+ * @param root0.valueFormatter - Function that formats a value for the tooltip.
+ * @returns A vertical column chart.
+ */
+function ColumnChart({
+  data,
+  gradientId,
+  valueFormatter,
+}: ColumnChartProps): ReactNode {
+  return (
+    <ResponsiveContainer height="100%" width="100%">
+      <BarChart data={data} margin={{ left: 0, right: 8, top: 8 }}>
+        <defs>
+          <linearGradient id={gradientId} x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor="var(--primary)" />
+            <stop
+              offset="100%"
+              stopColor="color-mix(in srgb, var(--primary) 55%, var(--accent))"
             />
-            <YAxis
-              axisLine={false}
-              dataKey="name"
-              tick={axisTick}
-              tickFormatter={(value: string) => truncate(value, 24)}
-              tickLine={false}
-              type="category"
-              width={144}
-            />
-            <Tooltip
-              content={<ChartTooltip />}
-              cursor={tooltipCursor}
-              isAnimationActive={false}
-            />
-            <Bar
-              dataKey="value"
-              fill={`url(#${gradientId})`}
-              maxBarSize={25}
-              radius={[0, 9, 9, 0]}
-            />
-          </BarChart>
-        </ResponsiveContainer>
-      ) : (
-        <EmptyChart />
-      )}
-    </ChartCard>
+          </linearGradient>
+        </defs>
+        <ChartGrid horizontal />
+        <XAxis
+          axisLine={false}
+          dataKey="name"
+          interval={0}
+          tick={axisTick}
+          tickLine={false}
+        />
+        <YAxis
+          allowDecimals={false}
+          axisLine={false}
+          tick={axisTick}
+          tickLine={false}
+          width={32}
+        />
+        <Tooltip
+          content={<ChartTooltip valueFormatter={valueFormatter} />}
+          cursor={tooltipCursor}
+          isAnimationActive={false}
+        />
+        <Bar
+          dataKey="value"
+          fill={`url(#${gradientId})`}
+          maxBarSize={46}
+          radius={[9, 9, 0, 0]}
+        />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
+/** Stable identifier for a horizontal bar gradient definition. */
+type BarGradientProps = {
+  id: string;
+};
+
+/**
+ * Left-to-right brand gradient shared by the horizontal bar charts.
+ *
+ * @param root0 - Properties that configure bar gradient.
+ * @param root0.id - Stable SVG identifier referenced by a bar fill.
+ * @returns The gradient definition.
+ */
+function BarGradient({ id }: BarGradientProps): ReactNode {
+  return (
+    <linearGradient id={id} x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0%" stopColor="var(--primary)" />
+      <stop
+        offset="100%"
+        stopColor="color-mix(in srgb, var(--primary) 55%, var(--accent))"
+      />
+    </linearGradient>
   );
 }
 
@@ -324,7 +585,7 @@ type ChartTooltipProps = {
 };
 
 /**
- * Theme-aware tooltip shared by bars and the donut chart.
+ * Theme-aware tooltip shared by every chart on the page.
  *
  * @param root0 - Properties that configure chart tooltip.
  * @param root0.active - Whether the tooltip is currently visible.
@@ -363,20 +624,38 @@ function ChartTooltip({
   );
 }
 
+/** Which axis a Cartesian grid draws lines along. */
+type ChartGridProps = {
+  horizontal?: boolean;
+};
+
 /**
  * Quiet grid lines that respect both application themes.
  *
+ * @param root0 - Properties that configure chart grid.
+ * @param root0.horizontal - Whether lines run across the value axis of a column chart instead of a bar chart.
  * @returns Theme-aware Cartesian grid lines.
  */
-function ChartGrid(): ReactNode {
+function ChartGrid({ horizontal = false }: ChartGridProps): ReactNode {
   return (
     <CartesianGrid
-      horizontal={false}
+      horizontal={horizontal}
       opacity={0.75}
       stroke="var(--border)"
       strokeDasharray="4 5"
+      vertical={!horizontal}
     />
   );
+}
+
+/**
+ * Picks a series color, cycling once the palette is exhausted.
+ *
+ * @param index - Position of the series within the chart.
+ * @returns A CSS color usable as a fill.
+ */
+function seriesColor(index: number): string {
+  return chartColors[index % chartColors.length] ?? "var(--primary)";
 }
 
 /**

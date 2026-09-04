@@ -17,10 +17,12 @@ type StatGridProps = {
 };
 
 /**
- * Presents headline figures together on a single surface.
+ * Presents headline figures as separate tiles inside one description list.
  *
  * Each figure is a term-description pair with the caption before the value, so
- * assistive technology reads them in the order the list declares.
+ * assistive technology reads them in the order the list declares. The tiles are
+ * translucent, which reads as a plain card on a flat page and lets a tinted
+ * backdrop show through where one exists.
  *
  * @param root0 - Properties that configure stat grid.
  * @param root0.className - Optional classes merged with the component styles, typically the responsive column count.
@@ -33,24 +35,23 @@ export function StatGrid({ className, stats }: StatGridProps): ReactNode {
   }
 
   return (
-    <dl
-      className={cn(
-        "bg-card shadow-soft grid grid-cols-2 rounded-xl border",
-        className,
-      )}
-    >
+    <dl className={cn("grid grid-cols-2 gap-3", className)}>
       {stats.map((stat) => (
         <div
-          className="flex min-w-0 flex-col-reverse gap-1 p-5 sm:p-6"
+          className="glass-panel flex min-w-0 items-center gap-3 rounded-xl p-4 sm:gap-4 sm:p-5"
           key={stat.label}
         >
-          <dt className="text-muted-foreground truncate text-xs sm:text-sm">
-            {stat.label}
-          </dt>
-          <dd className="font-display truncate text-2xl font-bold tabular-nums sm:text-3xl">
-            {stat.value}
-          </dd>
-          <stat.icon aria-hidden="true" className="text-primary mb-3 size-4" />
+          <span className="bg-primary/12 text-primary grid size-10 shrink-0 place-items-center rounded-lg sm:size-11">
+            <stat.icon aria-hidden="true" className="size-4.5 sm:size-5" />
+          </span>
+          <div className="flex min-w-0 flex-col-reverse">
+            <dt className="text-muted-foreground truncate text-xs sm:text-sm">
+              {stat.label}
+            </dt>
+            <dd className="font-display truncate text-xl font-bold tabular-nums sm:text-2xl">
+              {stat.value}
+            </dd>
+          </div>
         </div>
       ))}
     </dl>

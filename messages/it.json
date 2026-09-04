@@ -393,7 +393,26 @@
       "heavy": "Pesante",
       "veryHeavy": "Molto pesante"
     },
-    "noData": "Aggiungi più dettagli alla collezione per sbloccare questo grafico."
+    "noData": "Aggiungi più dettagli alla collezione per sbloccare questo grafico.",
+    "totalItems": "Giochi registrati",
+    "averageWeight": "Complessità media",
+    "averagePlaytime": "Durata media",
+    "weightValue": "{value} / 5",
+    "minutes": "{minutes} min",
+    "playersChart": "Ideale con",
+    "playersHint": "Ogni gioco conta per tutti i numeri di giocatori supportati.",
+    "playtimeChart": "Durata delle partite",
+    "decadesChart": "Pubblicazioni per decennio",
+    "playersOpen": "{count}+",
+    "gamesCount": "{count, plural, =1 {# gioco} other {# giochi}}",
+    "playtime": {
+      "quick": "Meno di 30 min",
+      "short": "30–60 min",
+      "medium": "1–2 h",
+      "long": "Oltre 2 h"
+    },
+    "decade": "Anni {decade}",
+    "noValue": "—"
   },
   "data": {
     "title": "I tuoi dati",
