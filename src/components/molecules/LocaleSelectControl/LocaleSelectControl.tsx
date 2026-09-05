@@ -6,33 +6,37 @@ import { useTranslations } from "next-intl";
 import { type ReactNode, useState, useTransition } from "react";
 import { CircleFlag } from "react-circle-flags";
 
+import { Select } from "@/components/atoms/Select/Select";
 import { isLocale } from "@/i18n/config";
 import { setLocaleAction } from "@/server/actions/preferences";
 import { cn } from "@/utils/cn";
 
 /** Supported languages with the flag that identifies each one. */
 const localeOptions = [
-  { locale: "en" as const, country: "gb", label: "English" },
-  { locale: "it" as const, country: "it", label: "Italiano" },
-];
+  { locale: "en", country: "gb", label: "English" },
+  { locale: "it", country: "it", label: "Italiano" },
+] as const;
 
 /** Properties that initialize the account locale selector. */
 type LocaleSelectControlProps = {
+  className?: string;
   initialLocale: Locale;
 };
 
 /**
- * Immediately persists language changes from a segmented flag control.
+ * Immediately persists language changes picked from a dropdown.
  *
- * The languages are laid out side by side rather than inside a dropdown so the
- * control keeps working inside the mobile navigation drawer, where a portalled
- * popover would land outside the modal and stop receiving pointer events.
+ * The dropdown scales to any number of supported locales and its portalled
+ * panel is stacked above the mobile navigation drawer, so the same control
+ * serves the sidebar, the signed-out header, and the drawer.
  *
  * @param root0 - Properties that configure locale select control.
+ * @param root0.className - Optional classes merged with the control wrapper.
  * @param root0.initialLocale - Locale stored for the current user.
  * @returns The rendered locale select control.
  */
 export function LocaleSelectControl({
+  className,
   initialLocale,
 }: LocaleSelectControlProps): ReactNode {
   const [locale, setLocale] = useState(initialLocale);
@@ -58,33 +62,25 @@ export function LocaleSelectControl({
   }
 
   return (
-    <div
-      aria-busy={pending}
-      aria-label={t("locale.language")}
-      className="flex min-w-0 flex-1 items-center gap-1"
-      role="group"
-    >
-      {localeOptions.map((option) => (
-        <button
-          aria-pressed={option.locale === locale}
-          className={cn(
-            "flex min-w-0 flex-1 items-center justify-center gap-2 rounded-md px-2 py-2 text-xs font-bold transition",
-            option.locale === locale
-              ? "bg-card text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground",
-          )}
-          key={option.locale}
-          onClick={() => changeLocale(option.locale)}
-          type="button"
-        >
-          <CircleFlag
-            alt=""
-            className="size-4.5 shrink-0"
-            countryCode={option.country}
-          />
-          <span className="truncate">{option.label}</span>
-        </button>
-      ))}
+    <div aria-busy={pending} className={cn("min-w-0 flex-1", className)}>
+      <Select
+        ariaLabel={t("locale.language")}
+        onValueChange={changeLocale}
+        options={localeOptions.map((option) => ({
+          value: option.locale,
+          label: (
+            <span className="flex items-center gap-2.5">
+              <CircleFlag
+                alt=""
+                className="size-5 shrink-0"
+                countryCode={option.country}
+              />
+              <span>{option.label}</span>
+            </span>
+          ),
+        }))}
+        value={locale}
+      />
     </div>
   );
 }

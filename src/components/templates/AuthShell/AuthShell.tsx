@@ -32,7 +32,7 @@ export function AuthShell({ children, className }: AuthShellProps): ReactNode {
       />
       <div className="relative z-10 flex min-h-dvh w-full flex-col px-4 py-4 sm:px-0 sm:py-8">
         <div className="flex justify-end gap-3 sm:fixed sm:top-8 sm:right-8">
-          <LocaleSelect />
+          <LocaleSelect className="w-44 flex-none" />
           <ThemeToggle />
         </div>
         <section

@@ -61,7 +61,7 @@ export function Select({
       </SelectPrimitive.Trigger>
       <SelectPrimitive.Portal>
         <SelectPrimitive.Content
-          className="select-content bg-card z-80 max-h-[min(19rem,var(--radix-select-content-available-height))] min-w-(--radix-select-trigger-width) overflow-hidden rounded-lg border p-1.5 shadow-2xl"
+          className="select-content bg-card z-110 max-h-[min(19rem,var(--radix-select-content-available-height))] min-w-(--radix-select-trigger-width) overflow-hidden rounded-lg border p-1.5 shadow-2xl"
           collisionPadding={12}
           position="popper"
           sideOffset={8}

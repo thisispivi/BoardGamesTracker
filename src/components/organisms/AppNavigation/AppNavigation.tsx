@@ -127,9 +127,7 @@ export function AppNavigation({
           </div>
           {content}
           {localeSelect ? (
-            <div className="bg-muted/70 mt-4 flex shrink-0 items-center rounded-lg p-1">
-              {localeSelect}
-            </div>
+            <div className="mt-4 shrink-0">{localeSelect}</div>
           ) : null}
           {user ? (
             <div className="mt-4 shrink-0 border-t pt-5">
