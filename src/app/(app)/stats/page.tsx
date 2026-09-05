@@ -4,6 +4,7 @@ import {
   Brain,
   ChartNoAxesCombined,
   Clock3,
+  Dices,
   Heart,
   Puzzle,
   ReceiptText,
@@ -80,6 +81,11 @@ export default async function StatsPage(): Promise<ReactNode> {
       value: format.number(stats.totalItems),
     },
     {
+      icon: Dices,
+      label: t("stats.baseGames"),
+      value: format.number(stats.baseGames),
+    },
+    {
       icon: Banknote,
       label: t("stats.totalValue"),
       value: formatCurrency(stats.totalSpent),
@@ -140,7 +146,7 @@ export default async function StatsPage(): Promise<ReactNode> {
         eyebrow={t("stats.eyebrow")}
         title={t("stats.title")}
       />
-      <StatGrid className="mb-5 sm:grid-cols-3 2xl:grid-cols-5" stats={cards} />
+      <StatGrid className="mb-5 lg:grid-cols-5" stats={cards} />
       <StatsCharts
         categories={stats.categories}
         complexity={stats.complexity}
