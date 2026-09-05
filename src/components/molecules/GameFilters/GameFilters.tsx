@@ -3,8 +3,8 @@
 import type { LucideIcon } from "lucide-react";
 import {
   ArrowDownUp,
+  Brain,
   Clock3,
-  Gauge,
   Heart,
   Layers,
   RotateCcw,
@@ -278,7 +278,7 @@ export function GameFilters({
           />
         </FilterField>
 
-        <FilterField icon={Gauge} label={t("names.complexity")}>
+        <FilterField icon={Brain} label={t("names.complexity")}>
           <Select
             ariaLabel={t("weightLabel")}
             onValueChange={(value) =>

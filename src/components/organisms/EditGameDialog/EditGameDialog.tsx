@@ -1,9 +1,9 @@
 "use client";
 
 import * as Dialog from "@radix-ui/react-dialog";
-import { LoaderCircle, Pencil, X } from "lucide-react";
+import { LoaderCircle, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { type ReactNode, useActionState, useEffect, useState } from "react";
+import { type ReactNode, useActionState, useEffect } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/atoms/Button/Button";
@@ -13,25 +13,33 @@ import { updateCollectionItemAction } from "@/server/actions/collection";
 
 const initialState: CollectionActionState = { success: false, message: "" };
 
-/** Owned game and currency used by the personal-metadata editor. */
+/** Owned game, currency, and externally owned visibility of the editor. */
 type EditGameDialogProps = {
   currency: string;
   game: CollectionGame;
+  onOpenChange: (open: boolean) => void;
+  open: boolean;
 };
 
 /**
  * Modal editor for personal collection metadata and purchase spend.
  *
+ * Visibility belongs to the caller so the editor can be opened from a menu item
+ * that unmounts itself, which a self-owned trigger could not survive.
+ *
  * @param root0 - Properties that configure edit game dialog.
  * @param root0.currency - ISO currency code used to format monetary values.
  * @param root0.game - Game record displayed or changed by the component.
+ * @param root0.onOpenChange - Callback invoked with the next visibility of the editor.
+ * @param root0.open - Whether the editor is currently visible.
  * @returns The rendered edit game dialog.
  */
 export function EditGameDialog({
   currency,
   game,
+  onOpenChange,
+  open,
 }: EditGameDialogProps): ReactNode {
-  const [open, setOpen] = useState(false);
   const t = useTranslations();
   const [state, action, pending] = useActionState(
     updateCollectionItemAction,
@@ -42,24 +50,15 @@ export function EditGameDialog({
     if (!state.message) return;
     if (state.success) {
       toast.success(state.message);
-      const timeout = window.setTimeout(() => setOpen(false), 0);
+      const timeout = window.setTimeout(() => onOpenChange(false), 0);
       return () => window.clearTimeout(timeout);
     } else {
       toast.error(state.message);
     }
-  }, [state]);
+  }, [onOpenChange, state]);
 
   return (
-    <Dialog.Root onOpenChange={setOpen} open={open}>
-      <Dialog.Trigger asChild>
-        <button
-          aria-label={t("game.editAria", { name: game.name })}
-          className="text-muted-foreground hover:bg-muted hover:text-primary rounded-md p-2 transition"
-          type="button"
-        >
-          <Pencil className="size-4" />
-        </button>
-      </Dialog.Trigger>
+    <Dialog.Root onOpenChange={onOpenChange} open={open}>
       <Dialog.Portal>
         <Dialog.Overlay className="edit-dialog-overlay fixed inset-0 z-90 bg-black/55 backdrop-blur-sm" />
         <Dialog.Content className="edit-dialog-content bg-card fixed inset-x-0 bottom-0 z-91 flex max-h-[calc(100dvh-0.5rem)] flex-col overflow-hidden rounded-t-xl border p-0 shadow-2xl focus:outline-none sm:top-1/2 sm:right-auto sm:bottom-auto sm:left-1/2 sm:w-[min(calc(100vw-2rem),32rem)] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl">

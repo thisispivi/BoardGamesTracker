@@ -1,9 +1,9 @@
 import {
   Banknote,
   BookOpen,
+  Brain,
   ChartNoAxesCombined,
   Clock3,
-  Gauge,
   Heart,
   Puzzle,
   ReceiptText,
@@ -100,7 +100,7 @@ export default async function StatsPage(): Promise<ReactNode> {
       value: `${format.number(stats.pricedItems)} / ${format.number(stats.totalItems)}`,
     },
     {
-      icon: Gauge,
+      icon: Brain,
       label: t("stats.averageWeight"),
       value:
         stats.averageWeight === null

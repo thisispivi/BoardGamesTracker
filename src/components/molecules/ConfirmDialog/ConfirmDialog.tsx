@@ -13,10 +13,12 @@ type ConfirmDialogProps = {
   confirmLabel: string;
   description: string;
   fields: Record<string, string>;
+  onOpenChange?: (open: boolean) => void;
+  open?: boolean;
   passwordLabel?: string;
   passwordPlaceholder?: string;
   title: string;
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
 };
 
 /**
@@ -28,10 +30,12 @@ type ConfirmDialogProps = {
  * @param root0.confirmLabel - Localized label for the confirmation control.
  * @param root0.description - Localized explanatory text shown to the user.
  * @param root0.fields - Additional form controls rendered in the dialog.
+ * @param root0.onOpenChange - Callback invoked with the next open state when the caller owns it.
+ * @param root0.open - Externally owned open state, for callers without a trigger element.
  * @param root0.passwordLabel - The optional deletion-password label.
  * @param root0.passwordPlaceholder - The optional deletion-password placeholder.
  * @param root0.title - Localized heading displayed by the component.
- * @param root0.trigger - Interactive element that opens the dialog.
+ * @param root0.trigger - Interactive element that opens the dialog, when the dialog owns its own state.
  * @returns The rendered confirm dialog.
  */
 export function ConfirmDialog({
@@ -40,14 +44,18 @@ export function ConfirmDialog({
   confirmLabel,
   description,
   fields,
+  onOpenChange = () => undefined,
+  open,
   passwordLabel,
   passwordPlaceholder,
   title,
   trigger,
 }: ConfirmDialogProps): ReactNode {
   return (
-    <AlertDialog.Root>
-      <AlertDialog.Trigger asChild>{trigger}</AlertDialog.Trigger>
+    <AlertDialog.Root {...(open === undefined ? {} : { onOpenChange, open })}>
+      {trigger ? (
+        <AlertDialog.Trigger asChild>{trigger}</AlertDialog.Trigger>
+      ) : null}
       <AlertDialog.Portal>
         <AlertDialog.Overlay className="dialog-overlay fixed inset-0 z-90 bg-black/55 backdrop-blur-sm" />
         <AlertDialog.Content className="dialog-content bg-card fixed top-1/2 left-1/2 z-91 w-[calc(100%-2rem)] max-w-md rounded-xl border p-6 shadow-2xl sm:p-8">

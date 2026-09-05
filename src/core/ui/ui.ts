@@ -12,3 +12,9 @@ export type MultiSelectOption = {
   label: string;
   value: string;
 };
+
+/** One taxonomy label and the facet it was drawn from. */
+export type GameTag = {
+  label: string;
+  tone: "category" | "mechanic";
+};

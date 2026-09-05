@@ -55,12 +55,14 @@ export function GameArtwork({
   return (
     <div
       className={cn(
-        "from-primary text-primary-foreground relative grid aspect-square place-items-center overflow-hidden rounded-lg bg-linear-to-br to-[#0d2923] p-5 text-center shadow-sm",
+        "from-primary text-primary-foreground @container relative grid aspect-square place-items-center overflow-hidden rounded-lg bg-linear-to-br to-[#0d2923] p-2 text-center shadow-sm",
         className,
       )}
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,white,transparent_35%)] opacity-25" />
-      <span className="font-display relative text-lg font-bold">{name}</span>
+      <span className="font-display relative line-clamp-4 text-[clamp(0.5rem,11cqw,1.125rem)] leading-tight font-bold">
+        {name}
+      </span>
     </div>
   );
 }

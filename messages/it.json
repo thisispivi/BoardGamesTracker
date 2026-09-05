@@ -197,13 +197,11 @@
     "addFavorite": "Aggiungi ai preferiti",
     "artworkAlt": "Copertina di {name}",
     "removeFavorite": "Rimuovi dai preferiti",
-    "removeAria": "Rimuovi {name}",
     "removeTitle": "Rimuovere {name}?",
     "removeBody": "Rimuove il gioco e valutazione personale, note, preferito e prezzo di acquisto.",
     "remove": "Rimuovi gioco",
     "openBggAria": "Apri {name} su BoardGameGeek",
     "openBgg": "Apri su BGG",
-    "editAria": "Modifica {name}",
     "expansions": "Espansioni",
     "gifted": "Regalo",
     "giftedLong": "Questo gioco è stato regalato",
@@ -212,7 +210,11 @@
     "facts": "Dettagli del gioco",
     "playerCount": "Giocatori: {count}",
     "playtime": "Durata: {duration}",
-    "weight": "Complessità: {weight}"
+    "weight": "Complessità: {weight}",
+    "edit": "Modifica gioco",
+    "moreActions": "Altre azioni per {name}",
+    "moreTags": "Mostra altre {count} categorie e meccaniche",
+    "rating": "Voto BGG: {rating}"
   },
   "edit": {
     "eyebrow": "Dettagli personali",

@@ -78,7 +78,7 @@ export function CollectionBrowser({
             }
             title={t("collection.games")}
           />
-          <div className="grid grid-cols-2 items-start gap-3 sm:gap-5 xl:grid-cols-3 2xl:grid-cols-4">
+          <div className="grid items-start gap-3 sm:gap-4 md:grid-cols-2 2xl:grid-cols-3">
             {grouped.groups.map((group, index) => (
               <GameCard
                 currency={currency}
@@ -101,7 +101,7 @@ export function CollectionBrowser({
             title={t("collection.otherExpansions")}
             tone="accent"
           />
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
             {grouped.ungrouped.map((expansion) => (
               <GameCard
                 compact
