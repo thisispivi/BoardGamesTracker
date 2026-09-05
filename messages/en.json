@@ -397,6 +397,7 @@
     },
     "noData": "Add more collection details to unlock this chart.",
     "totalItems": "Games tracked",
+    "baseGames": "Base games",
     "averageWeight": "Average weight",
     "averagePlaytime": "Average length",
     "weightValue": "{value} / 5",

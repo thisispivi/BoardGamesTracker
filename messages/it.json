@@ -397,6 +397,7 @@
     },
     "noData": "Aggiungi più dettagli alla collezione per sbloccare questo grafico.",
     "totalItems": "Giochi registrati",
+    "baseGames": "Giochi base",
     "averageWeight": "Complessità media",
     "averagePlaytime": "Durata media",
     "weightValue": "{value} / 5",
