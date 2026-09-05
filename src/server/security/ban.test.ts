@@ -55,4 +55,12 @@ describe("isCurrentlyBanned", () => {
     expect(isCurrentlyBanned(null)).toBe(false);
     expect(isCurrentlyBanned(undefined)).toBe(false);
   });
+
+  it("fails closed when a present account has malformed ban fields", () => {
+    expect(isCurrentlyBanned({ banned: true, banExpires: 123 })).toBe(true);
+    expect(isCurrentlyBanned({ banned: "true" })).toBe(true);
+    expect(
+      isCurrentlyBanned({ banned: true, banExpires: new Date("invalid") }),
+    ).toBe(true);
+  });
 });

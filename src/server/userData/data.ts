@@ -64,7 +64,7 @@ export async function getUserDataDocument(
 }
 
 /**
- * Merges validated portable data into the current account and shared catalog.
+ * Merges validated account data without overwriting existing catalog metadata.
  *
  * @param userId - The authenticated user identifier.
  * @param document - The portable user-data document.
@@ -107,13 +107,7 @@ export async function importUserDataDocument(
           updatedAt: now,
         })),
       )
-      .onConflictDoUpdate({
-        target: games.bggId,
-        set: {
-          expandsBggIds: sql`case when cardinality(excluded.expands_bgg_ids) > 0 then excluded.expands_bgg_ids else ${games.expandsBggIds} end`,
-          expansionBggIds: sql`case when cardinality(excluded.expansion_bgg_ids) > 0 then excluded.expansion_bgg_ids else ${games.expansionBggIds} end`,
-        },
-      });
+      .onConflictDoNothing({ target: games.bggId });
     const savedGames = await transaction
       .select({ id: games.id, bggId: games.bggId })
       .from(games)

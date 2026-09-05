@@ -10,6 +10,13 @@ const relativeParentImports = {
   message: "Import through the @/ alias instead of a relative parent path.",
 };
 
+/** Prevents application entry points from becoming reusable dependencies. */
+const appImports = {
+  group: ["@/app", "@/app/**"],
+  message:
+    "Routes are entry points; move shared behavior to its owning module.",
+};
+
 /** Atomic Design layers, outermost last. A layer may only import earlier ones. */
 const componentLayers = ["atoms", "molecules", "organisms", "templates"];
 
@@ -27,6 +34,7 @@ const atomicDesignBoundaries = componentLayers.map((layer, index) => ({
       {
         patterns: [
           relativeParentImports,
+          appImports,
           ...componentLayers.slice(index + 1).map((outerLayer) => ({
             group: [`@/components/${outerLayer}/**`],
             message: `Atomic Design is one-way: ${layer} must not import ${outerLayer}.`,
@@ -103,7 +111,10 @@ const eslintConfig = defineConfig([
     rules: {
       "@typescript-eslint/consistent-type-imports": "error",
       "@typescript-eslint/no-non-null-assertion": "error",
-      "no-restricted-imports": ["error", { patterns: [relativeParentImports] }],
+      "no-restricted-imports": [
+        "error",
+        { patterns: [relativeParentImports, appImports] },
+      ],
     },
   },
   {
@@ -114,8 +125,19 @@ const eslintConfig = defineConfig([
         {
           patterns: [
             relativeParentImports,
+            appImports,
             {
-              group: ["@/server", "@/server/**"],
+              group: [
+                "@/server",
+                "@/server/**",
+                "@/client/**",
+                "@/components/**",
+                "@/hooks/**",
+                "@/env",
+                "react",
+                "next",
+                "next/**",
+              ],
               message:
                 "src/core holds framework-free contracts and must not depend on src/server.",
             },
@@ -124,7 +146,43 @@ const eslintConfig = defineConfig([
       ],
     },
   },
+  {
+    files: ["src/utils/**/*.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            relativeParentImports,
+            appImports,
+            {
+              group: [
+                "@/server",
+                "@/server/**",
+                "@/client/**",
+                "@/components/**",
+                "@/hooks/**",
+                "@/env",
+                "react",
+                "next",
+                "next/**",
+                "server-only",
+              ],
+              message:
+                "Utilities must stay isomorphic; put runtime-specific behavior in src/client or src/server.",
+            },
+          ],
+        },
+      ],
+    },
+  },
   ...atomicDesignBoundaries,
+  {
+    files: ["src/app/**/*.test.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": ["error", { patterns: [relativeParentImports] }],
+    },
+  },
   globalIgnores([
     ".next/**",
     "out/**",

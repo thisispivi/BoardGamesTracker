@@ -20,7 +20,10 @@ const banStateSchema = z.object({
  */
 export function isCurrentlyBanned(user: unknown): boolean {
   const parsed = banStateSchema.safeParse(user);
-  if (!parsed.success || !parsed.data.banned) {
+  if (!parsed.success) {
+    return user !== null && user !== undefined;
+  }
+  if (!parsed.data.banned) {
     return false;
   }
 

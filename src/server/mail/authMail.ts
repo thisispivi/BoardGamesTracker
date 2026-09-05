@@ -2,9 +2,9 @@ import "server-only";
 
 import type { TransactionalMailKind } from "@/core";
 import { env } from "@/env";
+import { log } from "@/server/logger";
 import { sendTransactionalMail } from "@/server/mail/sender";
 import { buildTransactionalMail, getMailLocale } from "@/server/mail/templates";
-import { log } from "@/utils/logger";
 import { normalizeMailActionUrl } from "@/utils/mailActionUrl";
 
 /** Values supplied by Better Auth for an account-action message. */

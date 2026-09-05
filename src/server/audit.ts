@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 
 import { db } from "@/server/db";
 import { auditLogs } from "@/server/db/schema";
-import { log } from "@/utils/logger";
+import { log } from "@/server/logger";
 
 /** Security-relevant event fields accepted by the audit writer. */
 type AuditInput = {

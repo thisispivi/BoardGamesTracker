@@ -8,6 +8,7 @@ import {
   userDataDocumentSchema,
   type UserDataFormat,
 } from "@/core";
+import { validateWorkbookArchive } from "@/server/userData/workbookArchive";
 
 const gameHeaders = [
   "location",
@@ -48,6 +49,11 @@ type FlatGame = Partial<Record<(typeof gameHeaders)[number], string>>;
 
 /** Validates that a decoded tabular document is string-valued throughout. */
 const tabularRowsSchema = z.array(z.record(z.string(), z.string()));
+
+/** Rejects missing or malformed Boolean cells before document normalization. */
+const booleanCellSchema = z
+  .enum(["true", "false"])
+  .transform((value) => value === "true");
 
 /**
  * A decoded tabular row before `userDataDocumentSchema` validates it.
@@ -186,8 +192,18 @@ function parseCsv(text: string): unknown {
       skip_empty_lines: true,
     }),
   );
-  const profile = rows.find((row) => row.recordType === "profile");
-  if (!profile || rows.length > 2_001) throw new Error("Invalid CSV export.");
+  const profiles = rows.filter((row) => row.recordType === "profile");
+  const [profile] = profiles;
+  if (
+    !profile ||
+    profiles.length !== 1 ||
+    rows.length > 2_001 ||
+    rows.some(
+      (row) => row.recordType !== "profile" && row.recordType !== "game",
+    )
+  ) {
+    throw new Error("Invalid CSV export.");
+  }
   return buildDocument(
     profile.formatVersion ?? "",
     profile.exportedAt ?? "",
@@ -297,6 +313,7 @@ function toWorkbookInput(
  * @returns A validated portable document decoded from an XLSX workbook.
  */
 async function parseXlsx(bytes: Uint8Array): Promise<UserDataDocument> {
+  await validateWorkbookArchive(bytes);
   const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.load(toWorkbookInput(bytes));
   const profile = workbook.getWorksheet("Profile");
@@ -319,7 +336,7 @@ async function parseXlsx(bytes: Uint8Array): Promise<UserDataDocument> {
     const flat: FlatGame = Object.fromEntries(
       activeHeaders.map((header, index) => [
         header,
-        unprotectCell(row.getCell(index + 1).text),
+        row.getCell(index + 1).text,
       ]),
     );
     if (flat.bggId) items.push(flatToGame(flat));
@@ -379,8 +396,8 @@ function gameToFlatValues(game: PortableGame): string[] {
   return [
     game.location,
     String(game.bggId),
-    safeSpreadsheetText(game.name),
-    safeSpreadsheetText(game.description),
+    game.name,
+    game.description,
     game.imageUrl ?? "",
     game.yearPublished === null ? "" : String(game.yearPublished),
     String(game.minPlayers),
@@ -390,16 +407,16 @@ function gameToFlatValues(game: PortableGame): string[] {
     game.weight === null ? "" : String(game.weight),
     game.bggRating === null ? "" : String(game.bggRating),
     String(game.isExpansion),
-    safeSpreadsheetText(JSON.stringify(game.categories)),
-    safeSpreadsheetText(JSON.stringify(game.mechanics)),
-    safeSpreadsheetText(JSON.stringify(game.families)),
+    JSON.stringify(game.categories),
+    JSON.stringify(game.mechanics),
+    JSON.stringify(game.families),
     String(game.favorite),
     game.personalRating === null ? "" : String(game.personalRating),
-    safeSpreadsheetText(game.notes),
+    game.notes,
     String(game.moneySpent),
     String(game.gifted),
-    safeSpreadsheetText(JSON.stringify(game.expandsBggIds)),
-    safeSpreadsheetText(JSON.stringify(game.expansionBggIds)),
+    JSON.stringify(game.expandsBggIds),
+    JSON.stringify(game.expansionBggIds),
   ];
 }
 
@@ -458,15 +475,15 @@ function flatToGame(row: FlatGame): DecodedGame {
     maxPlaytime: requiredNumber(row.maxPlaytime),
     weight: optionalNumber(row.weight),
     bggRating: optionalNumber(row.bggRating),
-    isExpansion: row.isExpansion === "true",
+    isExpansion: booleanCellSchema.parse(row.isExpansion),
     categories: parseLabels(requiredCell(row.categories)),
     mechanics: parseLabels(requiredCell(row.mechanics)),
     families: parseLabels(requiredCell(row.families)),
-    favorite: row.favorite === "true",
+    favorite: booleanCellSchema.parse(row.favorite),
     personalRating: optionalNumber(row.personalRating),
     notes: unprotectCell(requiredCell(row.notes)),
     moneySpent: requiredNumber(row.moneySpent),
-    gifted: row.gifted === "true",
+    gifted: booleanCellSchema.parse(row.gifted),
     expandsBggIds: parseBggIds(row.expandsBggIds),
     expansionBggIds: parseBggIds(row.expansionBggIds),
   };
@@ -526,7 +543,7 @@ function csvCell(value: string): string {
  * @returns Text prefixed when necessary to prevent spreadsheet formula execution.
  */
 function safeSpreadsheetText(value: string): string {
-  return /^[=+\-@\t\r]/.test(value) ? `'${value}` : value;
+  return /^['=+\-@\t\r\n]/.test(value) ? `'${value}` : value;
 }
 
 /**
@@ -536,7 +553,7 @@ function safeSpreadsheetText(value: string): string {
  * @returns Original text recovered from a formula-protected spreadsheet cell.
  */
 function unprotectCell(value: string): string {
-  return /^'[=+\-@\t\r]/.test(value) ? value.slice(1) : value;
+  return /^'['=+\-@\t\r\n]/.test(value) ? value.slice(1) : value;
 }
 
 /**
@@ -546,6 +563,9 @@ function unprotectCell(value: string): string {
  * @returns A finite required number decoded from the imported value.
  */
 function requiredNumber(value: string | undefined): number {
+  if (value === undefined || value.trim() === "") {
+    throw new Error("A required numeric value is missing.");
+  }
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) throw new Error("Invalid numeric value.");
   return parsed;

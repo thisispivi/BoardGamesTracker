@@ -68,7 +68,7 @@ export async function updateGameMetadataAction(
     weight: formData.get("weight") || null,
     yearPublished: formData.get("yearPublished") || null,
   });
-  if (!parsed.success || parsed.data.maxPlayers < parsed.data.minPlayers) {
+  if (!parsed.success) {
     return { success: false, message: t("action.checkDetails") };
   }
 

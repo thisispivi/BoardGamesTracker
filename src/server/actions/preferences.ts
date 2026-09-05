@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq, or } from "drizzle-orm";
+import { and, eq, or, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
@@ -79,18 +79,12 @@ export async function setSharingAction(formData: FormData): Promise<void> {
 
   const sharesAnything =
     parsed.data.shareCollection || parsed.data.shareWishlist;
-  const [current] = await db
-    .select({ shareToken: user.shareToken })
-    .from(user)
-    .where(eq(user.id, session.user.id))
-    .limit(1);
-
   await db
     .update(user)
     .set({
       ...parsed.data,
       shareToken: sharesAnything
-        ? (current?.shareToken ?? createShareToken())
+        ? sql`coalesce(${user.shareToken}, ${createShareToken()})`
         : null,
       updatedAt: new Date(),
     })
@@ -112,27 +106,19 @@ export async function setSharingAction(formData: FormData): Promise<void> {
  */
 export async function getShareTokenAction(): Promise<string | null> {
   const session = await requireUser();
-  const [current] = await db
-    .select({
-      shareCollection: user.shareCollection,
-      shareToken: user.shareToken,
-      shareWishlist: user.shareWishlist,
-    })
-    .from(user)
-    .where(eq(user.id, session.user.id))
-    .limit(1);
-  if (!current || (!current.shareCollection && !current.shareWishlist)) {
-    return null;
-  }
-  if (current.shareToken) {
-    return current.shareToken;
-  }
-
   const token = createShareToken();
-  await db
+  const [updated] = await db
     .update(user)
-    .set({ shareToken: token, updatedAt: new Date() })
-    .where(eq(user.id, session.user.id));
+    .set({ shareToken: sql`coalesce(${user.shareToken}, ${token})` })
+    .where(
+      and(
+        eq(user.id, session.user.id),
+        or(eq(user.shareCollection, true), eq(user.shareWishlist, true)),
+      ),
+    )
+    .returning({ shareToken: user.shareToken });
+  if (!updated) return null;
+  if (updated.shareToken !== token) return updated.shareToken;
   await writeAuditEvent({
     actorId: session.user.id,
     action: "settings.share_token_created",

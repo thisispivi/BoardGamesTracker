@@ -21,7 +21,7 @@ vi.mock("@/server/mail/config", () => ({
     user: "smtp-user",
   }),
 }));
-vi.mock("@/utils/logger", () => ({ log }));
+vi.mock("@/server/logger", () => ({ log }));
 
 import { sendTransactionalMail } from "@/server/mail/sender";
 

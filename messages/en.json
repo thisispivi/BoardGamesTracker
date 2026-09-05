@@ -351,7 +351,8 @@
     "publicBody": "A library shared by its owner. Read-only.",
     "games": "Games",
     "expansions": "Expansions",
-    "moneySpent": "Money spent"
+    "moneySpent": "Money spent",
+    "updateFailed": "Sharing settings could not be saved. Please try again."
   },
   "wishlist": {
     "metaTitle": "Wishlist",

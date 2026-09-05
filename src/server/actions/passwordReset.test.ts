@@ -44,6 +44,7 @@ function buildFormData(): FormData {
 beforeEach(() => {
   vi.clearAllMocks();
   verifyPasswordResetToken.mockResolvedValue("user-1");
+  applyPasswordReset.mockResolvedValue(true);
 });
 
 describe("resetPasswordAction", () => {
@@ -72,7 +73,30 @@ describe("resetPasswordAction", () => {
     expect(applyPasswordReset).toHaveBeenCalledWith(
       "user-1",
       "a-secure-password",
+      "signed-reset-token",
     );
     expect(writeAuditEvent).toHaveBeenCalledOnce();
+  });
+
+  it("reports a token consumed between the initial check and the write", async () => {
+    isUserCurrentlyBanned.mockResolvedValue(false);
+    applyPasswordReset.mockResolvedValue(false);
+    expect(
+      await resetPasswordAction(
+        { message: "", success: false },
+        buildFormData(),
+      ),
+    ).toEqual({ message: "reset.invalid", success: false });
+    expect(writeAuditEvent).not.toHaveBeenCalled();
+  });
+
+  it("rejects oversized tokens instead of truncating them into valid credentials", async () => {
+    const form = buildFormData();
+    form.set("token", "x".repeat(4_001));
+    expect(
+      (await resetPasswordAction({ message: "", success: false }, form))
+        .success,
+    ).toBe(false);
+    expect(verifyPasswordResetToken).not.toHaveBeenCalled();
   });
 });

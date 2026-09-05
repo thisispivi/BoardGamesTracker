@@ -75,19 +75,15 @@ describe("searchViaSearxng", () => {
       const fetchMock = vi.fn(async (input: URL | string) => {
         const endpoint = new URL(String(input));
         requestedQuery = endpoint.searchParams.get("q") ?? "";
-        return {
-          ok: true,
-          status: 200,
-          json: async () => ({
-            results: [
-              {
-                img_src: "",
-                title: `${name} | Board Game | BoardGameGeek`,
-                url: `https://boardgamegeek.com/boardgame/${bggId}/game`,
-              },
-            ],
-          }),
-        };
+        return Response.json({
+          results: [
+            {
+              img_src: "",
+              title: `${name} | Board Game | BoardGameGeek`,
+              url: `https://boardgamegeek.com/boardgame/${bggId}/game`,
+            },
+          ],
+        });
       });
       vi.stubGlobal("fetch", fetchMock);
 
@@ -101,17 +97,15 @@ describe("searchViaSearxng", () => {
   it("keeps only the first four ranked BGG links", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn(async () => ({
-        ok: true,
-        status: 200,
-        json: async () => ({
+      vi.fn(async () =>
+        Response.json({
           results: Array.from({ length: 10 }, (_, index) => ({
             img_src: "",
             title: `Catan Edition ${index} | Board Game | BoardGameGeek`,
             url: `https://boardgamegeek.com/boardgame/${index + 1}/game`,
           })),
         }),
-      })),
+      ),
     );
 
     await expect(searchViaSearxng("Catan")).resolves.toHaveLength(4);
@@ -124,22 +118,17 @@ describe("searchViaSearxng", () => {
       vi.fn(async (input: URL | string) => {
         const query = new URL(String(input)).searchParams.get("q") ?? "";
         requestedQueries.push(query);
-        return {
-          ok: true,
-          status: 200,
-          json: async () => ({
-            results: query.includes('"Dead Cells"')
-              ? [
-                  {
-                    img_src: "",
-                    title:
-                      "Dead Cells: The Rogue-Lite Board Game | Board Game |",
-                    url: "https://boardgamegeek.com/boardgame/380135/dead-cells-the-rogue-lite-board-game",
-                  },
-                ]
-              : [],
-          }),
-        };
+        return Response.json({
+          results: query.includes('"Dead Cells"')
+            ? [
+                {
+                  img_src: "",
+                  title: "Dead Cells: The Rogue-Lite Board Game | Board Game |",
+                  url: "https://boardgamegeek.com/boardgame/380135/dead-cells-the-rogue-lite-board-game",
+                },
+              ]
+            : [],
+        });
       }),
     );
 
@@ -164,20 +153,15 @@ describe("searchViaSearxng", () => {
       "fetch",
       vi.fn(async (input: URL | string) => {
         requestedQuery = new URL(String(input)).searchParams.get("q") ?? "";
-        return {
-          ok: true,
-          status: 200,
-          json: async () => ({
-            results: [
-              {
-                img_src:
-                  "https://cf.geekdo-images.com/dead-cells/pic8461280.jpg",
-                title: "BoardGameGeek",
-                url: "https://boardgamegeek.com/image/8461280/dead-cells-the-rogue-lite-board-game",
-              },
-            ],
-          }),
-        };
+        return Response.json({
+          results: [
+            {
+              img_src: "https://cf.geekdo-images.com/dead-cells/pic8461280.jpg",
+              title: "BoardGameGeek",
+              url: "https://boardgamegeek.com/image/8461280/dead-cells-the-rogue-lite-board-game",
+            },
+          ],
+        });
       }),
     );
 

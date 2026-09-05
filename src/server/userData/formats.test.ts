@@ -246,4 +246,63 @@ describe("portable user data formats", () => {
       ),
     ).rejects.toThrow("Invalid Board Games Tracker SQL export");
   });
+
+  it.each(["csv", "xlsx"] as const)(
+    "preserves leading apostrophes and formula text through %s",
+    async (format) => {
+      const portable = {
+        ...document,
+        profile: { ...document.profile, name: "'=Profile" },
+        items: document.items.map((item) => ({
+          ...item,
+          name: "'=Literal",
+          description: "''quoted",
+          notes: "\n=SUM(A1:A2)",
+        })),
+      };
+      expect(
+        await parseUserData(await serializeUserData(portable, format), format),
+      ).toEqual(portable);
+    },
+  );
+
+  it.each(["json", "csv", "xlsx", "sql"] as const)(
+    "restores unknown playtime and full BGG notes from %s",
+    async (format) => {
+      const portable = {
+        ...document,
+        items: document.items.map((item) => ({
+          ...item,
+          minPlaytime: 0,
+          maxPlaytime: 0,
+          notes: "n".repeat(4_000),
+        })),
+      };
+      expect(
+        await parseUserData(await serializeUserData(portable, format), format),
+      ).toEqual(portable);
+    },
+  );
+
+  it("rejects malformed Boolean cells instead of silently clearing personal flags", async () => {
+    const csv = legacyCsv().replace('"true"', '"perhaps"');
+    await expect(
+      parseUserData(new TextEncoder().encode(csv), "csv"),
+    ).rejects.toThrow();
+  });
+
+  it("rejects an empty required purchase price instead of importing zero", async () => {
+    const csv = legacyCsv().replace('"29.99"', '""');
+    await expect(
+      parseUserData(new TextEncoder().encode(csv), "csv"),
+    ).rejects.toThrow("required numeric value");
+  });
+
+  it("rejects duplicate profile rows instead of silently choosing one", async () => {
+    const csv = legacyCsv();
+    const profile = csv.split("\r\n")[1];
+    await expect(
+      parseUserData(new TextEncoder().encode(`${csv}\r\n${profile}`), "csv"),
+    ).rejects.toThrow("Invalid CSV export");
+  });
 });

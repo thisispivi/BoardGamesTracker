@@ -6,10 +6,10 @@ import { bggImageUrlSchema } from "@/core/shared/shared.contract";
 export const itemIdSchema = z.uuid();
 
 /** Converts a form checkbox value into a boolean. */
-export const giftedSchema = z.preprocess(
-  (value) => value === "true",
-  z.boolean(),
-);
+export const giftedSchema = z
+  .enum(["true", "false"])
+  .nullish()
+  .transform((value) => value === "true");
 
 /**
  * Creates a nullable, coerced integer contract within inclusive bounds.
@@ -68,7 +68,7 @@ export const editCollectionItemSchema = z
     gifted: giftedSchema,
     itemId: itemIdSchema,
     moneySpent: z.coerce.number().min(0).max(999_999_999.99),
-    notes: z.string().trim().max(2_000),
+    notes: z.string().trim().max(4_000),
     personalRating: z.preprocess(
       (value) => (value === "" || value === null ? null : value),
       z.coerce.number().min(0).max(10).nullable(),

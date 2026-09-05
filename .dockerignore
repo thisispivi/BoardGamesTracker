@@ -5,6 +5,14 @@
 coverage
 node_modules
 .env*
+.sentry-auth-token*
+*.pem
+*.key
+*.sql
+!drizzle/*.sql
+*.log
+.codex
+.vscode
 npm-debug.log*
 README.md
 *.tsbuildinfo

@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 
@@ -39,7 +39,7 @@ import {
 type LocalGameDetails = z.infer<typeof gameDetailsSchema>;
 
 /**
- * Inserts or refreshes user-supplied local metadata and returns the game ID.
+ * Inserts new catalog metadata while preserving existing shared records.
  *
  * @param selection - The verified identity decoded from the selection token.
  * @param details - Validated local fields supplied by the user.
@@ -96,20 +96,15 @@ async function upsertGame(
     const [saved] = await transaction
       .insert(games)
       .values(values)
-      .onConflictDoUpdate({
-        target: games.bggId,
-        set: {
-          ...values,
-          expandsBggIds: sql`case when cardinality(excluded.expands_bgg_ids) > 0 then excluded.expands_bgg_ids else ${games.expandsBggIds} end`,
-          expansionBggIds: sql`case when cardinality(excluded.expansion_bgg_ids) > 0 then excluded.expansion_bgg_ids else ${games.expansionBggIds} end`,
-          categories: sql`case when jsonb_array_length(excluded.categories) > 0 then excluded.categories else ${games.categories} end`,
-          mechanics: sql`case when jsonb_array_length(excluded.mechanics) > 0 then excluded.mechanics else ${games.mechanics} end`,
-          families: sql`case when jsonb_array_length(excluded.families) > 0 then excluded.families else ${games.families} end`,
-          imageChecksum: sql`coalesce(excluded.image_checksum, ${games.imageChecksum})`,
-        },
-      })
+      .onConflictDoNothing({ target: games.bggId })
       .returning({ id: games.id });
-    return saved;
+    if (saved) return saved;
+    const [existing] = await transaction
+      .select({ id: games.id })
+      .from(games)
+      .where(eq(games.bggId, selection.bggId))
+      .limit(1);
+    return existing;
   });
 
   if (!record) {
@@ -208,7 +203,7 @@ export async function importBggCsvAction(
         .values(uniqueImages)
         .onConflictDoNothing({ target: gameImages.checksum });
     }
-    const savedGames = await transaction
+    await transaction
       .insert(games)
       .values(
         imported.games.map((game) => {
@@ -239,31 +234,16 @@ export async function importBggCsvAction(
           };
         }),
       )
-      .onConflictDoUpdate({
-        target: games.bggId,
-        set: {
-          name: sql`excluded.name`,
-          description: sql`coalesce(nullif(excluded.description, ''), ${games.description})`,
-          imageUrl: sql`coalesce(excluded.image_url, ${games.imageUrl})`,
-          thumbnailUrl: sql`coalesce(excluded.thumbnail_url, ${games.thumbnailUrl})`,
-          imageChecksum: sql`coalesce(excluded.image_checksum, ${games.imageChecksum})`,
-          yearPublished: sql`excluded.year_published`,
-          minPlayers: sql`excluded.min_players`,
-          maxPlayers: sql`excluded.max_players`,
-          minPlaytime: sql`excluded.min_playtime`,
-          maxPlaytime: sql`excluded.max_playtime`,
-          weight: sql`excluded.weight`,
-          bggRating: sql`excluded.bgg_rating`,
-          isExpansion: sql`excluded.is_expansion`,
-          expandsBggIds: sql`case when cardinality(excluded.expands_bgg_ids) > 0 then excluded.expands_bgg_ids else ${games.expandsBggIds} end`,
-          expansionBggIds: sql`case when cardinality(excluded.expansion_bgg_ids) > 0 then excluded.expansion_bgg_ids else ${games.expansionBggIds} end`,
-          categories: sql`case when jsonb_array_length(excluded.categories) > 0 then excluded.categories else ${games.categories} end`,
-          mechanics: sql`case when jsonb_array_length(excluded.mechanics) > 0 then excluded.mechanics else ${games.mechanics} end`,
-          families: sql`case when jsonb_array_length(excluded.families) > 0 then excluded.families else ${games.families} end`,
-          updatedAt: now,
-        },
-      })
-      .returning({ bggId: games.bggId, id: games.id });
+      .onConflictDoNothing({ target: games.bggId });
+    const savedGames = await transaction
+      .select({ bggId: games.bggId, id: games.id })
+      .from(games)
+      .where(
+        inArray(
+          games.bggId,
+          imported.games.map((game) => game.bggId),
+        ),
+      );
     const ids = new Map(savedGames.map((game) => [game.bggId, game.id]));
 
     await transaction
@@ -402,7 +382,7 @@ export async function addGameAction(
   ).get(selection.bggId);
   const savedGame = await upsertGame(selection, details.data, metadata);
   const isWishlist = destination.data === "wishlist";
-  await db
+  const [savedItem] = await db
     .insert(collectionItems)
     .values({
       userId: session.user.id,
@@ -421,7 +401,12 @@ export async function addGameAction(
         wishlist: isWishlist,
         updatedAt: new Date(),
       },
-    });
+      ...(isWishlist ? { setWhere: eq(collectionItems.owned, false) } : {}),
+    })
+    .returning({ id: collectionItems.id });
+  if (!savedItem) {
+    return { success: false, message: t("action.alreadyOwned") };
+  }
   await writeAuditEvent({
     actorId: session.user.id,
     action: isWishlist ? "wishlist.game_added" : "collection.game_added",

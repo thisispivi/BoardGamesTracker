@@ -23,7 +23,11 @@ export async function getAdminGamesPage(
   search: string,
 ): Promise<AdminGamesPage> {
   const term = search.trim();
-  const numericTerm = /^\d+$/.test(term) ? Number(term) : undefined;
+  const parsedNumber = /^\d{1,8}$/.test(term) ? Number(term) : undefined;
+  const numericTerm =
+    parsedNumber !== undefined && parsedNumber <= 10_000_000
+      ? parsedNumber
+      : undefined;
   const filter = term
     ? numericTerm === undefined
       ? ilike(games.name, `%${term}%`)
@@ -64,7 +68,7 @@ export async function getAdminGamesPage(
     .leftJoin(collectionItems, eq(collectionItems.gameId, games.id))
     .where(filter)
     .groupBy(games.id)
-    .orderBy(asc(games.name))
+    .orderBy(asc(games.name), asc(games.id))
     .limit(adminGamesPageSize)
     .offset((page - 1) * adminGamesPageSize);
 

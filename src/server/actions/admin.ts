@@ -1,6 +1,6 @@
 "use server";
 
-import { count, eq } from "drizzle-orm";
+import { asc, eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 import {
@@ -16,6 +16,7 @@ import { writeAuditEvent } from "@/server/audit";
 import { createPasswordResetToken } from "@/server/auth/passwordReset";
 import { db } from "@/server/db";
 import { account, collectionItems, session, user } from "@/server/db/schema";
+import { isCurrentlyBanned } from "@/server/security/ban";
 import { requireAdmin } from "@/server/session";
 
 /**
@@ -31,37 +32,50 @@ export async function getAuditLogPageAction(
   return getAuditLogPage(adminPageSchema.parse(page));
 }
 
+/** Transaction used to lock and change administrative account state together. */
+type AdminTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
 /**
- * Prevents destructive changes to the acting admin and final administrator.
+ * Locks actor and target together and rechecks the acting administrator.
  *
- * @param actorId - Identifier of the administrator performing the operation.
- * @param targetId - Identifier of the user account being changed.
- * @returns A promise that resolves when the target account may be managed.
+ * The actor must remain an active administrator and cannot target itself, so
+ * every successful change leaves at least that administrator available.
+ * Ordered locks also serialize two administrators attempting mutual removal.
+ *
+ * @param actorId - Administrator who submitted the operation.
+ * @param targetId - Account being managed.
+ * @param change - Mutation executed only after the locked authorization check.
+ * @returns Completion of the authorized transaction.
  */
-async function assertManageableUser(
+async function manageUser(
   actorId: string,
   targetId: string,
+  change: (transaction: AdminTransaction) => Promise<void>,
 ): Promise<void> {
   if (actorId === targetId) {
     throw new Error(
       "Administrators cannot perform this action on their own account.",
     );
   }
-
-  const [target] = await db
-    .select({ role: user.role })
-    .from(user)
-    .where(eq(user.id, targetId))
-    .limit(1);
-  if (target?.role === "admin") {
-    const [result] = await db
-      .select({ value: count() })
+  await db.transaction(async (transaction) => {
+    const accounts = await transaction
+      .select()
       .from(user)
-      .where(eq(user.role, "admin"));
-    if ((result?.value ?? 0) <= 1) {
-      throw new Error("The final administrator cannot be changed or removed.");
+      .where(inArray(user.id, [actorId, targetId]))
+      .orderBy(asc(user.id))
+      .for("update");
+    const actor = accounts.find((account) => account.id === actorId);
+    const target = accounts.find((account) => account.id === targetId);
+    if (
+      !actor ||
+      actor.role !== "admin" ||
+      isCurrentlyBanned(actor) ||
+      !target
+    ) {
+      throw new Error("The account change is no longer authorized.");
     }
-  }
+    await change(transaction);
+  });
 }
 
 /**
@@ -74,11 +88,12 @@ export async function updateUserRoleAction(formData: FormData): Promise<void> {
   const actor = await requireAdmin();
   const targetId = userIdSchema.parse(formData.get("userId"));
   const role = roleSchema.parse(formData.get("role"));
-  await assertManageableUser(actor.user.id, targetId);
-  await db
-    .update(user)
-    .set({ role, updatedAt: new Date() })
-    .where(eq(user.id, targetId));
+  await manageUser(actor.user.id, targetId, async (transaction) => {
+    await transaction
+      .update(user)
+      .set({ role, updatedAt: new Date() })
+      .where(eq(user.id, targetId));
+  });
   await writeAuditEvent({
     actorId: actor.user.id,
     action: "admin.role_changed",
@@ -99,19 +114,20 @@ export async function toggleUserBanAction(formData: FormData): Promise<void> {
   const actor = await requireAdmin();
   const targetId = userIdSchema.parse(formData.get("userId"));
   const banned = bannedSchema.parse(formData.get("banned")) === "true";
-  await assertManageableUser(actor.user.id, targetId);
-  await db
-    .update(user)
-    .set({
-      banExpires: null,
-      banned,
-      banReason: banned ? "Disabled by administrator" : null,
-      updatedAt: new Date(),
-    })
-    .where(eq(user.id, targetId));
-  if (banned) {
-    await db.delete(session).where(eq(session.userId, targetId));
-  }
+  await manageUser(actor.user.id, targetId, async (transaction) => {
+    await transaction
+      .update(user)
+      .set({
+        banExpires: null,
+        banned,
+        banReason: banned ? "Disabled by administrator" : null,
+        updatedAt: new Date(),
+      })
+      .where(eq(user.id, targetId));
+    if (banned) {
+      await transaction.delete(session).where(eq(session.userId, targetId));
+    }
+  });
   await writeAuditEvent({
     actorId: actor.user.id,
     action: banned ? "admin.user_banned" : "admin.user_restored",
@@ -130,8 +146,7 @@ export async function toggleUserBanAction(formData: FormData): Promise<void> {
 export async function deleteUserAction(formData: FormData): Promise<void> {
   const actor = await requireAdmin();
   const targetId = userIdSchema.parse(formData.get("userId"));
-  await assertManageableUser(actor.user.id, targetId);
-  await db.transaction(async (transaction) => {
+  await manageUser(actor.user.id, targetId, async (transaction) => {
     await transaction.delete(session).where(eq(session.userId, targetId));
     await transaction.delete(account).where(eq(account.userId, targetId));
     await transaction

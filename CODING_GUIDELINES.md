@@ -17,6 +17,7 @@ Zod, Vitest, ESLint, Prettier, and pnpm. Its main boundaries are:
 ```text
 src/app/          Routes, layouts, metadata, and HTTP handlers
 src/components/   Atomic Design UI: atoms -> molecules -> organisms -> templates
+src/client/       Browser-only authentication and persistence adapters
 src/core/         Framework-free shared types and validation contracts
 src/hooks/        Client-only React hooks shared by more than one component
 src/i18n/         Locale list, request configuration, and taxonomy data
@@ -31,7 +32,7 @@ scripts/          Repository operations and maintenance commands
 Every change must pass, before review:
 
 ```bash
-pnpm check && pnpm build
+pnpm check && pnpm test:coverage && pnpm build && pnpm audit --audit-level=moderate
 ```
 
 `pnpm check` runs typecheck, ESLint (zero warnings), Prettier, Vitest and Knip in
@@ -121,8 +122,9 @@ this order:
 | User-visible copy                                  | `messages/en.json` **and** `messages/it.json`              |
 
 Dependencies point one way: `app` → `components` → `utils`, and `app` →
-`server` → `core`. Nothing imports `app`. `core` imports nothing but `core`
-and `utils`. `utils` holds pure, isomorphic helpers only — a file there that
+`server` → `core`. Components may call server actions and browser adapters in
+`client`. Only colocated route tests may import `app`. `core` contains no React
+or Next.js runtime dependencies. `utils` holds isomorphic helpers only — a file there that
 reaches for the database, `env`, or React is in the wrong place, and a file
 named for a grab bag (`helpers.ts`, `misc.ts`) does not belong there at all.
 
@@ -259,6 +261,9 @@ before writing routing, caching, or data-fetching code.**
 7. Authorization belongs in the same query as the mutation:
    `where(and(eq(table.id, id), eq(table.userId, session.user.id)))`. Never
    fetch-then-check.
+   Operations involving several accounts must lock the relevant rows and
+   recheck authorization inside the transaction. User imports may create missing
+   catalog games, but only administrator actions may change existing metadata.
 8. Enforce invariants in the database as well as in code — `check`, `unique`,
    and foreign-key constraints — so a bug cannot corrupt state.
 9. Schema changes are made in `src/server/db/schema.ts` and then generated with
@@ -304,6 +309,10 @@ before writing routing, caching, or data-fetching code.**
 5. Component tests use Testing Library and query by accessible role or label,
    never by class name or test id.
 6. No network in tests. Stub the boundary.
+7. Persistence tests use `src/test/database.ts` to apply production migrations
+   to an isolated PGlite PostgreSQL runtime. They must never use `DATABASE_URL`.
+   PGlite verifies SQL and transaction behavior, but does not replace deployment
+   tests of multiple PostgreSQL connections or independent application instances.
 
 ## 11. Errors and logging
 
@@ -311,7 +320,7 @@ before writing routing, caching, or data-fetching code.**
    control flow explicit.
 2. Optional enrichment fails soft (`.catch(() => fallback)`); anything the user
    asked for fails loud with a translated message.
-3. Log through `@/utils/logger`'s `log(level, event, context)`. `event` is a
+3. Log through `@/server/logger`'s `log(level, event, context)`. `event` is a
    `snake_case` identifier (`game_discovery_failed`). Never `console.log`.
 4. Never surface a raw upstream error message to the client.
 

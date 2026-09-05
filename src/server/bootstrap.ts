@@ -2,7 +2,7 @@ import "server-only";
 
 import { db } from "@/server/db";
 import { user } from "@/server/db/schema";
-import { log } from "@/utils/logger";
+import { log } from "@/server/logger";
 
 /**
  * Returns whether this installation still needs its first administrator.

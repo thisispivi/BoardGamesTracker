@@ -8,9 +8,9 @@ import { cache } from "react";
 import { auth } from "@/server/auth";
 import { db } from "@/server/db";
 import { session as sessionTable } from "@/server/db/schema";
+import { log } from "@/server/logger";
 import { isCurrentlyBanned } from "@/server/security/ban";
 import { consumeRateLimit } from "@/server/security/rateLimit";
-import { log } from "@/utils/logger";
 
 /**
  * A session that passed validation, ban checks, and per-user rate limiting.

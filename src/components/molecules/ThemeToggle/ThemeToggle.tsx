@@ -5,8 +5,8 @@ import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import type { ReactNode } from "react";
 
+import { persistThemeCookie } from "@/client/theme";
 import { Button } from "@/components/atoms/Button/Button";
-import { persistThemeCookie } from "@/utils/theme";
 
 /**
  * Toggles the persisted light and dark color schemes.

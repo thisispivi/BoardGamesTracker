@@ -5,8 +5,9 @@ import { useTheme } from "next-themes";
 import { type ReactNode, useEffect } from "react";
 import { Toaster } from "sonner";
 
+import { persistThemeCookie } from "@/client/theme";
 import type { AppTheme } from "@/core";
-import { isAppTheme, persistThemeCookie } from "@/utils/theme";
+import { isAppTheme } from "@/utils/theme";
 
 /** Initial theme and application content supplied to client providers. */
 type ProvidersProps = {

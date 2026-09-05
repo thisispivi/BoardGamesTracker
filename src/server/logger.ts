@@ -15,13 +15,8 @@ const priorities: Record<LogLevel, number> = {
   error: 40,
 };
 
-const blockedKeys = new Set([
-  "password",
-  "secret",
-  "token",
-  "cookie",
-  "authorization",
-]);
+const sensitiveKey =
+  /password|secret|token|cookie|authorization|credential|api.?key/i;
 
 /**
  * Writes structured, redacted application logs to standard output.
@@ -41,15 +36,13 @@ export function log(
   }
 
   const safeContext = Object.fromEntries(
-    Object.entries(context).filter(
-      ([key]) => !blockedKeys.has(key.toLowerCase()),
-    ),
+    Object.entries(context).filter(([key]) => !sensitiveKey.test(key)),
   );
   const entry = JSON.stringify({
+    ...safeContext,
     timestamp: new Date().toISOString(),
     level,
     message,
-    ...safeContext,
   });
 
   if (level === "error") {

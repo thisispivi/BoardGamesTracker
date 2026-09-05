@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
-import { authClient } from "@/utils/authClient";
+import { authClient } from "@/client/authClient";
 
 /**
  * Revokes the current session from the account area.

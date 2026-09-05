@@ -11,9 +11,9 @@ import {
 } from "react";
 import { toast } from "sonner";
 
+import { authClient } from "@/client/authClient";
 import { Button } from "@/components/atoms/Button/Button";
 import { ConfirmDialog } from "@/components/molecules/ConfirmDialog/ConfirmDialog";
-import { authClient } from "@/utils/authClient";
 
 /** Account preferences displayed and edited by the settings card. */
 type AccountSettingsCardProps = {

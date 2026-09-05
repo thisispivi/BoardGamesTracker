@@ -117,6 +117,20 @@ export const auth = betterAuth({
     },
     deleteUser: {
       enabled: true,
+      beforeDelete: async (user) => {
+        const [stored] = await db
+          .select({ role: schema.user.role })
+          .from(schema.user)
+          .where(eq(schema.user.id, user.id))
+          .limit(1);
+        if (stored?.role === "admin") {
+          throw APIError.from("FORBIDDEN", {
+            code: "ADMIN_DELETION_REQUIRES_DEMOTION",
+            message:
+              "Another administrator must change this account's role before deletion.",
+          });
+        }
+      },
       ...(mailEnabled
         ? {
             deleteTokenExpiresIn: 60 * 60 * 24,
@@ -173,6 +187,12 @@ export const auth = betterAuth({
   },
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path.startsWith("/admin/")) {
+        throw APIError.from("FORBIDDEN", {
+          code: "USE_ADMIN_CONSOLE",
+          message: "Administrative operations require the application console.",
+        });
+      }
       const active = await getSessionFromCtx(ctx, {
         disableCookieCache: true,
       }).catch(() => null);

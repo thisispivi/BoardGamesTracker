@@ -30,7 +30,7 @@ export async function getAuditLogPage(
     })
     .from(auditLogs)
     .leftJoin(user, eq(auditLogs.actorId, user.id))
-    .orderBy(desc(auditLogs.createdAt))
+    .orderBy(desc(auditLogs.createdAt), desc(auditLogs.id))
     .limit(auditLogPageSize)
     .offset((page - 1) * auditLogPageSize);
 

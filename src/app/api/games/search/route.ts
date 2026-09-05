@@ -4,9 +4,9 @@ import { querySchema } from "@/core";
 import { discoverBoardGameByUrl } from "@/server/discovery/bggUrl";
 import { parseBoardGameUrl } from "@/server/discovery/resultParser";
 import { searchBoardGames } from "@/server/discovery/search";
+import { log } from "@/server/logger";
 import { consumeRateLimit } from "@/server/security/rateLimit";
 import { getSession } from "@/server/session";
-import { log } from "@/utils/logger";
 
 /**
  * Discovers BoardGameGeek links for authenticated collection editors.

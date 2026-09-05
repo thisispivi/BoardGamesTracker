@@ -144,12 +144,19 @@ SearXNG instance.
 ```bash
 pnpm install
 cp .env.example .env.local
+```
+
+Edit `DATABASE_URL`, `BETTER_AUTH_URL`, `NEXT_PUBLIC_APP_URL`, and
+`SEARXNG_URL` to point at your local services, then run:
+
+```bash
 pnpm db:migrate
 pnpm dev
 ```
 
-Point `DATABASE_URL`, `BETTER_AUTH_URL`, `NEXT_PUBLIC_APP_URL`, and
-`SEARXNG_URL` at your local services. The development server listens on
+The application and Drizzle commands both read `.env.local`. Application URLs
+must be HTTP(S) origins without paths, credentials, queries, or fragments.
+The development server listens on
 <http://localhost:12500>.
 
 ## Deployment
@@ -253,7 +260,7 @@ pnpm db:generate && pnpm db:migrate
 Run the full quality gate and a production build before opening a pull request:
 
 ```bash
-pnpm check && pnpm build
+pnpm check && pnpm test:coverage && pnpm build && pnpm audit --audit-level=moderate
 ```
 
 `pnpm check` runs TypeScript, ESLint, Prettier, Vitest, and Knip in parallel.
@@ -263,6 +270,22 @@ advisories are checked separately with `pnpm audit --audit-level=moderate`.
 CI additionally runs `pnpm test:coverage`, which fails below the floor set in
 `vitest.config.ts`. That floor covers the modules the suite already reaches, so
 adding an untested branch to tested code breaks the build.
+
+Persistence tests apply the checked-in migrations to an isolated PGlite
+PostgreSQL runtime. They require no Docker, external database, or credentials.
+The test runner uses four workers to bound memory use. These tests cover SQL
+and application transactions; they do not simulate independent database servers.
+
+Portable uploads are limited to 10 MiB and 2,000 games. XLSX archives additionally
+have a 32 MiB expanded-byte limit and a 256-entry limit, checked with `yauzl`
+before ExcelJS builds the workbook. BGG CSV uploads allow 5 MiB, with separate
+space for multipart overhead in the Server Action limit. Imports preserve
+existing shared catalog metadata; administrators make corrections in the console.
+
+Zod contracts live in `src/core/<domain>/*.contract.ts`. Validate untrusted
+forms, HTTP responses, imports, and configuration once at entry, then pass typed
+values to domain code. Runtime contracts own their inferred TypeScript types;
+validation does not grant permission to modify another account's data.
 
 Git hooks are installed by `pnpm install`. Committing formats and lints the
 staged files; pushing runs the whole `pnpm check` gate. CI repeats both and adds
@@ -307,6 +330,7 @@ supported versions, and how to report a vulnerability.
 ├── src/
 │   ├── app/                 Routes, layouts, and HTTP handlers
 │   ├── components/          Atomic Design UI: atoms to templates
+│   ├── client/              Browser-only authentication and cookie adapters
 │   ├── core/                Framework-free types and validation contracts
 │   ├── hooks/               Client-side React hooks
 │   ├── i18n/                Locale routing and request configuration

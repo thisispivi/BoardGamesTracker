@@ -12,7 +12,7 @@ const { requestPasswordReset } = vi.hoisted(() => ({
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: vi.fn() }),
 }));
-vi.mock("@/utils/authClient", () => ({
+vi.mock("@/client/authClient", () => ({
   authClient: {
     requestPasswordReset,
     sendVerificationEmail: vi.fn(),

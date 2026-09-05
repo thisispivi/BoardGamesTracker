@@ -1,5 +1,5 @@
 import { parse } from "csv-parse/sync";
-import type { z } from "zod";
+import { z } from "zod";
 
 import {
   type BggCsvImport,
@@ -135,17 +135,20 @@ function normalizeRow(
  * @returns The parsed bgg collection csv.
  */
 export function parseBggCollectionCsv(csv: string): BggCsvImport {
-  const records = parse(csv, {
-    bom: true,
-    columns: true,
-    max_record_size: 20_000,
-    relax_column_count: false,
-    skip_empty_lines: true,
-    trim: true,
-  }) as unknown[];
-  if (records.length === 0 || records.length > 2_000) {
-    throw new Error("The CSV must contain between 1 and 2,000 rows.");
-  }
+  const records = z
+    .array(z.unknown())
+    .min(1)
+    .max(2_000)
+    .parse(
+      parse(csv, {
+        bom: true,
+        columns: true,
+        max_record_size: 20_000,
+        relax_column_count: false,
+        skip_empty_lines: true,
+        trim: true,
+      }),
+    );
 
   const first = records[0];
   if (!first || typeof first !== "object") {

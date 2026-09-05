@@ -9,6 +9,7 @@ import {
   parseBoardGameImage,
   parseBoardGameResult,
 } from "@/server/discovery/resultParser";
+import { readBoundedBody } from "@/utils/readBoundedBody";
 import { normalizeSearchText } from "@/utils/search";
 
 /** Minimal result shape returned by the configured SearXNG instance. */
@@ -74,13 +75,17 @@ async function requestResults(
   const response = await fetch(endpoint, {
     headers: { Accept: "application/json" },
     cache: "no-store",
+    redirect: "error",
     signal: AbortSignal.timeout(10_000),
   });
   if (!response.ok) {
     throw new Error(`SearXNG returned ${response.status}.`);
   }
 
-  const parsed = searxngResponseSchema.safeParse(await response.json());
+  const body = await readBoundedBody(response.body, 2 * 1024 * 1024);
+  const parsed = searxngResponseSchema.safeParse(
+    JSON.parse(new TextDecoder().decode(body)),
+  );
   if (!parsed.success) {
     throw new Error("SearXNG returned an invalid response.");
   }

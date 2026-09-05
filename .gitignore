@@ -37,6 +37,16 @@ yarn-error.log*
 .env*
 !.env.example
 /.sentry-auth-token
+*.key
+*.log
+*.sqlite*
+*.db
+*.sql
+!drizzle/*.sql
+/test-results/
+/playwright-report/
+Thumbs.db
+/.codex/
 
 # vercel
 .vercel

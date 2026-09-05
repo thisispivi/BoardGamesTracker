@@ -1,6 +1,7 @@
 "use server";
 
 import { getTranslations } from "next-intl/server";
+import { z } from "zod";
 
 import { type CollectionActionState, newPasswordSchema } from "@/core";
 import { writeAuditEvent } from "@/server/audit";
@@ -27,8 +28,15 @@ export async function resetPasswordAction(
   formData: FormData,
 ): Promise<CollectionActionState> {
   const t = await getTranslations();
-  const token = String(formData.get("token") ?? "").slice(0, 4_000);
-  if (!consumeRateLimit(`passwordReset:${token.slice(0, 64)}`, 5, 600_000)) {
+  const parsedToken = z
+    .string()
+    .min(1)
+    .max(4_000)
+    .safeParse(formData.get("token"));
+  if (!parsedToken.success)
+    return { success: false, message: t("reset.invalid") };
+  const token = parsedToken.data;
+  if (!consumeRateLimit("passwordResetAttempts", 30, 600_000)) {
     return { success: false, message: t("reset.tooMany") };
   }
 
@@ -38,7 +46,9 @@ export async function resetPasswordAction(
     return { success: false, message: t("reset.invalid") };
   }
 
-  await applyPasswordReset(userId, password.data);
+  if (!(await applyPasswordReset(userId, password.data, token))) {
+    return { success: false, message: t("reset.invalid") };
+  }
   await writeAuditEvent({
     actorId: userId,
     action: "auth.password_reset_completed",

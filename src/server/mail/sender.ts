@@ -3,8 +3,8 @@ import "server-only";
 import nodemailer, { type Transporter } from "nodemailer";
 
 import type { MailConfiguration, TransactionalMail } from "@/core";
+import { log } from "@/server/logger";
 import { getMailConfiguration } from "@/server/mail/config";
-import { log } from "@/utils/logger";
 
 let transporter: Transporter | undefined;
 

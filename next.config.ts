@@ -15,6 +15,9 @@ const nextConfig: NextConfig = {
     ],
   },
   experimental: {
+    serverActions: {
+      bodySizeLimit: 5 * 1024 * 1024 + 256_000,
+    },
     typedEnv: true,
   },
 };

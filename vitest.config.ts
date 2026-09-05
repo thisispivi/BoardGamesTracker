@@ -11,6 +11,8 @@ export default defineConfig({
     },
   },
   test: {
+    maxWorkers: 4,
+    unstubGlobals: true,
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],

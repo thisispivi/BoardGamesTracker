@@ -5,9 +5,9 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { type ReactNode, type SubmitEvent, useState } from "react";
 
+import { authClient } from "@/client/authClient";
 import { AppSpinner } from "@/components/atoms/AppSpinner/AppSpinner";
 import { Button } from "@/components/atoms/Button/Button";
-import { authClient } from "@/utils/authClient";
 
 /** Tokenized properties for the SMTP password-reset form. */
 type MailResetPasswordFormProps = {

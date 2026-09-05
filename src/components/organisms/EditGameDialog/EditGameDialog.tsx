@@ -114,7 +114,7 @@ export function EditGameDialog({
                 <textarea
                   className="field-input min-h-28 py-3"
                   defaultValue={game.notes}
-                  maxLength={2_000}
+                  maxLength={4_000}
                   name="notes"
                   rows={4}
                 />

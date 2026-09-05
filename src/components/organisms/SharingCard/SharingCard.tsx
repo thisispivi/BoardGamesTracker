@@ -3,7 +3,7 @@
 import { Check, Copy, RefreshCw, Share2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { type ReactNode, useState, useTransition } from "react";
+import { type ReactNode, useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import {
@@ -111,6 +111,12 @@ export function SharingCard({
   const shareUrl = token ? `${appUrl}/share/${token}` : "";
   const sharesAnything = sharing.collection || sharing.wishlist;
 
+  useEffect(() => {
+    if (!copied) return;
+    const timer = window.setTimeout(() => setCopied(false), 2_000);
+    return () => window.clearTimeout(timer);
+  }, [copied]);
+
   /**
    * Saves every switch together so prices can never outlive what they describe.
    *
@@ -125,9 +131,15 @@ export function SharingCard({
     if (next.wishlist) formData.set("shareWishlist", "on");
     if (prices) formData.set("sharePrices", "on");
     startTransition(async () => {
-      await setSharingAction(formData);
-      router.refresh();
-      toast.success(t("sharing.updated"));
+      try {
+        await setSharingAction(formData);
+        setToken(await getShareTokenAction());
+        router.refresh();
+        toast.success(t("sharing.updated"));
+      } catch {
+        setSharing(sharing);
+        toast.error(t("sharing.updateFailed"));
+      }
     });
   }
 
@@ -138,10 +150,14 @@ export function SharingCard({
    */
   function regenerate(): void {
     startTransition(async () => {
-      const updatedToken = await regenerateShareTokenAction();
-      setToken(updatedToken);
-      router.refresh();
-      toast.success(t("sharing.regenerated"));
+      try {
+        const updatedToken = await regenerateShareTokenAction();
+        setToken(updatedToken);
+        router.refresh();
+        toast.success(t("sharing.regenerated"));
+      } catch {
+        toast.error(t("sharing.updateFailed"));
+      }
     });
   }
 
@@ -153,7 +169,7 @@ export function SharingCard({
   function copyLink(): void {
     startTransition(async () => {
       try {
-        const resolvedToken = token ?? (await getShareTokenAction());
+        const resolvedToken = await getShareTokenAction();
         if (!resolvedToken) {
           toast.error(t("sharing.copyFailed"));
           return;
@@ -161,7 +177,6 @@ export function SharingCard({
         await navigator.clipboard.writeText(`${appUrl}/share/${resolvedToken}`);
         setToken(resolvedToken);
         setCopied(true);
-        window.setTimeout(() => setCopied(false), 2_000);
       } catch {
         toast.error(t("sharing.copyFailed"));
       }
@@ -192,19 +207,21 @@ export function SharingCard({
           <ShareToggle
             checked={sharing.collection}
             description={t("sharing.shareCollectionHelp")}
+            disabled={pending}
             label={t("sharing.shareCollection")}
             onChange={(checked) => save({ ...sharing, collection: checked })}
           />
           <ShareToggle
             checked={sharing.wishlist}
             description={t("sharing.shareWishlistHelp")}
+            disabled={pending}
             label={t("sharing.shareWishlist")}
             onChange={(checked) => save({ ...sharing, wishlist: checked })}
           />
           <ShareToggle
             checked={sharing.prices}
             description={t("sharing.sharePricesHelp")}
-            disabled={!sharesAnything}
+            disabled={pending || !sharesAnything}
             label={t("sharing.sharePrices")}
             onChange={(checked) => save({ ...sharing, prices: checked })}
           />

@@ -14,7 +14,7 @@ type SelectProps = {
   defaultValue?: string;
   name?: string;
   onValueChange?: (value: string) => void;
-  options: SelectOption[];
+  options: SelectOption<ReactNode>[];
   value?: string;
 };
 

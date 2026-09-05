@@ -1,6 +1,8 @@
 import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
 
+import { appOriginSchema, databaseUrlSchema, httpEndpointSchema } from "@/core";
+
 /** Validated application environment. */
 export const env = createEnv({
   server: {
@@ -9,15 +11,15 @@ export const env = createEnv({
       .enum(["true", "false"])
       .default("false")
       .transform((value) => value === "true"),
-    BETTER_AUTH_SECRET: z.string().min(32),
-    BETTER_AUTH_URL: z.url(),
-    DATABASE_URL: z.url(),
+    BETTER_AUTH_SECRET: z.string().min(32).max(4_096),
+    BETTER_AUTH_URL: appOriginSchema,
+    DATABASE_URL: databaseUrlSchema,
     HEALTH_CHECK_TOKEN: z.string().min(16).optional(),
     LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
     NODE_ENV: z
       .enum(["development", "production", "test"])
       .default("development"),
-    SEARXNG_URL: z.url(),
+    SEARXNG_URL: httpEndpointSchema,
     SENTRY_DSN: z.url().optional(),
     SMTP_FROM_EMAIL: z.email().optional(),
     SMTP_FROM_NAME: z
@@ -41,7 +43,7 @@ export const env = createEnv({
     SMTP_USER: z.string().min(1).max(500).optional(),
   },
   client: {
-    NEXT_PUBLIC_APP_URL: z.url(),
+    NEXT_PUBLIC_APP_URL: appOriginSchema,
     NEXT_PUBLIC_SENTRY_DSN: z.url().optional(),
     NEXT_PUBLIC_SENTRY_ENVIRONMENT: z
       .string()

@@ -26,4 +26,25 @@ Only the latest release on the default branch receives security updates.
 
 ## Deliberate limitations
 
-Email verification and password-reset mail require an operator-provided transactional email service and are not enabled by default. Until configured, administrators should treat email ownership as unverified and use account deletion/re-registration for recovery. A public deployment should add verified email delivery before allowing untrusted registrations.
+Registration holds a nonblocking PostgreSQL advisory lock through the complete
+Better Auth signup handler. Competing registrations receive HTTP 429 and can
+retry. Keep registrations on the application's `/api/auth/sign-up/email`
+entry point; a direct server-side Better Auth signup call would bypass this lock.
+
+Administrator role changes, bans, and removals lock and recheck the acting
+administrator and target together. Better Auth's separate `/admin/*` endpoints
+are disabled because they bypass these application safeguards. An administrator
+must be demoted by another administrator before deleting its own account.
+Administrator-issued reset tokens are checked again under credential locks;
+password replacement and session revocation commit together.
+
+Rate limits are in memory and apply per application instance. Multiple instances
+need a shared limiter or equivalent protection at the reverse proxy. Configure
+the proxy to replace client-supplied forwarding headers and impose request-body
+and connection-time limits before requests reach Node.js.
+
+Email verification and password-reset mail require operator-provided SMTP and
+are disabled by default. Without SMTP, an administrator can issue a one-hour,
+single-use reset link from the administration console and deliver it through a
+trusted channel. Email ownership remains unverified until SMTP verification is
+enabled. Configure it before allowing untrusted registrations.

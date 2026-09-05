@@ -1,4 +1,9 @@
+import { existsSync } from "node:fs";
+import { loadEnvFile } from "node:process";
+
 import { defineConfig } from "drizzle-kit";
+
+if (existsSync(".env.local")) loadEnvFile(".env.local");
 
 /** Drizzle Kit configuration for PostgreSQL migrations. */
 export default defineConfig({

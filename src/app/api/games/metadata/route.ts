@@ -2,9 +2,9 @@ import { getTranslations } from "next-intl/server";
 
 import { bggIdSchema } from "@/core";
 import { scrapeBggMetadata } from "@/server/bgg/scrape";
+import { log } from "@/server/logger";
 import { consumeRateLimit } from "@/server/security/rateLimit";
 import { getSession } from "@/server/session";
-import { log } from "@/utils/logger";
 
 /**
  * Returns BoardGameGeek details for the single game a user has selected.

@@ -1,8 +1,6 @@
-import type { ReactNode } from "react";
-
 /** One option rendered by the shared select control. */
-export type SelectOption = {
-  label: ReactNode;
+export type SelectOption<Label = string> = {
+  label: Label;
   value: string;
 };
 

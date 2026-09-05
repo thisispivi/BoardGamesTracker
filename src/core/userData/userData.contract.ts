@@ -16,7 +16,7 @@ export const portableGameSchema = z
     minPlayers: z.number().int().min(1).max(99),
     maxPlayers: z.number().int().min(1).max(99),
     minPlaytime: z.number().int().min(0).max(10_000),
-    maxPlaytime: z.number().int().min(1).max(10_000),
+    maxPlaytime: z.number().int().min(0).max(10_000),
     weight: z
       .union([z.literal(0), z.number().min(1).max(5)])
       .nullable()
@@ -28,7 +28,7 @@ export const portableGameSchema = z
     families: z.array(labelSchema).max(50),
     favorite: z.boolean(),
     personalRating: z.number().min(0).max(10).nullable(),
-    notes: z.string().max(2_000),
+    notes: z.string().max(4_000),
     moneySpent: z.number().min(0).max(999_999_999.99),
     gifted: z.boolean().default(false),
     expandsBggIds: z

@@ -2,8 +2,13 @@ import { revalidatePath } from "next/cache";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-import { formatSchema, type UserDataFormat } from "@/core";
+import {
+  formatSchema,
+  type UserDataDocument,
+  type UserDataFormat,
+} from "@/core";
 import { writeAuditEvent } from "@/server/audit";
+import { log } from "@/server/logger";
 import { hasTrustedOrigin } from "@/server/security/origin";
 import { consumeRateLimit } from "@/server/security/rateLimit";
 import { getSession } from "@/server/session";
@@ -16,6 +21,7 @@ import {
   parseUserData,
   serializeUserData,
 } from "@/server/userData/formats";
+import { BodyTooLargeError, readBoundedBody } from "@/utils/readBoundedBody";
 const maxImportBytes = 10 * 1024 * 1024;
 
 /**
@@ -102,7 +108,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "too_large" }, { status: 413 });
   }
 
-  const formData = await request.formData();
+  let formData: FormData;
+  try {
+    const bytes = await readBoundedBody(request.body, maxImportBytes + 256_000);
+    formData = await new Response(Buffer.from(bytes), {
+      headers: { "Content-Type": request.headers.get("content-type") ?? "" },
+    }).formData();
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error:
+          error instanceof BodyTooLargeError ? "too_large" : "invalid_file",
+      },
+      { status: error instanceof BodyTooLargeError ? 413 : 400 },
+    );
+  }
   const file = formData.get("file");
   if (
     !(file instanceof File) ||
@@ -116,11 +136,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "unsupported_format" }, { status: 400 });
   }
 
+  let document: UserDataDocument;
   try {
-    const document = await parseUserData(
+    document = await parseUserData(
       new Uint8Array(await file.arrayBuffer()),
       format,
     );
+  } catch {
+    return NextResponse.json({ error: "invalid_export" }, { status: 400 });
+  }
+  try {
     const imported = await importUserDataDocument(session.user.id, document);
     await writeAuditEvent({
       actorId: session.user.id,
@@ -141,7 +166,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
     return NextResponse.json({ success: true, imported });
   } catch {
-    return NextResponse.json({ error: "invalid_export" }, { status: 400 });
+    log("error", "user_data_import_failed", { actorId: session.user.id });
+    return NextResponse.json({ error: "import_failed" }, { status: 500 });
   }
 }
 

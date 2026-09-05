@@ -1,20 +1,7 @@
-/** Currencies exposed in account settings. */
-export const currencies = [
-  "AUD",
-  "CAD",
-  "CHF",
-  "CNY",
-  "EUR",
-  "GBP",
-  "JPY",
-  "NOK",
-  "PLN",
-  "SEK",
-  "USD",
-] as const;
+import { type Currency, currencySchema } from "@/core";
 
-/** Supported ISO 4217 currency code. */
-export type Currency = (typeof currencies)[number];
+/** Currencies exposed by the authoritative account settings contract. */
+export const currencies = currencySchema.options;
 
 const currencySymbols: Record<Currency, string> = {
   AUD: "A$",

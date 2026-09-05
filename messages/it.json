@@ -351,7 +351,8 @@
     "publicBody": "Una libreria condivisa dal proprietario. Sola lettura.",
     "games": "Giochi",
     "expansions": "Espansioni",
-    "moneySpent": "Spesa totale"
+    "moneySpent": "Spesa totale",
+    "updateFailed": "Impossibile salvare le impostazioni di condivisione. Riprova."
   },
   "wishlist": {
     "metaTitle": "Lista desideri",

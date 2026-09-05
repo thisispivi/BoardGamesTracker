@@ -3,10 +3,14 @@ import "server-only";
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 
 import { createLocalAccountIssuer } from "better-auth/db";
+import { and, eq } from "drizzle-orm";
 
 import { passwordResetTokenSchema } from "@/core";
 import { env } from "@/env";
 import { auth } from "@/server/auth";
+import { db } from "@/server/db";
+import { account, session, user } from "@/server/db/schema";
+import { isCurrentlyBanned } from "@/server/security/ban";
 
 /** How long an administrator-issued reset link stays usable. */
 const resetLifetimeMs = 60 * 60 * 1000;
@@ -65,14 +69,15 @@ export async function createPasswordResetToken(
 }
 
 /**
- * Verifies a reset token and returns the account it authorizes.
+ * Verifies the signature and expiry of bounded password-reset authorization.
  *
  * @param token - The opaque token from the reset link.
- * @returns The account identifier, or null when the token is not usable.
+ * @returns The authenticated payload, or null when the token is not usable.
  */
-export async function verifyPasswordResetToken(
+function readPasswordResetToken(
   token: string,
-): Promise<string | null> {
+): ReturnType<typeof passwordResetTokenSchema.parse> | null {
+  if (token.length > 4_000) return null;
   const [payload, signature, extra] = token.split(".");
   if (!payload || !signature || extra) {
     return null;
@@ -93,14 +98,28 @@ export async function verifyPasswordResetToken(
     const decoded = passwordResetTokenSchema.safeParse(
       JSON.parse(Buffer.from(payload, "base64url").toString("utf8")),
     );
-    if (!decoded.success || decoded.data.expiresAt < Date.now()) {
+    if (!decoded.success || decoded.data.expiresAt <= Date.now()) {
       return null;
     }
-    const binding = bindingFor(await currentPasswordHash(decoded.data.userId));
-    return binding === decoded.data.binding ? decoded.data.userId : null;
+    return decoded.data;
   } catch {
     return null;
   }
+}
+
+/**
+ * Checks a reset link against the account's current stored password.
+ *
+ * @param token - Signed reset authorization presented by the visitor.
+ * @returns The authorized account, or null for an expired or consumed token.
+ */
+export async function verifyPasswordResetToken(
+  token: string,
+): Promise<string | null> {
+  const decoded = readPasswordResetToken(token);
+  if (!decoded) return null;
+  const binding = bindingFor(await currentPasswordHash(decoded.userId));
+  return binding === decoded.binding ? decoded.userId : null;
 }
 
 /**
@@ -108,25 +127,53 @@ export async function verifyPasswordResetToken(
  *
  * @param userId - The account being reset.
  * @param newPassword - The replacement password.
- * @returns A promise that resolves when the operation completes.
+ * @param token - Signed reset authorization checked again under the credential lock.
+ * @returns Whether the token was consumed and every existing session revoked.
  */
 export async function applyPasswordReset(
   userId: string,
   newPassword: string,
-): Promise<void> {
+  token: string,
+): Promise<boolean> {
   const context = await auth.$context;
   const hashed = await context.password.hash(newPassword);
-  const accounts = await context.internalAdapter.findAccounts(userId);
-  if (accounts.some((account) => account.providerId === "credential")) {
-    await context.internalAdapter.updatePassword(userId, hashed);
-  } else {
-    await context.internalAdapter.createAccount({
-      accountId: userId,
-      issuer: createLocalAccountIssuer("credential"),
-      password: hashed,
-      providerId: "credential",
-      userId,
-    });
-  }
-  await context.internalAdapter.deleteUserSessions(userId);
+  return db.transaction(async (transaction) => {
+    const [owner] = await transaction
+      .select()
+      .from(user)
+      .where(eq(user.id, userId))
+      .for("update");
+    if (!owner || isCurrentlyBanned(owner)) return false;
+    const [credential] = await transaction
+      .select({ id: account.id, password: account.password })
+      .from(account)
+      .where(
+        and(eq(account.userId, userId), eq(account.providerId, "credential")),
+      )
+      .for("update");
+    const decoded = readPasswordResetToken(token);
+    if (
+      !decoded ||
+      decoded.userId !== userId ||
+      decoded.binding !== bindingFor(credential?.password ?? "")
+    )
+      return false;
+    if (credential) {
+      await transaction
+        .update(account)
+        .set({ password: hashed, updatedAt: new Date() })
+        .where(and(eq(account.id, credential.id), eq(account.userId, userId)));
+    } else {
+      await transaction.insert(account).values({
+        id: crypto.randomUUID(),
+        accountId: userId,
+        issuer: createLocalAccountIssuer("credential"),
+        password: hashed,
+        providerId: "credential",
+        userId,
+      });
+    }
+    await transaction.delete(session).where(eq(session.userId, userId));
+    return true;
+  });
 }

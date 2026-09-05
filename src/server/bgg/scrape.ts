@@ -2,9 +2,8 @@ import "server-only";
 
 import type { BggMetadata } from "@/core";
 import { parseBggHtmlPage, parseBggJsonResponses } from "@/server/bgg/parser";
+import { readBoundedBody } from "@/utils/readBoundedBody";
 import { TtlCache } from "@/utils/ttlCache";
-
-export type { BggMetadata } from "@/core";
 
 /** Maximum public BGG page size accepted by the scraper. */
 const maxHtmlLength = 5_000_000;
@@ -34,7 +33,7 @@ async function scrapeHtmlPage(bggId: number): Promise<BggMetadata | null> {
       "User-Agent": "BoardGamesTracker/0.1 (self-hosted metadata scraper)",
     },
     cache: "no-store",
-    redirect: "follow",
+    redirect: "error",
     signal: AbortSignal.timeout(12_000),
   });
   if (
@@ -46,7 +45,9 @@ async function scrapeHtmlPage(bggId: number): Promise<BggMetadata | null> {
   const contentLength = Number(response.headers.get("content-length") ?? 0);
   if (contentLength > maxHtmlLength) return null;
   return parseBggHtmlPage(
-    (await response.text()).slice(0, maxHtmlLength + 1),
+    new TextDecoder().decode(
+      await readBoundedBody(response.body, maxHtmlLength),
+    ),
     bggId,
   );
 }
@@ -75,8 +76,9 @@ async function fetchBggJson(url: string): Promise<unknown | null> {
   }
   const contentLength = Number(response.headers.get("content-length") ?? 0);
   if (contentLength > maxJsonLength) return null;
-  const body = await response.text();
-  if (body.length > maxJsonLength) return null;
+  const body = new TextDecoder().decode(
+    await readBoundedBody(response.body, maxJsonLength),
+  );
   try {
     return JSON.parse(body);
   } catch {

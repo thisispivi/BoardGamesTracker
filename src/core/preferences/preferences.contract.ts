@@ -15,6 +15,9 @@ export const currencySchema = z.enum([
   "USD",
 ]);
 
+/** Supported ISO 4217 code inferred from the account settings contract. */
+export type Currency = z.infer<typeof currencySchema>;
+
 /** Validates library-sharing preferences, keeping prices opt-in. */
 export const sharingSchema = z
   .object({

@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 
-import type { StoredGameImage } from "@/core";
+import { bggImageUrlSchema, type StoredGameImage } from "@/core";
+import { readBoundedBody } from "@/utils/readBoundedBody";
 
 const maxImageBytes = 5 * 1024 * 1024;
 const allowedMimeTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
@@ -12,19 +13,11 @@ const allowedMimeTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
  * @returns A validated BGG image URL.
  */
 function parseSourceUrl(rawUrl: string): URL {
-  if (rawUrl.length > 2_000) {
-    throw new Error("The image URL is too long.");
-  }
-  const url = new URL(rawUrl);
-  if (
-    url.protocol !== "https:" ||
-    url.hostname !== "cf.geekdo-images.com" ||
-    url.port ||
-    url.username ||
-    url.password
-  ) {
+  const parsed = bggImageUrlSchema.safeParse(rawUrl);
+  if (!parsed.success) {
     throw new Error("The image source is not an approved BGG CDN URL.");
   }
+  const url = new URL(parsed.data);
   return url;
 }
 
@@ -59,37 +52,6 @@ function detectMimeType(data: Buffer): StoredGameImage["mimeType"] | null {
     return "image/webp";
   }
   return null;
-}
-
-/**
- * Reads a response body while enforcing the configured byte limit.
- *
- * @param response - Remote HTTP response whose image body is read with a size limit.
- * @returns The complete response body when it stays within the configured limit.
- */
-async function readBoundedBody(response: Response): Promise<Buffer> {
-  if (!response.body) {
-    throw new Error("The image response had no body.");
-  }
-  const reader = response.body.getReader();
-  const chunks: Buffer[] = [];
-  let size = 0;
-  while (true) {
-    const result = await reader.read();
-    if (result.done) {
-      break;
-    }
-    size += result.value.byteLength;
-    if (size > maxImageBytes) {
-      await reader.cancel();
-      throw new Error("The image exceeded the 5 MB limit.");
-    }
-    chunks.push(Buffer.from(result.value));
-  }
-  if (size === 0) {
-    throw new Error("The image response was empty.");
-  }
-  return Buffer.concat(chunks, size);
 }
 
 /**
@@ -128,7 +90,7 @@ export async function downloadBggImage(
     throw new Error("The BGG CDN returned an unsupported content type.");
   }
 
-  const data = await readBoundedBody(response);
+  const data = Buffer.from(await readBoundedBody(response.body, maxImageBytes));
   const mimeType = detectMimeType(data);
   if (!mimeType || mimeType !== declaredMime) {
     throw new Error("The downloaded file is not a valid supported image.");

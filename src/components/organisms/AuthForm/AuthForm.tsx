@@ -6,8 +6,8 @@ import { useTranslations } from "next-intl";
 import { type ReactNode, useState } from "react";
 import { toast } from "sonner";
 
+import { authClient } from "@/client/authClient";
 import { Button } from "@/components/atoms/Button/Button";
-import { authClient } from "@/utils/authClient";
 
 /** Authentication modes available from the public account form. */
 type AuthMode = "forgot" | "login" | "signup";
