@@ -99,7 +99,6 @@ export function CollectionBrowser({
             description={t("collection.otherExpansionsBody")}
             eyebrow={t("collection.addons")}
             title={t("collection.otherExpansions")}
-            tone="accent"
           />
           <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
             {grouped.ungrouped.map((expansion) => (

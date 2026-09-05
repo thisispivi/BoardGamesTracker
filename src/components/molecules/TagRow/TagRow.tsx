@@ -29,7 +29,7 @@ function TagPill({ className, tag }: TagPillProps): ReactNode {
         "rounded-full px-2 py-0.5 text-[0.6875rem] leading-4 font-semibold whitespace-nowrap",
         tag.tone === "mechanic"
           ? "bg-primary/10 text-primary"
-          : "bg-muted text-muted-foreground",
+          : "bg-accent/10 text-accent",
         className,
       )}
     >
@@ -122,7 +122,7 @@ export function TagRow({ className, tags }: TagRowProps): ReactNode {
           >
             <button
               aria-label={t("moreTags", { count: hidden })}
-              className="bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary shrink-0 rounded-full px-2 py-0.5 text-[0.6875rem] leading-4 font-semibold tabular-nums transition"
+              className="bg-muted text-muted-foreground hover:bg-accent/10 hover:text-accent shrink-0 rounded-full px-2 py-0.5 text-[0.6875rem] leading-4 font-semibold tabular-nums transition"
               type="button"
             >
               +{hidden}
