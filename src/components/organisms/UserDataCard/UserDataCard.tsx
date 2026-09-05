@@ -50,7 +50,9 @@ export function UserDataCard(): ReactNode {
               ? t("tooMany")
               : error === "unsupported_format"
                 ? t("unsupported")
-                : t("invalid"),
+                : error === "import_failed" || response.status >= 500
+                  ? t("serverError")
+                  : t("invalid"),
         );
         return;
       }

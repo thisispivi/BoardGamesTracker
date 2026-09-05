@@ -2,11 +2,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
   applyPasswordReset,
+  consumeRateLimit,
   isUserCurrentlyBanned,
   verifyPasswordResetToken,
   writeAuditEvent,
 } = vi.hoisted(() => ({
   applyPasswordReset: vi.fn(),
+  consumeRateLimit: vi.fn(),
   isUserCurrentlyBanned: vi.fn(),
   verifyPasswordResetToken: vi.fn(),
   writeAuditEvent: vi.fn(),
@@ -23,9 +25,7 @@ vi.mock("@/server/auth/passwordReset", () => ({
 vi.mock("@/server/security/accountAccess", () => ({
   isUserCurrentlyBanned,
 }));
-vi.mock("@/server/security/rateLimit", () => ({
-  consumeRateLimit: vi.fn(() => true),
-}));
+vi.mock("@/server/security/rateLimit", () => ({ consumeRateLimit }));
 
 import { resetPasswordAction } from "@/server/actions/passwordReset";
 
@@ -43,6 +43,7 @@ function buildFormData(): FormData {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  consumeRateLimit.mockReturnValue(true);
   verifyPasswordResetToken.mockResolvedValue("user-1");
   applyPasswordReset.mockResolvedValue(true);
 });
@@ -88,6 +89,45 @@ describe("resetPasswordAction", () => {
       ),
     ).toEqual({ message: "reset.invalid", success: false });
     expect(writeAuditEvent).not.toHaveBeenCalled();
+  });
+
+  it("meters attempts per account so one target cannot lock out the rest", async () => {
+    isUserCurrentlyBanned.mockResolvedValue(false);
+
+    await resetPasswordAction({ message: "", success: false }, buildFormData());
+
+    expect(consumeRateLimit).toHaveBeenCalledWith(
+      "passwordReset:user-1",
+      expect.any(Number),
+      expect.any(Number),
+    );
+  });
+
+  it("spends the per-account allowance only on a token that verified", async () => {
+    verifyPasswordResetToken.mockResolvedValue(null);
+
+    await resetPasswordAction({ message: "", success: false }, buildFormData());
+
+    expect(consumeRateLimit).not.toHaveBeenCalledWith(
+      expect.stringContaining("passwordReset:"),
+      expect.any(Number),
+      expect.any(Number),
+    );
+  });
+
+  it("reports an exhausted account allowance without changing credentials", async () => {
+    isUserCurrentlyBanned.mockResolvedValue(false);
+    consumeRateLimit.mockImplementation(
+      (key: string) => key !== "passwordReset:user-1",
+    );
+
+    expect(
+      await resetPasswordAction(
+        { message: "", success: false },
+        buildFormData(),
+      ),
+    ).toEqual({ message: "reset.tooMany", success: false });
+    expect(applyPasswordReset).not.toHaveBeenCalled();
   });
 
   it("rejects oversized tokens instead of truncating them into valid credentials", async () => {

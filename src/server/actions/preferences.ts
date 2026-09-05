@@ -102,14 +102,35 @@ export async function setSharingAction(formData: FormData): Promise<void> {
 /**
  * Returns the current sharing token, creating one for an already shared library.
  *
+ * An account that already holds a token is answered by a read, so repeatedly
+ * copying a link does not rewrite the row. Creation stays a single conditional
+ * statement, so two concurrent callers cannot mint two tokens.
+ *
  * @returns The active sharing token, or null when sharing is disabled.
  */
 export async function getShareTokenAction(): Promise<string | null> {
   const session = await requireUser();
+  const [current] = await db
+    .select({
+      shareCollection: user.shareCollection,
+      shareToken: user.shareToken,
+      shareWishlist: user.shareWishlist,
+    })
+    .from(user)
+    .where(eq(user.id, session.user.id))
+    .limit(1);
+  if (!current || (!current.shareCollection && !current.shareWishlist)) {
+    return null;
+  }
+  if (current.shareToken) return current.shareToken;
+
   const token = createShareToken();
   const [updated] = await db
     .update(user)
-    .set({ shareToken: sql`coalesce(${user.shareToken}, ${token})` })
+    .set({
+      shareToken: sql`coalesce(${user.shareToken}, ${token})`,
+      updatedAt: new Date(),
+    })
     .where(
       and(
         eq(user.id, session.user.id),
