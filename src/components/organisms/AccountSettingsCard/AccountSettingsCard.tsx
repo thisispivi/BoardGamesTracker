@@ -3,7 +3,12 @@
 import { KeyRound, ShieldCheck, Trash2, TriangleAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { type FormEvent, type ReactNode, useState, useTransition } from "react";
+import {
+  type ReactNode,
+  type SubmitEvent,
+  useState,
+  useTransition,
+} from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/atoms/Button/Button";
@@ -39,7 +44,7 @@ export function AccountSettingsCard({
    * @param event - The intercepted email form submission.
    * @returns Nothing.
    */
-  function changeEmail(event: FormEvent<HTMLFormElement>): void {
+  function changeEmail(event: SubmitEvent<HTMLFormElement>): void {
     event.preventDefault();
     startTransition(async () => {
       const { error } = await authClient.changeEmail({
@@ -66,7 +71,7 @@ export function AccountSettingsCard({
    * @param event - The intercepted password form submission.
    * @returns Nothing.
    */
-  function changePassword(event: FormEvent<HTMLFormElement>): void {
+  function changePassword(event: SubmitEvent<HTMLFormElement>): void {
     event.preventDefault();
     const form = event.currentTarget;
     const formData = new FormData(form);

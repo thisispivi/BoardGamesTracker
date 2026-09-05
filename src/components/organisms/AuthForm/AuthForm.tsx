@@ -97,7 +97,7 @@ export function AuthForm({
    * @returns A promise that resolves after the authentication request finishes.
    */
   async function handleSubmit(
-    event: React.FormEvent<HTMLFormElement>,
+    event: React.SubmitEvent<HTMLFormElement>,
   ): Promise<void> {
     event.preventDefault();
     setPending(true);

@@ -3,7 +3,7 @@
 import { KeyRound } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { type FormEvent, type ReactNode, useState } from "react";
+import { type ReactNode, type SubmitEvent, useState } from "react";
 
 import { AppSpinner } from "@/components/atoms/AppSpinner/AppSpinner";
 import { Button } from "@/components/atoms/Button/Button";
@@ -36,7 +36,7 @@ export function MailResetPasswordForm({
    * @returns A promise that resolves after the reset request finishes.
    */
   async function handleSubmit(
-    event: FormEvent<HTMLFormElement>,
+    event: SubmitEvent<HTMLFormElement>,
   ): Promise<void> {
     event.preventDefault();
     setError("");

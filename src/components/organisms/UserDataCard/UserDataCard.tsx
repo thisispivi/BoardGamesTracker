@@ -29,7 +29,7 @@ export function UserDataCard(): ReactNode {
    * @param event - Form submission event whose default navigation is suppressed.
    * @returns A promise that resolves after the selected import is processed.
    */
-  async function importData(event: React.FormEvent<HTMLFormElement>) {
+  async function importData(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     setImporting(true);

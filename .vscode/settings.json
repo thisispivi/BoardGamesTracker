@@ -1,16 +1,30 @@
 {
   "github.copilot.chat.codeGeneration.useInstructionFiles": true,
   "github.copilot.chat.codeGeneration.instructions": [
-    { "file": "CODING_GUIDELINES.md" },
-    { "file": "AGENTS.md" }
+    {
+      "file": "CODING_GUIDELINES.md"
+    },
+    {
+      "file": "AGENTS.md"
+    }
   ],
   "github.copilot.chat.reviewSelection.instructions": [
-    { "file": "CODING_GUIDELINES.md" }
+    {
+      "file": "CODING_GUIDELINES.md"
+    }
   ],
   "github.copilot.chat.testGeneration.instructions": [
-    { "file": "CODING_GUIDELINES.md" }
+    {
+      "file": "CODING_GUIDELINES.md"
+    }
   ],
   "github.copilot.chat.commitMessageGeneration.instructions": [
-    { "text": "Use Conventional Commits: type(scope): imperative summary." }
-  ]
+    {
+      "text": "Use Conventional Commits: type(scope): imperative summary."
+    }
+  ],
+  "css.lint.unknownAtRules": "ignore",
+  "files.associations": {
+    "*.css": "tailwindcss"
+  }
 }

@@ -2,13 +2,13 @@
 
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import type { ReactNode } from "react";
+import type { PieSectorShapeProps } from "recharts";
 import {
   Area,
   AreaChart,
   Bar,
   BarChart,
   CartesianGrid,
-  Cell,
   Pie,
   PieChart,
   PolarAngleAxis,
@@ -17,6 +17,7 @@ import {
   Radar,
   RadarChart,
   ResponsiveContainer,
+  Sector,
   Tooltip,
   XAxis,
   YAxis,
@@ -30,6 +31,7 @@ import type {
   PlaytimeDatum,
 } from "@/core";
 import { cn } from "@/utils/cn";
+import { fittingCornerRadius } from "@/utils/fittingCornerRadius";
 import { getTaxonomyLabel } from "@/utils/gameTaxonomy";
 
 /**
@@ -155,7 +157,8 @@ export function StatsCharts({
     return t("stats.gamesCount", { count: Number(value) });
   }
 
-  const complexityData = complexity.map((datum) => ({
+  const complexityData = complexity.map((datum, index) => ({
+    fill: complexityColor(index),
     name: t(`stats.complexity.${datum.key}`),
     value: datum.value,
   }));
@@ -209,12 +212,9 @@ export function StatsCharts({
                     nameKey="name"
                     outerRadius="82%"
                     paddingAngle={5}
+                    shape={ComplexitySlice}
                     stroke="none"
-                  >
-                    {complexityData.map((datum, index) => (
-                      <Cell fill={complexityColor(index)} key={datum.name} />
-                    ))}
-                  </Pie>
+                  />
                   <Tooltip
                     content={<ChartTooltip valueFormatter={formatGameCount} />}
                     isAnimationActive={false}
@@ -223,14 +223,14 @@ export function StatsCharts({
               </ResponsiveContainer>
             </div>
             <ul className="flex shrink-0 flex-wrap justify-center gap-x-5 gap-y-2 px-2 pt-2 pb-1">
-              {complexityData.map((datum, index) => (
+              {complexityData.map((datum) => (
                 <li
                   className="text-foreground/75 flex items-center gap-2 text-xs"
                   key={datum.name}
                 >
                   <span
                     className="size-2.5 rounded-full"
-                    style={{ background: complexityColor(index) }}
+                    style={{ background: datum.fill }}
                   />
                   {datum.name}
                   <strong className="text-foreground tabular-nums">
@@ -644,6 +644,61 @@ function ChartGrid({ horizontal = false }: ChartGridProps): ReactNode {
       stroke="var(--border)"
       strokeDasharray="4 5"
       vertical={!horizontal}
+    />
+  );
+}
+
+/**
+ * Complexity ring slice that keeps its rounded corners at any slice width.
+ *
+ * Recharts hangs pointer handling on the layer wrapping the shape and reads the
+ * item attributes off the drawn path for touch, so both are forwarded while the
+ * remaining sector props are re-derived here.
+ *
+ * @param root0 - Sector geometry and presentation supplied by Recharts.
+ * @param root0."data-recharts-item-id" - Identifier of the owning graphical item.
+ * @param root0."data-recharts-item-index" - Position of the slice in the data.
+ * @param root0.cornerRadius - Rounding requested by the chart, in pixels.
+ * @param root0.cx - Horizontal center of the ring, in pixels.
+ * @param root0.cy - Vertical center of the ring, in pixels.
+ * @param root0.endAngle - Trailing edge of the slice, in degrees.
+ * @param root0.fill - Color painted inside the slice.
+ * @param root0.innerRadius - Inner edge of the ring, in pixels.
+ * @param root0.outerRadius - Outer edge of the ring, in pixels.
+ * @param root0.startAngle - Leading edge of the slice, in degrees.
+ * @returns One rounded sector of the complexity ring.
+ */
+function ComplexitySlice({
+  "data-recharts-item-id": itemId,
+  "data-recharts-item-index": itemIndex,
+  cornerRadius,
+  cx,
+  cy,
+  endAngle,
+  fill,
+  innerRadius,
+  outerRadius,
+  startAngle,
+}: PieSectorShapeProps): ReactNode {
+  return (
+    <Sector
+      cornerRadius={fittingCornerRadius({
+        cornerRadius: cornerRadius ?? 0,
+        endAngle,
+        innerRadius,
+        outerRadius,
+        startAngle,
+      })}
+      cx={cx}
+      cy={cy}
+      data-recharts-item-id={itemId}
+      data-recharts-item-index={itemIndex}
+      endAngle={endAngle}
+      fill={fill}
+      innerRadius={innerRadius}
+      outerRadius={outerRadius}
+      startAngle={startAngle}
+      stroke="none"
     />
   );
 }
