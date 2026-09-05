@@ -206,14 +206,14 @@ export function GameCard({
 
   if (compact) {
     return (
-      <article className="bg-card shadow-soft hover:border-primary/30 rounded-xl border p-1.5 transition-colors duration-200">
+      <article className="bg-card shadow-soft hover:border-accent/40 rounded-xl border p-1.5 transition-colors duration-200">
         <ExpansionRow currency={currency} game={game} readOnly={readOnly} />
       </article>
     );
   }
 
   return (
-    <article className="bg-card shadow-soft hover:border-primary/40 flex flex-col overflow-hidden rounded-xl border transition-colors duration-200">
+    <article className="bg-card shadow-soft hover:border-accent/50 flex flex-col overflow-hidden rounded-xl border transition-colors duration-200">
       <div className="flex gap-3 p-3 sm:gap-4 sm:p-4">
         <ArtworkLink className="w-20 sm:w-24" eager={eager} game={game} />
         <div className="flex min-w-0 flex-1 flex-col">

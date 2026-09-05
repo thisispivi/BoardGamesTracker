@@ -40,7 +40,7 @@ export function EmptyState({
         className,
       )}
     >
-      <Icon aria-hidden="true" className="text-primary mx-auto size-7" />
+      <Icon aria-hidden="true" className="text-accent mx-auto size-7" />
       {title === undefined ? null : (
         <h3 className="font-display mt-4 text-lg font-bold">{title}</h3>
       )}

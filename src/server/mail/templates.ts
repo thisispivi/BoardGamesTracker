@@ -7,7 +7,7 @@ import { type AppLocale, defaultLocale, isLocale } from "@/i18n/config";
 
 /** Light-theme palette mirroring the application tokens in `globals.css`. */
 const palette = {
-  accent: "#ef8354",
+  accent: "#9e470c",
   background: "#f6f4ed",
   border: "#dedbd0",
   card: "#fffdf8",
