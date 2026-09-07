@@ -423,7 +423,7 @@ function SelectedGameForm({
             max={2200}
             min={1800}
             name="yearPublished"
-            placeholder="2019"
+            placeholder={t("add.yearPlaceholder")}
             type="number"
           />
         </Field>
@@ -525,7 +525,7 @@ function SelectedGameForm({
           defaultValue={details?.imageUrl ?? selected.imageUrl ?? ""}
           maxLength={2_000}
           name="imageUrl"
-          placeholder="https://cf.geekdo-images.com/..."
+          placeholder={t("add.artworkPlaceholder")}
           type="url"
         />
       </Field>

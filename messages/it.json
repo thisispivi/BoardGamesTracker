@@ -113,17 +113,14 @@
     "searchLabel": "Cerca nella collezione",
     "searchPlaceholder": "Cerca giochi…",
     "all": "Tutti",
-    "favorites": "Preferiti",
     "categoryFilter": "Filtra per categoria",
     "allCategories": "Tutte le categorie",
     "mechanicFilter": "Filtra per meccanica",
     "allMechanics": "Tutte le meccaniche",
     "searchCategories": "Cerca categorie…",
     "searchMechanics": "Cerca meccaniche…",
-    "selectedFilters": "Selezionati",
     "clearSelection": "Cancella selezione",
     "noFilterOptions": "Nessuna opzione corrispondente.",
-    "clearFilters": "Cancella ricerca e filtri",
     "mainShelf": "Libreria principale",
     "games": "Giochi",
     "addons": "Componenti aggiuntivi",
@@ -162,7 +159,6 @@
       "mechanics": "Meccaniche",
       "favorites": "Preferiti"
     },
-    "playersLabel": "Filtra per numero di giocatori",
     "anyPlayers": "Qualsiasi numero di giocatori",
     "minPlayers": "Giocatori minimi",
     "maxPlayers": "Giocatori massimi",
@@ -174,7 +170,6 @@
       "heavy": "Pesante · oltre 3 fino a 4",
       "veryHeavy": "Molto pesante · oltre 4"
     },
-    "timeLabel": "Filtra per durata",
     "anyTime": "Qualsiasi durata",
     "minPlaytime": "Durata minima in minuti",
     "maxPlaytime": "Durata massima in minuti",
@@ -218,7 +213,8 @@
     "edit": "Modifica gioco",
     "moreActions": "Altre azioni per {name}",
     "moreTags": "Mostra altre {count} categorie e meccaniche",
-    "rating": "Voto BGG: {rating}"
+    "rating": "Voto BGG: {rating}",
+    "moreActionsHint": "Modifica, apri su BoardGameGeek o rimuovi"
   },
   "edit": {
     "eyebrow": "Dettagli personali",
@@ -233,7 +229,6 @@
     "eyebrow": "Collezione locale",
     "findTitle": "Trova un gioco",
     "selectedBody": "Aggiungi i dettagli necessari per la libreria e il selettore.",
-    "searchBody": "Trova una pagina BGG, poi salva il gioco localmente.",
     "searchBodyWithUrl": "Digita un titolo o incolla l’URL di un gioco su BoardGameGeek. La ricerca parte automaticamente dopo tre caratteri.",
     "chooseAnother": "Scegli un altro",
     "viewBgg": "Vedi su BGG",
@@ -255,12 +250,12 @@
     "submit": "Aggiungi alla collezione",
     "gameTitle": "Titolo del gioco",
     "searchPlaceholder": "Titolo del gioco o URL BGG",
-    "search": "Cerca",
     "choose": "Scegli",
     "resultsHint": "Nessun gioco trovato su BoardGameGeek.",
-    "searchFailed": "Ricerca non riuscita.",
     "unavailable": "La ricerca dei giochi non è momentaneamente disponibile.",
-    "metadataUnavailable": "Non è stato possibile caricare i dati da BoardGameGeek: i valori qui sotto sono segnaposto generici. Controllali prima di salvare."
+    "metadataUnavailable": "Non è stato possibile caricare i dati da BoardGameGeek: i valori qui sotto sono segnaposto generici. Controllali prima di salvare.",
+    "yearPlaceholder": "2019",
+    "artworkPlaceholder": "https://cf.geekdo-images.com/…"
   },
   "search": {
     "unauthorized": "Non autorizzato",
@@ -302,10 +297,7 @@
     "title": "Impostazioni",
     "description": "Gestisci account, valuta, importazioni, esportazioni e dati locali.",
     "account": "Il tuo account",
-    "accountBody": "Dettagli di autenticazione e ruolo",
-    "name": "Nome",
     "email": "Email",
-    "role": "Ruolo",
     "session": "Le sessioni sono archiviate sul server, ruotano automaticamente e scadono dopo 14 giorni. Usa Esci nella barra laterale per revocare questa sessione.",
     "currency": "Valuta",
     "currencyBody": "Usata per prezzi di acquisto e totale collezione.",
@@ -369,7 +361,6 @@
     "searchLabel": "Cerca nella lista desideri",
     "searchPlaceholder": "Cerca giochi…",
     "noMatches": "Nessun gioco corrisponde alla ricerca.",
-    "purchased": "L’ho acquistato",
     "purchaseEyebrow": "Nuovo acquisto",
     "purchaseTitle": "Aggiungi {name} alla collezione",
     "purchaseBody": "Il gioco lascerà la lista desideri ed entrerà nella collezione posseduta.",
@@ -377,7 +368,9 @@
     "removeTitle": "Rimuovere {name} dalla lista desideri?",
     "removeBody": "Viene rimosso soltanto l’elemento salvato nella lista desideri.",
     "remove": "Rimuovi",
-    "count": "{count, plural, one {# gioco che potresti voler acquistare.} other {# giochi che potresti voler acquistare.}}"
+    "count": "{count, plural, one {# gioco che potresti voler acquistare.} other {# giochi che potresti voler acquistare.}}",
+    "purchaseHint": "Sposta questo gioco nella tua collezione",
+    "removeHint": "Rimuovi questo gioco dalla lista desideri"
   },
   "stats": {
     "metaTitle": "Statistiche collezione",
@@ -492,7 +485,9 @@
     "next": "Successiva",
     "resetPassword": "Copia link di reimpostazione password",
     "resetFailed": "Non è stato possibile creare il link di reimpostazione",
-    "resetCopied": "Link copiato. Scade dopo un'ora e funziona una sola volta."
+    "resetCopied": "Link copiato. Scade dopo un'ora e funziona una sola volta.",
+    "resetPasswordHint": "Copia un link di reimpostazione password per questo account",
+    "deleteHint": "Elimina questo account e tutto il suo contenuto"
   },
   "adminGames": {
     "eyebrow": "Dati dei giochi",
@@ -515,7 +510,8 @@
     "refresh": "Aggiorna da BGG",
     "refreshHelp": "Recupera da BoardGameGeek i metadati e i collegamenti alle espansioni attuali e sovrascrive questo record. Utile quando un gioco è stato aggiunto mentre BoardGameGeek non era raggiungibile.",
     "refreshed": "Metadati aggiornati da BoardGameGeek",
-    "refreshFailed": "BoardGameGeek non ha restituito dati per questo gioco. Riprova tra poco."
+    "refreshFailed": "BoardGameGeek non ha restituito dati per questo gioco. Riprova tra poco.",
+    "editHint": "Correggi questa scheda nel catalogo condiviso"
   },
   "error": {
     "eyebrow": "Mossa imprevista",

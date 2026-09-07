@@ -7,6 +7,7 @@ import type { ReactNode } from "react";
 
 import { persistThemeCookie } from "@/client/theme";
 import { Button } from "@/components/atoms/Button/Button";
+import { Tooltip } from "@/components/atoms/Tooltip/Tooltip";
 
 /**
  * Toggles the persisted light and dark color schemes.
@@ -29,15 +30,17 @@ export function ThemeToggle(): ReactNode {
   }
 
   return (
-    <Button
-      aria-label={t("theme.toggle")}
-      onClick={toggleTheme}
-      size="icon"
-      type="button"
-      variant="ghost"
-    >
-      <Sun className="hidden size-4 dark:block" />
-      <Moon className="size-4 dark:hidden" />
-    </Button>
+    <Tooltip content={t("theme.toggle")}>
+      <Button
+        aria-label={t("theme.toggle")}
+        onClick={toggleTheme}
+        size="icon"
+        type="button"
+        variant="ghost"
+      >
+        <Sun className="hidden size-4 dark:block" />
+        <Moon className="size-4 dark:hidden" />
+      </Button>
+    </Tooltip>
   );
 }

@@ -5,6 +5,7 @@ import { EllipsisVertical, ExternalLink, Pencil, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { type ReactNode, useState } from "react";
 
+import { Tooltip } from "@/components/atoms/Tooltip/Tooltip";
 import { ConfirmDialog } from "@/components/molecules/ConfirmDialog/ConfirmDialog";
 import { EditGameDialog } from "@/components/organisms/EditGameDialog/EditGameDialog";
 import type { CollectionGame } from "@/core";
@@ -44,15 +45,17 @@ export function GameActionsMenu({
   return (
     <>
       <Popover.Root onOpenChange={setMenuOpen} open={menuOpen}>
-        <Popover.Trigger asChild>
-          <button
-            aria-label={t("game.moreActions", { name: game.name })}
-            className="text-muted-foreground hover:bg-muted hover:text-foreground grid size-8 shrink-0 place-items-center rounded-full transition"
-            type="button"
-          >
-            <EllipsisVertical className="size-4" />
-          </button>
-        </Popover.Trigger>
+        <Tooltip content={t("game.moreActionsHint")}>
+          <Popover.Trigger asChild>
+            <button
+              aria-label={t("game.moreActions", { name: game.name })}
+              className="text-muted-foreground hover:bg-muted hover:text-foreground grid size-8 shrink-0 place-items-center rounded-full transition"
+              type="button"
+            >
+              <EllipsisVertical className="size-4" />
+            </button>
+          </Popover.Trigger>
+        </Tooltip>
         <Popover.Portal>
           <Popover.Content
             align="end"

@@ -2,6 +2,7 @@ import { Globe } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
+import { Tooltip } from "@/components/atoms/Tooltip/Tooltip";
 import { cn } from "@/utils/cn";
 
 /** Canonical public location of this project's source code. */
@@ -53,24 +54,28 @@ export function ProjectLinks({ className }: ProjectLinksProps): ReactNode {
   const t = useTranslations("links");
   return (
     <div className={cn("flex items-center gap-1", className)}>
-      <a
-        aria-label={t("repository")}
-        className={linkClassName}
-        href={repositoryUrl}
-        rel="noopener noreferrer"
-        target="_blank"
-      >
-        <GithubMark />
-      </a>
-      <a
-        aria-label={t("maintainer")}
-        className={linkClassName}
-        href={maintainerUrl}
-        rel="noopener noreferrer"
-        target="_blank"
-      >
-        <Globe aria-hidden="true" className="size-4.5" />
-      </a>
+      <Tooltip content={t("repository")}>
+        <a
+          aria-label={t("repository")}
+          className={linkClassName}
+          href={repositoryUrl}
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          <GithubMark />
+        </a>
+      </Tooltip>
+      <Tooltip content={t("maintainer")}>
+        <a
+          aria-label={t("maintainer")}
+          className={linkClassName}
+          href={maintainerUrl}
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          <Globe aria-hidden="true" className="size-4.5" />
+        </a>
+      </Tooltip>
     </div>
   );
 }

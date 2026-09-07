@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useState } from "react";
 
 import { Tooltip } from "@/components/atoms/Tooltip/Tooltip";
 import { cn } from "@/utils/cn";
@@ -24,21 +24,19 @@ type GameTitleProps = {
  * @returns The heading, wrapped in a tooltip only while the name is clipped.
  */
 export function GameTitle({ className, name }: GameTitleProps): ReactNode {
-  const headingRef = useRef<HTMLHeadingElement>(null);
   const [clipped, setClipped] = useState(false);
 
-  useEffect(() => {
-    const heading = headingRef.current;
+  const measureHeading = useCallback((heading: HTMLHeadingElement | null) => {
     if (!heading) return;
     const observer = new ResizeObserver(() =>
       setClipped(heading.scrollWidth > heading.clientWidth),
     );
     observer.observe(heading);
     return () => observer.disconnect();
-  }, [name]);
+  }, []);
 
   const heading = (
-    <h2 className={cn("min-w-0 truncate", className)} ref={headingRef}>
+    <h2 className={cn("min-w-0 truncate", className)} ref={measureHeading}>
       {name}
     </h2>
   );

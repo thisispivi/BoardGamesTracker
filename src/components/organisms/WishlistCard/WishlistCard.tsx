@@ -14,6 +14,7 @@ import {
 import { toast } from "sonner";
 
 import { Button } from "@/components/atoms/Button/Button";
+import { Tooltip } from "@/components/atoms/Tooltip/Tooltip";
 import { ConfirmDialog } from "@/components/molecules/ConfirmDialog/ConfirmDialog";
 import { GameArtworkLink } from "@/components/molecules/GameArtworkLink/GameArtworkLink";
 import { GameFacts } from "@/components/molecules/GameFacts/GameFacts";
@@ -66,15 +67,17 @@ function PurchaseDialog({ currency, game }: PurchaseDialogProps): ReactNode {
 
   return (
     <Dialog.Root onOpenChange={setOpen} open={open}>
-      <Dialog.Trigger asChild>
-        <button
-          aria-label={t("wishlist.purchaseTitle", { name: game.name })}
-          className="text-muted-foreground hover:bg-muted hover:text-accent grid size-8 shrink-0 cursor-pointer place-items-center rounded-full transition"
-          type="button"
-        >
-          <ShoppingBag className="size-4" />
-        </button>
-      </Dialog.Trigger>
+      <Tooltip content={t("wishlist.purchaseHint")}>
+        <Dialog.Trigger asChild>
+          <button
+            aria-label={t("wishlist.purchaseTitle", { name: game.name })}
+            className="text-muted-foreground hover:bg-muted hover:text-accent grid size-8 shrink-0 cursor-pointer place-items-center rounded-full transition"
+            type="button"
+          >
+            <ShoppingBag className="size-4" />
+          </button>
+        </Dialog.Trigger>
+      </Tooltip>
       <Dialog.Portal>
         <Dialog.Overlay className="edit-dialog-overlay fixed inset-0 z-90 bg-black/55 backdrop-blur-sm" />
         <Dialog.Content className="edit-dialog-content bg-card fixed inset-x-0 bottom-0 z-91 rounded-t-xl border p-6 shadow-2xl focus:outline-none sm:top-1/2 sm:right-auto sm:bottom-auto sm:left-1/2 sm:w-[min(calc(100vw-2rem),30rem)] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl sm:p-8">
@@ -174,6 +177,7 @@ export function WishlistCard({
                 description={t("wishlist.removeBody")}
                 fields={{ itemId: game.id }}
                 title={t("wishlist.removeTitle", { name: game.name })}
+                tooltip={t("wishlist.removeHint")}
                 trigger={
                   <button
                     aria-label={t("wishlist.removeTitle", { name: game.name })}

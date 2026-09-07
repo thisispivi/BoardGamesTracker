@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import { AppSpinner } from "@/components/atoms/AppSpinner/AppSpinner";
 import { Button } from "@/components/atoms/Button/Button";
 import { GameArtwork } from "@/components/atoms/GameArtwork/GameArtwork";
+import { Tooltip } from "@/components/atoms/Tooltip/Tooltip";
 import type { AdminGame, AdminGamesPage, CollectionActionState } from "@/core";
 import {
   getAdminGamesPageAction,
@@ -413,14 +414,16 @@ export function AdminGamesPanel({
                       ) : null}
                     </p>
                   </div>
-                  <button
-                    aria-label={t("adminGames.edit", { name: game.name })}
-                    className="text-muted-foreground hover:bg-muted hover:text-primary shrink-0 rounded-md p-2 transition"
-                    onClick={() => setEditing(game)}
-                    type="button"
-                  >
-                    <Pencil className="size-4" />
-                  </button>
+                  <Tooltip content={t("adminGames.editHint")}>
+                    <button
+                      aria-label={t("adminGames.edit", { name: game.name })}
+                      className="text-muted-foreground hover:bg-muted hover:text-primary shrink-0 rounded-md p-2 transition"
+                      onClick={() => setEditing(game)}
+                      type="button"
+                    >
+                      <Pencil className="size-4" />
+                    </button>
+                  </Tooltip>
                 </li>
               ))}
             </ul>

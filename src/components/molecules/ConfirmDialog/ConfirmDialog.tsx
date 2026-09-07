@@ -5,6 +5,7 @@ import { TriangleAlert } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { Button } from "@/components/atoms/Button/Button";
+import { Tooltip } from "@/components/atoms/Tooltip/Tooltip";
 
 /** Properties that configure a destructive-action confirmation dialog. */
 type ConfirmDialogProps = {
@@ -18,8 +19,33 @@ type ConfirmDialogProps = {
   passwordLabel?: string;
   passwordPlaceholder?: string;
   title: string;
+  tooltip?: string;
   trigger?: React.ReactNode;
 };
+
+/** Dialog trigger and the explanation shown when hovering it. */
+type TriggerWithTooltipProps = {
+  children: React.ReactElement;
+  tooltip: string | undefined;
+};
+
+/**
+ * Explains a trigger on hover, leaving one without an explanation untouched.
+ *
+ * The tooltip wraps the dialog trigger rather than the other way round, so the
+ * trigger keeps control of the element it renders.
+ *
+ * @param root0 - Properties that configure the wrapper.
+ * @param root0.children - Dialog trigger rendered by the wrapper.
+ * @param root0.tooltip - Localized explanation, when the caller supplies one.
+ * @returns The trigger, explained on hover when a tooltip was given.
+ */
+function TriggerWithTooltip({
+  children,
+  tooltip,
+}: TriggerWithTooltipProps): ReactNode {
+  return tooltip ? <Tooltip content={tooltip}>{children}</Tooltip> : children;
+}
 
 /**
  * Animated in-app confirmation dialog for a server-side form action.
@@ -35,6 +61,7 @@ type ConfirmDialogProps = {
  * @param root0.passwordLabel - The optional deletion-password label.
  * @param root0.passwordPlaceholder - The optional deletion-password placeholder.
  * @param root0.title - Localized heading displayed by the component.
+ * @param root0.tooltip - Localized explanation revealed on hovering the trigger.
  * @param root0.trigger - Interactive element that opens the dialog, when the dialog owns its own state.
  * @returns The rendered confirm dialog.
  */
@@ -49,12 +76,15 @@ export function ConfirmDialog({
   passwordLabel,
   passwordPlaceholder,
   title,
+  tooltip,
   trigger,
 }: ConfirmDialogProps): ReactNode {
   return (
     <AlertDialog.Root {...(open === undefined ? {} : { onOpenChange, open })}>
       {trigger ? (
-        <AlertDialog.Trigger asChild>{trigger}</AlertDialog.Trigger>
+        <TriggerWithTooltip tooltip={tooltip}>
+          <AlertDialog.Trigger asChild>{trigger}</AlertDialog.Trigger>
+        </TriggerWithTooltip>
       ) : null}
       <AlertDialog.Portal>
         <AlertDialog.Overlay className="dialog-overlay fixed inset-0 z-90 bg-black/55 backdrop-blur-sm" />

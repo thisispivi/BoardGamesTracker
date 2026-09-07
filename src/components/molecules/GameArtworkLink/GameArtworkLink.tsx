@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
 import { GameArtwork } from "@/components/atoms/GameArtwork/GameArtwork";
+import { Tooltip } from "@/components/atoms/Tooltip/Tooltip";
 import type { CollectionGame } from "@/core";
 import { cn } from "@/utils/cn";
 
@@ -33,22 +34,24 @@ export function GameArtworkLink({
 }: GameArtworkLinkProps): ReactNode {
   const t = useTranslations();
   return (
-    <a
-      aria-label={t("game.openBggAria", { name: game.name })}
-      className={cn(
-        "ring-primary/50 block min-w-0 shrink-0 self-start rounded-lg ring-offset-2 ring-offset-transparent transition hover:ring-2",
-        className,
-      )}
-      href={`https://boardgamegeek.com/boardgame/${game.bggId}`}
-      rel="noopener noreferrer"
-      target="_blank"
-    >
-      <GameArtwork
-        className="rounded-lg"
-        eager={eager}
-        imageUrl={game.imageUrl}
-        name={game.name}
-      />
-    </a>
+    <Tooltip content={t("game.openBgg")}>
+      <a
+        aria-label={t("game.openBggAria", { name: game.name })}
+        className={cn(
+          "ring-primary/50 block min-w-0 shrink-0 self-start rounded-lg ring-offset-2 ring-offset-transparent transition hover:ring-2",
+          className,
+        )}
+        href={`https://boardgamegeek.com/boardgame/${game.bggId}`}
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        <GameArtwork
+          className="rounded-lg"
+          eager={eager}
+          imageUrl={game.imageUrl}
+          name={game.name}
+        />
+      </a>
+    </Tooltip>
   );
 }

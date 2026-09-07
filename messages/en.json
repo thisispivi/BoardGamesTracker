@@ -113,17 +113,14 @@
     "searchLabel": "Search collection",
     "searchPlaceholder": "Search games…",
     "all": "All",
-    "favorites": "Favorites",
     "categoryFilter": "Filter by category",
     "allCategories": "All categories",
     "mechanicFilter": "Filter by mechanic",
     "allMechanics": "All mechanics",
     "searchCategories": "Search categories…",
     "searchMechanics": "Search mechanics…",
-    "selectedFilters": "Selected",
     "clearSelection": "Clear selection",
     "noFilterOptions": "No matching options.",
-    "clearFilters": "Clear search and filters",
     "mainShelf": "Main shelf",
     "games": "Games",
     "addons": "Add-ons",
@@ -162,7 +159,6 @@
       "mechanics": "Mechanics",
       "favorites": "Favorites"
     },
-    "playersLabel": "Filter by player count",
     "anyPlayers": "Any player count",
     "minPlayers": "Minimum players",
     "maxPlayers": "Maximum players",
@@ -174,7 +170,6 @@
       "heavy": "Heavy · over 3 to 4",
       "veryHeavy": "Very heavy · over 4"
     },
-    "timeLabel": "Filter by playtime",
     "anyTime": "Any playtime",
     "minPlaytime": "Shortest playtime in minutes",
     "maxPlaytime": "Longest playtime in minutes",
@@ -218,7 +213,8 @@
     "edit": "Edit game",
     "moreActions": "More actions for {name}",
     "moreTags": "Show {count} more categories and mechanics",
-    "rating": "BGG rating: {rating}"
+    "rating": "BGG rating: {rating}",
+    "moreActionsHint": "Edit, open on BoardGameGeek, or remove"
   },
   "edit": {
     "eyebrow": "Personal details",
@@ -233,7 +229,6 @@
     "eyebrow": "Local collection",
     "findTitle": "Find a game",
     "selectedBody": "Add the details Board Games Tracker needs for your shelf and picker.",
-    "searchBody": "Discover a BGG page, then save the game locally.",
     "searchBodyWithUrl": "Type a title or paste a BoardGameGeek game URL. Search starts automatically after three characters.",
     "chooseAnother": "Choose another",
     "viewBgg": "View on BGG",
@@ -255,12 +250,12 @@
     "submit": "Add to collection",
     "gameTitle": "Game title",
     "searchPlaceholder": "Game title or BGG URL",
-    "search": "Search",
     "choose": "Choose",
     "resultsHint": "No BoardGameGeek games found.",
-    "searchFailed": "Search failed.",
     "unavailable": "Game discovery is temporarily unavailable.",
-    "metadataUnavailable": "BoardGameGeek details could not be loaded, so the values below are generic placeholders. Please check them before saving."
+    "metadataUnavailable": "BoardGameGeek details could not be loaded, so the values below are generic placeholders. Please check them before saving.",
+    "yearPlaceholder": "2019",
+    "artworkPlaceholder": "https://cf.geekdo-images.com/…"
   },
   "search": {
     "unauthorized": "Unauthorized",
@@ -302,10 +297,7 @@
     "title": "Settings",
     "description": "Manage your account, currency, imports, exports, and local data.",
     "account": "Your account",
-    "accountBody": "Authentication and role details",
-    "name": "Name",
     "email": "Email",
-    "role": "Role",
     "session": "Sessions are stored server-side, rotate automatically, and expire after 14 days. Use Sign out in the sidebar to revoke this session.",
     "currency": "Currency",
     "currencyBody": "Used for purchase prices and collection totals.",
@@ -369,7 +361,6 @@
     "searchLabel": "Search wishlist",
     "searchPlaceholder": "Search games…",
     "noMatches": "No games match your search.",
-    "purchased": "I bought this",
     "purchaseEyebrow": "New purchase",
     "purchaseTitle": "Add {name} to your collection",
     "purchaseBody": "The game will leave your wishlist and become part of your owned collection.",
@@ -377,7 +368,9 @@
     "removeTitle": "Remove {name} from the wishlist?",
     "removeBody": "This only removes the saved wishlist item.",
     "remove": "Remove",
-    "count": "{count, plural, one {# game you may want to buy.} other {# games you may want to buy.}}"
+    "count": "{count, plural, one {# game you may want to buy.} other {# games you may want to buy.}}",
+    "purchaseHint": "Move this game into your collection",
+    "removeHint": "Remove this game from the wishlist"
   },
   "stats": {
     "metaTitle": "Collection stats",
@@ -492,7 +485,9 @@
     "next": "Next",
     "resetPassword": "Copy password reset link",
     "resetFailed": "The reset link could not be created",
-    "resetCopied": "Reset link copied. It expires in one hour and works once."
+    "resetCopied": "Reset link copied. It expires in one hour and works once.",
+    "resetPasswordHint": "Copy a password reset link for this account",
+    "deleteHint": "Delete this account and everything in it"
   },
   "adminGames": {
     "eyebrow": "Game data",
@@ -515,7 +510,8 @@
     "refresh": "Refresh from BGG",
     "refreshHelp": "Pull the current metadata and expansion relationships from BoardGameGeek and overwrite this record. Useful when a game was added while BoardGameGeek was unreachable.",
     "refreshed": "Metadata refreshed from BoardGameGeek",
-    "refreshFailed": "BoardGameGeek did not return data for this game. Try again shortly."
+    "refreshFailed": "BoardGameGeek did not return data for this game. Try again shortly.",
+    "editHint": "Correct this entry in the shared catalog"
   },
   "error": {
     "eyebrow": "Unexpected move",

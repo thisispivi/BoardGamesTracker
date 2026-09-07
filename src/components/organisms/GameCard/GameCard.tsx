@@ -4,6 +4,7 @@ import { Heart } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { type ReactNode, useMemo } from "react";
 
+import { Tooltip } from "@/components/atoms/Tooltip/Tooltip";
 import { GameArtworkLink } from "@/components/molecules/GameArtworkLink/GameArtworkLink";
 import { GameFacts } from "@/components/molecules/GameFacts/GameFacts";
 import { GameTitle } from "@/components/molecules/GameTitle/GameTitle";
@@ -26,25 +27,28 @@ type FavoriteControlProps = { game: CollectionGame };
  */
 function FavoriteControl({ game }: FavoriteControlProps): ReactNode {
   const t = useTranslations();
+  const label = game.favorite
+    ? t("game.removeFavorite")
+    : t("game.addFavorite");
   return (
     <form action={toggleFavoriteAction}>
       <input name="itemId" type="hidden" value={game.id} />
       <input name="favorite" type="hidden" value={String(!game.favorite)} />
-      <button
-        aria-label={
-          game.favorite ? t("game.removeFavorite") : t("game.addFavorite")
-        }
-        aria-pressed={game.favorite}
-        className={cn(
-          "grid size-8 shrink-0 place-items-center rounded-full transition",
-          game.favorite
-            ? "text-accent hover:bg-accent/10"
-            : "text-muted-foreground hover:bg-muted hover:text-accent",
-        )}
-        type="submit"
-      >
-        <Heart className={cn("size-4", game.favorite && "fill-current")} />
-      </button>
+      <Tooltip content={label}>
+        <button
+          aria-label={label}
+          aria-pressed={game.favorite}
+          className={cn(
+            "grid size-8 shrink-0 place-items-center rounded-full transition",
+            game.favorite
+              ? "text-accent hover:bg-accent/10"
+              : "text-muted-foreground hover:bg-muted hover:text-accent",
+          )}
+          type="submit"
+        >
+          <Heart className={cn("size-4", game.favorite && "fill-current")} />
+        </button>
+      </Tooltip>
     </form>
   );
 }

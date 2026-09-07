@@ -13,6 +13,7 @@ import { useTranslations } from "next-intl";
 import { type ReactNode, useState, useTransition } from "react";
 import { toast } from "sonner";
 
+import { Tooltip } from "@/components/atoms/Tooltip/Tooltip";
 import { ConfirmDialog } from "@/components/molecules/ConfirmDialog/ConfirmDialog";
 import {
   createPasswordResetLinkAction,
@@ -79,29 +80,34 @@ export function AdminUserActions({
     );
   }
 
+  const roleLabel =
+    user.role === "admin" ? t("admin.removeRole") : t("admin.makeAdmin");
+  const banLabel = user.banned ? t("admin.restore") : t("admin.ban");
+
   return (
     <div className="flex justify-end gap-1">
-      <button
-        aria-label={t("admin.resetPassword")}
-        className={cn(
-          "rounded-md p-2 transition disabled:opacity-50",
-          copied
-            ? "bg-primary/10 text-primary"
-            : "text-muted-foreground hover:bg-muted hover:text-primary",
-        )}
-        disabled={issuing}
-        onClick={copyResetLink}
-        title={t("admin.resetPassword")}
-        type="button"
-      >
-        {issuing ? (
-          <LoaderCircle className="size-4 animate-spin" />
-        ) : copied ? (
-          <Check className="size-4" />
-        ) : (
-          <KeyRound className="size-4" />
-        )}
-      </button>
+      <Tooltip content={t("admin.resetPasswordHint")}>
+        <button
+          aria-label={t("admin.resetPassword")}
+          className={cn(
+            "rounded-md p-2 transition disabled:opacity-50",
+            copied
+              ? "bg-primary/10 text-primary"
+              : "text-muted-foreground hover:bg-muted hover:text-primary",
+          )}
+          disabled={issuing}
+          onClick={copyResetLink}
+          type="button"
+        >
+          {issuing ? (
+            <LoaderCircle className="size-4 animate-spin" />
+          ) : copied ? (
+            <Check className="size-4" />
+          ) : (
+            <KeyRound className="size-4" />
+          )}
+        </button>
+      </Tooltip>
       <form action={updateUserRoleAction}>
         <input name="userId" type="hidden" value={user.id} />
         <input
@@ -109,30 +115,32 @@ export function AdminUserActions({
           type="hidden"
           value={user.role === "admin" ? "user" : "admin"}
         />
-        <button
-          className="text-muted-foreground hover:bg-muted hover:text-primary rounded-md p-2"
-          title={
-            user.role === "admin" ? t("admin.removeRole") : t("admin.makeAdmin")
-          }
-          type="submit"
-        >
-          <Shield className="size-4" />
-        </button>
+        <Tooltip content={roleLabel}>
+          <button
+            aria-label={roleLabel}
+            className="text-muted-foreground hover:bg-muted hover:text-primary rounded-md p-2"
+            type="submit"
+          >
+            <Shield className="size-4" />
+          </button>
+        </Tooltip>
       </form>
       <form action={toggleUserBanAction}>
         <input name="userId" type="hidden" value={user.id} />
         <input name="banned" type="hidden" value={String(!user.banned)} />
-        <button
-          className="text-muted-foreground hover:bg-muted hover:text-danger rounded-md p-2"
-          title={user.banned ? t("admin.restore") : t("admin.ban")}
-          type="submit"
-        >
-          {user.banned ? (
-            <UserRoundCheck className="size-4" />
-          ) : (
-            <UserRoundX className="size-4" />
-          )}
-        </button>
+        <Tooltip content={banLabel}>
+          <button
+            aria-label={banLabel}
+            className="text-muted-foreground hover:bg-muted hover:text-danger rounded-md p-2"
+            type="submit"
+          >
+            {user.banned ? (
+              <UserRoundCheck className="size-4" />
+            ) : (
+              <UserRoundX className="size-4" />
+            )}
+          </button>
+        </Tooltip>
       </form>
       <ConfirmDialog
         action={deleteUserAction}
@@ -141,10 +149,11 @@ export function AdminUserActions({
         description={t("admin.deleteBody")}
         fields={{ userId: user.id }}
         title={t("admin.deleteTitle", { name: user.name })}
+        tooltip={t("admin.deleteHint")}
         trigger={
           <button
+            aria-label={t("admin.delete")}
             className="text-muted-foreground hover:bg-danger/10 hover:text-danger rounded-md p-2"
-            title={t("admin.delete")}
             type="button"
           >
             <Trash2 className="size-4" />
