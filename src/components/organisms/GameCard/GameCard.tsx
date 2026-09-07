@@ -4,7 +4,7 @@ import { Heart } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { type ReactNode, useMemo } from "react";
 
-import { GameArtwork } from "@/components/atoms/GameArtwork/GameArtwork";
+import { GameArtworkLink } from "@/components/molecules/GameArtworkLink/GameArtworkLink";
 import { GameFacts } from "@/components/molecules/GameFacts/GameFacts";
 import { TagRow } from "@/components/molecules/TagRow/TagRow";
 import { GameActionsMenu } from "@/components/organisms/GameActionsMenu/GameActionsMenu";
@@ -83,52 +83,6 @@ function CollectionCost({ currency, game }: CollectionCostProps): ReactNode {
   );
 }
 
-/** Artwork size and game used by the BoardGameGeek artwork link. */
-type ArtworkLinkProps = {
-  className?: string;
-  eager?: boolean;
-  game: CollectionGame;
-};
-
-/**
- * Links the uncovered box art to its BoardGameGeek page.
- *
- * Nothing is drawn over the artwork, so the box stays readable at the small
- * sizes this card uses; every action lives beside the image instead.
- *
- * @param root0 - Properties that configure the artwork link.
- * @param root0.className - Optional classes merged with the artwork size.
- * @param root0.eager - Whether the artwork should load with high priority.
- * @param root0.game - Game record displayed or changed by the component.
- * @returns Linked artwork sized by the caller.
- */
-function ArtworkLink({
-  className,
-  eager = false,
-  game,
-}: ArtworkLinkProps): ReactNode {
-  const t = useTranslations();
-  return (
-    <a
-      aria-label={t("game.openBggAria", { name: game.name })}
-      className={cn(
-        "ring-primary/50 block min-w-0 shrink-0 self-start rounded-lg ring-offset-2 ring-offset-transparent transition hover:ring-2",
-        className,
-      )}
-      href={`https://boardgamegeek.com/boardgame/${game.bggId}`}
-      rel="noopener noreferrer"
-      target="_blank"
-    >
-      <GameArtwork
-        className="rounded-lg"
-        eager={eager}
-        imageUrl={game.imageUrl}
-        name={game.name}
-      />
-    </a>
-  );
-}
-
 /** Game, currency, and permissions used by one expansion row. */
 type ExpansionRowProps = {
   currency: string;
@@ -153,7 +107,7 @@ function ExpansionRow({
   const t = useTranslations();
   return (
     <div className="hover:bg-card flex items-center gap-2.5 rounded-lg p-1 transition">
-      <ArtworkLink className="w-10 sm:w-11" game={game} />
+      <GameArtworkLink className="w-10 sm:w-11" game={game} />
       <div className="min-w-0 flex-1">
         <p className="truncate text-xs font-semibold">{game.name}</p>
         <p className="text-muted-foreground mt-0.5 flex items-center gap-1 truncate text-[0.6875rem]">
@@ -215,7 +169,7 @@ export function GameCard({
   return (
     <article className="bg-card shadow-soft hover:border-accent/50 flex flex-col overflow-hidden rounded-xl border transition-colors duration-200">
       <div className="flex gap-3 p-3 sm:gap-4 sm:p-4">
-        <ArtworkLink className="w-20 sm:w-24" eager={eager} game={game} />
+        <GameArtworkLink className="w-20 sm:w-24" eager={eager} game={game} />
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="flex min-w-0 items-start gap-1">
             <div className="min-w-0 flex-1">

@@ -44,9 +44,14 @@ export function WishlistBrowser({
       <GameFiltersSheet filters={filters} games={games} onChange={setFilters} />
 
       {visible.length > 0 ? (
-        <div className="grid grid-cols-2 items-start gap-3 sm:gap-5 xl:grid-cols-3 2xl:grid-cols-4">
-          {visible.map((game) => (
-            <WishlistCard currency={currency} game={game} key={game.id} />
+        <div className="grid items-start gap-3 sm:gap-4 md:grid-cols-2 2xl:grid-cols-3">
+          {visible.map((game, index) => (
+            <WishlistCard
+              currency={currency}
+              eager={index < 3}
+              game={game}
+              key={game.id}
+            />
           ))}
         </div>
       ) : (

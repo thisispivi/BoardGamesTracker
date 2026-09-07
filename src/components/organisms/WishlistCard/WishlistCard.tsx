@@ -1,28 +1,30 @@
 "use client";
 
 import * as Dialog from "@radix-ui/react-dialog";
-import {
-  ExternalLink,
-  LoaderCircle,
-  ShoppingBag,
-  Trash2,
-  X,
-} from "lucide-react";
+import { LoaderCircle, ShoppingBag, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
-import { type ReactNode, useActionState, useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import {
+  type ReactNode,
+  useActionState,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/atoms/Button/Button";
-import { GameArtwork } from "@/components/atoms/GameArtwork/GameArtwork";
 import { ConfirmDialog } from "@/components/molecules/ConfirmDialog/ConfirmDialog";
+import { GameArtworkLink } from "@/components/molecules/GameArtworkLink/GameArtworkLink";
 import { GameFacts } from "@/components/molecules/GameFacts/GameFacts";
 import { GiftedPriceField } from "@/components/molecules/GiftedPriceField/GiftedPriceField";
+import { TagRow } from "@/components/molecules/TagRow/TagRow";
 import type { CollectionActionState, CollectionGame } from "@/core";
 import {
   moveWishlistToCollectionAction,
   removeGameAction,
 } from "@/server/actions/collection";
+import { buildGameTags } from "@/utils/gameTags";
 
 const initialState: CollectionActionState = { success: false, message: "" };
 
@@ -64,10 +66,13 @@ function PurchaseDialog({ currency, game }: PurchaseDialogProps): ReactNode {
   return (
     <Dialog.Root onOpenChange={setOpen} open={open}>
       <Dialog.Trigger asChild>
-        <Button className="min-w-0 flex-1 px-3 sm:px-4" size="sm" type="button">
-          <ShoppingBag aria-hidden="true" className="size-4 shrink-0" />
-          <span className="truncate">{t("wishlist.purchased")}</span>
-        </Button>
+        <button
+          aria-label={t("wishlist.purchaseTitle", { name: game.name })}
+          className="text-muted-foreground hover:bg-muted hover:text-accent grid size-8 shrink-0 cursor-pointer place-items-center rounded-full transition"
+          type="button"
+        >
+          <ShoppingBag className="size-4" />
+        </button>
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="edit-dialog-overlay fixed inset-0 z-90 bg-black/55 backdrop-blur-sm" />
@@ -119,91 +124,68 @@ function PurchaseDialog({ currency, game }: PurchaseDialogProps): ReactNode {
   );
 }
 
-/** Wishlist game and currency displayed by a card. */
+/** Wishlist game, currency, and artwork priority shown by a card. */
 type WishlistCardProps = {
   currency: string;
+  eager?: boolean;
   game: CollectionGame;
 };
 
 /**
- * Square wishlist card with purchase, BGG, and removal actions.
+ * Horizontal wishlist card matching the collection card, with purchase and removal actions.
  *
  * @param root0 - Properties that configure wishlist card.
  * @param root0.currency - ISO currency code used to format monetary values.
+ * @param root0.eager - Whether the artwork should load with high priority.
  * @param root0.game - Game record displayed or changed by the component.
  * @returns The rendered wishlist card.
  */
-export function WishlistCard({ currency, game }: WishlistCardProps): ReactNode {
+export function WishlistCard({
+  currency,
+  eager = false,
+  game,
+}: WishlistCardProps): ReactNode {
+  const locale = useLocale();
   const t = useTranslations();
-  const tags = [...new Set([...game.categories, ...game.mechanics])].slice(
-    0,
-    4,
-  );
+  const tags = useMemo(() => buildGameTags(game, locale), [game, locale]);
 
   return (
-    <article className="bg-card shadow-soft flex flex-col rounded-xl border p-2 sm:p-3">
-      <div className="group relative overflow-hidden rounded-lg">
-        <GameArtwork
-          className="rounded-lg"
-          imageClassName="transition duration-300 group-hover:scale-105 group-hover:blur-sm group-focus-within:scale-105 group-focus-within:blur-sm"
-          imageUrl={game.imageUrl}
-          name={game.name}
-        />
-        <a
-          aria-label={t("game.openBggAria", { name: game.name })}
-          className="absolute inset-0 grid place-items-center bg-black/35 opacity-0 transition group-focus-within:opacity-100 group-hover:opacity-100"
-          href={`https://boardgamegeek.com/boardgame/${game.bggId}`}
-          rel="noopener noreferrer"
-          target="_blank"
-        >
-          <span className="flex items-center gap-2 rounded-full bg-white px-4 py-2.5 text-sm font-bold text-slate-950 shadow-lg">
-            <ExternalLink className="size-4" /> {t("game.openBgg")}
-          </span>
-        </a>
-      </div>
-      <div className="flex min-w-0 flex-1 flex-col px-0.5 pt-2 sm:px-1 sm:pt-4">
-        <h2 className="font-display line-clamp-2 text-sm font-bold sm:text-lg">
-          {game.name}
-        </h2>
-        <p className="text-muted-foreground mt-0.5 text-[0.6875rem] sm:mt-1 sm:text-xs">
-          {game.yearPublished ?? t("common.yearUnknown")}
-        </p>
-        {tags.length > 0 ? (
-          <div className="mt-3 hidden flex-wrap gap-1.5 sm:flex">
-            {tags.map((tag) => (
-              <span
-                className="bg-muted text-muted-foreground max-w-full truncate rounded-full px-2 py-0.5 text-xs font-semibold"
-                key={tag}
-              >
-                {tag}
-              </span>
-            ))}
+    <article className="bg-card shadow-soft hover:border-accent/50 flex flex-col overflow-hidden rounded-xl border transition-colors duration-200">
+      <div className="flex gap-3 p-3 sm:gap-4 sm:p-4">
+        <GameArtworkLink className="w-20 sm:w-24" eager={eager} game={game} />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <div className="flex min-w-0 items-start gap-1">
+            <div className="min-w-0 flex-1">
+              <h2 className="font-display line-clamp-2 text-sm leading-snug font-bold sm:text-base">
+                {game.name}
+              </h2>
+              <p className="text-muted-foreground mt-1 text-xs">
+                {game.yearPublished ?? t("common.yearUnknown")}
+              </p>
+            </div>
+            <div className="-mt-1 -mr-1 flex shrink-0 items-center">
+              <PurchaseDialog currency={currency} game={game} />
+              <ConfirmDialog
+                action={removeGameAction}
+                cancelLabel={t("common.cancel")}
+                confirmLabel={t("wishlist.remove")}
+                description={t("wishlist.removeBody")}
+                fields={{ itemId: game.id }}
+                title={t("wishlist.removeTitle", { name: game.name })}
+                trigger={
+                  <button
+                    aria-label={t("wishlist.removeTitle", { name: game.name })}
+                    className="text-muted-foreground hover:bg-muted hover:text-danger grid size-8 shrink-0 cursor-pointer place-items-center rounded-full transition"
+                    type="button"
+                  >
+                    <Trash2 className="size-4" />
+                  </button>
+                }
+              />
+            </div>
           </div>
-        ) : null}
-        <GameFacts
-          className="mt-2 gap-x-2.5 border-t pt-2 sm:mt-4 sm:gap-x-4 sm:pt-3"
-          game={game}
-        />
-        <div className="mt-2 flex items-center gap-2 border-t pt-2 sm:mt-4 sm:pt-3">
-          <PurchaseDialog currency={currency} game={game} />
-          <ConfirmDialog
-            action={removeGameAction}
-            cancelLabel={t("common.cancel")}
-            confirmLabel={t("wishlist.remove")}
-            description={t("wishlist.removeBody")}
-            fields={{ itemId: game.id }}
-            title={t("wishlist.removeTitle", { name: game.name })}
-            trigger={
-              <Button
-                aria-label={t("wishlist.removeTitle", { name: game.name })}
-                size="icon"
-                type="button"
-                variant="secondary"
-              >
-                <Trash2 className="size-4" />
-              </Button>
-            }
-          />
+          <TagRow className="mt-2.5" tags={tags} />
+          <GameFacts className="mt-2.5 border-t pt-2.5" game={game} />
         </div>
       </div>
     </article>
