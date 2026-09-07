@@ -1,8 +1,7 @@
-import { Globe } from "lucide-react";
+import { ExternalLink, Globe } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
-import { Tooltip } from "@/components/atoms/Tooltip/Tooltip";
 import { cn } from "@/utils/cn";
 
 /** Canonical public location of this project's source code. */
@@ -11,9 +10,9 @@ const repositoryUrl = "https://github.com/thisispivi/BoardGamesTracker";
 /** Canonical public location of the maintainer's own links page. */
 const maintainerUrl = "https://linktree.pivi.dev/";
 
-/** Shared presentation of one square external-link control. */
+/** Shared presentation of one external-link row. */
 const linkClassName =
-  "text-muted-foreground hover:bg-muted hover:text-foreground grid size-9 place-items-center rounded-lg transition";
+  "hover:bg-muted hover:border-accent/50 flex items-center gap-3 rounded-lg border px-3.5 py-3 text-sm font-bold transition";
 
 /**
  * Draws the GitHub mark, which Lucide no longer ships as a brand icon.
@@ -24,7 +23,7 @@ function GithubMark(): ReactNode {
   return (
     <svg
       aria-hidden="true"
-      className="size-4.5"
+      className="size-4.5 shrink-0"
       fill="currentColor"
       role="presentation"
       viewBox="0 0 16 16"
@@ -47,35 +46,39 @@ type ProjectLinksProps = {
  * without passing the current document as a referrer.
  *
  * @param root0 - Properties that configure the project links.
- * @param root0.className - Optional classes merged with the row styles.
+ * @param root0.className - Optional classes merged with the layout styles.
  * @returns The rendered external project links.
  */
 export function ProjectLinks({ className }: ProjectLinksProps): ReactNode {
   const t = useTranslations("links");
   return (
-    <div className={cn("flex items-center gap-1", className)}>
-      <Tooltip content={t("repository")}>
-        <a
-          aria-label={t("repository")}
-          className={linkClassName}
-          href={repositoryUrl}
-          rel="noopener noreferrer"
-          target="_blank"
-        >
-          <GithubMark />
-        </a>
-      </Tooltip>
-      <Tooltip content={t("maintainer")}>
-        <a
-          aria-label={t("maintainer")}
-          className={linkClassName}
-          href={maintainerUrl}
-          rel="noopener noreferrer"
-          target="_blank"
-        >
-          <Globe aria-hidden="true" className="size-4.5" />
-        </a>
-      </Tooltip>
+    <div className={cn("grid gap-2 sm:grid-cols-2", className)}>
+      <a
+        className={linkClassName}
+        href={repositoryUrl}
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        <GithubMark />
+        <span className="min-w-0 flex-1 truncate">{t("repository")}</span>
+        <ExternalLink
+          aria-hidden="true"
+          className="text-muted-foreground size-4 shrink-0"
+        />
+      </a>
+      <a
+        className={linkClassName}
+        href={maintainerUrl}
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        <Globe aria-hidden="true" className="size-4.5 shrink-0" />
+        <span className="min-w-0 flex-1 truncate">{t("maintainer")}</span>
+        <ExternalLink
+          aria-hidden="true"
+          className="text-muted-foreground size-4 shrink-0"
+        />
+      </a>
     </div>
   );
 }

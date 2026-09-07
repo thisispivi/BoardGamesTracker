@@ -5,8 +5,9 @@ import { type ReactNode, useCallback, useState } from "react";
 import { Tooltip } from "@/components/atoms/Tooltip/Tooltip";
 import { cn } from "@/utils/cn";
 
-/** Game name and the typography of the heading that carries it. */
+/** Game name, its typography, and the element that carries it. */
 type GameTitleProps = {
+  as?: "h2" | "p";
   className?: string;
   name: string;
 };
@@ -15,31 +16,36 @@ type GameTitleProps = {
  * Shows a game name on one line, revealing the whole of it when it is clipped.
  *
  * Every card then reserves the same height for its title, whatever the length
- * of the name. Clipping is a layout decision only: the heading always holds the
+ * of the name. Clipping is a layout decision only: the element always holds the
  * complete name, so assistive technology reads it whether or not it fits.
  *
  * @param root0 - Properties that configure the title.
- * @param root0.className - Optional classes merged with the heading styles.
- * @param root0.name - Game name displayed by the heading.
- * @returns The heading, wrapped in a tooltip only while the name is clipped.
+ * @param root0.as - Element to render, so a secondary name is not a heading.
+ * @param root0.className - Optional classes merged with the element styles.
+ * @param root0.name - Game name displayed by the element.
+ * @returns The name, wrapped in a tooltip only while it is clipped.
  */
-export function GameTitle({ className, name }: GameTitleProps): ReactNode {
+export function GameTitle({
+  as: Element = "h2",
+  className,
+  name,
+}: GameTitleProps): ReactNode {
   const [clipped, setClipped] = useState(false);
 
-  const measureHeading = useCallback((heading: HTMLHeadingElement | null) => {
-    if (!heading) return;
+  const measureName = useCallback((element: HTMLElement | null) => {
+    if (!element) return;
     const observer = new ResizeObserver(() =>
-      setClipped(heading.scrollWidth > heading.clientWidth),
+      setClipped(element.scrollWidth > element.clientWidth),
     );
-    observer.observe(heading);
+    observer.observe(element);
     return () => observer.disconnect();
   }, []);
 
-  const heading = (
-    <h2 className={cn("min-w-0 truncate", className)} ref={measureHeading}>
+  const title = (
+    <Element className={cn("min-w-0 truncate", className)} ref={measureName}>
       {name}
-    </h2>
+    </Element>
   );
 
-  return clipped ? <Tooltip content={name}>{heading}</Tooltip> : heading;
+  return clipped ? <Tooltip content={name}>{title}</Tooltip> : title;
 }

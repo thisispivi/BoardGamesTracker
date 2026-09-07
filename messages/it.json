@@ -323,7 +323,9 @@
     "deleteAccountBody": "Elimina definitivamente account, sessioni, libreria e dati personali. Inserisci la password attuale per continuare.",
     "deleteAccountSummary": "Rimuovi definitivamente il tuo account e tutti i suoi dati.",
     "deleteConfirmationSent": "Controlla la posta per confermare l’eliminazione definitiva dell’account.",
-    "deleteFailed": "Non è stato possibile eliminare l'account. Controlla la password e riprova."
+    "deleteFailed": "Non è stato possibile eliminare l'account. Controlla la password e riprova.",
+    "about": "Informazioni",
+    "aboutBody": "Dove viene sviluppata questa applicazione e chi la mantiene."
   },
   "sharing": {
     "metaTitle": "Libreria condivisa",

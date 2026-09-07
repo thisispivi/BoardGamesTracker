@@ -23,6 +23,9 @@
       "text": "Use Conventional Commits: type(scope): imperative summary."
     }
   ],
+  "editor.unicodeHighlight.allowedCharacters": {
+    "–": true
+  },
   "css.lint.unknownAtRules": "ignore",
   "files.associations": {
     "*.css": "tailwindcss"

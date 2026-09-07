@@ -323,7 +323,9 @@
     "deleteAccountBody": "This permanently deletes your account, sessions, library, and personal data. Enter your current password to continue.",
     "deleteAccountSummary": "Permanently remove your account and all of its data.",
     "deleteConfirmationSent": "Check your inbox to confirm permanent account deletion.",
-    "deleteFailed": "The account could not be deleted. Check your password and try again."
+    "deleteFailed": "The account could not be deleted. Check your password and try again.",
+    "about": "About",
+    "aboutBody": "Where this application is developed, and who maintains it."
   },
   "sharing": {
     "metaTitle": "Shared library",

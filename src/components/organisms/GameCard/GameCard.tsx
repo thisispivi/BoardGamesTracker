@@ -114,7 +114,7 @@ function ExpansionRow({
     <div className="hover:bg-card flex items-center gap-2.5 rounded-lg p-1 transition">
       <GameArtworkLink className="w-10 sm:w-11" game={game} />
       <div className="min-w-0 flex-1">
-        <p className="truncate text-xs font-semibold">{game.name}</p>
+        <GameTitle as="p" className="text-xs font-semibold" name={game.name} />
         <p className="text-muted-foreground mt-0.5 flex items-center gap-1 truncate text-[0.6875rem]">
           <span>{game.yearPublished ?? t("common.yearUnknown")}</span>
           <CollectionCost currency={currency} game={game} />

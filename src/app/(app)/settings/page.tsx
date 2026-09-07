@@ -1,4 +1,11 @@
-import { Banknote, BookOpen, Gift, Heart, ShieldCheck } from "lucide-react";
+import {
+  Banknote,
+  BookOpen,
+  Gift,
+  Heart,
+  Info,
+  ShieldCheck,
+} from "lucide-react";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
@@ -6,6 +13,7 @@ import type { ReactNode } from "react";
 import { Avatar } from "@/components/atoms/Avatar/Avatar";
 import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
 import { CurrencySelect } from "@/components/molecules/CurrencySelect/CurrencySelect";
+import { ProjectLinks } from "@/components/molecules/ProjectLinks/ProjectLinks";
 import { StatGrid } from "@/components/molecules/StatGrid/StatGrid";
 import { AccountSettingsCard } from "@/components/organisms/AccountSettingsCard/AccountSettingsCard";
 import { ClearLibraryCard } from "@/components/organisms/ClearLibraryCard/ClearLibraryCard";
@@ -129,6 +137,22 @@ export default async function SettingsPage(): Promise<ReactNode> {
           <ClearLibraryCard library="wishlist" />
         </div>
         <UserDataCard />
+        <section className="bg-card shadow-soft rounded-xl border p-5 sm:p-8">
+          <div className="flex items-start gap-4">
+            <span className="bg-primary/10 text-primary grid size-11 shrink-0 place-items-center rounded-md">
+              <Info aria-hidden="true" className="size-5" />
+            </span>
+            <div>
+              <h2 className="font-display text-lg font-bold sm:text-xl">
+                {t("settings.about")}
+              </h2>
+              <p className="text-muted-foreground mt-1 text-sm leading-5">
+                {t("settings.aboutBody")}
+              </p>
+            </div>
+          </div>
+          <ProjectLinks className="mt-7" />
+        </section>
       </div>
     </>
   );
