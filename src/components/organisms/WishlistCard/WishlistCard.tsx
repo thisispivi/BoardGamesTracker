@@ -17,6 +17,7 @@ import { Button } from "@/components/atoms/Button/Button";
 import { ConfirmDialog } from "@/components/molecules/ConfirmDialog/ConfirmDialog";
 import { GameArtworkLink } from "@/components/molecules/GameArtworkLink/GameArtworkLink";
 import { GameFacts } from "@/components/molecules/GameFacts/GameFacts";
+import { GameTitle } from "@/components/molecules/GameTitle/GameTitle";
 import { GiftedPriceField } from "@/components/molecules/GiftedPriceField/GiftedPriceField";
 import { TagRow } from "@/components/molecules/TagRow/TagRow";
 import type { CollectionActionState, CollectionGame } from "@/core";
@@ -156,9 +157,10 @@ export function WishlistCard({
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="flex min-w-0 items-start gap-1">
             <div className="min-w-0 flex-1">
-              <h2 className="font-display line-clamp-2 text-sm leading-snug font-bold sm:text-base">
-                {game.name}
-              </h2>
+              <GameTitle
+                className="font-display text-sm leading-snug font-bold sm:text-base"
+                name={game.name}
+              />
               <p className="text-muted-foreground mt-1 text-xs">
                 {game.yearPublished ?? t("common.yearUnknown")}
               </p>

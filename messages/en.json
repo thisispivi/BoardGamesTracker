@@ -75,6 +75,10 @@
     "open": "Open navigation",
     "close": "Close navigation"
   },
+  "links": {
+    "maintainer": "Website of the maintainer",
+    "repository": "Source code on GitHub"
+  },
   "theme": {
     "toggle": "Toggle color theme"
   },

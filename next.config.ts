@@ -2,6 +2,13 @@ import { withSentryConfig } from "@sentry/nextjs/config";
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
+import { version } from "./package.json";
+
+const sentryRelease =
+  process.env.NEXT_PUBLIC_SENTRY_RELEASE ||
+  process.env.SENTRY_RELEASE ||
+  version;
+
 const nextConfig: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
@@ -14,6 +21,9 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  env: {
+    NEXT_PUBLIC_SENTRY_RELEASE: sentryRelease,
+  },
   experimental: {
     serverActions: {
       bodySizeLimit: 5 * 1024 * 1024 + 256_000,
@@ -24,10 +34,6 @@ const nextConfig: NextConfig = {
 
 const withNextIntl = createNextIntlPlugin();
 const sentryDsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
-const sentryRelease =
-  process.env.NEXT_PUBLIC_SENTRY_RELEASE ||
-  process.env.SENTRY_RELEASE ||
-  undefined;
 const sentryUrl =
   process.env.SENTRY_URL || (sentryDsn ? new URL(sentryDsn).origin : undefined);
 const canUploadSourceMaps = Boolean(
@@ -50,7 +56,7 @@ export default withSentryConfig(withNextIntl(nextConfig), {
     deleteSourcemapsAfterUpload: true,
   },
   release: {
-    ...(sentryRelease ? { name: sentryRelease } : {}),
+    name: sentryRelease,
     create: false,
   },
   webpack: {

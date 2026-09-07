@@ -1,5 +1,14 @@
 import { scrubSentryEvent } from "@/utils/sentryScrub";
 
+/**
+ * Framework messages that report a disconnected client rather than a defect.
+ *
+ * Next.js aborts the React stream when a visitor navigates away from, or
+ * cancels a prefetch of, a page that is still rendering. Nothing in the
+ * application can act on it, so reporting it only hides real failures.
+ */
+const ignoredMessages = ["The destination stream closed early."];
+
 /** Execution environments with distinct Sentry integration settings. */
 type SentryRuntime = "browser" | "edge" | "server";
 
@@ -9,6 +18,7 @@ type SentryOptions = {
   beforeSend: typeof scrubSentryEvent;
   dsn: string;
   enableLogs: boolean;
+  ignoreErrors: string[];
   environment: string;
   initialScope: { tags: { application: string; runtime: SentryRuntime } };
   release?: string;
@@ -43,6 +53,7 @@ export function createSentryOptions(
     ...(release ? { release } : {}),
     attachStacktrace: true,
     enableLogs: false,
+    ignoreErrors: ignoredMessages,
     sendClientReports: false,
     sendDefaultPii: false,
     tracesSampleRate: 0,

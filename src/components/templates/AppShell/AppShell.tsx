@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Avatar } from "@/components/atoms/Avatar/Avatar";
 import { Logo } from "@/components/atoms/Logo/Logo";
 import { LocaleSelect } from "@/components/molecules/LocaleSelect/LocaleSelect";
+import { ProjectLinks } from "@/components/molecules/ProjectLinks/ProjectLinks";
 import { SignOutButton } from "@/components/molecules/SignOutButton/SignOutButton";
 import { ThemeToggle } from "@/components/molecules/ThemeToggle/ThemeToggle";
 import { AppNavigation } from "@/components/organisms/AppNavigation/AppNavigation";
@@ -37,6 +38,7 @@ export function AppShell({ children, user }: AppShellProps): ReactNode {
             <LocaleSelect />
             <ThemeToggle />
           </div>
+          <ProjectLinks />
           <div className="flex items-center gap-3 border-t pt-5">
             <Avatar name={user.name} />
             <div className="min-w-0">

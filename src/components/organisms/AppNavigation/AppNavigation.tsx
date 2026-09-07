@@ -20,6 +20,7 @@ import { type ReactNode, useState } from "react";
 import { AppSpinner } from "@/components/atoms/AppSpinner/AppSpinner";
 import { Avatar } from "@/components/atoms/Avatar/Avatar";
 import { Logo } from "@/components/atoms/Logo/Logo";
+import { ProjectLinks } from "@/components/molecules/ProjectLinks/ProjectLinks";
 import { SignOutButton } from "@/components/molecules/SignOutButton/SignOutButton";
 import { cn } from "@/utils/cn";
 
@@ -143,6 +144,7 @@ export function AppNavigation({
               <SignOutButton />
             </div>
           ) : null}
+          <ProjectLinks className="mt-4 shrink-0 justify-center" />
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

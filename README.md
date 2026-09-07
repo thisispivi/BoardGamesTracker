@@ -135,6 +135,12 @@ application, with health checks and a persistent database volume.
    to administrator. Keep `ALLOW_SIGN_UP=false` unless public registration is
    intentional.
 
+If you expect to rebuild this deployment, also set
+`NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` to a value from `openssl rand -base64 32`
+before the first build and keep it. Next.js derives Server Action identifiers
+from that key and generates a new one per build, so without it every rebuild
+breaks the pages visitors already have open.
+
 ### Local development
 
 You need [Node.js](https://nodejs.org/) 24.18 or newer,
@@ -205,31 +211,32 @@ instance to a group.
 [`.env.example`](./.env.example) documents every supported setting. The
 application variables that matter most:
 
-| Variable                         | Required | Purpose                                                               |
-| -------------------------------- | -------- | --------------------------------------------------------------------- |
-| `DATABASE_URL`                   | Yes      | PostgreSQL connection string                                          |
-| `BETTER_AUTH_SECRET`             | Yes      | Authentication signing secret with at least 32 characters             |
-| `BETTER_AUTH_URL`                | Yes      | Canonical application origin for local or non-Compose runs            |
-| `NEXT_PUBLIC_APP_URL`            | Yes      | Public application origin exposed to the browser                      |
-| `SEARXNG_URL`                    | Yes      | Server-side SearXNG endpoint                                          |
-| `ADMIN_EMAIL`                    | No       | Additional email address eligible for administrator bootstrap         |
-| `ALLOW_SIGN_UP`                  | No       | Enables registration when set to `true`                               |
-| `HEALTH_CHECK_TOKEN`             | No       | Requires a bearer token on `/api/health`                              |
-| `LOG_LEVEL`                      | No       | Server log verbosity                                                  |
-| `SENTRY_DSN`                     | No       | Server-side Sentry-compatible error reporting                         |
-| `NEXT_PUBLIC_SENTRY_DSN`         | No       | Browser-side Sentry-compatible error reporting                        |
-| `NEXT_PUBLIC_SENTRY_ENVIRONMENT` | No       | Monitoring environment name                                           |
-| `NEXT_PUBLIC_SENTRY_RELEASE`     | No       | Monitoring release identifier                                         |
-| `SENTRY_AUTH_TOKEN_FILE`         | No       | File containing the source-map upload token                           |
-| `SMTP_HOST`                      | No       | Transactional SMTP server; enables email flows with `SMTP_FROM_EMAIL` |
-| `SMTP_PORT`                      | No       | SMTP port, normally `465` or `587`                                    |
-| `SMTP_SECURE`                    | No       | Uses implicit TLS; set to `true` for port `465`                       |
-| `SMTP_REQUIRE_TLS`               | No       | Requires STARTTLS when implicit TLS is disabled                       |
-| `SMTP_USER`                      | No       | SMTP username; must be paired with `SMTP_PASSWORD`                    |
-| `SMTP_PASSWORD`                  | No       | SMTP password or provider API credential                              |
-| `SMTP_FROM_NAME`                 | No       | Display name used for transactional messages                          |
-| `SMTP_FROM_EMAIL`                | No       | Verified sender address; enables email flows with `SMTP_HOST`         |
-| `SMTP_REPLY_TO`                  | No       | Optional monitored reply address                                      |
+| Variable                             | Required | Purpose                                                                    |
+| ------------------------------------ | -------- | -------------------------------------------------------------------------- |
+| `DATABASE_URL`                       | Yes      | PostgreSQL connection string                                               |
+| `BETTER_AUTH_SECRET`                 | Yes      | Authentication signing secret with at least 32 characters                  |
+| `BETTER_AUTH_URL`                    | Yes      | Canonical application origin for local or non-Compose runs                 |
+| `NEXT_PUBLIC_APP_URL`                | Yes      | Public application origin exposed to the browser                           |
+| `SEARXNG_URL`                        | Yes      | Server-side SearXNG endpoint                                               |
+| `ADMIN_EMAIL`                        | No       | Additional email address eligible for administrator bootstrap              |
+| `ALLOW_SIGN_UP`                      | No       | Enables registration when set to `true`                                    |
+| `HEALTH_CHECK_TOKEN`                 | No       | Requires a bearer token on `/api/health`                                   |
+| `LOG_LEVEL`                          | No       | Server log verbosity                                                       |
+| `SENTRY_DSN`                         | No       | Server-side Sentry-compatible error reporting                              |
+| `NEXT_PUBLIC_SENTRY_DSN`             | No       | Browser-side Sentry-compatible error reporting                             |
+| `NEXT_PUBLIC_SENTRY_ENVIRONMENT`     | No       | Monitoring environment name                                                |
+| `NEXT_PUBLIC_SENTRY_RELEASE`         | No       | Monitoring release identifier; defaults to the `package.json` version      |
+| `SENTRY_AUTH_TOKEN_FILE`             | No       | File containing the source-map upload token                                |
+| `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` | No       | Build-time key that keeps Server Action identifiers stable across rebuilds |
+| `SMTP_HOST`                          | No       | Transactional SMTP server; enables email flows with `SMTP_FROM_EMAIL`      |
+| `SMTP_PORT`                          | No       | SMTP port, normally `465` or `587`                                         |
+| `SMTP_SECURE`                        | No       | Uses implicit TLS; set to `true` for port `465`                            |
+| `SMTP_REQUIRE_TLS`                   | No       | Requires STARTTLS when implicit TLS is disabled                            |
+| `SMTP_USER`                          | No       | SMTP username; must be paired with `SMTP_PASSWORD`                         |
+| `SMTP_PASSWORD`                      | No       | SMTP password or provider API credential                                   |
+| `SMTP_FROM_NAME`                     | No       | Display name used for transactional messages                               |
+| `SMTP_FROM_EMAIL`                    | No       | Verified sender address; enables email flows with `SMTP_HOST`              |
+| `SMTP_REPLY_TO`                      | No       | Optional monitored reply address                                           |
 
 Compose deployments use `APP_URL` for the public origin and derive the internal
 database and SearXNG addresses automatically.
@@ -294,6 +301,22 @@ the production build, so a hook is a fast warning, not the real gate.
 ESLint enforces the architectural boundaries rather than leaving them to review:
 imports go through the `@/` alias, `src/core` cannot import `src/server`, and
 Atomic Design stays one-way, so an atom cannot reach for an organism.
+
+### Releasing a version
+
+The `version` field in `package.json` is the release identifier. Every build
+reports it to error monitoring, so a Bugsink issue names the version it came
+from and stops being attributed to earlier ones.
+
+To cut a release, bump the version, commit it, and rebuild:
+
+```bash
+pnpm version minor --no-git-tag-version
+```
+
+Use `patch` for fixes, `minor` for features, and `major` for a breaking change.
+Setting `NEXT_PUBLIC_SENTRY_RELEASE` overrides the identifier for one build, for
+example to report a commit SHA instead.
 
 ## Security
 

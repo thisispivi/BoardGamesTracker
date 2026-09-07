@@ -75,6 +75,10 @@
     "open": "Apri navigazione",
     "close": "Chiudi navigazione"
   },
+  "links": {
+    "maintainer": "Sito web del manutentore",
+    "repository": "Codice sorgente su GitHub"
+  },
   "theme": {
     "toggle": "Cambia tema colore"
   },
