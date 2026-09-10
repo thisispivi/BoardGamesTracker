@@ -257,6 +257,7 @@ export async function importBggCsvAction(
                 {
                   userId: session.user.id,
                   gameId,
+                  hasPlayed: game.hasPlayed,
                   owned: true,
                   wishlist: false,
                   personalRating: game.personalRating,
@@ -271,6 +272,7 @@ export async function importBggCsvAction(
         set: {
           owned: true,
           wishlist: false,
+          hasPlayed: sql`excluded.has_played`,
           personalRating: sql`excluded.personal_rating`,
           notes: sql`excluded.notes`,
           updatedAt: now,
@@ -542,6 +544,30 @@ export async function toggleFavoriteAction(formData: FormData): Promise<void> {
       and(
         eq(collectionItems.id, itemId),
         eq(collectionItems.userId, session.user.id),
+      ),
+    );
+  revalidateLibraryRoutes();
+}
+
+/**
+ * Updates played status after verifying collection ownership.
+ *
+ * @param formData - Submitted item identity and next predicate value.
+ * @returns A promise that resolves after affected library routes are invalidated.
+ */
+export async function togglePlayedAction(formData: FormData): Promise<void> {
+  const session = await requireUser();
+  const itemId = itemIdSchema.parse(formData.get("itemId"));
+  const hasPlayed =
+    z.enum(["true", "false"]).parse(formData.get("hasPlayed")) === "true";
+  await db
+    .update(collectionItems)
+    .set({ hasPlayed, updatedAt: new Date() })
+    .where(
+      and(
+        eq(collectionItems.id, itemId),
+        eq(collectionItems.userId, session.user.id),
+        eq(collectionItems.owned, true),
       ),
     );
   revalidateLibraryRoutes();

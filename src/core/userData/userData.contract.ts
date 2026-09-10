@@ -39,6 +39,7 @@ export const portableGameSchema = z
       .array(z.number().int().min(1).max(10_000_000))
       .max(200)
       .default([]),
+    hasPlayed: z.boolean().default(false),
   })
   .refine((game) => game.maxPlayers >= game.minPlayers)
   .refine((game) => game.maxPlaytime >= game.minPlaytime)
@@ -51,6 +52,7 @@ export const portableGameSchema = z
     families: [...new Set(game.families)],
     favorite: game.location === "collection" ? game.favorite : false,
     gifted: game.location === "collection" ? game.gifted : false,
+    hasPlayed: game.location === "collection" ? game.hasPlayed : false,
     moneySpent:
       game.location === "collection" && !game.gifted ? game.moneySpent : 0,
   }));

@@ -28,6 +28,7 @@ function game(overrides: Partial<CollectionGame>): CollectionGame {
     favorite: false,
     gameId: "game-id",
     gifted: false,
+    hasPlayed: false,
     id: "item-id",
     imageUrl: null,
     isExpansion: false,
@@ -60,7 +61,13 @@ function filters(overrides: Partial<LibraryFilters>): LibraryFilters {
 describe("filterAndSortLibraryGames", () => {
   const games = [
     game({ id: "b", name: "Brass", weight: 3.86, maxPlaytime: 120 }),
-    game({ id: "a", name: "Azul", weight: 1.78, favorite: true }),
+    game({
+      favorite: true,
+      hasPlayed: true,
+      id: "a",
+      name: "Azul",
+      weight: 1.78,
+    }),
     game({
       categories: ["Expansion"],
       id: "e",
@@ -73,20 +80,34 @@ describe("filterAndSortLibraryGames", () => {
     }),
   ];
 
-  it("combines player, complexity, taxonomy, and favorite filters", () => {
+  it("combines player, complexity, taxonomy, favorite, and played filters", () => {
     const result = filterAndSortLibraryGames(
       games,
       filters({
         categories: ["Strategy"],
-        favoritesOnly: true,
+        favoriteFilter: "yes",
         mechanics: ["Drafting"],
         players: { max: 2, min: 2 },
+        playedFilter: "yes",
         weight: "light",
       }),
       "en",
     );
 
     expect(result.map(({ name }) => name)).toEqual(["Azul"]);
+  });
+
+  it("filters explicit negative favorite and played states", () => {
+    const result = filterAndSortLibraryGames(
+      games,
+      filters({ favoriteFilter: "no", playedFilter: "no" }),
+      "en",
+    );
+
+    expect(result.map(({ name }) => name)).toEqual([
+      "Brass",
+      "Brass Expansion",
+    ]);
   });
 
   it("filters expansions and maximum duration independently", () => {
@@ -203,6 +224,7 @@ describe("countActiveFilters", () => {
     expect(
       countActiveFilters(createLibraryFilters(), {
         favorites: true,
+        played: true,
         query: true,
       }),
     ).toBe(0);
@@ -211,16 +233,25 @@ describe("countActiveFilters", () => {
   it("ignores ordering and facets the surface does not expose", () => {
     const filters: LibraryFilters = {
       ...createLibraryFilters(),
-      favoritesOnly: true,
+      favoriteFilter: "yes",
+      playedFilter: "no",
       query: "  root  ",
       sort: "weightDescending",
     };
     expect(
-      countActiveFilters(filters, { favorites: false, query: false }),
+      countActiveFilters(filters, {
+        favorites: false,
+        played: false,
+        query: false,
+      }),
     ).toBe(0);
-    expect(countActiveFilters(filters, { favorites: true, query: true })).toBe(
-      2,
-    );
+    expect(
+      countActiveFilters(filters, {
+        favorites: true,
+        played: true,
+        query: true,
+      }),
+    ).toBe(3);
   });
 
   it("counts a narrowed range but not a blank search", () => {
@@ -230,8 +261,12 @@ describe("countActiveFilters", () => {
       query: "   ",
       weight: "heavy",
     };
-    expect(countActiveFilters(filters, { favorites: true, query: true })).toBe(
-      2,
-    );
+    expect(
+      countActiveFilters(filters, {
+        favorites: true,
+        played: true,
+        query: true,
+      }),
+    ).toBe(2);
   });
 });

@@ -28,6 +28,7 @@ function collectionGame(
     favorite: false,
     gameId: values.id,
     gifted: false,
+    hasPlayed: false,
     imageUrl: null,
     maxPlayers: 4,
     maxPlaytime: 60,

@@ -19,6 +19,7 @@ export function redactSharedGames(
   return games.map((game) => ({
     ...game,
     gifted: includePrices ? game.gifted : false,
+    hasPlayed: false,
     moneySpent: includePrices ? game.moneySpent : 0,
     notes: "",
     personalRating: null,

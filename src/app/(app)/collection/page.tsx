@@ -40,7 +40,11 @@ export default async function CollectionPage(): Promise<ReactNode> {
         eyebrow={t("collection.eyebrow")}
         title={t("collection.title")}
       />
-      <CollectionBrowser currency={preferences.currency} games={collection} />
+      <CollectionBrowser
+        currency={preferences.currency}
+        games={collection}
+        quickAction={<AddGameDialog compact currency={preferences.currency} />}
+      />
     </>
   );
 }

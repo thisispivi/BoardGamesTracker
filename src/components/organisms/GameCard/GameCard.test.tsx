@@ -9,6 +9,7 @@ import type { CollectionGame } from "@/core";
 vi.mock("@/server/actions/collection", () => ({
   removeGameAction: vi.fn(),
   toggleFavoriteAction: vi.fn(),
+  togglePlayedAction: vi.fn(),
   updateCollectionItemAction: vi.fn(),
 }));
 
@@ -22,6 +23,7 @@ const base: CollectionGame = {
   favorite: false,
   gameId: "game-id",
   gifted: false,
+  hasPlayed: false,
   id: "item-id",
   imageUrl: null,
   isExpansion: false,
@@ -108,6 +110,22 @@ describe("GameCard", () => {
     ).toBeInTheDocument();
   });
 
+  it("offers independent favorite and played controls", () => {
+    renderCard(<GameCard currency="EUR" game={base} />);
+
+    expect(
+      screen.getByRole("button", { name: "Add to favorites" }),
+    ).toHaveAttribute("aria-pressed", "false");
+    expect(
+      screen.getByRole("button", { name: "Mark as played" }),
+    ).toHaveAttribute("aria-pressed", "false");
+
+    renderCard(<GameCard currency="EUR" game={{ ...base, hasPlayed: true }} />);
+    expect(
+      screen.getByRole("button", { name: "Mark as not played" }),
+    ).toHaveAttribute("aria-pressed", "true");
+  });
+
   it("lists expansions with their own year, price, and actions", () => {
     renderCard(
       <GameCard currency="EUR" expansions={[expansion]} game={base} />,
@@ -134,6 +152,7 @@ describe("GameCard", () => {
 
     expect(screen.queryByRole("button", { name: /More actions/ })).toBeNull();
     expect(screen.queryByRole("button", { name: /favorites/ })).toBeNull();
+    expect(screen.queryByRole("button", { name: /played/ })).toBeNull();
     expect(
       screen.getByRole("link", {
         name: "Open Brass: Birmingham on BoardGameGeek",

@@ -25,6 +25,7 @@ const game: CollectionGame = {
   favorite: false,
   gameId: "game-id",
   gifted: false,
+  hasPlayed: false,
   id: "item-id",
   imageUrl: null,
   isExpansion: false,

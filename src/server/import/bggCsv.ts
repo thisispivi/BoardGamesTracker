@@ -111,10 +111,12 @@ function normalizeRow(
     .join("\n\n")
     .slice(0, 4_000);
   const isExpansion = row.itemtype.trim().toLowerCase() === "expansion";
+  const playCount = integer(row.numplays, 0, 1_000_000);
   return {
     bggId,
     bggRating: decimal(row.baverage, 0, 10, true),
     categories: [isExpansion ? "Expansion" : "Board game"],
+    hasPlayed: playCount !== null && playCount > 0,
     isExpansion,
     maxPlayers,
     maxPlaytime,

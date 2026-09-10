@@ -65,6 +65,8 @@
     "cancel": "Cancel",
     "close": "Close",
     "loading": "Loading",
+    "loadingCollection": "Loading collection",
+    "loadingWishlist": "Loading wishlist",
     "yearUnknown": "Year unknown",
     "players": "players",
     "expansion": "Expansion",
@@ -145,6 +147,7 @@
       "timeDescending": "Playtime · longest first"
     },
     "filters": "Filters",
+    "quickControls": "Quick library controls",
     "openFilters": "Show filters",
     "closeFilters": "Close filters",
     "reset": "Reset",
@@ -157,7 +160,8 @@
       "gameType": "Game type",
       "categories": "Categories",
       "mechanics": "Mechanics",
-      "favorites": "Favorites"
+      "favorites": "Favorites",
+      "played": "Played"
     },
     "anyPlayers": "Any player count",
     "minPlayers": "Minimum players",
@@ -189,15 +193,31 @@
     "selectedCount": "{count, plural, one {# selected} other {# selected}}",
     "clearSelection": "Clear selection",
     "noFilterOptions": "No matching options.",
-    "favoritesOnly": "Favorites only",
-    "allGames": "All games"
+    "favoriteLabel": "Filter by favorite status",
+    "favorite": {
+      "all": "All games",
+      "yes": "Favorites",
+      "no": "Not favorites"
+    },
+    "playedLabel": "Filter by played status",
+    "played": {
+      "all": "All games",
+      "yes": "Played",
+      "no": "Not played"
+    }
+  },
+  "libraryPagination": {
+    "showing": "Showing {shown} of {total}",
+    "loadMore": "Load 50 more"
   },
   "game": {
     "addFavorite": "Add to favorites",
+    "markPlayed": "Mark as played",
+    "markUnplayed": "Mark as not played",
     "artworkAlt": "{name} box art",
     "removeFavorite": "Remove from favorites",
     "removeTitle": "Remove {name}?",
-    "removeBody": "This removes the game and its personal rating, notes, favorite, and purchase price from your collection.",
+    "removeBody": "This removes the game and its personal rating, notes, favorite, played status, and purchase price from your collection.",
     "remove": "Remove game",
     "openBggAria": "Open {name} on BoardGameGeek",
     "openBgg": "Open on BGG",
@@ -266,7 +286,7 @@
     "button": "Import BGG CSV",
     "eyebrow": "Collection import",
     "title": "Import from BoardGameGeek",
-    "body": "Export your collection as CSV on BGG, then upload it here. Owned games, ratings, notes, categories, mechanics, and cover art are imported.",
+    "body": "Export your collection as CSV on BGG, then upload it here. Owned games, played status, ratings, notes, categories, mechanics, and cover art are imported.",
     "file": "BGG collection export",
     "limit": "Maximum 5 MB and 2,000 rows. Existing matches are updated; games not marked as owned are ignored.",
     "pending": "Importing BGG details and covers…",
@@ -421,7 +441,7 @@
     "title": "Your data",
     "body": "Export a backup or merge a previous Board Games Tracker export.",
     "exportTitle": "Export Board Games Tracker data",
-    "exportBody": "Includes your collection, wishlist, prices, notes, ratings, preferences, and game metadata. Passwords and sessions are never exported.",
+    "exportBody": "Includes your collection, wishlist, played status, prices, notes, ratings, preferences, and game metadata. Passwords and sessions are never exported.",
     "importTitle": "Import Board Games Tracker data",
     "importBody": "Upload a JSON, CSV, XLSX, or SQL export created here. Games missing from the shared catalog are added and existing entries are left unchanged.",
     "file": "Board Games Tracker data export",
@@ -438,7 +458,7 @@
   },
   "clear": {
     "title": "Clear collection",
-    "body": "Remove every owned game, rating, favorite, note, and purchase price from your collection. Your wishlist, account, and other users are not affected.",
+    "body": "Remove every owned game, rating, favorite, played status, note, and purchase price from your collection. Your wishlist, account, and other users are not affected.",
     "deleteAll": "Delete all",
     "eyebrow": "Permanent action",
     "modalTitle": "Delete your entire collection?",

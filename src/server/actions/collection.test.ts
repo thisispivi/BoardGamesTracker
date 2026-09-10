@@ -54,6 +54,7 @@ import {
   moveWishlistToCollectionAction,
   removeGameAction,
   toggleFavoriteAction,
+  togglePlayedAction,
   updateCollectionItemAction,
 } from "@/server/actions/collection";
 import {
@@ -148,7 +149,7 @@ describe("collection persistence and ownership", () => {
 
   it("imports owned CSV rows without replacing shared metadata", async () => {
     const csv =
-      "objectname,objectid,own,minplayers,maxplayers,minplaytime,maxplaytime,yearpublished,avgweight,baverage,rating\nForged,13,1,1,6,30,60,2000,2,7,8";
+      "objectname,objectid,own,minplayers,maxplayers,minplaytime,maxplaytime,yearpublished,avgweight,baverage,rating,numplays\nForged,13,1,1,6,30,60,2000,2,7,8,4";
     const file = new File([csv], "collection.csv", { type: "text/csv" });
     Object.defineProperty(file, "text", { value: async () => csv });
     const form = new FormData();
@@ -161,9 +162,31 @@ describe("collection persistence and ownership", () => {
     ]);
     expect(
       await testDb
-        .select({ rating: collectionItems.personalRating })
+        .select({
+          hasPlayed: collectionItems.hasPlayed,
+          rating: collectionItems.personalRating,
+        })
         .from(collectionItems),
-    ).toEqual([{ rating: 8 }]);
+    ).toEqual([{ hasPlayed: true, rating: 8 }]);
+
+    const replayCsv = csv.replace(",8,4", ",8,0");
+    const replayFile = new File([replayCsv], "collection.csv", {
+      type: "text/csv",
+    });
+    Object.defineProperty(replayFile, "text", {
+      value: async () => replayCsv,
+    });
+    const replayForm = new FormData();
+    replayForm.set("collection", replayFile);
+    expect(
+      (await importBggCsvAction({ success: false, message: "" }, replayForm))
+        .success,
+    ).toBe(true);
+    expect(
+      await testDb
+        .select({ hasPlayed: collectionItems.hasPlayed })
+        .from(collectionItems),
+    ).toEqual([{ hasPlayed: false }]);
   });
 
   it("purchases a wishlist item, updates personal fields, and clears only its owner's library", async () => {
@@ -179,6 +202,7 @@ describe("collection persistence and ownership", () => {
       notes: "Kept",
       personalRating: "9",
       favorite: "true",
+      hasPlayed: "true",
     }))
       form.set(key, value);
     expect(
@@ -194,6 +218,7 @@ describe("collection persistence and ownership", () => {
         .success,
     ).toBe(true);
     await toggleFavoriteAction(form);
+    await togglePlayedAction(form);
     const [owned] = await testDb
       .select()
       .from(collectionItems)
@@ -203,6 +228,7 @@ describe("collection persistence and ownership", () => {
       wishlist: false,
       moneySpent: 35,
       favorite: true,
+      hasPlayed: true,
       notes: "Kept",
     });
     const clear = new FormData();
@@ -275,6 +301,7 @@ describe("collection persistence and ownership", () => {
       notes: "Forged",
       moneySpent: "99",
       personalRating: "10",
+      hasPlayed: "true",
     }))
       form.set(key, value);
     expect(
@@ -282,11 +309,15 @@ describe("collection persistence and ownership", () => {
         .success,
     ).toBe(false);
     await removeGameAction(form);
+    await togglePlayedAction(form);
     expect(
       await testDb
-        .select({ notes: collectionItems.notes })
+        .select({
+          hasPlayed: collectionItems.hasPlayed,
+          notes: collectionItems.notes,
+        })
         .from(collectionItems),
-    ).toEqual([{ notes: "Private" }]);
+    ).toEqual([{ hasPlayed: false, notes: "Private" }]);
   });
 
   it("restores account fields without replacing existing catalog relationships", async () => {
@@ -314,6 +345,7 @@ describe("collection persistence and ownership", () => {
           families: [],
           expandsBggIds: [99],
           favorite: true,
+          hasPlayed: true,
           personalRating: null,
           notes: "My notes",
           moneySpent: 5,
@@ -330,6 +362,7 @@ describe("collection persistence and ownership", () => {
     expect(exported.items[0]).toMatchObject({
       notes: "My notes",
       favorite: true,
+      hasPlayed: true,
     });
     expect(userDataDocumentSchema.safeParse(exported).success).toBe(true);
   });
@@ -343,6 +376,7 @@ describe("sharing token persistence", () => {
       notes: "Private",
       personalRating: 8,
       moneySpent: 42,
+      hasPlayed: true,
     });
     const form = new FormData();
     form.set("shareCollection", "on");
@@ -353,6 +387,7 @@ describe("sharing token persistence", () => {
     expect(shared?.wishlist).toBeNull();
     expect(shared?.collection?.[0]).toMatchObject({
       notes: "",
+      hasPlayed: false,
       personalRating: null,
       moneySpent: 0,
     });

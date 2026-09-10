@@ -10,6 +10,7 @@ const ownedGame: CollectionGame = {
   notes: "Sleeved, box is dented",
   moneySpent: 42.5,
   gifted: true,
+  hasPlayed: true,
   gameId: "0a2c4e6f-8b1d-4f3a-9c5e-7d1b3f5a9c22",
   bggId: 68448,
   name: "7 Wonders",
@@ -36,6 +37,7 @@ describe("shared library redaction", () => {
 
     expect(shared?.notes).toBe("");
     expect(shared?.personalRating).toBeNull();
+    expect(shared?.hasPlayed).toBe(false);
   });
 
   it("keeps what the owner paid when prices are shared", () => {

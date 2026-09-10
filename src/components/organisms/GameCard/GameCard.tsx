@@ -1,6 +1,6 @@
 "use client";
 
-import { Heart } from "lucide-react";
+import { CircleCheck, Heart } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { type ReactNode, useMemo } from "react";
 
@@ -11,7 +11,10 @@ import { GameTitle } from "@/components/molecules/GameTitle/GameTitle";
 import { TagRow } from "@/components/molecules/TagRow/TagRow";
 import { GameActionsMenu } from "@/components/organisms/GameActionsMenu/GameActionsMenu";
 import type { CollectionGame } from "@/core";
-import { toggleFavoriteAction } from "@/server/actions/collection";
+import {
+  toggleFavoriteAction,
+  togglePlayedAction,
+} from "@/server/actions/collection";
 import { cn } from "@/utils/cn";
 import { buildGameTags } from "@/utils/gameTags";
 
@@ -47,6 +50,43 @@ function FavoriteControl({ game }: FavoriteControlProps): ReactNode {
           type="submit"
         >
           <Heart className={cn("size-4", game.favorite && "fill-current")} />
+        </button>
+      </Tooltip>
+    </form>
+  );
+}
+
+/** Game record used by the played-status control. */
+type PlayedControlProps = { game: CollectionGame };
+
+/**
+ * Marks an owned game as played or not played from its card.
+ *
+ * @param root0 - Properties that configure the played-status control.
+ * @param root0.game - Owned game whose private played status may change.
+ * @returns An accessible played-status toggle.
+ */
+function PlayedControl({ game }: PlayedControlProps): ReactNode {
+  const t = useTranslations();
+  const label = game.hasPlayed ? t("game.markUnplayed") : t("game.markPlayed");
+
+  return (
+    <form action={togglePlayedAction}>
+      <input name="itemId" type="hidden" value={game.id} />
+      <input name="hasPlayed" type="hidden" value={String(!game.hasPlayed)} />
+      <Tooltip content={label}>
+        <button
+          aria-label={label}
+          aria-pressed={game.hasPlayed}
+          className={cn(
+            "grid size-8 shrink-0 place-items-center rounded-full transition",
+            game.hasPlayed
+              ? "text-primary hover:bg-primary/10"
+              : "text-muted-foreground hover:bg-muted hover:text-primary",
+          )}
+          type="submit"
+        >
+          <CircleCheck aria-hidden="true" className="size-4" />
         </button>
       </Tooltip>
     </form>
@@ -120,7 +160,13 @@ function ExpansionRow({
           <CollectionCost currency={currency} game={game} />
         </p>
       </div>
-      {readOnly ? null : <GameActionsMenu currency={currency} game={game} />}
+      {readOnly ? null : (
+        <div className="flex shrink-0 items-center">
+          <FavoriteControl game={game} />
+          <PlayedControl game={game} />
+          <GameActionsMenu currency={currency} game={game} />
+        </div>
+      )}
     </div>
   );
 }
@@ -190,6 +236,7 @@ export function GameCard({
             {readOnly ? null : (
               <div className="-mt-1 -mr-1 flex shrink-0 items-center">
                 <FavoriteControl game={game} />
+                <PlayedControl game={game} />
                 <GameActionsMenu currency={currency} game={game} />
               </div>
             )}

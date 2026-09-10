@@ -2,6 +2,7 @@ import Fuse from "fuse.js";
 
 import type {
   CollectionGame,
+  LibraryBooleanFilter,
   LibraryFilters,
   LibraryWeightFilter,
   NumberRange,
@@ -53,15 +54,30 @@ export function clampRange(
 export function createLibraryFilters(): LibraryFilters {
   return {
     categories: [],
-    favoritesOnly: false,
+    favoriteFilter: "all",
     gameType: "all",
     mechanics: [],
     players: { ...playerRangeBounds },
+    playedFilter: "all",
     playtime: { ...playtimeRangeBounds },
     query: "",
     sort: "nameAscending",
     weight: "all",
   };
+}
+
+/**
+ * Checks a Boolean value against an inclusive, affirmative, or negative facet.
+ *
+ * @param value - Predicate stored on the candidate game.
+ * @param filter - Three-state selection currently applied to the predicate.
+ * @returns Whether the candidate remains eligible.
+ */
+function matchesBooleanFilter(
+  value: boolean,
+  filter: LibraryBooleanFilter,
+): boolean {
+  return filter === "all" || (filter === "yes") === value;
 }
 
 /**
@@ -120,7 +136,8 @@ export function filterAndSortLibraryGames(
   const playtimeActive = !isFullRange(filters.playtime, playtimeRangeBounds);
   const filtered = games.filter(
     (game) =>
-      (!filters.favoritesOnly || game.favorite) &&
+      matchesBooleanFilter(game.favorite, filters.favoriteFilter) &&
+      matchesBooleanFilter(game.hasPlayed, filters.playedFilter) &&
       (filters.gameType === "all" ||
         (filters.gameType === "expansions") === game.isExpansion) &&
       (!playersActive ||
@@ -189,6 +206,7 @@ export function filterAndSortLibraryGames(
 /** Facets a browsing surface exposes and therefore counts as active. */
 type ActiveFilterScope = {
   favorites: boolean;
+  played: boolean;
   query: boolean;
 };
 
@@ -215,6 +233,7 @@ export function countActiveFilters(
     filters.gameType !== "all",
     filters.categories.length > 0,
     filters.mechanics.length > 0,
-    scope.favorites && filters.favoritesOnly,
+    scope.favorites && filters.favoriteFilter !== "all",
+    scope.played && filters.playedFilter !== "all",
   ].filter(Boolean).length;
 }

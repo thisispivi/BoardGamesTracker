@@ -48,7 +48,17 @@ export default async function WishlistPage(): Promise<ReactNode> {
         title={t("wishlist.title")}
       />
       {wishlist.length > 0 ? (
-        <WishlistBrowser currency={preferences.currency} games={wishlist} />
+        <WishlistBrowser
+          currency={preferences.currency}
+          games={wishlist}
+          quickAction={
+            <AddGameDialog
+              compact
+              currency={preferences.currency}
+              destination="wishlist"
+            />
+          }
+        />
       ) : (
         <EmptyState
           description={t("wishlist.emptyBody")}
