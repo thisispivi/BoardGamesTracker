@@ -47,7 +47,6 @@ function cacheKey(term: string): string {
 
 /** Properties that select the destination and currency for a new game. */
 type AddGameDialogProps = {
-  compact?: boolean;
   currency: string;
   destination?: "collection" | "wishlist";
 };
@@ -56,13 +55,11 @@ type AddGameDialogProps = {
  * Debounced search dialog for adding a title or pasted BGG game URL.
  *
  * @param root0 - Properties that configure add game dialog.
- * @param root0.compact - Whether the trigger shows only its accessible icon.
  * @param root0.currency - ISO currency code used to format monetary values.
  * @param root0.destination - Library section that receives the selected game.
  * @returns The rendered add game dialog.
  */
 export function AddGameDialog({
-  compact = false,
   currency,
   destination = "collection",
 }: AddGameDialogProps): ReactNode {
@@ -213,19 +210,9 @@ export function AddGameDialog({
   return (
     <Dialog.Root onOpenChange={changeOpen} open={open}>
       <Dialog.Trigger asChild>
-        <Button
-          aria-label={
-            compact
-              ? t(destination === "wishlist" ? "wishlist.add" : "add.button")
-              : undefined
-          }
-          size={compact ? "icon" : "md"}
-          type="button"
-        >
+        <Button type="button">
           <Plus aria-hidden="true" className="size-4" />
-          {compact
-            ? null
-            : t(destination === "wishlist" ? "wishlist.add" : "add.button")}
+          {t(destination === "wishlist" ? "wishlist.add" : "add.button")}
         </Button>
       </Dialog.Trigger>
       <Dialog.Portal>

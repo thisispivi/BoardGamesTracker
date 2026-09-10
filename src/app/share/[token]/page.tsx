@@ -125,7 +125,10 @@ function SharedSection({
         games={games}
         sharePrices={sharePrices}
       />
-      <CollectionBrowser currency={currency} games={games} readOnly />
+      <CollectionBrowser
+        currency={currency}
+        source={{ games, kind: "shared" }}
+      />
     </section>
   );
 }

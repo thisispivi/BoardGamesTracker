@@ -5,9 +5,10 @@ import type { ReactNode } from "react";
 import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
 import { AddGameDialog } from "@/components/organisms/AddGameDialog/AddGameDialog";
 import { CollectionBrowser } from "@/components/organisms/CollectionBrowser/CollectionBrowser";
-import { getCollection } from "@/server/collection";
+import { getLibraryFacetGames, getLibraryPage } from "@/server/collection";
 import { getUserPreferences } from "@/server/preferences";
 import { requireUser } from "@/server/session";
+import { createFirstPageQuery } from "@/utils/libraryPages";
 
 /**
  * Collection page metadata.
@@ -26,8 +27,12 @@ export async function generateMetadata(): Promise<Metadata> {
  */
 export default async function CollectionPage(): Promise<ReactNode> {
   const session = await requireUser();
-  const [collection, preferences, t] = await Promise.all([
-    getCollection(session.user.id),
+  const [facetGames, initialPage, preferences, t] = await Promise.all([
+    getLibraryFacetGames(session.user.id, "collection"),
+    getLibraryPage(session.user.id, {
+      ...createFirstPageQuery(),
+      location: "collection",
+    }),
     getUserPreferences(session.user.id),
     getTranslations(),
   ]);
@@ -36,14 +41,14 @@ export default async function CollectionPage(): Promise<ReactNode> {
     <>
       <PageHeader
         action={<AddGameDialog currency={preferences.currency} />}
-        description={t("collection.count", { count: collection.length })}
+        description={t("collection.count", { count: facetGames.length })}
         eyebrow={t("collection.eyebrow")}
         title={t("collection.title")}
       />
       <CollectionBrowser
         currency={preferences.currency}
-        games={collection}
-        quickAction={<AddGameDialog compact currency={preferences.currency} />}
+        quickAction={<AddGameDialog currency={preferences.currency} />}
+        source={{ facetGames, initialPage, kind: "private" }}
       />
     </>
   );

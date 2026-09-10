@@ -207,8 +207,9 @@
     }
   },
   "libraryPagination": {
-    "showing": "Showing {shown} of {total}",
-    "loadMore": "Load 50 more"
+    "loadingMore": "Loading more games",
+    "loadError": "These games could not be loaded.",
+    "retry": "Try again"
   },
   "game": {
     "addFavorite": "Add to favorites",

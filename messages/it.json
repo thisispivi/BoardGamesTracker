@@ -207,8 +207,9 @@
     }
   },
   "libraryPagination": {
-    "showing": "Visualizzati {shown} di {total}",
-    "loadMore": "Carica altri 50"
+    "loadingMore": "Caricamento di altri giochi",
+    "loadError": "Impossibile caricare questi giochi.",
+    "retry": "Riprova"
   },
   "game": {
     "addFavorite": "Aggiungi ai preferiti",

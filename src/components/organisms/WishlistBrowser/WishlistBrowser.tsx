@@ -1,87 +1,79 @@
 "use client";
 
 import { Search } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
-import { type ReactNode, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
+import type { ReactNode } from "react";
 
+import { fetchLibraryPage } from "@/client/libraryPages";
 import { EmptyState } from "@/components/molecules/EmptyState/EmptyState";
-import { GameFiltersSheet } from "@/components/molecules/GameFiltersSheet/GameFiltersSheet";
-import { LibraryPagination } from "@/components/molecules/LibraryPagination/LibraryPagination";
-import { LibraryToolbar } from "@/components/molecules/LibraryToolbar/LibraryToolbar";
+import { LibraryInfiniteLoader } from "@/components/molecules/LibraryInfiniteLoader/LibraryInfiniteLoader";
+import { LibraryControls } from "@/components/organisms/LibraryControls/LibraryControls";
 import { WishlistCard } from "@/components/organisms/WishlistCard/WishlistCard";
-import type { CollectionGame, LibraryFilters } from "@/core";
-import {
-  createLibraryFilters,
-  filterAndSortLibraryGames,
-} from "@/utils/libraryFilters";
-import { paginateLibraryEntries } from "@/utils/libraryPagination";
+import type { LibraryFacetGame, LibraryPage, LibraryPageQuery } from "@/core";
+import { useLibraryPages } from "@/hooks/useLibraryPages";
 
-/** Wishlist games and currency rendered by the browser. */
+/** Wishlist facets, first page, and add-game control rendered by the browser. */
 type WishlistBrowserProps = {
   currency: string;
-  games: CollectionGame[];
+  facetGames: LibraryFacetGame[];
+  initialPage: LibraryPage;
   quickAction?: ReactNode;
 };
 
-/** Number of wishlist entries revealed in each batch. */
-const libraryPageSize = 50;
+/**
+ * Loads one window of the signed-in user's wishlist.
+ *
+ * @param query - Filter state and result window.
+ * @param signal - Cancels the request once a newer view supersedes it.
+ * @returns The validated wishlist page.
+ */
+function loadWishlistPage(
+  query: LibraryPageQuery,
+  signal: AbortSignal,
+): Promise<LibraryPage> {
+  return fetchLibraryPage({ ...query, location: "wishlist" }, signal);
+}
 
 /**
- * Fuzzy searchable grid of wishlist games.
+ * Browses a filtered wishlist that loads further pages while scrolling.
  *
  * @param root0 - Properties that configure wishlist browser.
  * @param root0.currency - The user's display currency.
- * @param root0.games - The wishlist games to show.
- * @param root0.quickAction - Optional compact add-game trigger for the sticky toolbar.
+ * @param root0.facetGames - Lightweight metadata used to populate complete filter choices.
+ * @param root0.initialPage - Server-rendered first wishlist page.
+ * @param root0.quickAction - Optional add-game trigger for the compact toolbar.
  * @returns The rendered wishlist browser.
  */
 export function WishlistBrowser({
   currency,
-  games,
+  facetGames,
+  initialPage,
   quickAction,
 }: WishlistBrowserProps): ReactNode {
-  const locale = useLocale();
   const t = useTranslations();
-  const [filters, setFilters] = useState<LibraryFilters>(createLibraryFilters);
-  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
-  const [visibleLimit, setVisibleLimit] = useState(libraryPageSize);
-  const visible = useMemo(
-    () => filterAndSortLibraryGames(games, filters, locale),
-    [filters, games, locale],
-  );
-  const page = paginateLibraryEntries(visible, [], visibleLimit);
-
-  /**
-   * Applies new filters and starts progressive rendering from its first batch.
-   *
-   * @param nextFilters - Complete controlled filter state from either surface.
-   * @returns Nothing.
-   */
-  function changeFilters(nextFilters: LibraryFilters): void {
-    setFilters(nextFilters);
-    setVisibleLimit(libraryPageSize);
-  }
+  const {
+    filters,
+    hasFailed,
+    hasMore,
+    isLoading,
+    loadMore,
+    page,
+    retry,
+    setFilters,
+  } = useLibraryPages(initialPage, loadWishlistPage);
 
   return (
     <>
-      <GameFiltersSheet
-        filters={filters}
-        games={games}
-        onChange={changeFilters}
-        onOpenChange={setFilterSheetOpen}
-        open={filterSheetOpen}
-      />
-
-      <LibraryToolbar
+      <LibraryControls
         action={quickAction}
         filters={filters}
-        onOpenFilters={() => setFilterSheetOpen(true)}
-        onQueryChange={(query) => changeFilters({ ...filters, query })}
+        games={facetGames}
+        onChange={setFilters}
       />
 
-      {visible.length > 0 ? (
+      {page.games.length > 0 ? (
         <div className="grid items-start gap-3 sm:gap-4 md:grid-cols-2 2xl:grid-cols-3">
-          {page.primary.map((game, index) => (
+          {page.games.map((game, index) => (
             <WishlistCard
               currency={currency}
               eager={index < 3}
@@ -90,19 +82,17 @@ export function WishlistBrowser({
             />
           ))}
         </div>
-      ) : (
+      ) : isLoading ? null : (
         <EmptyState description={t("wishlist.noMatches")} icon={Search} />
       )}
 
-      {visible.length > 0 ? (
-        <LibraryPagination
-          onLoadMore={() =>
-            setVisibleLimit((current) => current + libraryPageSize)
-          }
-          shown={page.shown}
-          total={page.total}
-        />
-      ) : null}
+      <LibraryInfiniteLoader
+        hasFailed={hasFailed}
+        hasMore={hasMore}
+        isLoading={isLoading}
+        onLoadMore={loadMore}
+        onRetry={retry}
+      />
     </>
   );
 }
