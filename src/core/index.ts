@@ -6,6 +6,7 @@ export * from "@/core/bgg/bgg.contract";
 export * from "@/core/bggCsv/bggCsv.contract";
 export * from "@/core/collection/collection";
 export * from "@/core/collection/collection.contract";
+export * from "@/core/collection/library.contract";
 export * from "@/core/collectionStats/collectionStats";
 export * from "@/core/discovery/discovery";
 export * from "@/core/discovery/discovery.contract";

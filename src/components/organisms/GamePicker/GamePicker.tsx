@@ -104,19 +104,17 @@ export function GamePicker({ games }: GamePickerProps): ReactNode {
   }
 
   /**
-   * Reveals a manually chosen candidate and returns mobile users to the stage.
+   * Reveals a manually chosen candidate and scrolls the stage below the filters into view.
    *
-   * @param gameId - Stable identifier of the game to remove from the candidates.
+   * @param gameId - Stable identifier of the chosen game.
    * @returns Nothing.
    */
   function selectCandidate(gameId: string): void {
     setSelectedId(gameId);
-    if (!window.matchMedia("(min-width: 1024px)").matches) {
-      reelStageRef.current?.scrollIntoView({
-        behavior: reduceMotion ? "auto" : "smooth",
-        block: "start",
-      });
-    }
+    reelStageRef.current?.scrollIntoView({
+      behavior: reduceMotion ? "auto" : "smooth",
+      block: "start",
+    });
   }
 
   if (games.length === 0) {
@@ -132,17 +130,18 @@ export function GamePicker({ games }: GamePickerProps): ReactNode {
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
+    <div className="grid gap-6">
       <GameFilters
-        className="order-2 lg:order-1"
         filters={filters}
         games={games}
         onChange={setFilters}
+        showBrowseControls
         showFavorites
+        showPlayed
       />
 
       <section
-        className="bg-card shadow-soft relative order-1 grid min-h-117.5 min-w-0 scroll-mt-24 place-items-center overflow-hidden rounded-xl border px-4 pt-20 pb-5 sm:min-h-142.5 sm:px-6 sm:pt-24 sm:pb-6 lg:order-2"
+        className="bg-card shadow-soft relative grid min-h-117.5 min-w-0 scroll-mt-24 place-items-center overflow-hidden rounded-xl border px-4 pt-20 pb-5 sm:min-h-142.5 sm:px-6 sm:pt-24 sm:pb-6"
         ref={reelStageRef}
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,color-mix(in_srgb,var(--primary)_17%,transparent),transparent_48%)] opacity-50" />

@@ -16,6 +16,9 @@ const maxChartedPlayers = 8;
 /** Earliest publication year treated as a real date rather than missing data. */
 const earliestCredibleYear = 1900;
 
+/** Rated base games charted at each end of the easiest-to-hardest ranking. */
+const weightExtremeCount = 5;
+
 /** Exclusive upper minute bounds for every session band except the last. */
 const playtimeBandCeilings: readonly [PlaytimeBand, number][] = [
   ["quick", 30],
@@ -90,7 +93,37 @@ export function calculateCollectionStats(
     playerCounts: countPlayerCounts(baseGames),
     playtime: countPlaytimeBands(baseGames),
     decades: countDecades(baseGames),
+    playedBaseGames: baseGames.filter((game) => game.hasPlayed).length,
+    weightExtremes: pickWeightExtremes(baseGames),
   };
+}
+
+/**
+ * Selects the lightest and heaviest rated base games, lightest first.
+ *
+ * A shelf with too few rated games to fill both ends lists each of them once,
+ * so no title is charted as both one of the easiest and one of the hardest.
+ *
+ * @param baseGames - Base games whose BGG weight may be unknown.
+ * @returns Up to twice the extreme count of game names with their one-to-five weight.
+ */
+function pickWeightExtremes(baseGames: StatGame[]): CountDatum[] {
+  const rated = baseGames
+    .flatMap((game) =>
+      game.weight !== null && game.weight > 0
+        ? [{ name: game.name, value: game.weight }]
+        : [],
+    )
+    .toSorted(
+      (left, right) =>
+        left.value - right.value || left.name.localeCompare(right.name),
+    );
+  return rated.length <= weightExtremeCount * 2
+    ? rated
+    : [
+        ...rated.slice(0, weightExtremeCount),
+        ...rated.slice(-weightExtremeCount),
+      ];
 }
 
 /**

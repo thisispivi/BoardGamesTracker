@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import { GameCardSkeleton } from "@/components/atoms/GameCardSkeleton/GameCardSkeleton";
+
 /** Accessible label announced while a library route streams its content. */
 type LibraryPageSkeletonProps = {
   label: string;
@@ -40,18 +42,7 @@ export function LibraryPageSkeleton({
         </section>
         <div className="grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
           {Array.from({ length: 6 }, (_, index) => (
-            <div
-              className="bg-card flex h-40 gap-4 rounded-xl border p-4 shadow-sm"
-              key={index}
-            >
-              <div className="bg-muted h-full w-24 shrink-0 rounded-lg" />
-              <div className="flex-1 space-y-3">
-                <div className="bg-muted h-5 w-4/5 rounded" />
-                <div className="bg-muted h-3 w-1/3 rounded" />
-                <div className="bg-muted mt-6 h-3 w-full rounded" />
-                <div className="bg-muted h-3 w-2/3 rounded" />
-              </div>
-            </div>
+            <GameCardSkeleton key={index} />
           ))}
         </div>
       </div>

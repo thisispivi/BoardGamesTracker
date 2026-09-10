@@ -22,8 +22,8 @@ import { Select } from "@/components/atoms/Select/Select";
 import { MultiSelect } from "@/components/molecules/MultiSelect/MultiSelect";
 import { RangeField } from "@/components/molecules/RangeField/RangeField";
 import type {
-  CollectionGame,
   LibraryBooleanFilter,
+  LibraryFacetGame,
   LibraryFilters,
   LibraryGameType,
   LibrarySort,
@@ -76,7 +76,7 @@ const libraryBooleanFilters: LibraryBooleanFilter[] = ["all", "yes", "no"];
  * @returns Sorted, localized options for the requested taxonomy facet.
  */
 function facetOptions(
-  games: CollectionGame[],
+  games: LibraryFacetGame[],
   taxonomy: "categories" | "mechanics",
   locale: string,
 ): MultiSelectOption[] {
@@ -120,7 +120,7 @@ function selectValue<Value extends string>(
 type GameFiltersProps = {
   className?: string;
   filters: LibraryFilters;
-  games: CollectionGame[];
+  games: LibraryFacetGame[];
   onChange: (filters: LibraryFilters) => void;
   showBrowseControls?: boolean;
   showFavorites?: boolean;
@@ -131,7 +131,7 @@ type GameFiltersProps = {
  * Renders the search, range, facet, and ordering panel shared by every game view.
  *
  * The layout responds to its container rather than the viewport, so one panel
- * serves both the wide library toolbar and the narrow picker sidebar.
+ * serves the page-wide library and picker areas and the narrower filter sheet.
  *
  * @param root0 - Properties that configure the controlled filter panel.
  * @param root0.className - Optional classes merged with the component styles.

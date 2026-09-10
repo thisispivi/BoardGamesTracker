@@ -6,6 +6,7 @@ export type StatGame = {
   categories: string[];
   favorite: boolean;
   gifted: boolean;
+  hasPlayed: boolean;
   isExpansion: boolean;
   maxPlayers: number;
   maxPlaytime: number;
@@ -50,9 +51,11 @@ export type CollectionStats = {
   mechanics: CountDatum[];
   medianSpent: number;
   mostExpensive: CountDatum[];
+  playedBaseGames: number;
   playerCounts: PlayerCountDatum[];
   playtime: PlaytimeDatum[];
   pricedItems: number;
   totalItems: number;
   totalSpent: number;
+  weightExtremes: CountDatum[];
 };

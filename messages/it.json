@@ -70,7 +70,8 @@
     "yearUnknown": "Anno sconosciuto",
     "players": "giocatori",
     "expansion": "Espansione",
-    "duration": "{hours, plural, =0 {{minutes} min} other {{hours} h{minutes, plural, =0 {} other { {minutes} min}}}}"
+    "duration": "{hours, plural, =0 {{minutes} min} other {{hours} h{minutes, plural, =0 {} other { {minutes} min}}}}",
+    "fraction": "{part} su {total}"
   },
   "nav": {
     "primary": "Navigazione principale",
@@ -207,8 +208,9 @@
     }
   },
   "libraryPagination": {
-    "showing": "Visualizzati {shown} di {total}",
-    "loadMore": "Carica altri 50"
+    "loadingMore": "Caricamento di altri giochi",
+    "loadError": "Impossibile caricare questi giochi.",
+    "retry": "Riprova"
   },
   "game": {
     "addFavorite": "Aggiungi ai preferiti",
@@ -403,10 +405,12 @@
     "averagePrice": "Prezzo medio",
     "medianPrice": "Prezzo mediano",
     "pricedCoverage": "Prezzi registrati",
-    "expansionShare": "Quota espansioni",
-    "favoriteShare": "Quota preferiti",
+    "expansions": "Espansioni",
+    "playedGames": "Giochi base giocati",
     "expensiveChart": "Acquisti più costosi",
     "complexityChart": "Distribuzione complessità",
+    "weightExtremesChart": "Giochi più facili e più difficili",
+    "weightExtremesHint": "I cinque giochi base più leggeri e i cinque più pesanti, secondo il peso BGG.",
     "categoriesChart": "Categorie più possedute",
     "mechanicsChart": "Meccaniche più possedute",
     "complexity": {

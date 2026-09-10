@@ -70,7 +70,8 @@
     "yearUnknown": "Year unknown",
     "players": "players",
     "expansion": "Expansion",
-    "duration": "{hours, plural, =0 {{minutes} min} other {{hours} h{minutes, plural, =0 {} other { {minutes} min}}}}"
+    "duration": "{hours, plural, =0 {{minutes} min} other {{hours} h{minutes, plural, =0 {} other { {minutes} min}}}}",
+    "fraction": "{part} of {total}"
   },
   "nav": {
     "primary": "Primary navigation",
@@ -207,8 +208,9 @@
     }
   },
   "libraryPagination": {
-    "showing": "Showing {shown} of {total}",
-    "loadMore": "Load 50 more"
+    "loadingMore": "Loading more games",
+    "loadError": "These games could not be loaded.",
+    "retry": "Try again"
   },
   "game": {
     "addFavorite": "Add to favorites",
@@ -403,10 +405,12 @@
     "averagePrice": "Average paid",
     "medianPrice": "Median paid",
     "pricedCoverage": "Prices recorded",
-    "expansionShare": "Expansion share",
-    "favoriteShare": "Favorite share",
+    "expansions": "Expansions",
+    "playedGames": "Base games played",
     "expensiveChart": "Most expensive purchases",
     "complexityChart": "Complexity mix",
+    "weightExtremesChart": "Easiest and hardest games",
+    "weightExtremesHint": "The five lightest and five heaviest rated base games, by BGG weight.",
     "categoriesChart": "Most-owned categories",
     "mechanicsChart": "Most-owned mechanics",
     "complexity": {

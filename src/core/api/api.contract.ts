@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { bggMetadataSchema } from "@/core/bgg/bgg.contract";
+import { libraryPageSchema } from "@/core/collection/library.contract";
 import { gameDiscoveryResultSchema } from "@/core/discovery/discovery.contract";
 
 /** Validates a supported user-data import or export format. */
@@ -33,6 +34,12 @@ export const gameSearchResponseSchema = z.object({
 export const gameMetadataResponseSchema = z.object({
   error: routeErrorSchema,
   metadata: bggMetadataSchema.nullable().default(null),
+});
+
+/** Validates one library window served to an infinite-scrolling browser. */
+export const libraryPageResponseSchema = z.object({
+  error: routeErrorSchema,
+  page: libraryPageSchema.nullable().default(null),
 });
 
 /** Validates the outcome the settings page shows after a data import. */

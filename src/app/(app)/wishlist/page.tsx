@@ -7,9 +7,10 @@ import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
 import { EmptyState } from "@/components/molecules/EmptyState/EmptyState";
 import { AddGameDialog } from "@/components/organisms/AddGameDialog/AddGameDialog";
 import { WishlistBrowser } from "@/components/organisms/WishlistBrowser/WishlistBrowser";
-import { getWishlist } from "@/server/collection";
+import { getLibraryFacetGames, getLibraryPage } from "@/server/collection";
 import { getUserPreferences } from "@/server/preferences";
 import { requireUser } from "@/server/session";
+import { createFirstPageQuery } from "@/utils/libraryPages";
 
 /**
  * Wishlist page metadata.
@@ -28,8 +29,12 @@ export async function generateMetadata(): Promise<Metadata> {
  */
 export default async function WishlistPage(): Promise<ReactNode> {
   const session = await requireUser();
-  const [wishlist, preferences, t] = await Promise.all([
-    getWishlist(session.user.id),
+  const [facetGames, initialPage, preferences, t] = await Promise.all([
+    getLibraryFacetGames(session.user.id, "wishlist"),
+    getLibraryPage(session.user.id, {
+      ...createFirstPageQuery(),
+      location: "wishlist",
+    }),
     getUserPreferences(session.user.id),
     getTranslations(),
   ]);
@@ -43,17 +48,17 @@ export default async function WishlistPage(): Promise<ReactNode> {
             destination="wishlist"
           />
         }
-        description={t("wishlist.count", { count: wishlist.length })}
+        description={t("wishlist.count", { count: facetGames.length })}
         eyebrow={t("wishlist.eyebrow")}
         title={t("wishlist.title")}
       />
-      {wishlist.length > 0 ? (
+      {facetGames.length > 0 ? (
         <WishlistBrowser
           currency={preferences.currency}
-          games={wishlist}
+          facetGames={facetGames}
+          initialPage={initialPage}
           quickAction={
             <AddGameDialog
-              compact
               currency={preferences.currency}
               destination="wishlist"
             />

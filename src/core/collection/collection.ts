@@ -1,73 +1,24 @@
-/** Serialized collection game rendered by the browser. */
-export type CollectionGame = {
-  id: string;
-  favorite: boolean;
-  hasPlayed: boolean;
-  personalRating: number | null;
-  notes: string;
-  moneySpent: number;
-  gifted: boolean;
-  gameId: string;
-  bggId: number;
-  name: string;
-  imageUrl: string | null;
-  thumbnailUrl: string | null;
-  yearPublished: number | null;
-  minPlayers: number;
-  maxPlayers: number;
-  minPlaytime: number;
-  maxPlaytime: number;
-  weight: number | null;
-  bggRating: number | null;
-  isExpansion: boolean;
-  expandsBggIds: number[];
-  expansionBggIds: number[];
-  categories: string[];
-  mechanics: string[];
-  families: string[];
-};
-
-/** Three-state choice used by Boolean library facets. */
-export type LibraryBooleanFilter = "all" | "yes" | "no";
-
-/** Game kinds available to the shared library browser. */
-export type LibraryGameType = "all" | "baseGames" | "expansions";
-
-/** Complexity bands available to the shared library browser. */
-export type LibraryWeightFilter =
-  "all" | "light" | "medium" | "heavy" | "veryHeavy";
+import type {
+  CollectionGame,
+  LibraryPage,
+  LibraryPageQuery,
+  LibraryWeightFilter,
+} from "@/core/collection/library.contract";
 
 /** One complexity band over BoardGameGeek's inclusive one-to-five weight scale. */
 export type GameWeightBand = Exclude<LibraryWeightFilter, "all">;
 
-/** Stable ordering choices available to the shared library browser. */
-export type LibrarySort =
-  | "nameAscending"
-  | "nameDescending"
-  | "weightAscending"
-  | "weightDescending"
-  | "timeAscending"
-  | "timeDescending";
+/** Taxonomy fields required to build complete library facet choices. */
+export type LibraryFacetGame = Pick<
+  CollectionGame,
+  "categories" | "isExpansion" | "mechanics"
+>;
 
-/** Inclusive lower and upper bounds selected with a dual-thumb range control. */
-export type NumberRange = {
-  max: number;
-  min: number;
-};
-
-/** Search, facet, and ordering state shared by every game browsing surface. */
-export type LibraryFilters = {
-  categories: string[];
-  favoriteFilter: LibraryBooleanFilter;
-  gameType: LibraryGameType;
-  mechanics: string[];
-  players: NumberRange;
-  playedFilter: LibraryBooleanFilter;
-  playtime: NumberRange;
-  query: string;
-  sort: LibrarySort;
-  weight: LibraryWeightFilter;
-};
+/** Loads one window of library results and stops once its signal aborts. */
+export type LibraryPageLoader = (
+  query: LibraryPageQuery,
+  signal: AbortSignal,
+) => Promise<LibraryPage>;
 
 /** Serializable result returned by collection mutations. */
 export type CollectionActionState = {
