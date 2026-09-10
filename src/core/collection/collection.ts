@@ -2,6 +2,7 @@
 export type CollectionGame = {
   id: string;
   favorite: boolean;
+  hasPlayed: boolean;
   personalRating: number | null;
   notes: string;
   moneySpent: number;
@@ -25,6 +26,9 @@ export type CollectionGame = {
   mechanics: string[];
   families: string[];
 };
+
+/** Three-state choice used by Boolean library facets. */
+export type LibraryBooleanFilter = "all" | "yes" | "no";
 
 /** Game kinds available to the shared library browser. */
 export type LibraryGameType = "all" | "baseGames" | "expansions";
@@ -54,10 +58,11 @@ export type NumberRange = {
 /** Search, facet, and ordering state shared by every game browsing surface. */
 export type LibraryFilters = {
   categories: string[];
-  favoritesOnly: boolean;
+  favoriteFilter: LibraryBooleanFilter;
   gameType: LibraryGameType;
   mechanics: string[];
   players: NumberRange;
+  playedFilter: LibraryBooleanFilter;
   playtime: NumberRange;
   query: string;
   sort: LibrarySort;

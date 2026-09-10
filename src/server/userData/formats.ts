@@ -34,9 +34,12 @@ const gameHeaders = [
   "gifted",
   "expandsBggIds",
   "expansionBggIds",
+  "hasPlayed",
 ] as const;
 
-const legacyGameHeaders = gameHeaders.slice(0, -2);
+const previousGameHeaders = gameHeaders.slice(0, -1);
+
+const legacyGameHeaders = gameHeaders.slice(0, -3);
 
 /**
  * A decoded tabular row keyed by canonical header.
@@ -266,7 +269,7 @@ async function serializeXlsx(document: UserDataDocument): Promise<Uint8Array> {
       formulae: ['"collection,wishlist"'],
     };
   }
-  gamesSheet.autoFilter = `A1:W${Math.max(1, document.items.length + 1)}`;
+  gamesSheet.autoFilter = `A1:X${Math.max(1, document.items.length + 1)}`;
   gamesSheet.getRow(1).height = 28;
   gamesSheet.getRow(1).font = { bold: true, color: { argb: "FFFFFFFF" } };
   gamesSheet.getRow(1).fill = {
@@ -276,7 +279,7 @@ async function serializeXlsx(document: UserDataDocument): Promise<Uint8Array> {
   };
   const widths = [
     14, 10, 30, 44, 42, 14, 11, 11, 13, 13, 10, 11, 12, 34, 34, 34, 10, 14, 38,
-    14, 12, 34, 34,
+    14, 12, 34, 34, 12,
   ];
   widths.forEach((width, index) => {
     gamesSheet.getColumn(index + 1).width = width;
@@ -326,9 +329,11 @@ async function parseXlsx(bytes: Uint8Array): Promise<UserDataDocument> {
   }
   const activeHeaders = matchesWorksheetHeaders(headers, gameHeaders)
     ? gameHeaders
-    : matchesWorksheetHeaders(headers, legacyGameHeaders)
-      ? legacyGameHeaders
-      : null;
+    : matchesWorksheetHeaders(headers, previousGameHeaders)
+      ? previousGameHeaders
+      : matchesWorksheetHeaders(headers, legacyGameHeaders)
+        ? legacyGameHeaders
+        : null;
   if (!activeHeaders) throw new Error("Invalid Games worksheet.");
   const items: DecodedGame[] = [];
   gamesSheet.eachRow((row, rowNumber) => {
@@ -417,6 +422,7 @@ function gameToFlatValues(game: PortableGame): string[] {
     String(game.gifted),
     JSON.stringify(game.expandsBggIds),
     JSON.stringify(game.expansionBggIds),
+    String(game.hasPlayed),
   ];
 }
 
@@ -451,6 +457,7 @@ function gameToWorksheetValues(game: PortableGame): unknown[] {
     game.gifted,
     safeSpreadsheetText(JSON.stringify(game.expandsBggIds)),
     safeSpreadsheetText(JSON.stringify(game.expansionBggIds)),
+    game.hasPlayed,
   ];
 }
 
@@ -486,6 +493,7 @@ function flatToGame(row: FlatGame): DecodedGame {
     gifted: booleanCellSchema.parse(row.gifted),
     expandsBggIds: parseBggIds(row.expandsBggIds),
     expansionBggIds: parseBggIds(row.expansionBggIds),
+    hasPlayed: booleanCellSchema.parse(row.hasPlayed ?? "false"),
   };
 }
 

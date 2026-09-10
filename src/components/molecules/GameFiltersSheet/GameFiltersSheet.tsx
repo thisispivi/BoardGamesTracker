@@ -1,20 +1,22 @@
 "use client";
 
 import * as Dialog from "@radix-ui/react-dialog";
-import { SlidersHorizontal, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
 import { GameFilters } from "@/components/molecules/GameFilters/GameFilters";
 import type { CollectionGame, LibraryFilters } from "@/core";
-import { countActiveFilters } from "@/utils/libraryFilters";
 
 /** Library filter state and the facets the surrounding view exposes. */
 type GameFiltersSheetProps = {
   filters: LibraryFilters;
   games: CollectionGame[];
   onChange: (filters: LibraryFilters) => void;
+  onOpenChange: (open: boolean) => void;
+  open: boolean;
   showFavorites?: boolean;
+  showPlayed?: boolean;
 };
 
 /**
@@ -29,20 +31,22 @@ type GameFiltersSheetProps = {
  * @param root0.filters - Current filter and ordering state.
  * @param root0.games - Games used to derive the available taxonomy options.
  * @param root0.onChange - Callback receiving the complete next filter state.
+ * @param root0.onOpenChange - Callback receiving responsive sheet visibility changes.
+ * @param root0.open - Whether the responsive sheet is visible.
  * @param root0.showFavorites - Whether the favorites filter applies to this library.
- * @returns The inline panel, the floating trigger, and the mobile filter sheet.
+ * @param root0.showPlayed - Whether private played status applies to this library.
+ * @returns The inline panel and responsive filter sheet.
  */
 export function GameFiltersSheet({
   filters,
   games,
   onChange,
+  onOpenChange,
+  open,
   showFavorites = false,
+  showPlayed = false,
 }: GameFiltersSheetProps): ReactNode {
   const t = useTranslations("libraryFilters");
-  const activeFilterCount = countActiveFilters(filters, {
-    favorites: showFavorites,
-    query: true,
-  });
 
   return (
     <>
@@ -53,27 +57,13 @@ export function GameFiltersSheet({
         onChange={onChange}
         showBrowseControls
         showFavorites={showFavorites}
+        showPlayed={showPlayed}
       />
 
-      <Dialog.Root>
-        <Dialog.Trigger asChild>
-          <button
-            aria-label={t("openFilters")}
-            className="bg-primary text-primary-foreground fixed right-4 bottom-4 z-60 flex h-12 items-center gap-2 rounded-full px-5 text-sm font-bold shadow-lg transition hover:brightness-110 md:hidden"
-            type="button"
-          >
-            <SlidersHorizontal aria-hidden="true" className="size-4" />
-            {t("filters")}
-            {activeFilterCount > 0 ? (
-              <span className="bg-primary-foreground/20 min-w-5 rounded-full px-1.5 py-0.5 text-xs tabular-nums">
-                {activeFilterCount}
-              </span>
-            ) : null}
-          </button>
-        </Dialog.Trigger>
+      <Dialog.Root onOpenChange={onOpenChange} open={open}>
         <Dialog.Portal>
-          <Dialog.Overlay className="edit-dialog-overlay fixed inset-0 z-70 bg-black/55 backdrop-blur-sm md:hidden" />
-          <Dialog.Content className="edit-dialog-content bg-card fixed inset-x-0 bottom-0 z-71 flex max-h-[85dvh] flex-col rounded-t-xl border p-4 shadow-2xl focus:outline-none md:hidden">
+          <Dialog.Overlay className="edit-dialog-overlay fixed inset-0 z-70 bg-black/55 backdrop-blur-sm" />
+          <Dialog.Content className="edit-dialog-content bg-card fixed inset-x-0 bottom-0 z-71 flex max-h-[85dvh] flex-col rounded-t-xl border p-4 shadow-2xl focus:outline-none md:inset-y-0 md:right-0 md:left-auto md:max-h-none md:w-[min(34rem,calc(100vw-2rem))] md:rounded-none md:p-6">
             <div className="flex shrink-0 justify-end">
               <Dialog.Title className="sr-only">{t("filters")}</Dialog.Title>
               <Dialog.Close asChild>
@@ -94,6 +84,7 @@ export function GameFiltersSheet({
                 onChange={onChange}
                 showBrowseControls
                 showFavorites={showFavorites}
+                showPlayed={showPlayed}
               />
             </div>
           </Dialog.Content>

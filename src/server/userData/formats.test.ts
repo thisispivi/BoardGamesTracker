@@ -36,6 +36,7 @@ const document: UserDataDocument = {
       notes: "Sleeved",
       moneySpent: 29.99,
       gifted: false,
+      hasPlayed: true,
     },
     {
       location: "wishlist",
@@ -61,6 +62,7 @@ const document: UserDataDocument = {
       notes: "Buy when it is back in stock",
       moneySpent: 0,
       gifted: false,
+      hasPlayed: false,
     },
   ],
 };
@@ -191,7 +193,9 @@ describe("portable user data formats", () => {
 
   it("imports legacy JSON backups without BGG relationship fields", async () => {
     const legacy = JSON.stringify(document, (key, value: unknown) =>
-      ["expandsBggIds", "expansionBggIds"].includes(key) ? undefined : value,
+      ["expandsBggIds", "expansionBggIds", "hasPlayed"].includes(key)
+        ? undefined
+        : value,
     );
 
     const restored = await parseUserData(
@@ -204,6 +208,7 @@ describe("portable user data formats", () => {
         ...item,
         expandsBggIds: [],
         expansionBggIds: [],
+        hasPlayed: false,
       })),
     );
   });
@@ -221,6 +226,7 @@ describe("portable user data formats", () => {
         bggId: 68448,
         expandsBggIds: [],
         expansionBggIds: [],
+        hasPlayed: false,
         name: "7 Wonders",
       }),
     ]);

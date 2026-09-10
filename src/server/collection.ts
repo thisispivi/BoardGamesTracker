@@ -21,6 +21,7 @@ async function getLibraryItems(
     .select({
       id: collectionItems.id,
       favorite: collectionItems.favorite,
+      hasPlayed: collectionItems.hasPlayed,
       personalRating: collectionItems.personalRating,
       notes: collectionItems.notes,
       moneySpent: collectionItems.moneySpent,

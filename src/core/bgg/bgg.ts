@@ -3,6 +3,7 @@ export type ImportedBggGame = {
   bggId: number;
   bggRating: number | null;
   categories: string[];
+  hasPlayed: boolean;
   isExpansion: boolean;
   maxPlayers: number;
   maxPlaytime: number;

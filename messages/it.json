@@ -65,6 +65,8 @@
     "cancel": "Annulla",
     "close": "Chiudi",
     "loading": "Caricamento",
+    "loadingCollection": "Caricamento collezione",
+    "loadingWishlist": "Caricamento lista desideri",
     "yearUnknown": "Anno sconosciuto",
     "players": "giocatori",
     "expansion": "Espansione",
@@ -145,6 +147,7 @@
       "timeDescending": "Durata · più lunghi prima"
     },
     "filters": "Filtri",
+    "quickControls": "Comandi rapidi della raccolta",
     "openFilters": "Mostra filtri",
     "closeFilters": "Chiudi filtri",
     "reset": "Reimposta",
@@ -157,7 +160,8 @@
       "gameType": "Tipo di gioco",
       "categories": "Categorie",
       "mechanics": "Meccaniche",
-      "favorites": "Preferiti"
+      "favorites": "Preferiti",
+      "played": "Giocati"
     },
     "anyPlayers": "Qualsiasi numero di giocatori",
     "minPlayers": "Giocatori minimi",
@@ -189,15 +193,31 @@
     "selectedCount": "{count, plural, one {# selezionata} other {# selezionate}}",
     "clearSelection": "Cancella selezione",
     "noFilterOptions": "Nessuna opzione corrispondente.",
-    "favoritesOnly": "Solo preferiti",
-    "allGames": "Tutti i giochi"
+    "favoriteLabel": "Filtra per stato preferito",
+    "favorite": {
+      "all": "Tutti i giochi",
+      "yes": "Preferiti",
+      "no": "Non preferiti"
+    },
+    "playedLabel": "Filtra per stato giocato",
+    "played": {
+      "all": "Tutti i giochi",
+      "yes": "Giocati",
+      "no": "Non giocati"
+    }
+  },
+  "libraryPagination": {
+    "showing": "Visualizzati {shown} di {total}",
+    "loadMore": "Carica altri 50"
   },
   "game": {
     "addFavorite": "Aggiungi ai preferiti",
+    "markPlayed": "Segna come giocato",
+    "markUnplayed": "Segna come non giocato",
     "artworkAlt": "Copertina di {name}",
     "removeFavorite": "Rimuovi dai preferiti",
     "removeTitle": "Rimuovere {name}?",
-    "removeBody": "Rimuove il gioco e valutazione personale, note, preferito e prezzo di acquisto.",
+    "removeBody": "Rimuove il gioco e valutazione personale, note, preferito, stato giocato e prezzo di acquisto.",
     "remove": "Rimuovi gioco",
     "openBggAria": "Apri {name} su BoardGameGeek",
     "openBgg": "Apri su BGG",
@@ -266,7 +286,7 @@
     "button": "Importa CSV BGG",
     "eyebrow": "Importa collezione",
     "title": "Importa da BoardGameGeek",
-    "body": "Esporta la collezione in CSV da BGG e caricala qui. Vengono importati giochi posseduti, valutazioni, note, categorie, meccaniche e copertine.",
+    "body": "Esporta la collezione in CSV da BGG e caricala qui. Vengono importati giochi posseduti, stato giocato, valutazioni, note, categorie, meccaniche e copertine.",
     "file": "Esportazione collezione BGG",
     "limit": "Massimo 5 MB e 2.000 righe. I giochi esistenti vengono aggiornati; quelli non posseduti vengono ignorati.",
     "pending": "Importazione dettagli BGG e copertine…",
@@ -421,7 +441,7 @@
     "title": "I tuoi dati",
     "body": "Esporta un backup o unisci un’esportazione Board Games Tracker precedente.",
     "exportTitle": "Esporta dati Board Games Tracker",
-    "exportBody": "Include collezione, lista desideri, prezzi, note, valutazioni, preferenze e metadati dei giochi. Password e sessioni non vengono mai esportate.",
+    "exportBody": "Include collezione, lista desideri, stato giocato, prezzi, note, valutazioni, preferenze e metadati dei giochi. Password e sessioni non vengono mai esportate.",
     "importTitle": "Importa dati Board Games Tracker",
     "importBody": "Carica un’esportazione JSON, CSV, XLSX o SQL creata qui. I giochi mancanti dal catalogo condiviso vengono aggiunti e le voci esistenti restano invariate.",
     "file": "Esportazione dati Board Games Tracker",
@@ -438,7 +458,7 @@
   },
   "clear": {
     "title": "Svuota collezione",
-    "body": "Rimuovi ogni gioco posseduto, valutazione, preferito, nota e prezzo dalla collezione. Lista desideri, account e altri utenti non vengono modificati.",
+    "body": "Rimuovi ogni gioco posseduto, valutazione, preferito, stato giocato, nota e prezzo dalla collezione. Lista desideri, account e altri utenti non vengono modificati.",
     "deleteAll": "Elimina tutto",
     "eyebrow": "Azione permanente",
     "modalTitle": "Eliminare tutta la collezione?",

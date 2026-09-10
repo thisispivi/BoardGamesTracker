@@ -11,11 +11,6 @@ import {
   CartesianGrid,
   Pie,
   PieChart,
-  PolarAngleAxis,
-  PolarGrid,
-  PolarRadiusAxis,
-  Radar,
-  RadarChart,
   ResponsiveContainer,
   Sector,
   Tooltip,
@@ -56,9 +51,6 @@ const complexityColors = [
   chartColors.indigo,
   chartColors.rose,
 ];
-
-/** Smallest number of axes that makes a radar readable rather than degenerate. */
-const minimumRadarAxes = 3;
 
 /** Shared value-axis label styling for every Cartesian chart. */
 const axisTick = { fill: "var(--foreground)", fillOpacity: 0.72, fontSize: 12 };
@@ -246,42 +238,12 @@ export function StatsCharts({
       </ChartCard>
 
       <ChartCard compact title={t("stats.categoriesChart")}>
-        {categoryData.length >= minimumRadarAxes ? (
-          <ResponsiveContainer height="100%" width="100%">
-            <RadarChart data={categoryData} outerRadius="70%">
-              <PolarGrid stroke="var(--border)" />
-              <PolarAngleAxis
-                dataKey="name"
-                tick={axisTick}
-                tickFormatter={(value: string) => truncate(value, 16)}
-              />
-              <PolarRadiusAxis
-                allowDecimals={false}
-                axisLine={false}
-                tick={axisTick}
-                tickCount={4}
-              />
-              <Radar
-                dataKey="value"
-                fill={chartColors.indigo}
-                fillOpacity={0.35}
-                stroke={chartColors.indigo}
-                strokeWidth={2}
-              />
-              <Tooltip
-                content={<ChartTooltip valueFormatter={formatGameCount} />}
-                isAnimationActive={false}
-              />
-            </RadarChart>
-          </ResponsiveContainer>
-        ) : (
-          <RankingChart
-            color={chartColors.indigo}
-            data={categoryData}
-            tickFormatter={formatCount}
-            valueFormatter={formatGameCount}
-          />
-        )}
+        <RankingChart
+          color={chartColors.indigo}
+          data={categoryData}
+          tickFormatter={formatCount}
+          valueFormatter={formatGameCount}
+        />
       </ChartCard>
 
       <ChartCard compact title={t("stats.mechanicsChart")}>

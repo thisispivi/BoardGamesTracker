@@ -228,6 +228,7 @@ export const collectionItems = pgTable(
       .references(() => games.id, { onDelete: "cascade" }),
     owned: boolean("owned").notNull().default(true),
     favorite: boolean("favorite").notNull().default(false),
+    hasPlayed: boolean("has_played").notNull().default(false),
     wishlist: boolean("wishlist").notNull().default(false),
     personalRating: numeric("personal_rating", {
       mode: "number",

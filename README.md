@@ -40,11 +40,13 @@ or review the [security model](#security).
 
 ### A collection and a wishlist
 
-- Separate collection and wishlist views with ownership, favorites, and gifted
-  status.
+- Separate collection and wishlist views with ownership, favorites, played
+  status, and gifted purchases.
 - Personal ratings, notes, tags, player counts, play times, and money spent.
 - Fuzzy search plus filters for player count, duration, complexity, categories,
-  mechanics, favorites, and base games versus expansions.
+  mechanics, favorite and played status, and base games versus expansions.
+- Sticky library controls and progressive 50-item batches keep large shelves
+  quick to browse without weakening client-side search.
 - Expansions grouped under the base game they belong to.
 - Moving a wishlist entry into the collection, and clearing either library
   behind a typed confirmation.
@@ -55,8 +57,8 @@ or review the [security model](#security).
   so the browser never reaches it directly.
 - A preview step before a game is added, with manual resolution of incomplete
   metadata.
-- BoardGameGeek collection CSV import that keeps only owned rows and reports
-  what it skipped.
+- BoardGameGeek collection CSV import that keeps only owned rows, restores
+  played status from `numplays`, and reports what it skipped.
 - Remote artwork fetched, cached, and served from same-origin routes.
 
 > BoardGameGeek is a trademark of BoardGameGeek, LLC. This project is

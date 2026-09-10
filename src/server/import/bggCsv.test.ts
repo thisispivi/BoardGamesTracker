@@ -29,6 +29,7 @@ describe("parseBggCollectionCsv", () => {
       games: [
         expect.objectContaining({
           bggId: 9209,
+          hasPlayed: true,
           maxPlayers: 5,
           maxPlaytime: 60,
           name: "Ticket to Ride",
@@ -49,6 +50,7 @@ describe("parseBggCollectionCsv", () => {
 
     expect(result.games[0]).toMatchObject({
       categories: ["Expansion"],
+      hasPlayed: false,
       isExpansion: true,
     });
   });

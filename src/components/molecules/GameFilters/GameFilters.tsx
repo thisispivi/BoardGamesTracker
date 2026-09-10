@@ -4,6 +4,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   ArrowDownUp,
   Brain,
+  CircleCheck,
   Clock3,
   Heart,
   Layers,
@@ -22,6 +23,7 @@ import { MultiSelect } from "@/components/molecules/MultiSelect/MultiSelect";
 import { RangeField } from "@/components/molecules/RangeField/RangeField";
 import type {
   CollectionGame,
+  LibraryBooleanFilter,
   LibraryFilters,
   LibraryGameType,
   LibrarySort,
@@ -58,6 +60,9 @@ const libraryWeightFilters: LibraryWeightFilter[] = [
   "heavy",
   "veryHeavy",
 ];
+
+/** Stable values used by favorite and played predicate filters. */
+const libraryBooleanFilters: LibraryBooleanFilter[] = ["all", "yes", "no"];
 
 /**
  * Builds alphabetized taxonomy options with per-game occurrence counts.
@@ -119,6 +124,7 @@ type GameFiltersProps = {
   onChange: (filters: LibraryFilters) => void;
   showBrowseControls?: boolean;
   showFavorites?: boolean;
+  showPlayed?: boolean;
 };
 
 /**
@@ -134,6 +140,7 @@ type GameFiltersProps = {
  * @param root0.onChange - Callback receiving the complete next filter state.
  * @param root0.showBrowseControls - Whether searching and ordering apply to this view.
  * @param root0.showFavorites - Whether the favorites filter applies to this library.
+ * @param root0.showPlayed - Whether private played status applies to this library.
  * @returns The rendered filter panel.
  */
 export function GameFilters({
@@ -143,6 +150,7 @@ export function GameFilters({
   onChange,
   showBrowseControls = false,
   showFavorites = false,
+  showPlayed = false,
 }: GameFiltersProps): ReactNode {
   const locale = useLocale();
   const t = useTranslations("libraryFilters");
@@ -166,10 +174,21 @@ export function GameFilters({
     label: t(`gameType.${value}`),
     value,
   }));
+  const favoriteOptions: SelectOption[] = libraryBooleanFilters.map(
+    (value) => ({
+      label: t(`favorite.${value}`),
+      value,
+    }),
+  );
+  const playedOptions: SelectOption[] = libraryBooleanFilters.map((value) => ({
+    label: t(`played.${value}`),
+    value,
+  }));
   const playersActive = !isFullRange(filters.players, playerRangeBounds);
   const playtimeActive = !isFullRange(filters.playtime, playtimeRangeBounds);
   const activeFilterCount = countActiveFilters(filters, {
     favorites: showFavorites,
+    played: showPlayed,
     query: showBrowseControls,
   });
   const hasChanges =
@@ -352,28 +371,41 @@ export function GameFilters({
 
         {showFavorites ? (
           <FilterField icon={Heart} label={t("names.favorites")}>
-            <button
-              aria-pressed={filters.favoritesOnly}
-              className={cn(
-                "flex h-11 w-full items-center justify-center gap-2 rounded-lg border px-3 text-sm font-semibold shadow-sm transition-colors",
-                filters.favoritesOnly
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-background hover:bg-muted/60",
-              )}
-              onClick={() =>
-                onChange({ ...filters, favoritesOnly: !filters.favoritesOnly })
+            <Select
+              ariaLabel={t("favoriteLabel")}
+              onValueChange={(value) =>
+                onChange({
+                  ...filters,
+                  favoriteFilter: selectValue(
+                    value,
+                    libraryBooleanFilters,
+                    "all",
+                  ),
+                })
               }
-              type="button"
-            >
-              <Heart
-                aria-hidden="true"
-                className={cn(
-                  "size-4",
-                  filters.favoritesOnly && "fill-current",
-                )}
-              />
-              {filters.favoritesOnly ? t("favoritesOnly") : t("allGames")}
-            </button>
+              options={favoriteOptions}
+              value={filters.favoriteFilter}
+            />
+          </FilterField>
+        ) : null}
+
+        {showPlayed ? (
+          <FilterField icon={CircleCheck} label={t("names.played")}>
+            <Select
+              ariaLabel={t("playedLabel")}
+              onValueChange={(value) =>
+                onChange({
+                  ...filters,
+                  playedFilter: selectValue(
+                    value,
+                    libraryBooleanFilters,
+                    "all",
+                  ),
+                })
+              }
+              options={playedOptions}
+              value={filters.playedFilter}
+            />
           </FilterField>
         ) : null}
       </div>
