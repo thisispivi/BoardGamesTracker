@@ -44,7 +44,7 @@ const maxSearchTerms = 8;
 const maxAttachedExpansions = 2_000;
 
 /** Columns required to render one collection or wishlist card. */
-const librarySelection = {
+export const librarySelection = {
   id: collectionItems.id,
   favorite: collectionItems.favorite,
   hasPlayed: collectionItems.hasPlayed,
@@ -82,7 +82,7 @@ type LibraryRow = CollectionGame & { imageChecksum: string | null };
  * @param row - Card columns selected together with the artwork checksum.
  * @returns The serializable card, pointing at cached artwork when it exists.
  */
-function normalizeLibraryRow(row: LibraryRow): CollectionGame {
+export function normalizeLibraryRow(row: LibraryRow): CollectionGame {
   const { imageChecksum, ...game } = row;
   const cachedUrl = imageChecksum ? `/api/game-images/${imageChecksum}` : null;
   return {
@@ -99,7 +99,10 @@ function normalizeLibraryRow(row: LibraryRow): CollectionGame {
  * @param location - Library section being browsed.
  * @returns The ownership predicate every library query starts from.
  */
-function locationCondition(userId: string, location: LibraryLocation): SQL {
+export function locationCondition(
+  userId: string,
+  location: LibraryLocation,
+): SQL {
   return (
     and(
       eq(collectionItems.userId, userId),
@@ -235,7 +238,7 @@ function libraryOrder(sort: LibrarySort): SQL[] {
  * @param offset - Cards skipped before the window.
  * @returns Normalized cards in the requested order.
  */
-async function selectCards(
+export async function selectCards(
   where: SQL | undefined,
   order: SQL[],
   limit: number,
