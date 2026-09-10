@@ -1,133 +1,74 @@
-import { ArrowRight, Banknote, BookOpen, Heart, Puzzle } from "lucide-react";
-import Link from "next/link";
-import { getFormatter, getTranslations } from "next-intl/server";
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 
-import { buttonVariants } from "@/components/atoms/Button/Button";
-import { GameArtwork } from "@/components/atoms/GameArtwork/GameArtwork";
-import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
-import { SectionHeading } from "@/components/atoms/SectionHeading/SectionHeading";
-import { EmptyState } from "@/components/molecules/EmptyState/EmptyState";
-import { StatGrid } from "@/components/molecules/StatGrid/StatGrid";
-import { getCollection } from "@/server/collection";
+import { HomeHero } from "@/components/organisms/HomeHero/HomeHero";
+import { RecentlyAdded } from "@/components/organisms/RecentlyAdded/RecentlyAdded";
+import { ShelfPulse } from "@/components/organisms/ShelfPulse/ShelfPulse";
+import { UnplayedRail } from "@/components/organisms/UnplayedRail/UnplayedRail";
+import { WishlistSpotlight } from "@/components/organisms/WishlistSpotlight/WishlistSpotlight";
+import { getHomeSummary } from "@/server/home";
 import { getUserPreferences } from "@/server/preferences";
 import { requireUser } from "@/server/session";
-import { cn } from "@/utils/cn";
 
 /**
- * Personalized collection summary without promotional hero content.
+ * Home page metadata.
  *
- * @returns The rendered dashboard page.
+ * @returns Localized metadata for the page.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations();
+  return { title: t("navigation.dashboard") };
+}
+
+/**
+ * Signed-in home built around choosing tonight's game and seeing the shelf at a glance.
+ *
+ * An empty collection shows only the hero, which then offers ways to add
+ * games, plus the wishlist preview when the wishlist already has games.
+ *
+ * @returns The rendered home page.
  */
 export default async function DashboardPage(): Promise<ReactNode> {
   const session = await requireUser();
-  const [collection, preferences, format, t] = await Promise.all([
-    getCollection(session.user.id),
+  const [summary, preferences] = await Promise.all([
+    getHomeSummary(session.user.id),
     getUserPreferences(session.user.id),
-    getFormatter(),
-    getTranslations(),
   ]);
-  const expansions = collection.filter((item) => item.isExpansion);
-  const games = collection.filter((item) => !item.isExpansion);
-  const favorites = collection.filter((item) => item.favorite).length;
-  const totalSpent = collection.reduce(
-    (total, item) => total + item.moneySpent,
-    0,
-  );
   const firstName =
     session.user.name.trim().split(/\s+/)[0] ?? session.user.name;
+  const hasCollection = summary.baseGames + summary.expansions > 0;
 
   return (
     <>
-      <PageHeader
-        action={
-          <Link
-            className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}
-            href="/collection"
-          >
-            {t("dashboard.openCollection")}
-            <ArrowRight aria-hidden="true" className="size-4" />
-          </Link>
-        }
-        description={t("dashboard.description")}
-        eyebrow={t("dashboard.eyebrow")}
-        title={t("dashboard.title", { name: firstName })}
+      <HomeHero
+        currency={preferences.currency}
+        firstName={firstName}
+        summary={summary}
       />
 
-      <StatGrid
-        className="mb-10 lg:grid-cols-4"
-        stats={[
-          { icon: BookOpen, label: t("dashboard.games"), value: games.length },
-          {
-            icon: Puzzle,
-            label: t("dashboard.expansions"),
-            value: expansions.length,
-          },
-          { icon: Heart, label: t("dashboard.favorites"), value: favorites },
-          {
-            icon: Banknote,
-            label: t("dashboard.spent"),
-            value: format.number(totalSpent, {
-              style: "currency",
-              currency: preferences.currency,
-              maximumFractionDigits: 2,
-            }),
-          },
-        ]}
-      />
+      {hasCollection ? (
+        <>
+          <ShelfPulse currency={preferences.currency} summary={summary} />
+          <UnplayedRail games={summary.unplayed} />
+          <div className="mt-14 grid items-start gap-10 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+            <RecentlyAdded items={summary.recentlyAdded} />
+            <WishlistSpotlight
+              count={summary.wishlistGames}
+              games={summary.wishlist}
+            />
+          </div>
+        </>
+      ) : null}
 
-      <section>
-        <SectionHeading
-          eyebrow={t("dashboard.collection")}
-          meta={
-            <Link
-              className="text-primary hover:text-primary/80 flex items-center gap-2 text-sm font-bold transition"
-              href="/collection"
-            >
-              {t("dashboard.viewAll")}
-              <ArrowRight aria-hidden="true" className="size-4" />
-            </Link>
-          }
-          title={t("dashboard.yourGames")}
-        />
-        {games.length ? (
-          <ul className="grid grid-cols-2 gap-x-4 gap-y-6 md:grid-cols-4 xl:grid-cols-6">
-            {games.slice(0, 6).map((item, index) => (
-              <li className="min-w-0" key={item.id}>
-                <Link className="group block min-w-0" href="/collection">
-                  <GameArtwork
-                    className="rounded-lg"
-                    eager={index < 2}
-                    imageClassName="transition duration-300 group-hover:scale-105"
-                    imageUrl={item.imageUrl}
-                    name={item.name}
-                  />
-                  <h3 className="group-hover:text-primary mt-3 truncate text-sm font-bold transition">
-                    {item.name}
-                  </h3>
-                  <p className="text-muted-foreground mt-0.5 truncate text-xs">
-                    {item.minPlayers}–{item.maxPlayers} {t("common.players")}
-                  </p>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <EmptyState
-            action={
-              <Link
-                className={cn(buttonVariants({ size: "sm" }))}
-                href="/collection"
-              >
-                {t("dashboard.addFirst")}
-              </Link>
-            }
-            description={t("dashboard.emptyBody")}
-            icon={BookOpen}
-            title={t("dashboard.emptyTitle")}
+      {!hasCollection && summary.wishlistGames > 0 ? (
+        <div className="mt-14 max-w-xl">
+          <WishlistSpotlight
+            count={summary.wishlistGames}
+            games={summary.wishlist}
           />
-        )}
-      </section>
+        </div>
+      ) : null}
     </>
   );
 }
