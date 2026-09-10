@@ -19,6 +19,22 @@ describe("StatGrid", () => {
     expect(screen.getByText("Gifts")).toBeInTheDocument();
   });
 
+  it("reads a fraction as words instead of a slash", () => {
+    render(
+      <StatGrid
+        stats={[
+          {
+            icon: Heart,
+            label: "Played",
+            value: { label: "10 of 20", part: "10", ratio: 0.5, total: "20" },
+          },
+        ]}
+      />,
+    );
+    expect(screen.getByText("10 of 20")).toBeInTheDocument();
+    expect(screen.getByText("Played")).toBeInTheDocument();
+  });
+
   it("renders nothing when there are no figures", () => {
     const { container } = render(<StatGrid stats={[]} />);
     expect(container).toBeEmptyDOMElement();

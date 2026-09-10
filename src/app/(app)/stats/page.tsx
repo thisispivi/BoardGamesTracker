@@ -3,9 +3,9 @@ import {
   BookOpen,
   Brain,
   ChartNoAxesCombined,
+  CircleCheck,
   Clock3,
   Dices,
-  Heart,
   Puzzle,
   ReceiptText,
   Scale,
@@ -62,16 +62,24 @@ export default async function StatsPage(): Promise<ReactNode> {
   }
 
   /**
-   * Formats a share of the collection, reporting an empty shelf as zero.
+   * Describes a subset of a total for a fraction tile.
    *
-   * @param part - Number of items in the subset being described.
-   * @returns The localized percentage.
+   * @param part - Items in the subset.
+   * @param total - Items the subset is drawn from; zero yields an empty bar.
+   * @returns The formatted part and total, their spoken form, and the share.
    */
-  function formatShare(part: number): string {
-    return format.number(stats.totalItems ? part / stats.totalItems : 0, {
-      style: "percent",
-      maximumFractionDigits: 0,
-    });
+  function formatFraction(part: number, total: number) {
+    const formattedPart = format.number(part);
+    const formattedTotal = format.number(total);
+    return {
+      label: t("common.fraction", {
+        part: formattedPart,
+        total: formattedTotal,
+      }),
+      part: formattedPart,
+      ratio: total > 0 ? part / total : 0,
+      total: formattedTotal,
+    };
   }
 
   const cards = [
@@ -103,7 +111,7 @@ export default async function StatsPage(): Promise<ReactNode> {
     {
       icon: ChartNoAxesCombined,
       label: t("stats.pricedCoverage"),
-      value: `${format.number(stats.pricedItems)} / ${format.number(stats.totalItems)}`,
+      value: formatFraction(stats.pricedItems, stats.totalItems),
     },
     {
       icon: Brain,
@@ -129,13 +137,13 @@ export default async function StatsPage(): Promise<ReactNode> {
     },
     {
       icon: Puzzle,
-      label: t("stats.expansionShare"),
-      value: formatShare(stats.expansions),
+      label: t("stats.expansions"),
+      value: format.number(stats.expansions),
     },
     {
-      icon: Heart,
-      label: t("stats.favoriteShare"),
-      value: formatShare(stats.favorites),
+      icon: CircleCheck,
+      label: t("stats.playedGames"),
+      value: formatFraction(stats.playedBaseGames, stats.baseGames),
     },
   ];
 
@@ -156,6 +164,7 @@ export default async function StatsPage(): Promise<ReactNode> {
         mostExpensive={stats.mostExpensive}
         playerCounts={stats.playerCounts}
         playtime={stats.playtime}
+        weightExtremes={stats.weightExtremes}
       />
     </>
   );

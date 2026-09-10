@@ -2,7 +2,7 @@
 
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import type { ReactNode } from "react";
-import type { PieSectorShapeProps } from "recharts";
+import type { AxisDomainItem, PieSectorShapeProps } from "recharts";
 import {
   Area,
   AreaChart,
@@ -67,6 +67,12 @@ const rankingLabelBudget = 28;
 /** Hover highlight drawn behind the active bar. */
 const tooltipCursor = { fill: "var(--muted)", opacity: 0.5 };
 
+/** Value axis starting at zero and ending just past the largest value. */
+const zeroBasedDomain: readonly [AxisDomainItem, AxisDomainItem] = [0, "auto"];
+
+/** Value axis spanning BoardGameGeek's complete weight scale. */
+const weightDomain: readonly [AxisDomainItem, AxisDomainItem] = [0, 5];
+
 /** Aggregated collection statistics rendered across the chart dashboard. */
 type StatsChartsProps = {
   categories: CountDatum[];
@@ -77,6 +83,7 @@ type StatsChartsProps = {
   mostExpensive: CountDatum[];
   playerCounts: PlayerCountDatum[];
   playtime: PlaytimeDatum[];
+  weightExtremes: CountDatum[];
 };
 
 /** Recharts tooltip datum normalized for the shared tooltip renderer. */
@@ -99,6 +106,7 @@ type TooltipEntry = {
  * @param root0.mostExpensive - Highest-cost games included in the ranking.
  * @param root0.playerCounts - Base games playable at each exact table size.
  * @param root0.playtime - Base games grouped by declared session length.
+ * @param root0.weightExtremes - Lightest and heaviest rated base games, lightest first.
  * @returns The rendered stats charts.
  */
 export function StatsCharts({
@@ -110,6 +118,7 @@ export function StatsCharts({
   mostExpensive,
   playerCounts,
   playtime,
+  weightExtremes,
 }: StatsChartsProps): ReactNode {
   const format = useFormatter();
   const locale = useLocale();
@@ -147,6 +156,18 @@ export function StatsCharts({
    */
   function formatGameCount(value: number | string): string {
     return t("stats.gamesCount", { count: Number(value) });
+  }
+
+  /**
+   * Formats a BGG complexity value on its one-to-five scale.
+   *
+   * @param value - Numeric complexity reported by the chart.
+   * @returns A localized weight label.
+   */
+  function formatWeight(value: number | string): string {
+    return t("stats.weightValue", {
+      value: format.number(Number(value), { maximumFractionDigits: 2 }),
+    });
   }
 
   const complexityData = complexity.map((datum, index) => ({
@@ -235,6 +256,20 @@ export function StatsCharts({
         ) : (
           <EmptyChart />
         )}
+      </ChartCard>
+
+      <ChartCard
+        className="xl:col-span-2"
+        hint={t("stats.weightExtremesHint")}
+        title={t("stats.weightExtremesChart")}
+      >
+        <RankingChart
+          color={chartColors.sky}
+          data={weightExtremes}
+          domain={weightDomain}
+          tickFormatter={formatCount}
+          valueFormatter={formatWeight}
+        />
       </ChartCard>
 
       <ChartCard compact title={t("stats.categoriesChart")}>
@@ -393,6 +428,7 @@ function ChartCard({
 type RankingChartProps = {
   color: string;
   data: CountDatum[];
+  domain?: readonly [AxisDomainItem, AxisDomainItem];
   tickFormatter: (value: number) => string;
   valueFormatter: (value: number | string) => string;
 };
@@ -406,7 +442,8 @@ type RankingChartProps = {
  *
  * @param root0 - Properties that configure ranking chart.
  * @param root0.color - Fill painted on every bar of the chart.
- * @param root0.data - Labeled counts drawn in descending order.
+ * @param root0.data - Labeled values drawn in their given order.
+ * @param root0.domain - Value-axis bounds, from zero to just past the largest value unless a fixed scale applies.
  * @param root0.tickFormatter - Function that formats a value-axis tick.
  * @param root0.valueFormatter - Function that formats a value for the tooltip.
  * @returns A horizontal ranking chart, or its localized empty state.
@@ -414,6 +451,7 @@ type RankingChartProps = {
 function RankingChart({
   color,
   data,
+  domain = zeroBasedDomain,
   tickFormatter,
   valueFormatter,
 }: RankingChartProps): ReactNode {
@@ -428,6 +466,7 @@ function RankingChart({
         <XAxis
           allowDecimals={false}
           axisLine={false}
+          domain={domain}
           tick={axisTick}
           tickFormatter={tickFormatter}
           tickLine={false}

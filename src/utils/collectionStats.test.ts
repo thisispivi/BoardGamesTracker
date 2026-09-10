@@ -15,6 +15,7 @@ function game(overrides: Partial<StatGame>): StatGame {
     categories: [],
     favorite: false,
     gifted: false,
+    hasPlayed: false,
     isExpansion: false,
     maxPlayers: 0,
     maxPlaytime: 0,
@@ -62,6 +63,36 @@ describe("calculateCollectionStats", () => {
       { key: "veryHeavy", value: 1 },
     ]);
     expect(stats.averageWeight).toBe(3.3);
+    expect(stats.weightExtremes).toEqual([{ name: "Alpha", value: 2.4 }]);
+  });
+
+  it("charts only the five lightest and five heaviest rated base games", () => {
+    const stats = calculateCollectionStats([
+      ...Array.from({ length: 12 }, (_, index) =>
+        game({
+          bggId: index + 1,
+          name: `Game ${index}`,
+          weight: 1 + index / 4,
+        }),
+      ),
+      game({ bggId: 20, name: "Unrated" }),
+      game({ bggId: 21, isExpansion: true, name: "Add-on", weight: 5 }),
+    ]);
+
+    expect(stats.weightExtremes.map((datum) => datum.value)).toEqual([
+      1, 1.25, 1.5, 1.75, 2, 2.75, 3, 3.25, 3.5, 3.75,
+    ]);
+  });
+
+  it("counts played base games without counting played expansions", () => {
+    const stats = calculateCollectionStats([
+      game({ hasPlayed: true, name: "Played" }),
+      game({ bggId: 2, name: "Waiting" }),
+      game({ bggId: 3, hasPlayed: true, isExpansion: true, name: "Add-on" }),
+    ]);
+
+    expect(stats.playedBaseGames).toBe(1);
+    expect(stats.baseGames).toBe(2);
   });
 
   it("counts gifts as recorded prices without adding purchase spend", () => {
