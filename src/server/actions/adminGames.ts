@@ -8,15 +8,22 @@ import {
   adminPageSchema,
   adminSearchSchema,
   type BggMetadata,
+  type CatalogRefreshBatch,
+  catalogRefreshCursorSchema,
   type CollectionActionState,
   gameMetadataSchema,
   itemIdSchema,
 } from "@/core";
-import { getAdminGamesPage } from "@/server/admin/games";
+import {
+  applyBggMetadata,
+  getAdminGamesPage,
+  getCatalogRefreshWindow,
+} from "@/server/admin/games";
 import { writeAuditEvent } from "@/server/audit";
 import { scrapeBggMetadata } from "@/server/bgg/scrape";
 import { db } from "@/server/db";
 import { games } from "@/server/db/schema";
+import { log } from "@/server/logger";
 import { revalidateSharedGameRoutes } from "@/server/revalidate";
 import { requireAdmin } from "@/server/session";
 import { parseTaxonomyLabels } from "@/utils/gameTaxonomy";
@@ -138,31 +145,9 @@ export async function refreshGameFromBggAction(
     return { success: false, message: t("adminGames.refreshFailed") };
   }
 
-  await db
-    .update(games)
-    .set({
-      bggRating: metadata.bggRating,
-      categories: metadata.categories,
-      description: metadata.description,
-      ...(metadata.expandsBggIds.length > 0
-        ? { expandsBggIds: metadata.expandsBggIds }
-        : {}),
-      ...(metadata.expansionBggIds.length > 0
-        ? { expansionBggIds: metadata.expansionBggIds }
-        : {}),
-      families: metadata.families,
-      isExpansion: metadata.isExpansion,
-      maxPlayers: metadata.maxPlayers,
-      maxPlaytime: metadata.maxPlaytime,
-      mechanics: metadata.mechanics,
-      minPlayers: metadata.minPlayers,
-      minPlaytime: metadata.minPlaytime,
-      name: metadata.name,
-      updatedAt: new Date(),
-      weight: metadata.weight,
-      yearPublished: metadata.yearPublished,
-    })
-    .where(eq(games.id, gameId.data));
+  if (!(await applyBggMetadata(gameId.data, metadata))) {
+    return { success: false, message: t("action.itemMissing") };
+  }
   await writeAuditEvent({
     actorId: session.user.id,
     action: "admin.game_refreshed_from_bgg",
@@ -172,4 +157,59 @@ export async function refreshGameFromBggAction(
   });
   revalidateSharedGameRoutes();
   return { success: true, message: t("adminGames.refreshed") };
+}
+
+/**
+ * Re-reads the next batch of the shared catalog from BoardGameGeek.
+ *
+ * The console walks the whole catalog by calling this until the returned
+ * cursor is null, so no single request outlives a reverse proxy's timeout and
+ * progress can be shown between batches. Like the single-game refresh, it
+ * overwrites manual corrections. A game BoardGameGeek does not answer for keeps
+ * its current metadata and is counted as failed.
+ *
+ * @param cursor - Untrusted identifier of the last game already processed, or null to start.
+ * @returns How many games in the batch were refreshed or left unchanged, the catalog size, and the cursor for the next batch.
+ */
+export async function refreshGameCatalogBatchAction(
+  cursor: string | null,
+): Promise<CatalogRefreshBatch> {
+  const session = await requireAdmin();
+  const batch = await getCatalogRefreshWindow(
+    catalogRefreshCursorSchema.parse(cursor),
+  );
+  const metadataById = await scrapeBggMetadata(
+    batch.games.map((game) => game.bggId),
+  ).catch((error: unknown) => {
+    log("warn", "catalog_refresh_scrape_failed", {
+      actorId: session.user.id,
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+    return new Map<number, BggMetadata>();
+  });
+
+  let refreshed = 0;
+  for (const game of batch.games) {
+    const metadata = metadataById.get(game.bggId);
+    if (metadata && (await applyBggMetadata(game.id, metadata))) {
+      refreshed += 1;
+    }
+  }
+  const failed = batch.games.length - refreshed;
+
+  if (batch.games.length > 0) {
+    await writeAuditEvent({
+      actorId: session.user.id,
+      action: "admin.game_catalog_refreshed_from_bgg",
+      targetType: "game",
+      metadata: { failed, refreshed },
+    });
+    revalidateSharedGameRoutes();
+  }
+  return {
+    failed,
+    nextCursor: batch.nextCursor,
+    refreshed,
+    total: batch.total,
+  };
 }

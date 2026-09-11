@@ -13,12 +13,16 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { AdminGamesPanel } from "@/components/organisms/AdminGamesPanel/AdminGamesPanel";
 import type { AdminGame, AdminGamesPage } from "@/core";
 
-const { getAdminGamesPageAction } = vi.hoisted(() => ({
-  getAdminGamesPageAction: vi.fn(),
-}));
+const { getAdminGamesPageAction, refreshGameCatalogBatchAction } = vi.hoisted(
+  () => ({
+    getAdminGamesPageAction: vi.fn(),
+    refreshGameCatalogBatchAction: vi.fn(),
+  }),
+);
 
 vi.mock("@/server/actions/adminGames", () => ({
   getAdminGamesPageAction,
+  refreshGameCatalogBatchAction,
   refreshGameFromBggAction: vi.fn(),
   updateGameMetadataAction: vi.fn(),
 }));
@@ -139,5 +143,43 @@ describe("AdminGamesPanel", () => {
     });
     expect(getAdminGamesPageAction).toHaveBeenCalledOnce();
     expect(getAdminGamesPageAction).toHaveBeenCalledWith(1, "Root");
+  });
+
+  it("refreshes the whole catalog batch by batch only after confirmation", async () => {
+    refreshGameCatalogBatchAction
+      .mockResolvedValueOnce({
+        failed: 0,
+        nextCursor: "cursor-1",
+        refreshed: 8,
+        total: 9,
+      })
+      .mockResolvedValueOnce({
+        failed: 1,
+        nextCursor: null,
+        refreshed: 0,
+        total: 9,
+      });
+    getAdminGamesPageAction.mockResolvedValue(firstPage);
+    renderPanel();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Refresh all from BGG" }),
+    );
+    expect(refreshGameCatalogBatchAction).not.toHaveBeenCalled();
+
+    await act(async () => {
+      fireEvent.click(
+        screen.getByRole("button", { name: "Refresh all games" }),
+      );
+    });
+
+    await vi.waitFor(() =>
+      expect(refreshGameCatalogBatchAction).toHaveBeenCalledTimes(2),
+    );
+    expect(refreshGameCatalogBatchAction).toHaveBeenNthCalledWith(1, null);
+    expect(refreshGameCatalogBatchAction).toHaveBeenNthCalledWith(
+      2,
+      "cursor-1",
+    );
   });
 });
