@@ -113,7 +113,13 @@ export const account = pgTable(
       .notNull()
       .defaultNow(),
   },
-  (table) => [index("account_user_idx").on(table.userId)],
+  (table) => [
+    uniqueIndex("account_provider_unique").on(
+      table.providerId,
+      table.accountId,
+    ),
+    index("account_user_idx").on(table.userId),
+  ],
 );
 
 /** Better Auth verification challenges. */
