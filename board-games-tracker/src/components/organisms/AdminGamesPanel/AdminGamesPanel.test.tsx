@@ -185,4 +185,56 @@ describe("AdminGamesPanel", () => {
       "cursor-1",
     );
   });
+
+  it("shows a progress bar that advances with each catalog batch", async () => {
+    const pendingBatches: ((batch: unknown) => void)[] = [];
+    refreshGameCatalogBatchAction.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          pendingBatches.push(resolve);
+        }),
+    );
+    getAdminGamesPageAction.mockResolvedValue(firstPage);
+    renderPanel();
+
+    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole("button", { name: "Refresh all from BGG" }),
+    );
+    await act(async () => {
+      fireEvent.click(
+        screen.getByRole("button", { name: "Refresh all games" }),
+      );
+    });
+
+    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+    expect(screen.getByRole("progressbar")).not.toHaveAttribute("value");
+    expect(screen.getByText("Starting the refresh…")).toBeInTheDocument();
+
+    await act(async () => {
+      pendingBatches[0]?.({
+        failed: 1,
+        nextCursor: "cursor-1",
+        refreshed: 3,
+        total: 9,
+      });
+    });
+
+    expect(screen.getByRole("progressbar")).toHaveAttribute("value", "4");
+    expect(screen.getByRole("progressbar")).toHaveAttribute("max", "9");
+    expect(
+      screen.getByText("Refreshing from BoardGameGeek: 4 of 9 games"),
+    ).toBeInTheDocument();
+
+    await act(async () => {
+      pendingBatches[1]?.({
+        failed: 0,
+        nextCursor: null,
+        refreshed: 5,
+        total: 9,
+      });
+    });
+
+    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+  });
 });
