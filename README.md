@@ -390,6 +390,8 @@ example to report a commit SHA instead.
 - Every mutation requires authentication, an ownership check in the query, and
   validated input.
 - Administrative operations require an explicit administrator role.
+- Server Action posts from another origin, or without an `Origin` header, are
+  refused before Next.js reads their body.
 - Outbound fetches reject unsafe targets and enforce timeouts, size limits, and
   content-type checks.
 - Spreadsheet exports neutralize formula-like cells.
