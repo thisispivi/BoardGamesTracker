@@ -198,17 +198,6 @@ export default async function AdminPage(): Promise<ReactNode> {
       </section>
 
       <section className="bg-card shadow-soft mb-6 rounded-xl border p-6 sm:p-8">
-        <div className="mb-6">
-          <p className="text-primary text-xs font-bold tracking-widest uppercase">
-            {t("adminGames.eyebrow")}
-          </p>
-          <h2 className="font-display mt-1 text-xl font-bold">
-            {t("adminGames.title")}
-          </h2>
-          <p className="text-muted-foreground mt-1 text-sm leading-6">
-            {t("adminGames.body")}
-          </p>
-        </div>
         <AdminGamesPanel initialPage={initialGamesPage} />
       </section>
 

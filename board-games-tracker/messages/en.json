@@ -549,7 +549,6 @@
     "refreshFailed": "BoardGameGeek did not return data for this game. Try again shortly.",
     "editHint": "Correct this entry in the shared catalog",
     "refreshAll": "Refresh all from BGG",
-    "refreshAllHelp": "Pull current metadata from BoardGameGeek for every game in the catalog.",
     "refreshAllStarting": "Starting the refresh…",
     "refreshAllProgress": "Refreshing from BoardGameGeek: {done} of {total} games",
     "refreshAllTitle": "Refresh every game from BoardGameGeek?",
