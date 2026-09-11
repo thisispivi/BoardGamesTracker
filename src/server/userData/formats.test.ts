@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { UserDataDocument, UserDataFormat } from "@/core";
+import { type UserDataDocument, userDataFormatSchema } from "@/core";
 import { parseUserData, serializeUserData } from "@/server/userData/formats";
 
 const document: UserDataDocument = {
@@ -183,7 +183,7 @@ describe("legacy complexity values", () => {
 });
 
 describe("portable user data formats", () => {
-  for (const format of ["json", "csv", "xlsx", "sql"] as UserDataFormat[]) {
+  for (const format of userDataFormatSchema.options) {
     it(`round-trips ${format.toUpperCase()}`, async () => {
       const output = await serializeUserData(document, format);
       const restored = await parseUserData(output, format);

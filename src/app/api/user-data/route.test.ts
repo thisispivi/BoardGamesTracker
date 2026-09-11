@@ -29,7 +29,7 @@ vi.mock("@/server/security/origin", () => ({
 vi.mock("@/server/security/rateLimit", () => ({
   consumeRateLimit: () => true,
 }));
-vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+vi.mock("@/server/revalidate", () => ({ revalidateAccountRoutes: vi.fn() }));
 
 import { POST } from "@/app/api/user-data/route";
 
