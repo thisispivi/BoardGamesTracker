@@ -1,2 +1,1 @@
-@AGENTS.md
-@CODING_GUIDELINES.md
+@board-games-tracker/CLAUDE.md

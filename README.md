@@ -1,7 +1,7 @@
 <div align="center">
   <div style="display: flex; padding-block: 40px; margin-bottom: 20px; background-color: #1f1f1f">
     <picture>
-      <img alt="Board Games Tracker banner" src="./public/board-games-tracker-banner.png" width="100%">
+      <img alt="Board Games Tracker banner" src="./board-games-tracker/public/board-games-tracker-banner.png" width="100%">
     </picture>
   </div>
 </div>
@@ -108,14 +108,18 @@ application port.
 
 ## Getting Started
 
+Everything that builds, tests, or runs the application lives in
+`board-games-tracker/`. Run the commands below from that folder.
+
 ### Docker
 
 Docker Compose runs the complete stack: PostgreSQL, SearXNG, and the
 application, with health checks and a persistent database volume.
 
-1. Copy the environment template:
+1. Go to the application folder and copy the environment template:
 
    ```bash
+   cd board-games-tracker
    cp .env.example .env
    ```
 
@@ -151,6 +155,7 @@ You need [Node.js](https://nodejs.org/) 24.18 or newer,
 SearXNG instance.
 
 ```bash
+cd board-games-tracker
 pnpm install
 cp .env.example .env.local
 ```
@@ -163,16 +168,16 @@ pnpm db:migrate
 pnpm dev
 ```
 
-The application and Drizzle commands both read `.env.local`. Application URLs
-must be HTTP(S) origins without paths, credentials, queries, or fragments.
-The development server listens on
-<http://localhost:12500>.
+The application and Drizzle commands both read `board-games-tracker/.env.local`.
+Application URLs must be HTTP(S) origins without paths, credentials, queries, or
+fragments. The development server listens on <http://localhost:12500>.
 
 ## Deployment
 
 ### Production
 
-Docker Compose is the deployment baseline:
+Docker Compose is the deployment baseline. Run every `docker compose` command
+in this section from `board-games-tracker/`.
 
 - Put the application behind an HTTPS reverse proxy and set `APP_URL` to the
   public origin.
@@ -188,10 +193,10 @@ before every upgrade.
 
 ### Backups
 
-The `backup` service dumps the database into `./backups` once a week and keeps
-the eight newest dumps, about two months of history. Old dumps are only removed
-after a new one succeeds. Change the schedule with `BACKUP_INTERVAL_DAYS`,
-`BACKUP_KEEP`, and `BACKUP_DIRECTORY` in `.env`.
+The `backup` service dumps the database into `board-games-tracker/backups` once
+a week and keeps the eight newest dumps, about two months of history. Old dumps
+are only removed after a new one succeeds. Change the schedule with
+`BACKUP_INTERVAL_DAYS`, `BACKUP_KEEP`, and `BACKUP_DIRECTORY` in `.env`.
 
 Dumps contain account emails and password hashes, so they are readable only by
 their owner. Copy them to another machine too: a backup on the same disk does
@@ -208,6 +213,33 @@ docker compose exec backup sh /usr/local/bin/backup-database.sh --once
 ```bash
 docker compose pull && docker compose up --build -d
 ```
+
+### Moving an existing deployment to the application folder
+
+Earlier versions kept `docker-compose.yml` at the repository root. Compose names
+containers after the folder that holds that file, so stop the old stack before
+pulling this layout, then start it again from `board-games-tracker/`. The
+database volume has a fixed name, so its data carries over.
+
+1. From the repository root, before pulling:
+
+   ```bash
+   docker compose down
+   ```
+
+2. Pull the new layout and move your settings and backups next to Compose:
+
+   ```bash
+   git pull
+   mv .env board-games-tracker/.env
+   mv backups board-games-tracker/backups
+   ```
+
+3. Start the stack again:
+
+   ```bash
+   cd board-games-tracker && docker compose up --build -d
+   ```
 
 ### Restoring a backup
 
@@ -239,8 +271,8 @@ instance to a group.
 
 ## Configuration
 
-[`.env.example`](./.env.example) documents every supported setting. The
-application variables that matter most:
+[`.env.example`](./board-games-tracker/.env.example) documents every supported
+setting. The application variables that matter most:
 
 | Variable                             | Required | Purpose                                                                    |
 | ------------------------------------ | -------- | -------------------------------------------------------------------------- |
@@ -288,6 +320,8 @@ connection and does not log recipient addresses or action links.
 
 ## Development workflow
 
+Run these commands from `board-games-tracker/`.
+
 Generate a migration after a schema change, and apply checked-in migrations
 before running the application:
 
@@ -302,6 +336,7 @@ pnpm check && pnpm test:coverage && pnpm build && pnpm audit --audit-level=moder
 ```
 
 `pnpm check` runs TypeScript, ESLint, Prettier, Vitest, and Knip in parallel.
+Prettier also checks the Markdown and GitHub files at the repository root.
 `pnpm lint:fix` and `pnpm format` fix the mechanical failures. Dependency
 advisories are checked separately with `pnpm audit --audit-level=moderate`.
 
@@ -335,9 +370,9 @@ Atomic Design stays one-way, so an atom cannot reach for an organism.
 
 ### Releasing a version
 
-The `version` field in `package.json` is the release identifier. Every build
-reports it to error monitoring, so a Bugsink issue names the version it came
-from and stops being attributed to earlier ones.
+The `version` field in `board-games-tracker/package.json` is the release
+identifier. Every build reports it to error monitoring, so a Bugsink issue names
+the version it came from and stops being attributed to earlier ones.
 
 To cut a release, bump the version, commit it, and rebuild:
 
@@ -365,34 +400,44 @@ supported versions, and how to report a vulnerability.
 
 ## Documentation
 
-| Document                                       | Covers                                                       |
-| ---------------------------------------------- | ------------------------------------------------------------ |
-| [SECURITY.md](./SECURITY.md)                   | Threat model, deployment checklist, and vulnerability report |
-| [CONTRIBUTING.md](./CONTRIBUTING.md)           | Contribution workflow and review expectations                |
-| [CODING_GUIDELINES.md](./CODING_GUIDELINES.md) | Mandatory code, documentation, test, and architecture rules  |
-| [`.env.example`](./.env.example)               | Complete application and infrastructure configuration        |
+| Document                                                           | Covers                                                       |
+| ------------------------------------------------------------------ | ------------------------------------------------------------ |
+| [SECURITY.md](./SECURITY.md)                                       | Threat model, deployment checklist, and vulnerability report |
+| [CONTRIBUTING.md](./CONTRIBUTING.md)                               | Contribution workflow and review expectations                |
+| [CODING_GUIDELINES.md](./board-games-tracker/CODING_GUIDELINES.md) | Mandatory code, documentation, test, and architecture rules  |
+| [`.env.example`](./board-games-tracker/.env.example)               | Complete application and infrastructure configuration        |
 
 ## Project Structure
 
+The repository root holds only repository-level files. The application and
+everything it needs live in `board-games-tracker/`.
+
 ```text
 .
-├── drizzle/                 Generated database migrations and snapshots
-├── messages/                English and Italian message catalogs
-├── public/                  Static assets and application artwork
-├── scripts/                 Migration, monitoring, and maintenance commands
-├── searxng/                 Private search configuration
-├── src/
-│   ├── app/                 Routes, layouts, and HTTP handlers
-│   ├── components/          Atomic Design UI: atoms to templates
-│   ├── client/              Browser-only authentication and cookie adapters
-│   ├── core/                Framework-free types and validation contracts
-│   ├── hooks/               Client-side React hooks
-│   ├── i18n/                Locale routing and request configuration
-│   ├── server/              Authentication, persistence, actions, and services
-│   ├── test/                Shared test infrastructure
-│   └── utils/               Isomorphic single-responsibility helpers
-├── docker-compose.yml       Application, PostgreSQL, and SearXNG services
-└── Dockerfile               Production container build
+├── .github/                     CI, Dependabot, and Copilot instructions
+├── board-games-tracker/         The application
+│   ├── drizzle/                 Generated database migrations and snapshots
+│   ├── messages/                English and Italian message catalogs
+│   ├── public/                  Static assets and application artwork
+│   ├── scripts/                 Migration, backup, and maintenance commands
+│   ├── searxng/                 Private search configuration
+│   ├── src/
+│   │   ├── app/                 Routes, layouts, and HTTP handlers
+│   │   ├── components/          Atomic Design UI: atoms to templates
+│   │   ├── client/              Browser-only authentication and cookie adapters
+│   │   ├── core/                Framework-free types and validation contracts
+│   │   ├── hooks/               Client-side React hooks
+│   │   ├── i18n/                Locale routing and request configuration
+│   │   ├── server/              Authentication, persistence, actions, and services
+│   │   ├── test/                Shared test infrastructure
+│   │   └── utils/               Isomorphic single-responsibility helpers
+│   ├── CODING_GUIDELINES.md     Code, documentation, test, and architecture rules
+│   ├── docker-compose.yml       Application, PostgreSQL, SearXNG, and backup services
+│   ├── Dockerfile               Production container build
+│   └── package.json             Scripts and dependencies
+├── CONTRIBUTING.md
+├── README.md
+└── SECURITY.md
 ```
 
 ## License

@@ -1,0 +1,10 @@
+.next
+node_modules
+coverage
+drizzle
+*.svg
+next-env.d.ts
+out
+build
+test-results
+playwright-report

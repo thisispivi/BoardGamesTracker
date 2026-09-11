@@ -1,8 +1,8 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
-/.pnp
+board-games-tracker/node_modules/
+board-games-tracker/.pnp
 .pnp.*
 .yarn/*
 !.yarn/patches
@@ -11,14 +11,14 @@
 !.yarn/versions
 
 # testing
-/coverage
+board-games-tracker/coverage/
 
 # next.js
-/.next/
-/out/
+board-games-tracker/.next/
+board-games-tracker/out/
 
 # production
-/build
+board-games-tracker/build/
 
 # misc
 .DS_Store
@@ -36,18 +36,18 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 !.env.example
-/.sentry-auth-token
+board-games-tracker/.sentry-auth-token
 *.key
 *.log
 *.sqlite*
 *.db
 *.sql
-!drizzle/*.sql
-/backups/
-/test-results/
-/playwright-report/
+!board-games-tracker/drizzle/*.sql
+board-games-tracker/backups/
+board-games-tracker/test-results/
+board-games-tracker/playwright-report/
 Thumbs.db
-/.codex/
+.codex/
 
 # vercel
 .vercel

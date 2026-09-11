@@ -2,20 +2,20 @@
   "github.copilot.chat.codeGeneration.useInstructionFiles": true,
   "github.copilot.chat.codeGeneration.instructions": [
     {
-      "file": "CODING_GUIDELINES.md"
+      "file": "board-games-tracker/CODING_GUIDELINES.md"
     },
     {
-      "file": "AGENTS.md"
+      "file": "board-games-tracker/AGENTS.md"
     }
   ],
   "github.copilot.chat.reviewSelection.instructions": [
     {
-      "file": "CODING_GUIDELINES.md"
+      "file": "board-games-tracker/CODING_GUIDELINES.md"
     }
   ],
   "github.copilot.chat.testGeneration.instructions": [
     {
-      "file": "CODING_GUIDELINES.md"
+      "file": "board-games-tracker/CODING_GUIDELINES.md"
     }
   ],
   "github.copilot.chat.commitMessageGeneration.instructions": [
