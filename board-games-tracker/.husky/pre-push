@@ -1,1 +1,1 @@
-pnpm check
+cd board-games-tracker && pnpm check

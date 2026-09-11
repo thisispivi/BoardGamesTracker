@@ -16,8 +16,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "format": "prettier --write . \"../*.md\" ../.github",
+    "format:check": "prettier --check . \"../*.md\" ../.github",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -28,7 +28,7 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "images:cache": "node --env-file-if-exists=.env.local --import tsx scripts/cache-game-images.ts",
-    "prepare": "husky"
+    "prepare": "cd .. && husky board-games-tracker/.husky"
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.1.23",

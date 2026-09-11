@@ -1,7 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: npm
-    directory: /
+    directory: /board-games-tracker
     schedule:
       interval: weekly
     groups:
@@ -19,7 +19,7 @@ updates:
       - dependency-name: typescript
         update-types: [version-update:semver-major]
   - package-ecosystem: docker
-    directory: /
+    directory: /board-games-tracker
     schedule:
       interval: weekly
     ignore:
