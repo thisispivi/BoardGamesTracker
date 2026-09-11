@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 import { env } from "@/env";
+import { hasTrustedOrigin } from "@/server/security/origin";
 import { consumeRateLimit } from "@/server/security/rateLimit";
 
 const protectedPrefixes = [
@@ -66,6 +67,32 @@ async function getCallerKey(
 }
 
 /**
+ * Reports whether Next.js would try to decode a request as a Server Action.
+ *
+ * Next.js treats a POST carrying a `Next-Action` header, and any multipart or
+ * URL-encoded POST to a page, as a possible Server Action and parses its body.
+ * Route handlers under `/api` are not pages and run their own origin checks.
+ *
+ * @param request - The incoming request.
+ * @returns Whether the request would reach the Server Action decoder.
+ */
+function isServerActionRequest(request: NextRequest): boolean {
+  if (
+    request.method !== "POST" ||
+    request.nextUrl.pathname.startsWith("/api/")
+  ) {
+    return false;
+  }
+
+  const contentType = request.headers.get("content-type") ?? "";
+  return (
+    request.headers.has("next-action") ||
+    contentType.startsWith("multipart/form-data") ||
+    contentType.startsWith("application/x-www-form-urlencoded")
+  );
+}
+
+/**
  * Refuses a request that exhausted its allowance, without leaking why.
  *
  * @returns A generic rate-limit response without sensitive details.
@@ -81,7 +108,24 @@ function tooManyRequests(): NextResponse {
 }
 
 /**
- * Applies optimistic auth redirects and a nonce-based security policy.
+ * Refuses a request that did not come from the application's own pages.
+ *
+ * @returns A generic forbidden response without details.
+ */
+function forbidden(): NextResponse {
+  return new NextResponse("Forbidden", {
+    status: 403,
+    headers: { "Content-Type": "text/plain; charset=utf-8" },
+  });
+}
+
+/**
+ * Applies rate limits, optimistic auth redirects, and a nonce-based security policy.
+ *
+ * Server Action posts must come from the application's own origin. Browsers
+ * always send `Origin` on these requests, while Next.js lets an origin-less
+ * post reach its body decoder with only a warning, so scripted probes would
+ * otherwise surface as unhandled server errors.
  *
  * @param request - The incoming request.
  * @returns The HTTP response produced for the request.
@@ -97,6 +141,10 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   const callerKey = await getCallerKey(request, sessionCookie);
   if (!consumeRateLimit(callerKey, identityRequestLimit, rateLimitWindowMs)) {
     return tooManyRequests();
+  }
+
+  if (isServerActionRequest(request) && !hasTrustedOrigin(request)) {
+    return forbidden();
   }
 
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
