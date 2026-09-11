@@ -177,7 +177,7 @@ Docker Compose is the deployment baseline:
   public origin.
 - Generate unique secrets for PostgreSQL, Better Auth, and SearXNG.
 - Keep PostgreSQL and SearXNG on the private Compose network.
-- Persist and back up the PostgreSQL volume.
+- Keep the `backup` service running and copy its dumps off the host.
 - Configure Sentry-compatible monitoring only if you want it.
 - Configure transactional SMTP before enabling public registration.
 
@@ -185,16 +185,44 @@ The application container runs pending migrations before starting the
 production server. Review generated migrations and take a database backup
 before every upgrade.
 
-### Upgrades and backups
+### Backups
 
-Back up the database volume, then rebuild:
+The `backup` service dumps the database into `./backups` once a week and keeps
+the eight newest dumps, about two months of history. Old dumps are only removed
+after a new one succeeds. Change the schedule with `BACKUP_INTERVAL_DAYS`,
+`BACKUP_KEEP`, and `BACKUP_DIRECTORY` in `.env`.
+
+Dumps contain account emails and password hashes, so they are readable only by
+their owner. Copy them to another machine too: a backup on the same disk does
+not survive losing that disk.
+
+### Upgrades
+
+Take a fresh backup, then rebuild:
 
 ```bash
-docker compose exec -T database pg_dump -U board_games_tracker -d board_games_tracker > board-games-tracker.sql
+docker compose exec backup sh /usr/local/bin/backup-database.sh --once
 ```
 
 ```bash
 docker compose pull && docker compose up --build -d
+```
+
+### Restoring a backup
+
+Stop the application, restore a dump over the current database, and start the
+application again:
+
+```bash
+docker compose stop app
+```
+
+```bash
+docker compose exec -T database pg_restore --clean --if-exists --no-owner -U board_games_tracker -d board_games_tracker < backups/board-games-tracker-20260911T020000Z.dump
+```
+
+```bash
+docker compose start app
 ```
 
 ## Your data stays yours
