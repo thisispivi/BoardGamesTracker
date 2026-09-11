@@ -83,15 +83,18 @@ export async function sendTransactionalMail(
         : { replyTo: configuration.replyTo }),
     });
 
-    if (result.accepted.length === 0 || result.rejected.length > 0) {
+    const acceptedCount = result.accepted?.length ?? 0;
+    const rejectedCount = result.rejected?.length ?? 0;
+
+    if (acceptedCount === 0 || rejectedCount > 0) {
       log("error", "smtp_mail_rejected", {
-        acceptedCount: result.accepted.length,
-        rejectedCount: result.rejected.length,
+        acceptedCount,
+        rejectedCount,
       });
       return;
     }
 
-    log("info", "smtp_mail_sent", { acceptedCount: result.accepted.length });
+    log("info", "smtp_mail_sent", { acceptedCount });
   } catch {
     log("error", "smtp_mail_failed", { reason: "transport_error" });
   }

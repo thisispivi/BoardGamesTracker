@@ -2,7 +2,6 @@ import "server-only";
 
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 
-import { createLocalAccountIssuer } from "better-auth/db";
 import { and, eq } from "drizzle-orm";
 
 import { passwordResetTokenSchema } from "@/core";
@@ -167,7 +166,6 @@ export async function applyPasswordReset(
       await transaction.insert(account).values({
         id: crypto.randomUUID(),
         accountId: userId,
-        issuer: createLocalAccountIssuer("credential"),
         password: hashed,
         providerId: "credential",
         userId,

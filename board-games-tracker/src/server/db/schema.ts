@@ -91,7 +91,6 @@ export const account = pgTable(
   {
     id: text("id").primaryKey(),
     accountId: text("account_id").notNull(),
-    issuer: text("issuer").notNull(),
     providerId: text("provider_id").notNull(),
     userId: text("user_id")
       .notNull()
@@ -114,10 +113,7 @@ export const account = pgTable(
       .notNull()
       .defaultNow(),
   },
-  (table) => [
-    uniqueIndex("account_issuer_unique").on(table.issuer, table.accountId),
-    index("account_user_idx").on(table.userId),
-  ],
+  (table) => [index("account_user_idx").on(table.userId)],
 );
 
 /** Better Auth verification challenges. */

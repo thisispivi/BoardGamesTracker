@@ -57,7 +57,6 @@ beforeEach(async () => {
     userId: "owner",
     accountId: "owner",
     providerId: "credential",
-    issuer: "credential",
     password: "old-hash",
   });
   await testDb.insert(session).values({
