@@ -308,8 +308,8 @@ function EditGameMetadataDialog({ game, onClose }: EditDialogProps): ReactNode {
   );
 }
 
-/** Callback the catalog refresh control runs once a refresh stops. */
-type CatalogRefreshButtonProps = {
+/** Callback the catalog header runs once a refresh stops. */
+type CatalogHeaderProps = {
   onFinished: () => void;
 };
 
@@ -320,20 +320,19 @@ type CatalogRefreshProgress = {
 };
 
 /**
- * Refreshes every shared game from BoardGameGeek, one bounded batch at a time.
+ * Titles the catalog section and refreshes every shared game from BoardGameGeek, one bounded batch at a time.
  *
- * Batches run one after another from the browser, so a large catalog never
- * holds a request open past a proxy timeout and its progress stays visible.
- * Leaving the page stops the walk after the batch in flight; games refreshed by
- * then keep their new metadata.
+ * The refresh button sits beside the title and wraps below it on narrow
+ * screens. Batches run one after another from the browser, so a large catalog
+ * never holds a request open past a proxy timeout and its progress stays
+ * visible. Leaving the page stops the walk after the batch in flight; games
+ * refreshed by then keep their new metadata.
  *
- * @param root0 - Properties that configure the catalog refresh control.
+ * @param root0 - Properties that configure the catalog header.
  * @param root0.onFinished - Callback run once the walk stops, whether it completed or failed.
- * @returns The refresh button, its confirmation dialog, and live progress.
+ * @returns The section title, the refresh button, its confirmation dialog, and live progress.
  */
-function CatalogRefreshButton({
-  onFinished,
-}: CatalogRefreshButtonProps): ReactNode {
+function CatalogHeader({ onFinished }: CatalogHeaderProps): ReactNode {
   const t = useTranslations();
   const [confirming, setConfirming] = useState(false);
   const [progress, setProgress] = useState<CatalogRefreshProgress | null>(null);
@@ -371,13 +370,43 @@ function CatalogRefreshButton({
   }
 
   return (
-    <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4">
+    <div className="mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="grow basis-72">
+          <p className="text-primary text-xs font-bold tracking-widest uppercase">
+            {t("adminGames.eyebrow")}
+          </p>
+          <h2 className="font-display mt-1 text-xl font-bold">
+            {t("adminGames.title")}
+          </h2>
+          <p className="text-muted-foreground mt-1 text-sm leading-6">
+            {t("adminGames.body")}
+          </p>
+        </div>
+        <Button
+          className="shrink-0"
+          disabled={progress !== null}
+          onClick={() => setConfirming(true)}
+          type="button"
+          variant="secondary"
+        >
+          {progress === null ? (
+            <RefreshCw className="size-4" />
+          ) : (
+            <AppSpinner className="size-4" label={t("common.loading")} />
+          )}
+          {t("adminGames.refreshAll")}
+        </Button>
+      </div>
       <p
         aria-live="polite"
-        className="text-muted-foreground min-w-0 flex-1 text-xs leading-5"
+        className={cn(
+          "text-muted-foreground text-xs leading-5",
+          progress === null ? null : "mt-3",
+        )}
       >
         {progress === null
-          ? t("adminGames.refreshAllHelp")
+          ? null
           : progress.total === null
             ? t("adminGames.refreshAllStarting")
             : t("adminGames.refreshAllProgress", {
@@ -385,19 +414,6 @@ function CatalogRefreshButton({
                 total: progress.total,
               })}
       </p>
-      <Button
-        disabled={progress !== null}
-        onClick={() => setConfirming(true)}
-        type="button"
-        variant="secondary"
-      >
-        {progress === null ? (
-          <RefreshCw className="size-4" />
-        ) : (
-          <AppSpinner className="size-4" label={t("common.loading")} />
-        )}
-        {t("adminGames.refreshAll")}
-      </Button>
       <ConfirmDialog
         action={refreshCatalog}
         cancelLabel={t("common.cancel")}
@@ -466,7 +482,7 @@ export function AdminGamesPanel({
 
   return (
     <>
-      <CatalogRefreshButton onFinished={() => loadPage(result.page, query)} />
+      <CatalogHeader onFinished={() => loadPage(result.page, query)} />
       <label className="relative mb-5 block">
         <span className="sr-only">{t("adminGames.searchLabel")}</span>
         <Search className="text-muted-foreground absolute top-1/2 left-4 size-4 -translate-y-1/2" />

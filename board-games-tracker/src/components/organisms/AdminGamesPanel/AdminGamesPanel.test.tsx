@@ -162,6 +162,9 @@ describe("AdminGamesPanel", () => {
     getAdminGamesPageAction.mockResolvedValue(firstPage);
     renderPanel();
 
+    expect(
+      screen.getByRole("heading", { name: "Board-game metadata" }),
+    ).toBeInTheDocument();
     fireEvent.click(
       screen.getByRole("button", { name: "Refresh all from BGG" }),
     );
