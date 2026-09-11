@@ -46,8 +46,10 @@ export type CollectionStats = {
   categories: CountDatum[];
   complexity: ComplexityDatum[];
   decades: DecadeDatum[];
+  easiestGames: CountDatum[];
   expansions: number;
   favorites: number;
+  hardestGames: CountDatum[];
   mechanics: CountDatum[];
   medianSpent: number;
   mostExpensive: CountDatum[];
@@ -57,5 +59,4 @@ export type CollectionStats = {
   pricedItems: number;
   totalItems: number;
   totalSpent: number;
-  weightExtremes: CountDatum[];
 };

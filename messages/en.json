@@ -416,8 +416,10 @@
     "playedGames": "Base games played",
     "expensiveChart": "Most expensive purchases",
     "complexityChart": "Complexity mix",
-    "weightExtremesChart": "Easiest and hardest games",
-    "weightExtremesHint": "The five lightest and five heaviest rated base games, by BGG weight.",
+    "easiestChart": "Easiest games",
+    "easiestHint": "The lightest rated base games, by BGG weight.",
+    "hardestChart": "Hardest games",
+    "hardestHint": "The heaviest rated base games, by BGG weight.",
     "categoriesChart": "Most-owned categories",
     "mechanicsChart": "Most-owned mechanics",
     "complexity": {

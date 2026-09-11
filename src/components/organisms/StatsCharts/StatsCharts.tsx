@@ -79,11 +79,12 @@ type StatsChartsProps = {
   complexity: ComplexityDatum[];
   currency: string;
   decades: DecadeDatum[];
+  easiestGames: CountDatum[];
+  hardestGames: CountDatum[];
   mechanics: CountDatum[];
   mostExpensive: CountDatum[];
   playerCounts: PlayerCountDatum[];
   playtime: PlaytimeDatum[];
-  weightExtremes: CountDatum[];
 };
 
 /** Recharts tooltip datum normalized for the shared tooltip renderer. */
@@ -102,11 +103,12 @@ type TooltipEntry = {
  * @param root0.complexity - Complexity distribution rendered by the charts.
  * @param root0.currency - ISO currency code used to format monetary values.
  * @param root0.decades - Publication counts per decade, in chronological order.
+ * @param root0.easiestGames - Lightest rated base games, lightest first.
+ * @param root0.hardestGames - Heaviest rated base games, heaviest first.
  * @param root0.mechanics - BoardGameGeek mechanics associated with the games.
  * @param root0.mostExpensive - Highest-cost games included in the ranking.
  * @param root0.playerCounts - Base games playable at each exact table size.
  * @param root0.playtime - Base games grouped by declared session length.
- * @param root0.weightExtremes - Lightest and heaviest rated base games, lightest first.
  * @returns The rendered stats charts.
  */
 export function StatsCharts({
@@ -114,11 +116,12 @@ export function StatsCharts({
   complexity,
   currency,
   decades,
+  easiestGames,
+  hardestGames,
   mechanics,
   mostExpensive,
   playerCounts,
   playtime,
-  weightExtremes,
 }: StatsChartsProps): ReactNode {
   const format = useFormatter();
   const locale = useLocale();
@@ -259,13 +262,27 @@ export function StatsCharts({
       </ChartCard>
 
       <ChartCard
-        className="xl:col-span-2"
-        hint={t("stats.weightExtremesHint")}
-        title={t("stats.weightExtremesChart")}
+        compact
+        hint={t("stats.easiestHint")}
+        title={t("stats.easiestChart")}
       >
         <RankingChart
-          color={chartColors.sky}
-          data={weightExtremes}
+          color={chartColors.emerald}
+          data={easiestGames}
+          domain={weightDomain}
+          tickFormatter={formatCount}
+          valueFormatter={formatWeight}
+        />
+      </ChartCard>
+
+      <ChartCard
+        compact
+        hint={t("stats.hardestHint")}
+        title={t("stats.hardestChart")}
+      >
+        <RankingChart
+          color={chartColors.rose}
+          data={hardestGames}
           domain={weightDomain}
           tickFormatter={formatCount}
           valueFormatter={formatWeight}
