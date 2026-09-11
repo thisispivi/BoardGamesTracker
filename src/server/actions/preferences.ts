@@ -10,6 +10,7 @@ import { isLocale } from "@/i18n/config";
 import { writeAuditEvent } from "@/server/audit";
 import { db } from "@/server/db";
 import { user } from "@/server/db/schema";
+import { revalidateAccountRoutes } from "@/server/revalidate";
 import { requireUser } from "@/server/session";
 import { createShareToken } from "@/server/sharing";
 
@@ -38,6 +39,9 @@ export async function setLocaleAction(formData: FormData): Promise<void> {
 /**
  * Persists the signed-in user's ISO 4217 display currency.
  *
+ * Every library page formats prices in this currency, so all of them are
+ * revalidated along with the settings page.
+ *
  * @param formData - The submitted form data.
  * @returns A promise that resolves when the operation completes.
  */
@@ -52,8 +56,7 @@ export async function setCurrencyAction(formData: FormData): Promise<void> {
     .update(user)
     .set({ currency: parsed.data, updatedAt: new Date() })
     .where(eq(user.id, session.user.id));
-  revalidatePath("/settings");
-  revalidatePath("/dashboard");
+  revalidateAccountRoutes();
 }
 
 /**

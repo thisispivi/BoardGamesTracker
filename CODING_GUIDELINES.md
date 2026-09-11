@@ -275,6 +275,11 @@ before writing routing, caching, or data-fetching code.**
 11. When a Zod schema is the runtime contract, it owns the type: put it in a
     `.contract.ts` and export `z.infer` beside it. Do not restate the same
     shape as a hand-written `type`, where the two can drift apart.
+12. One concept, one schema. Import or compose the schema that owns a shape
+    instead of writing a second one; two rules that only look alike stay
+    separate.
+13. Validation proves a payload is well-formed, not that the caller may use it.
+    A parsed request still goes through the authorization in rule 7.
 
 ## 9. Server boundaries and security
 
@@ -354,4 +359,5 @@ Before review, confirm all of the following:
 - Named functions and exported declarations have informative JSDoc with no
   placeholder descriptions or prose line comments.
 - New behavior and non-trivial failure paths have colocated tests.
-- `pnpm check`, `pnpm build`, and `pnpm audit --audit-level=moderate` pass.
+- `pnpm check`, `pnpm test:coverage`, `pnpm build`, and
+  `pnpm audit --audit-level=moderate` pass.

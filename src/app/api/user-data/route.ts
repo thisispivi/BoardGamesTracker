@@ -1,14 +1,14 @@
-import { revalidatePath } from "next/cache";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 import {
-  formatSchema,
   type UserDataDocument,
   type UserDataFormat,
+  userDataFormatSchema,
 } from "@/core";
 import { writeAuditEvent } from "@/server/audit";
 import { log } from "@/server/logger";
+import { revalidateAccountRoutes } from "@/server/revalidate";
 import { hasTrustedOrigin } from "@/server/security/origin";
 import { consumeRateLimit } from "@/server/security/rateLimit";
 import { getSession } from "@/server/session";
@@ -22,6 +22,8 @@ import {
   serializeUserData,
 } from "@/server/userData/formats";
 import { BodyTooLargeError, readBoundedBody } from "@/utils/readBoundedBody";
+
+/** Largest import file accepted, before multipart overhead. */
 const maxImportBytes = 10 * 1024 * 1024;
 
 /**
@@ -53,7 +55,7 @@ export async function GET(request: NextRequest): Promise<Response> {
   ) {
     return NextResponse.json({ error: "too_many_requests" }, { status: 429 });
   }
-  const parsedFormat = formatSchema.safeParse(
+  const parsedFormat = userDataFormatSchema.safeParse(
     request.nextUrl.searchParams.get("format") ?? "json",
   );
   if (!parsedFormat.success) {
@@ -154,16 +156,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       targetId: session.user.id,
       metadata: { format, items: imported },
     });
-    for (const path of [
-      "/settings",
-      "/dashboard",
-      "/collection",
-      "/wishlist",
-      "/stats",
-      "/play",
-    ]) {
-      revalidatePath(path);
-    }
+    revalidateAccountRoutes();
     return NextResponse.json({ success: true, imported });
   } catch {
     log("error", "user_data_import_failed", { actorId: session.user.id });
@@ -179,6 +172,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
  */
 function formatFromFilename(filename: string): UserDataFormat | null {
   const extension = filename.toLowerCase().split(".").pop();
-  const parsed = formatSchema.safeParse(extension);
+  const parsed = userDataFormatSchema.safeParse(extension);
   return parsed.success ? parsed.data : null;
 }

@@ -4,6 +4,9 @@ import { bggImageUrlSchema, labelSchema } from "@/core/shared/shared.contract";
 
 const optionalImageSchema = bggImageUrlSchema.nullable();
 
+/** Validates a supported user-data import or export format. */
+export const userDataFormatSchema = z.enum(["json", "csv", "xlsx", "sql"]);
+
 /** One portable owned or wished-for board-game record. */
 export const portableGameSchema = z
   .object({

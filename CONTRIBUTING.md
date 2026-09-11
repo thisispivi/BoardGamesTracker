@@ -2,7 +2,7 @@
 
 Thank you for improving Board Games Tracker.
 
-1. Create a focused branch from `main`.
+1. Create a focused branch from `main`, named `kind/short-name` after its Conventional Commit type: `feat/weekly-backups`, `fix/admin-search`, `docs/restore-guide`.
 2. Install with `pnpm install --frozen-lockfile` and copy `.env.example` to `.env.local`.
 3. Add or update `fileName.test.ts(x)` beside the source file it covers.
 4. Run `pnpm check`, `pnpm test:coverage`, `pnpm build`, and

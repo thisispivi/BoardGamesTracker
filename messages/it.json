@@ -71,7 +71,8 @@
     "players": "giocatori",
     "expansion": "Espansione",
     "duration": "{hours, plural, =0 {{minutes} min} other {{hours} h{minutes, plural, =0 {} other { {minutes} min}}}}",
-    "fraction": "{part} su {total}"
+    "fraction": "{part} su {total}",
+    "bggId": "BGG #{id}"
   },
   "nav": {
     "primary": "Navigazione principale",

@@ -27,7 +27,7 @@ export async function writeAuditEvent(input: AuditInput): Promise<void> {
     .get("x-forwarded-for")
     ?.split(",")[0]
     ?.trim();
-  const ipAddress = forwardedFor ?? requestHeaders.get("x-real-ip");
+  const ipAddress = forwardedFor || requestHeaders.get("x-real-ip");
 
   await db.insert(auditLogs).values({
     actorId: input.actorId,

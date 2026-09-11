@@ -33,6 +33,7 @@ import {
   playerRangeBounds,
   playtimeRangeBounds,
 } from "@/utils/libraryFilters";
+import { escapeLikePattern } from "@/utils/likePattern";
 
 /** Private library section a query is scoped to. */
 type LibraryLocation = LibraryPageRequest["location"];
@@ -111,16 +112,6 @@ export function locationCondition(
         : eq(collectionItems.wishlist, true),
     ) ?? sql`false`
   );
-}
-
-/**
- * Escapes LIKE wildcards so user text only ever matches literally.
- *
- * @param value - Untrusted search text.
- * @returns The text with backslash, percent, and underscore escaped for PostgreSQL.
- */
-function escapeLikePattern(value: string): string {
-  return value.replace(/[\\%_]/g, "\\$&");
 }
 
 /**

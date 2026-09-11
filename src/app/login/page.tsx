@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 
@@ -23,6 +24,10 @@ export async function generateMetadata(): Promise<Metadata> {
 /**
  * Direct login and registration page.
  *
+ * Rendering waits for a real request, because whether the form offers the
+ * first-administrator setup depends on the live database and must never be
+ * decided, or attempted, while the application is being built.
+ *
  * @param root0 - Properties that configure login page.
  * @param root0.searchParams - URL query parameters supplied by Next.js.
  * @returns The rendered login page.
@@ -32,6 +37,7 @@ export default async function LoginPage({
 }: {
   searchParams: Promise<{ mode?: string | string[] }>;
 }): Promise<ReactNode> {
+  await connection();
   const [session, bootstrapRequired] = await Promise.all([
     getSession(),
     isBootstrapRequired(),

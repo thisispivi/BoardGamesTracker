@@ -4,9 +4,6 @@ import { bggMetadataSchema } from "@/core/bgg/bgg.contract";
 import { libraryPageSchema } from "@/core/collection/library.contract";
 import { gameDiscoveryResultSchema } from "@/core/discovery/discovery.contract";
 
-/** Validates a supported user-data import or export format. */
-export const formatSchema = z.enum(["json", "csv", "xlsx", "sql"]);
-
 /** Validates a bounded game-discovery query. */
 export const querySchema = z.string().trim().min(3).max(500);
 
@@ -17,10 +14,11 @@ export const bggIdSchema = z.number().int().positive().max(10_000_000);
 export const checksumSchema = z.string().regex(/^[a-f0-9]{64}$/);
 
 /**
- * Validates a translated error body returned by an application route.
+ * Validates the error field of an application route's JSON body.
  *
- * Routes answer failures with a single translated sentence, so the browser
- * reads at most that and never trusts the response to carry more.
+ * Most routes answer a failure with one translated sentence. The user-data route
+ * answers with a stable code instead, which the settings page translates. Either
+ * way the browser reads at most a short string and trusts nothing more.
  */
 const routeErrorSchema = z.string().max(500).optional();
 

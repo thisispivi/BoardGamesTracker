@@ -30,7 +30,7 @@ import {
   updateUserRoleAction,
 } from "@/server/actions/admin";
 import { getAdminGamesPage } from "@/server/admin/games";
-import { session, user } from "@/server/db/schema";
+import { games, session, user } from "@/server/db/schema";
 import { migrateTestDatabase, testDatabase, testDb } from "@/test/database";
 
 beforeAll(migrateTestDatabase, 30_000);
@@ -116,5 +116,23 @@ describe("administrator account safeguards", () => {
   });
   it("searches a long numeric title without overflowing PostgreSQL integers", async () => {
     expect((await getAdminGamesPage(1, "9".repeat(200))).games).toEqual([]);
+  });
+  it("matches percent and underscore in a game search literally", async () => {
+    await testDb.delete(games);
+    await testDb.insert(games).values([
+      { bggId: 1, name: "100% Orange Juice" },
+      { bggId: 2, name: "Brass" },
+      { bggId: 3, name: "Dune_Imperium" },
+    ]);
+
+    const percent = await getAdminGamesPage(1, "%");
+    const underscore = await getAdminGamesPage(1, "_");
+
+    expect(percent.games.map((game) => game.name)).toEqual([
+      "100% Orange Juice",
+    ]);
+    expect(underscore.games.map((game) => game.name)).toEqual([
+      "Dune_Imperium",
+    ]);
   });
 });
