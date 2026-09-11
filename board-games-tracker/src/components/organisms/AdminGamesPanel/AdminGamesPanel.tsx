@@ -330,7 +330,7 @@ type CatalogRefreshProgress = {
  *
  * @param root0 - Properties that configure the catalog header.
  * @param root0.onFinished - Callback run once the walk stops, whether it completed or failed.
- * @returns The section title, the refresh button, its confirmation dialog, and live progress.
+ * @returns The section title, the refresh button, its confirmation dialog, and a progress bar with a live count while refreshing.
  */
 function CatalogHeader({ onFinished }: CatalogHeaderProps): ReactNode {
   const t = useTranslations();
@@ -343,7 +343,6 @@ function CatalogHeader({ onFinished }: CatalogHeaderProps): ReactNode {
    * @returns A promise that settles after the last batch, or after the first batch that fails.
    */
   async function refreshCatalog(): Promise<void> {
-    setConfirming(false);
     setProgress({ done: 0, total: null });
     let cursor: string | null = null;
     let refreshed = 0;
@@ -367,6 +366,20 @@ function CatalogHeader({ onFinished }: CatalogHeaderProps): ReactNode {
       setProgress(null);
       onFinished();
     }
+  }
+
+  /**
+   * Closes the confirmation and starts the catalog walk without awaiting it.
+   *
+   * React commits state set inside a form action only once the action settles,
+   * so awaiting the whole walk here would keep the dialog open over the page
+   * and hold back the first progress update until the refresh ended.
+   *
+   * @returns A promise that settles as soon as the walk has started.
+   */
+  async function startRefresh(): Promise<void> {
+    setConfirming(false);
+    void refreshCatalog();
   }
 
   return (
@@ -398,11 +411,19 @@ function CatalogHeader({ onFinished }: CatalogHeaderProps): ReactNode {
           {t("adminGames.refreshAll")}
         </Button>
       </div>
+      {progress === null ? null : (
+        <progress
+          aria-label={t("adminGames.refreshAll")}
+          className="bg-muted [&::-moz-progress-bar]:bg-primary [&::-webkit-progress-bar]:bg-muted [&::-webkit-progress-value]:bg-primary mt-4 block h-2 w-full appearance-none overflow-hidden rounded-full"
+          max={progress.total === null ? undefined : progress.total}
+          value={progress.total === null ? undefined : progress.done}
+        />
+      )}
       <p
         aria-live="polite"
         className={cn(
-          "text-muted-foreground text-xs leading-5",
-          progress === null ? null : "mt-3",
+          "text-muted-foreground text-xs leading-5 tabular-nums",
+          progress === null ? null : "mt-2",
         )}
       >
         {progress === null
@@ -415,7 +436,7 @@ function CatalogHeader({ onFinished }: CatalogHeaderProps): ReactNode {
               })}
       </p>
       <ConfirmDialog
-        action={refreshCatalog}
+        action={startRefresh}
         cancelLabel={t("common.cancel")}
         confirmLabel={t("adminGames.refreshAllConfirm")}
         description={t("adminGames.refreshAllBody")}
