@@ -81,3 +81,14 @@ export type AdminGamesPage = {
   page: number;
   pages: number;
 };
+
+/** Validates where a catalog refresh resumes: the last game processed, or null to start. */
+export const catalogRefreshCursorSchema = z.uuid().nullable();
+
+/** Outcome of refreshing one batch of the shared catalog from BoardGameGeek. */
+export type CatalogRefreshBatch = {
+  failed: number;
+  nextCursor: string | null;
+  refreshed: number;
+  total: number;
+};

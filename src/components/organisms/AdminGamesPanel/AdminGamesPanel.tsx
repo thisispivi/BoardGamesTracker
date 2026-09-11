@@ -25,9 +25,11 @@ import { AppSpinner } from "@/components/atoms/AppSpinner/AppSpinner";
 import { Button } from "@/components/atoms/Button/Button";
 import { GameArtwork } from "@/components/atoms/GameArtwork/GameArtwork";
 import { Tooltip } from "@/components/atoms/Tooltip/Tooltip";
+import { ConfirmDialog } from "@/components/molecules/ConfirmDialog/ConfirmDialog";
 import type { AdminGame, AdminGamesPage, CollectionActionState } from "@/core";
 import {
   getAdminGamesPageAction,
+  refreshGameCatalogBatchAction,
   refreshGameFromBggAction,
   updateGameMetadataAction,
 } from "@/server/actions/adminGames";
@@ -306,6 +308,110 @@ function EditGameMetadataDialog({ game, onClose }: EditDialogProps): ReactNode {
   );
 }
 
+/** Callback the catalog refresh control runs once a refresh stops. */
+type CatalogRefreshButtonProps = {
+  onFinished: () => void;
+};
+
+/** Games processed so far, and the catalog size once the first batch reports it. */
+type CatalogRefreshProgress = {
+  done: number;
+  total: number | null;
+};
+
+/**
+ * Refreshes every shared game from BoardGameGeek, one bounded batch at a time.
+ *
+ * Batches run one after another from the browser, so a large catalog never
+ * holds a request open past a proxy timeout and its progress stays visible.
+ * Leaving the page stops the walk after the batch in flight; games refreshed by
+ * then keep their new metadata.
+ *
+ * @param root0 - Properties that configure the catalog refresh control.
+ * @param root0.onFinished - Callback run once the walk stops, whether it completed or failed.
+ * @returns The refresh button, its confirmation dialog, and live progress.
+ */
+function CatalogRefreshButton({
+  onFinished,
+}: CatalogRefreshButtonProps): ReactNode {
+  const t = useTranslations();
+  const [confirming, setConfirming] = useState(false);
+  const [progress, setProgress] = useState<CatalogRefreshProgress | null>(null);
+
+  /**
+   * Walks the catalog batch by batch and reports the outcome in a toast.
+   *
+   * @returns A promise that settles after the last batch, or after the first batch that fails.
+   */
+  async function refreshCatalog(): Promise<void> {
+    setConfirming(false);
+    setProgress({ done: 0, total: null });
+    let cursor: string | null = null;
+    let refreshed = 0;
+    let failed = 0;
+    try {
+      do {
+        const batch = await refreshGameCatalogBatchAction(cursor);
+        refreshed += batch.refreshed;
+        failed += batch.failed;
+        setProgress({ done: refreshed + failed, total: batch.total });
+        cursor = batch.nextCursor;
+      } while (cursor !== null);
+      if (failed === 0) {
+        toast.success(t("adminGames.refreshAllDone", { count: refreshed }));
+      } else {
+        toast.warning(t("adminGames.refreshAllPartial", { failed, refreshed }));
+      }
+    } catch {
+      toast.error(t("adminGames.refreshAllFailed"));
+    } finally {
+      setProgress(null);
+      onFinished();
+    }
+  }
+
+  return (
+    <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4">
+      <p
+        aria-live="polite"
+        className="text-muted-foreground min-w-0 flex-1 text-xs leading-5"
+      >
+        {progress === null
+          ? t("adminGames.refreshAllHelp")
+          : progress.total === null
+            ? t("adminGames.refreshAllStarting")
+            : t("adminGames.refreshAllProgress", {
+                done: progress.done,
+                total: progress.total,
+              })}
+      </p>
+      <Button
+        disabled={progress !== null}
+        onClick={() => setConfirming(true)}
+        type="button"
+        variant="secondary"
+      >
+        {progress === null ? (
+          <RefreshCw className="size-4" />
+        ) : (
+          <AppSpinner className="size-4" label={t("common.loading")} />
+        )}
+        {t("adminGames.refreshAll")}
+      </Button>
+      <ConfirmDialog
+        action={refreshCatalog}
+        cancelLabel={t("common.cancel")}
+        confirmLabel={t("adminGames.refreshAllConfirm")}
+        description={t("adminGames.refreshAllBody")}
+        fields={{}}
+        onOpenChange={setConfirming}
+        open={confirming}
+        title={t("adminGames.refreshAllTitle")}
+      />
+    </div>
+  );
+}
+
 /**
  * Searchable, paginated list of every shared game with a metadata editor.
  *
@@ -360,6 +466,7 @@ export function AdminGamesPanel({
 
   return (
     <>
+      <CatalogRefreshButton onFinished={() => loadPage(result.page, query)} />
       <label className="relative mb-5 block">
         <span className="sr-only">{t("adminGames.searchLabel")}</span>
         <Search className="text-muted-foreground absolute top-1/2 left-4 size-4 -translate-y-1/2" />

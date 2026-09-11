@@ -544,7 +544,17 @@
     "refreshHelp": "Pull the current metadata and expansion relationships from BoardGameGeek and overwrite this record. Useful when a game was added while BoardGameGeek was unreachable.",
     "refreshed": "Metadata refreshed from BoardGameGeek",
     "refreshFailed": "BoardGameGeek did not return data for this game. Try again shortly.",
-    "editHint": "Correct this entry in the shared catalog"
+    "editHint": "Correct this entry in the shared catalog",
+    "refreshAll": "Refresh all from BGG",
+    "refreshAllHelp": "Pull current metadata from BoardGameGeek for every game in the catalog.",
+    "refreshAllStarting": "Starting the refresh…",
+    "refreshAllProgress": "Refreshing from BoardGameGeek: {done} of {total} games",
+    "refreshAllTitle": "Refresh every game from BoardGameGeek?",
+    "refreshAllBody": "Each game is read again from BoardGameGeek and overwritten, including corrections made here. Large catalogs take a few minutes, so keep this page open until it finishes.",
+    "refreshAllConfirm": "Refresh all games",
+    "refreshAllDone": "{count, plural, one {# game refreshed from BoardGameGeek} other {# games refreshed from BoardGameGeek}}",
+    "refreshAllPartial": "{refreshed, plural, one {# game refreshed} other {# games refreshed}}. BoardGameGeek returned nothing for {failed, plural, one {# game} other {# games}}, so try those again later.",
+    "refreshAllFailed": "The refresh stopped early. Games refreshed so far keep their new metadata."
   },
   "error": {
     "eyebrow": "Unexpected move",
