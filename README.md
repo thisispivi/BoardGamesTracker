@@ -43,10 +43,10 @@ or review the [security model](#security).
 - Separate collection and wishlist views with ownership, favorites, played
   status, and gifted purchases.
 - Personal ratings, notes, tags, player counts, play times, and money spent.
-- Fuzzy search plus filters for player count, duration, complexity, categories,
+- Search plus filters for player count, duration, complexity, categories,
   mechanics, favorite and played status, and base games versus expansions.
-- Sticky library controls and progressive 50-item batches keep large shelves
-  quick to browse without weakening client-side search.
+- Sticky library controls, with more games loading as you scroll, so large
+  shelves stay quick to browse.
 - Expansions grouped under the base game they belong to.
 - Moving a wishlist entry into the collection, and clearing either library
   behind a typed confirmation.
@@ -69,8 +69,9 @@ or review the [security model](#security).
 - A shared candidate pool for the table, constrained by player count and
   duration.
 - A picker that makes the final call so the group does not have to.
-- Charts for complexity spread, top categories and mechanics, and the most
-  expensive games, alongside total, average, and median spend.
+- Charts for spending, complexity, the lightest and heaviest games, player
+  counts, session length, publication decades, and the most-owned categories
+  and mechanics, alongside total, average, and median spend.
 
 ### Accounts, sharing, and administration
 
