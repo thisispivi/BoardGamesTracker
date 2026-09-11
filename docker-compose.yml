@@ -20,6 +20,28 @@ services:
     networks:
       - private
 
+  backup:
+    image: postgres:17.11-alpine
+    restart: unless-stopped
+    init: true
+    stop_signal: SIGTERM
+    depends_on:
+      database:
+        condition: service_healthy
+    entrypoint: ["sh", "/usr/local/bin/backup-database.sh"]
+    environment:
+      PGHOST: database
+      PGDATABASE: ${POSTGRES_DB:-board_games_tracker}
+      PGUSER: ${POSTGRES_USER:-board_games_tracker}
+      PGPASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      BACKUP_INTERVAL_DAYS: ${BACKUP_INTERVAL_DAYS:-7}
+      BACKUP_KEEP: ${BACKUP_KEEP:-8}
+    volumes:
+      - ./scripts/backup-database.sh:/usr/local/bin/backup-database.sh:ro
+      - ${BACKUP_DIRECTORY:-./backups}:/backups
+    networks:
+      - private
+
   searxng:
     image: searxng/searxng:2026.8.29-d226b78bc
     restart: unless-stopped

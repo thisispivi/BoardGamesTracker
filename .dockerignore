@@ -10,6 +10,7 @@ node_modules
 *.key
 *.sql
 !drizzle/*.sql
+backups
 *.log
 .codex
 .vscode

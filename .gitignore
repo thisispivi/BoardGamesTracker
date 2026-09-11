@@ -43,6 +43,7 @@ yarn-error.log*
 *.db
 *.sql
 !drizzle/*.sql
+/backups/
 /test-results/
 /playwright-report/
 Thumbs.db
