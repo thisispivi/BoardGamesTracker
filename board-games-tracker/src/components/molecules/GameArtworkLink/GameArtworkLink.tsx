@@ -10,6 +10,7 @@ import { cn } from "@/utils/cn";
 
 /** Artwork size and game used by the BoardGameGeek artwork link. */
 type GameArtworkLinkProps = {
+  artworkClassName?: string;
   className?: string;
   eager?: boolean;
   game: CollectionGame;
@@ -22,12 +23,14 @@ type GameArtworkLinkProps = {
  * sizes the library cards use; every action lives beside the image instead.
  *
  * @param root0 - Properties that configure the artwork link.
+ * @param root0.artworkClassName - Optional classes merged with the artwork box, for example to follow the link's height instead of staying square.
  * @param root0.className - Optional classes merged with the artwork size.
  * @param root0.eager - Whether the artwork should load with high priority.
  * @param root0.game - Game record whose artwork and identity are linked.
  * @returns Linked artwork sized by the caller.
  */
 export function GameArtworkLink({
+  artworkClassName,
   className,
   eager = false,
   game,
@@ -46,7 +49,7 @@ export function GameArtworkLink({
         target="_blank"
       >
         <GameArtwork
-          className="rounded-lg"
+          className={cn("rounded-lg", artworkClassName)}
           eager={eager}
           imageUrl={game.imageUrl}
           name={game.name}
