@@ -21,13 +21,13 @@ export function LibraryPageSkeleton({
     <div aria-busy="true" aria-label={label} role="status">
       <span className="sr-only">{label}</span>
       <div aria-hidden="true" className="animate-pulse">
-        <header className="mb-10 flex items-end justify-between gap-5">
-          <div className="w-full max-w-xl space-y-3">
+        <header className="mb-8 flex flex-col gap-5 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
+          <div className="w-full max-w-xl min-w-0 space-y-3">
             <div className="bg-muted h-3 w-24 rounded" />
             <div className="bg-muted h-10 w-64 max-w-full rounded-lg" />
             <div className="bg-muted h-4 w-80 max-w-full rounded" />
           </div>
-          <div className="bg-muted hidden h-11 w-32 rounded-full sm:block" />
+          <div className="bg-muted h-11 w-32 shrink-0 rounded-full" />
         </header>
         <section className="bg-card mb-8 rounded-xl border p-4 shadow-sm">
           <div className="bg-muted mb-5 h-5 w-28 rounded" />
