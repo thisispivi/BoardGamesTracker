@@ -27,7 +27,7 @@ export function GameCardSkeleton({
         className,
       )}
     >
-      <div className="bg-muted h-full w-20 shrink-0 rounded-lg sm:w-24" />
+      <div className="bg-muted aspect-square h-full shrink-0 rounded-lg" />
       <div className="min-w-0 flex-1 space-y-3">
         <div className="bg-muted h-5 w-4/5 rounded" />
         <div className="bg-muted h-3 w-1/3 rounded" />

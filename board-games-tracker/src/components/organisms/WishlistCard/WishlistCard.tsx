@@ -157,8 +157,8 @@ export function WishlistCard({
     <article className="bg-card shadow-soft hover:border-accent/50 flex flex-col overflow-hidden rounded-xl border transition-colors duration-200">
       <div className="flex gap-3 p-3 sm:gap-4 sm:p-4">
         <GameArtworkLink
-          artworkClassName="aspect-auto h-full min-h-20 sm:min-h-24"
-          className="w-20 self-stretch sm:w-24"
+          artworkClassName="h-full w-full"
+          className="aspect-square min-h-20 self-stretch sm:min-h-24"
           eager={eager}
           game={game}
         />

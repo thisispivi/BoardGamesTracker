@@ -187,6 +187,7 @@ describe("AdminGamesPanel", () => {
   });
 
   it("shows a progress bar that advances with each catalog batch", async () => {
+    vi.useFakeTimers();
     const pendingBatches: ((batch: unknown) => void)[] = [];
     refreshGameCatalogBatchAction.mockImplementation(
       () =>
@@ -208,6 +209,13 @@ describe("AdminGamesPanel", () => {
     });
 
     expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+    expect(refreshGameCatalogBatchAction).not.toHaveBeenCalled();
+
+    await act(async () => {
+      vi.advanceTimersByTime(0);
+    });
+
+    expect(refreshGameCatalogBatchAction).toHaveBeenCalledOnce();
     expect(screen.getByRole("progressbar")).not.toHaveAttribute("value");
     expect(screen.getByText("Starting the refresh…")).toBeInTheDocument();
 

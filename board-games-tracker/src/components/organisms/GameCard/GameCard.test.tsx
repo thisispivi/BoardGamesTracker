@@ -70,6 +70,13 @@ describe("GameCard", () => {
   it("shows year, price, taxonomy, and every table fact", () => {
     renderCard(<GameCard currency="EUR" game={base} />);
 
+    expect(
+      screen
+        .getByRole("link", {
+          name: "Open Brass: Birmingham on BoardGameGeek",
+        })
+        .getAttribute("class"),
+    ).toContain("aspect-square");
     expect(screen.getByText("2018")).toBeInTheDocument();
     expect(screen.getByText("€62.50")).toBeInTheDocument();
     expect(screen.getAllByText("Economic").length).toBeGreaterThan(0);

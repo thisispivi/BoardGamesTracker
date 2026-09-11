@@ -66,11 +66,14 @@ describe("WishlistCard", () => {
     expect(
       screen.getByRole("listitem", { name: "Players: 2–4" }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole("link", {
-        name: "Open Brass: Birmingham on BoardGameGeek",
-      }),
-    ).toHaveAttribute("href", "https://boardgamegeek.com/boardgame/224517");
+    const artworkLink = screen.getByRole("link", {
+      name: "Open Brass: Birmingham on BoardGameGeek",
+    });
+    expect(artworkLink).toHaveAttribute(
+      "href",
+      "https://boardgamegeek.com/boardgame/224517",
+    );
+    expect(artworkLink.getAttribute("class")).toContain("aspect-square");
   });
 
   it("never shows a price for a game that is not owned yet", () => {

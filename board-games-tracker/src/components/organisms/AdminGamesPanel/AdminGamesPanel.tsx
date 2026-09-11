@@ -379,7 +379,7 @@ function CatalogHeader({ onFinished }: CatalogHeaderProps): ReactNode {
    */
   async function startRefresh(): Promise<void> {
     setConfirming(false);
-    void refreshCatalog();
+    setTimeout(() => void refreshCatalog(), 0);
   }
 
   return (
