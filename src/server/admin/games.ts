@@ -5,6 +5,7 @@ import { asc, count, eq, ilike, or } from "drizzle-orm";
 import type { AdminGamesPage } from "@/core";
 import { db } from "@/server/db";
 import { collectionItems, games } from "@/server/db/schema";
+import { escapeLikePattern } from "@/utils/likePattern";
 
 const adminGamesPageSize = 20;
 
@@ -15,7 +16,7 @@ const adminGamesPageSize = 20;
  * record fixes it for every user who owns that game.
  *
  * @param requestedPage - Untrusted one-based page number requested by the client.
- * @param search - Free text matched against the game name or an exact BGG id.
+ * @param search - Free text matched literally against the game name, or an exact BGG id.
  * @returns A bounded page of games matching the optional search term.
  */
 export async function getAdminGamesPage(
@@ -28,10 +29,11 @@ export async function getAdminGamesPage(
     parsedNumber !== undefined && parsedNumber <= 10_000_000
       ? parsedNumber
       : undefined;
+  const namePattern = `%${escapeLikePattern(term)}%`;
   const filter = term
     ? numericTerm === undefined
-      ? ilike(games.name, `%${term}%`)
-      : or(ilike(games.name, `%${term}%`), eq(games.bggId, numericTerm))
+      ? ilike(games.name, namePattern)
+      : or(ilike(games.name, namePattern), eq(games.bggId, numericTerm))
     : undefined;
 
   const [totalResult] = await db

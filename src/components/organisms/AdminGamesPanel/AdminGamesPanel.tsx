@@ -114,7 +114,7 @@ function EditGameMetadataDialog({ game, onClose }: EditDialogProps): ReactNode {
                 {game.name}
               </Dialog.Title>
               <Dialog.Description className="text-muted-foreground mt-1 text-xs">
-                BGG #{game.bggId} ·{" "}
+                {t("common.bggId", { id: game.bggId })} ·{" "}
                 {t("adminGames.owners", { count: game.owners })}
               </Dialog.Description>
             </div>
@@ -395,7 +395,7 @@ export function AdminGamesPanel({
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-bold">{game.name}</p>
                     <p className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-                      <span>BGG #{game.bggId}</span>
+                      <span>{t("common.bggId", { id: game.bggId })}</span>
                       <span className="flex items-center gap-1">
                         <Users className="size-3" />
                         {game.minPlayers}–{game.maxPlayers}

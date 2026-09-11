@@ -307,8 +307,8 @@ export function AddGameDialog({
                         <p className="truncate font-bold">{result.name}</p>
                         <p className="text-muted-foreground mt-1 flex items-center gap-2 text-xs">
                           <span>
-                            {result.yearPublished ?? t("common.yearUnknown")} ·
-                            BGG #{result.bggId}
+                            {result.yearPublished ?? t("common.yearUnknown")} ·{" "}
+                            {t("common.bggId", { id: result.bggId })}
                           </span>
                           {result.isExpansion ? (
                             <span className="bg-accent/15 text-accent rounded-full px-2 py-0.5 font-bold">
