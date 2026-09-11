@@ -416,8 +416,10 @@
     "playedGames": "Giochi base giocati",
     "expensiveChart": "Acquisti più costosi",
     "complexityChart": "Distribuzione complessità",
-    "weightExtremesChart": "Giochi più facili e più difficili",
-    "weightExtremesHint": "I cinque giochi base più leggeri e i cinque più pesanti, secondo il peso BGG.",
+    "easiestChart": "Giochi più facili",
+    "easiestHint": "I giochi base più leggeri, secondo il peso BGG.",
+    "hardestChart": "Giochi più difficili",
+    "hardestHint": "I giochi base più pesanti, secondo il peso BGG.",
     "categoriesChart": "Categorie più possedute",
     "mechanicsChart": "Meccaniche più possedute",
     "complexity": {

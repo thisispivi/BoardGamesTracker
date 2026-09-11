@@ -16,8 +16,8 @@ const maxChartedPlayers = 8;
 /** Earliest publication year treated as a real date rather than missing data. */
 const earliestCredibleYear = 1900;
 
-/** Rated base games charted at each end of the easiest-to-hardest ranking. */
-const weightExtremeCount = 5;
+/** Most rated base games listed in each of the easiest and hardest rankings. */
+const weightRankingSize = 8;
 
 /** Exclusive upper minute bounds for every session band except the last. */
 const playtimeBandCeilings: readonly [PlaytimeBand, number][] = [
@@ -94,20 +94,23 @@ export function calculateCollectionStats(
     playtime: countPlaytimeBands(baseGames),
     decades: countDecades(baseGames),
     playedBaseGames: baseGames.filter((game) => game.hasPlayed).length,
-    weightExtremes: pickWeightExtremes(baseGames),
+    ...rankByWeight(baseGames),
   };
 }
 
 /**
- * Selects the lightest and heaviest rated base games, lightest first.
+ * Ranks rated base games into the easiest few and the hardest few.
  *
- * A shelf with too few rated games to fill both ends lists each of them once,
- * so no title is charted as both one of the easiest and one of the hardest.
+ * Each ranking holds at most {@link weightRankingSize} games. A shelf with too
+ * few rated games to fill both gives its lighter half to the easiest ranking
+ * and its heavier half to the hardest, so no title appears in both.
  *
  * @param baseGames - Base games whose BGG weight may be unknown.
- * @returns Up to twice the extreme count of game names with their one-to-five weight.
+ * @returns The lightest games, lightest first, and the heaviest games, heaviest first, each with its one-to-five weight.
  */
-function pickWeightExtremes(baseGames: StatGame[]): CountDatum[] {
+function rankByWeight(
+  baseGames: StatGame[],
+): Pick<CollectionStats, "easiestGames" | "hardestGames"> {
   const rated = baseGames
     .flatMap((game) =>
       game.weight !== null && game.weight > 0
@@ -118,12 +121,17 @@ function pickWeightExtremes(baseGames: StatGame[]): CountDatum[] {
       (left, right) =>
         left.value - right.value || left.name.localeCompare(right.name),
     );
-  return rated.length <= weightExtremeCount * 2
-    ? rated
-    : [
-        ...rated.slice(0, weightExtremeCount),
-        ...rated.slice(-weightExtremeCount),
-      ];
+  const easiestGames = rated.slice(
+    0,
+    Math.min(weightRankingSize, Math.ceil(rated.length / 2)),
+  );
+  const hardestGames = rated
+    .slice(Math.max(easiestGames.length, rated.length - weightRankingSize))
+    .toSorted(
+      (left, right) =>
+        right.value - left.value || left.name.localeCompare(right.name),
+    );
+  return { easiestGames, hardestGames };
 }
 
 /**

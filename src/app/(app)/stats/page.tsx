@@ -160,11 +160,12 @@ export default async function StatsPage(): Promise<ReactNode> {
         complexity={stats.complexity}
         currency={preferences.currency}
         decades={stats.decades}
+        easiestGames={stats.easiestGames}
+        hardestGames={stats.hardestGames}
         mechanics={stats.mechanics}
         mostExpensive={stats.mostExpensive}
         playerCounts={stats.playerCounts}
         playtime={stats.playtime}
-        weightExtremes={stats.weightExtremes}
       />
     </>
   );

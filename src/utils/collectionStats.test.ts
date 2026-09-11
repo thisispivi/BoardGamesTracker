@@ -63,24 +63,60 @@ describe("calculateCollectionStats", () => {
       { key: "veryHeavy", value: 1 },
     ]);
     expect(stats.averageWeight).toBe(3.3);
-    expect(stats.weightExtremes).toEqual([{ name: "Alpha", value: 2.4 }]);
+    expect(stats.easiestGames).toEqual([{ name: "Alpha", value: 2.4 }]);
+    expect(stats.hardestGames).toEqual([]);
   });
 
-  it("charts only the five lightest and five heaviest rated base games", () => {
+  it("ranks the eight lightest and the eight heaviest rated base games", () => {
     const stats = calculateCollectionStats([
-      ...Array.from({ length: 12 }, (_, index) =>
+      ...Array.from({ length: 20 }, (_, index) =>
         game({
           bggId: index + 1,
           name: `Game ${index}`,
-          weight: 1 + index / 4,
+          weight: 1 + index / 5,
         }),
       ),
-      game({ bggId: 20, name: "Unrated" }),
-      game({ bggId: 21, isExpansion: true, name: "Add-on", weight: 5 }),
+      game({ bggId: 30, name: "Unrated" }),
+      game({ bggId: 31, isExpansion: true, name: "Add-on", weight: 5 }),
     ]);
 
-    expect(stats.weightExtremes.map((datum) => datum.value)).toEqual([
-      1, 1.25, 1.5, 1.75, 2, 2.75, 3, 3.25, 3.5, 3.75,
+    expect(stats.easiestGames.map((datum) => datum.name)).toEqual([
+      "Game 0",
+      "Game 1",
+      "Game 2",
+      "Game 3",
+      "Game 4",
+      "Game 5",
+      "Game 6",
+      "Game 7",
+    ]);
+    expect(stats.hardestGames.map((datum) => datum.name)).toEqual([
+      "Game 19",
+      "Game 18",
+      "Game 17",
+      "Game 16",
+      "Game 15",
+      "Game 14",
+      "Game 13",
+      "Game 12",
+    ]);
+  });
+
+  it("splits a small rated shelf so no game is both easiest and hardest", () => {
+    const stats = calculateCollectionStats(
+      [1.5, 3, 2, 4.5, 2.5].map((weight, index) =>
+        game({ bggId: index + 1, name: `Weight ${weight}`, weight }),
+      ),
+    );
+
+    expect(stats.easiestGames.map((datum) => datum.name)).toEqual([
+      "Weight 1.5",
+      "Weight 2",
+      "Weight 2.5",
+    ]);
+    expect(stats.hardestGames.map((datum) => datum.name)).toEqual([
+      "Weight 4.5",
+      "Weight 3",
     ]);
   });
 
