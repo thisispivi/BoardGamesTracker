@@ -31,7 +31,7 @@ export function UnplayedRail({ games }: UnplayedRailProps): ReactNode {
       {games.length > 0 ? (
         <div
           aria-labelledby="home-unplayed-title"
-          className="-mx-5 mt-5 scroll-px-5 overflow-x-auto px-5 pb-4 sm:-mx-8 sm:scroll-px-8 sm:px-8 lg:-mx-12 lg:scroll-px-12 lg:px-12"
+          className="-mx-5 mt-5 scroll-px-5 overflow-x-auto px-5 pb-4 sm:-mx-8 sm:scroll-px-8 sm:px-8 lg:-mx-10 lg:scroll-px-10 lg:px-10"
           role="region"
           tabIndex={0}
         >
