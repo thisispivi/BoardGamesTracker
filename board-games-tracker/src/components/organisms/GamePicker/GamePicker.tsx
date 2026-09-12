@@ -130,9 +130,9 @@ export function GamePicker({ games }: GamePickerProps): ReactNode {
   }
 
   return (
-    <div className="flex flex-wrap items-start gap-6">
+    <div className="flex flex-wrap items-stretch gap-6">
       <GameFilters
-        className="min-w-0 grow basis-80"
+        className="min-w-0 grow basis-128"
         filters={filters}
         games={games}
         onChange={setFilters}

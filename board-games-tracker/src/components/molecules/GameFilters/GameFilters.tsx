@@ -229,7 +229,7 @@ export function GameFilters({
       </div>
 
       {showBrowseControls ? (
-        <div className="mb-4 grid gap-4 border-b pb-4 @2xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+        <div className="mb-4 grid gap-4 border-b pb-4 @md:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
           <FilterField icon={Search} label={t("names.search")}>
             <label className="relative block">
               <span className="sr-only">{t("searchLabel")}</span>
@@ -265,7 +265,7 @@ export function GameFilters({
         </div>
       ) : null}
 
-      <div className="grid gap-4 @2xl:grid-cols-2 @4xl:grid-cols-3">
+      <div className="grid gap-4 @md:grid-cols-2 @2xl:grid-cols-3">
         <FilterField
           hint={playersActive ? "" : t("anyPlayers")}
           icon={Users}
