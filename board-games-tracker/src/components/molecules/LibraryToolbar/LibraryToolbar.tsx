@@ -74,12 +74,12 @@ export function LibraryToolbar({
       </label>
       <button
         aria-label={t("openFilters")}
-        className="bg-card hover:bg-muted relative flex h-11 items-center gap-2 rounded-lg border px-3 text-sm font-bold shadow-sm transition-colors"
+        className="bg-card hover:bg-muted relative flex h-11 items-center justify-center gap-2 rounded-lg border px-3 text-sm font-bold shadow-sm transition-colors"
         onClick={onOpenFilters}
         type="button"
       >
         <SlidersHorizontal aria-hidden="true" className="size-4" />
-        <span className="hidden sm:inline">{t("filters")}</span>
+        <span>{t("filters")}</span>
         {activeFilterCount > 0 ? (
           <span className="bg-primary text-primary-foreground min-w-5 rounded-full px-1.5 py-0.5 text-xs tabular-nums">
             {activeFilterCount}
