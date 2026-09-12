@@ -2,22 +2,12 @@
 
 import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
-import { AnimatePresence, useInView } from "motion/react";
 import { useTranslations } from "next-intl";
-import { type ReactNode, useRef, useState } from "react";
+import { type ReactNode, useState } from "react";
 
 import { GameFilters } from "@/components/molecules/GameFilters/GameFilters";
 import { LibraryToolbar } from "@/components/molecules/LibraryToolbar/LibraryToolbar";
 import type { LibraryFacetGame, LibraryFilters } from "@/core";
-
-/**
- * Viewport margin that decides when the full panel counts as scrolled away.
- *
- * The top inset clears the mobile header, and the far bottom extension keeps a
- * panel still below the fold counted as visible, so only scrolling past the
- * panel reveals the compact toolbar.
- */
-const panelViewportMargin = "-72px 0px 10000px 0px";
 
 /** Library filter state, the facets on offer, and the optional add-game control. */
 type LibraryControlsProps = {
@@ -30,22 +20,21 @@ type LibraryControlsProps = {
 };
 
 /**
- * Shows the full filter panel above results and a compact toolbar once it scrolls away.
+ * Reduces browsing to one sticky bar, with every other filter inside a sheet.
  *
- * The compact toolbar is fixed rather than sticky, so revealing it never moves
- * the cards. It stays while it holds focus, so a search that shortens the page
- * cannot remove the field being typed in. Its filter button opens the same panel
- * in a sheet that sits below select and popover layers, and every surface edits
- * one controlled state.
+ * The library itself is the point of these pages, so nothing above the cards
+ * expands: search, the filter count, and adding a game stay on a single line,
+ * and the full panel opens on request in a sheet that sits below select and
+ * popover layers. Both surfaces edit one controlled state.
  *
  * @param root0 - Properties that configure the library controls.
- * @param root0.action - Add-game control shown in the compact toolbar, omitted from read-only libraries.
+ * @param root0.action - Add-game control shown in the bar, omitted from read-only libraries.
  * @param root0.filters - Current filter and ordering state.
  * @param root0.games - Games used to derive the available taxonomy options.
  * @param root0.onChange - Callback receiving the complete next filter state.
  * @param root0.showFavorites - Whether the favorites filter applies to this library.
  * @param root0.showPlayed - Whether private played status applies to this library.
- * @returns The inline panel, the compact toolbar when scrolled, and the filter sheet.
+ * @returns The sticky toolbar and the filter sheet it opens.
  */
 export function LibraryControls({
   action,
@@ -56,43 +45,18 @@ export function LibraryControls({
   showPlayed = false,
 }: LibraryControlsProps): ReactNode {
   const t = useTranslations("libraryFilters");
-  const panelRef = useRef<HTMLDivElement>(null);
-  const isPanelVisible = useInView(panelRef, {
-    initial: true,
-    margin: panelViewportMargin,
-  });
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [isToolbarFocused, setIsToolbarFocused] = useState(false);
-  const isToolbarVisible = !isPanelVisible || isToolbarFocused;
 
   return (
     <>
-      <div ref={panelRef}>
-        <GameFilters
-          className="mb-8"
-          filters={filters}
-          games={games}
-          onChange={onChange}
-          showBrowseControls
-          showFavorites={showFavorites}
-          showPlayed={showPlayed}
-        />
-      </div>
-
-      <AnimatePresence>
-        {isToolbarVisible ? (
-          <LibraryToolbar
-            action={action}
-            filters={filters}
-            key="toolbar"
-            onFocusChange={setIsToolbarFocused}
-            onOpenFilters={() => setIsSheetOpen(true)}
-            onQueryChange={(query) => onChange({ ...filters, query })}
-            showFavorites={showFavorites}
-            showPlayed={showPlayed}
-          />
-        ) : null}
-      </AnimatePresence>
+      <LibraryToolbar
+        action={action}
+        filters={filters}
+        onOpenFilters={() => setIsSheetOpen(true)}
+        onQueryChange={(query) => onChange({ ...filters, query })}
+        showFavorites={showFavorites}
+        showPlayed={showPlayed}
+      />
 
       <Dialog.Root onOpenChange={setIsSheetOpen} open={isSheetOpen}>
         <Dialog.Portal>

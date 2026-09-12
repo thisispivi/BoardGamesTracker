@@ -43,10 +43,12 @@ export default async function WishlistPage(): Promise<ReactNode> {
     <>
       <PageHeader
         action={
-          <AddGameDialog
-            currency={preferences.currency}
-            destination="wishlist"
-          />
+          facetGames.length === 0 ? (
+            <AddGameDialog
+              currency={preferences.currency}
+              destination="wishlist"
+            />
+          ) : null
         }
         description={t("wishlist.count", { count: facetGames.length })}
         eyebrow={t("wishlist.eyebrow")}
