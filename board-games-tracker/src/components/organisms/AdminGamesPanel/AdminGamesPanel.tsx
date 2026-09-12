@@ -369,17 +369,21 @@ function CatalogHeader({ onFinished }: CatalogHeaderProps): ReactNode {
   }
 
   /**
-   * Closes the confirmation and starts the catalog walk without awaiting it.
+   * Hands the confirmation close and the catalog walk to a timer.
    *
-   * React commits state set inside a form action only once the action settles,
-   * so awaiting the whole walk here would keep the dialog open over the page
-   * and hold back the first progress update until the refresh ended.
+   * State set inside a form action belongs to a transition, and React holds
+   * pending transitions while a Server Action is in flight. Closing the dialog
+   * here would therefore leave it covering the page for the whole refresh,
+   * hiding the progress it is meant to reveal. The timer runs outside the
+   * action, so the close commits immediately.
    *
-   * @returns A promise that settles as soon as the walk has started.
+   * @returns A promise that settles once the walk is scheduled.
    */
   async function startRefresh(): Promise<void> {
-    setConfirming(false);
-    setTimeout(() => void refreshCatalog(), 0);
+    setTimeout(() => {
+      setConfirming(false);
+      void refreshCatalog();
+    }, 0);
   }
 
   return (

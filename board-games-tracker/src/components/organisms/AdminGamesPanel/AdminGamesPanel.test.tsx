@@ -208,13 +208,13 @@ describe("AdminGamesPanel", () => {
       );
     });
 
-    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
     expect(refreshGameCatalogBatchAction).not.toHaveBeenCalled();
 
     await act(async () => {
       vi.advanceTimersByTime(0);
     });
 
+    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
     expect(refreshGameCatalogBatchAction).toHaveBeenCalledOnce();
     expect(screen.getByRole("progressbar")).not.toHaveAttribute("value");
     expect(screen.getByText("Starting the refresh…")).toBeInTheDocument();
