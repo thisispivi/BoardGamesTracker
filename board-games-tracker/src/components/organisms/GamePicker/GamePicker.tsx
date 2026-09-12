@@ -130,8 +130,9 @@ export function GamePicker({ games }: GamePickerProps): ReactNode {
   }
 
   return (
-    <div className="grid gap-6">
+    <div className="flex flex-wrap items-start gap-6">
       <GameFilters
+        className="min-w-0 grow basis-80"
         filters={filters}
         games={games}
         onChange={setFilters}
@@ -141,7 +142,7 @@ export function GamePicker({ games }: GamePickerProps): ReactNode {
       />
 
       <section
-        className="bg-card shadow-soft relative grid min-h-117.5 min-w-0 scroll-mt-24 place-items-center overflow-hidden rounded-xl border px-4 pt-20 pb-5 sm:min-h-142.5 sm:px-6 sm:pt-24 sm:pb-6"
+        className="bg-card shadow-soft relative grid min-h-117.5 min-w-0 grow basis-150 scroll-mt-24 place-items-center overflow-hidden rounded-xl border px-4 pt-20 pb-5 sm:min-h-142.5 sm:px-6 sm:pt-24 sm:pb-6"
         ref={reelStageRef}
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,color-mix(in_srgb,var(--primary)_17%,transparent),transparent_48%)] opacity-50" />
