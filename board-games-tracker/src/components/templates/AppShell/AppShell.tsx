@@ -63,7 +63,7 @@ export function AppShell({ children, user }: AppShellProps): ReactNode {
         </div>
       </header>
       <div className="isolate max-w-full min-w-0 overflow-x-clip">
-        <main className="mx-auto w-full max-w-375 min-w-0 px-5 py-7 sm:px-8 sm:py-10 lg:px-12">
+        <main className="mx-auto w-full max-w-320 min-w-0 px-5 py-6 sm:px-8 sm:py-8 lg:px-12">
           {children}
         </main>
       </div>

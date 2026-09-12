@@ -50,7 +50,7 @@ export function CoverFan({
   return (
     <ul
       aria-label={label}
-      className={cn("relative mx-auto h-64 w-full max-w-lg sm:h-80", className)}
+      className={cn("relative mx-auto h-56 w-full max-w-md sm:h-72", className)}
     >
       {games.slice(0, fanSlots.length).map((game, index) => {
         const slot = fanSlots[index] ?? fanSlots[0];
@@ -63,7 +63,7 @@ export function CoverFan({
               x: `${slot.x}%`,
               y: slot.y,
             }}
-            className="absolute top-1/2 left-1/2 w-36 -translate-x-1/2 -translate-y-1/2 sm:w-48"
+            className="absolute top-1/2 left-1/2 w-32 -translate-x-1/2 -translate-y-1/2 sm:w-40"
             initial={
               reduceMotion
                 ? false
