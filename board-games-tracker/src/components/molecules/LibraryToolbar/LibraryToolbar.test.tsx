@@ -19,7 +19,6 @@ describe("LibraryToolbar", () => {
             favoriteFilter: "yes",
             playedFilter: "no",
           }}
-          onFocusChange={vi.fn()}
           onOpenFilters={onOpenFilters}
           onQueryChange={onQueryChange}
           showFavorites

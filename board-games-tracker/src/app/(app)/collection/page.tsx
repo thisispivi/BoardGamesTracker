@@ -40,7 +40,11 @@ export default async function CollectionPage(): Promise<ReactNode> {
   return (
     <>
       <PageHeader
-        action={<AddGameDialog currency={preferences.currency} />}
+        action={
+          facetGames.length === 0 ? (
+            <AddGameDialog currency={preferences.currency} />
+          ) : null
+        }
         description={t("collection.count", { count: facetGames.length })}
         eyebrow={t("collection.eyebrow")}
         title={t("collection.title")}
