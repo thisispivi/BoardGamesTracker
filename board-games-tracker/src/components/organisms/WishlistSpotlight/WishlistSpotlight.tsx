@@ -29,8 +29,8 @@ export function WishlistSpotlight({
   const t = useTranslations("dashboard");
 
   return (
-    <section className="glass-panel flex flex-col rounded-xl p-6 sm:p-8">
-      <h2 className="font-display text-2xl font-bold">{t("wishlistTitle")}</h2>
+    <section className="glass-panel flex flex-col rounded-xl p-5 sm:p-6">
+      <h2 className="font-display text-xl font-bold">{t("wishlistTitle")}</h2>
       {games.length > 0 ? (
         <ul className="mt-6 flex">
           {games.map((game, index) => (

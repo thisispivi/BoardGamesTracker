@@ -74,7 +74,7 @@ export function LibraryToolbar({
       onFocus={() => onFocusChange(true)}
       transition={{ duration: 0.18, ease: "easeOut" }}
     >
-      <div className="mx-auto grid w-full max-w-375 grid-cols-[minmax(0,1fr)_auto_auto] gap-2 px-5 py-3 sm:px-8 lg:px-12">
+      <div className="mx-auto grid w-full max-w-320 grid-cols-[minmax(0,1fr)_auto_auto] gap-2 px-5 py-3 sm:px-8 lg:px-12">
         <label className="relative block min-w-0">
           <span className="sr-only">{t("searchLabel")}</span>
           <Search

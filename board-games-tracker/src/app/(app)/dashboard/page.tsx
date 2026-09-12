@@ -51,7 +51,7 @@ export default async function DashboardPage(): Promise<ReactNode> {
         <>
           <ShelfPulse currency={preferences.currency} summary={summary} />
           <UnplayedRail games={summary.unplayed} />
-          <div className="mt-14 grid items-start gap-10 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+          <div className="mt-10 grid items-start gap-8 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
             <RecentlyAdded items={summary.recentlyAdded} />
             <WishlistSpotlight
               count={summary.wishlistGames}
@@ -62,7 +62,7 @@ export default async function DashboardPage(): Promise<ReactNode> {
       ) : null}
 
       {!hasCollection && summary.wishlistGames > 0 ? (
-        <div className="mt-14 max-w-xl">
+        <div className="mt-10 max-w-xl">
           <WishlistSpotlight
             count={summary.wishlistGames}
             games={summary.wishlist}

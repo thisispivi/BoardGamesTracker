@@ -35,12 +35,12 @@ export function ShelfPulse({ currency, summary }: ShelfPulseProps): ReactNode {
     summary.baseGames > 0 ? summary.playedBaseGames / summary.baseGames : 0;
 
   return (
-    <section className="mt-14">
-      <h2 className="font-display text-2xl font-bold">
+    <section className="mt-10">
+      <h2 className="font-display text-xl font-bold">
         {t("dashboard.glanceTitle")}
       </h2>
       <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="bg-primary text-primary-foreground flex flex-col gap-6 rounded-xl p-6 sm:col-span-2 sm:flex-row sm:items-center lg:row-span-2 lg:p-8">
+        <div className="bg-primary text-primary-foreground flex flex-col gap-5 rounded-xl p-5 sm:col-span-2 sm:flex-row sm:items-center lg:row-span-2 lg:p-6">
           <PlayedRing
             ratio={playedRatio}
             share={format.number(playedRatio, {
@@ -49,10 +49,10 @@ export function ShelfPulse({ currency, summary }: ShelfPulseProps): ReactNode {
             })}
           />
           <p>
-            <span className="font-display block text-5xl font-bold tabular-nums">
+            <span className="font-display block text-4xl font-bold tabular-nums">
               {format.number(summary.playedBaseGames)}
             </span>
-            <span className="mt-1 block text-lg font-semibold opacity-85">
+            <span className="mt-1 block text-base font-semibold opacity-85">
               {t("dashboard.playedOf", {
                 total: format.number(summary.baseGames),
               })}
@@ -65,11 +65,11 @@ export function ShelfPulse({ currency, summary }: ShelfPulseProps): ReactNode {
 
         <HeaviestGame game={summary.heaviestGame} />
 
-        <div className="glass-panel rounded-xl p-6">
+        <div className="glass-panel rounded-xl p-5">
           <p className="text-muted-foreground text-sm">
             {t("dashboard.spent")}
           </p>
-          <p className="font-display mt-2 truncate text-3xl font-bold tabular-nums">
+          <p className="font-display mt-2 truncate text-2xl font-bold tabular-nums">
             {format.number(summary.totalSpent, {
               currency,
               maximumFractionDigits: 2,
@@ -78,11 +78,11 @@ export function ShelfPulse({ currency, summary }: ShelfPulseProps): ReactNode {
           </p>
         </div>
 
-        <div className="glass-panel rounded-xl p-6">
+        <div className="glass-panel rounded-xl p-5">
           <p className="text-muted-foreground text-sm">
             {t("dashboard.expansions")}
           </p>
-          <p className="font-display mt-2 text-3xl font-bold tabular-nums">
+          <p className="font-display mt-2 text-2xl font-bold tabular-nums">
             {format.number(summary.expansions)}
           </p>
           <p className="text-muted-foreground mt-3 flex items-center gap-1.5 text-sm">
@@ -117,7 +117,7 @@ function PlayedRing({ ratio, share }: PlayedRingProps): ReactNode {
   return (
     <div
       aria-hidden="true"
-      className="relative grid size-32 shrink-0 place-items-center sm:size-36"
+      className="relative grid size-24 shrink-0 place-items-center sm:size-28"
     >
       <svg className="absolute inset-0 -rotate-90" viewBox="0 0 100 100">
         <circle

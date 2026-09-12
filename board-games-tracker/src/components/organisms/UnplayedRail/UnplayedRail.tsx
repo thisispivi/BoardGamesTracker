@@ -24,8 +24,8 @@ export function UnplayedRail({ games }: UnplayedRailProps): ReactNode {
   const t = useTranslations("dashboard");
 
   return (
-    <section className="mt-14">
-      <h2 className="font-display text-2xl font-bold" id="home-unplayed-title">
+    <section className="mt-10">
+      <h2 className="font-display text-xl font-bold" id="home-unplayed-title">
         {t("unplayedTitle")}
       </h2>
       {games.length > 0 ? (

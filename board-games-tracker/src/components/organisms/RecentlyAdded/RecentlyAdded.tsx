@@ -23,7 +23,7 @@ export function RecentlyAdded({ items }: RecentlyAddedProps): ReactNode {
 
   return (
     <section>
-      <h2 className="font-display text-2xl font-bold">
+      <h2 className="font-display text-xl font-bold">
         {t("dashboard.recentTitle")}
       </h2>
       <ol className="mt-5 grid gap-3">
