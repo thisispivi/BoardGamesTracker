@@ -35,7 +35,7 @@ const game: CollectionGame = {
 };
 
 describe("GameFacts", () => {
-  it("shows complexity with every meaningful decimal digit", () => {
+  it("rounds complexity to two decimals", () => {
     render(
       <NextIntlClientProvider locale="en" messages={messages}>
         <GameFacts game={game} />
@@ -43,7 +43,7 @@ describe("GameFacts", () => {
     );
 
     expect(
-      screen.getByRole("listitem", { name: "Complexity: 3.286" }),
+      screen.getByRole("listitem", { name: "Complexity: 3.29" }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("listitem", { name: "Playtime: 1 h 30 min" }),

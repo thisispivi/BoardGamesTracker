@@ -21,6 +21,7 @@ import { getCollection } from "@/server/collection";
 import { getUserPreferences } from "@/server/preferences";
 import { requireUser } from "@/server/session";
 import { calculateCollectionStats } from "@/utils/collectionStats";
+import { weightNumberFormat } from "@/utils/weightFormat";
 
 /**
  * Statistics page metadata.
@@ -133,9 +134,7 @@ export default async function StatsPage(): Promise<ReactNode> {
         stats.averageWeight === null
           ? t("stats.noValue")
           : t("stats.weightValue", {
-              value: format.number(stats.averageWeight, {
-                maximumFractionDigits: 1,
-              }),
+              value: format.number(stats.averageWeight, weightNumberFormat),
             }),
     },
     {

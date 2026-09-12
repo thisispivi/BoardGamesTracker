@@ -4,6 +4,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
 import type { CollectionGame, HomeSummary } from "@/core";
+import { weightNumberFormat } from "@/utils/weightFormat";
 
 /** Radius of the played ring inside its 100-unit view box. */
 const ringRadius = 42;
@@ -198,9 +199,7 @@ function HeaviestGame({ game }: HeaviestGameProps): ReactNode {
         </p>
         <p className="mt-1 text-sm font-semibold tabular-nums opacity-90">
           {t("stats.weightValue", {
-            value: format.number(game.weight ?? 0, {
-              maximumFractionDigits: 2,
-            }),
+            value: format.number(game.weight ?? 0, weightNumberFormat),
           })}
         </p>
       </div>
