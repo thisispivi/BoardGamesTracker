@@ -94,24 +94,37 @@ export default async function StatsPage(): Promise<ReactNode> {
       value: format.number(stats.baseGames),
     },
     {
-      icon: Banknote,
-      label: t("stats.totalValue"),
-      value: formatCurrency(stats.totalSpent),
+      icon: Puzzle,
+      label: t("stats.expansions"),
+      value: format.number(stats.expansions),
     },
     {
-      icon: Scale,
-      label: t("stats.averagePrice"),
-      value: formatCurrency(stats.averageSpent),
-    },
-    {
-      icon: ReceiptText,
-      label: t("stats.medianPrice"),
-      value: formatCurrency(stats.medianSpent),
+      icon: CircleCheck,
+      label: t("stats.playedGames"),
+      value: formatFraction(stats.playedBaseGames, stats.baseGames),
     },
     {
       icon: ChartNoAxesCombined,
       label: t("stats.pricedCoverage"),
       value: formatFraction(stats.pricedItems, stats.totalItems),
+    },
+    {
+      icon: Banknote,
+      label: t("stats.totalValue"),
+      tone: "accent" as const,
+      value: formatCurrency(stats.totalSpent),
+    },
+    {
+      icon: Scale,
+      label: t("stats.averagePrice"),
+      tone: "accent" as const,
+      value: formatCurrency(stats.averageSpent),
+    },
+    {
+      icon: ReceiptText,
+      label: t("stats.medianPrice"),
+      tone: "accent" as const,
+      value: formatCurrency(stats.medianSpent),
     },
     {
       icon: Brain,
@@ -135,16 +148,6 @@ export default async function StatsPage(): Promise<ReactNode> {
               minutes: format.number(Math.round(stats.averagePlaytime)),
             }),
     },
-    {
-      icon: Puzzle,
-      label: t("stats.expansions"),
-      value: format.number(stats.expansions),
-    },
-    {
-      icon: CircleCheck,
-      label: t("stats.playedGames"),
-      value: formatFraction(stats.playedBaseGames, stats.baseGames),
-    },
   ];
 
   return (
@@ -154,7 +157,7 @@ export default async function StatsPage(): Promise<ReactNode> {
         eyebrow={t("stats.eyebrow")}
         title={t("stats.title")}
       />
-      <StatGrid className="mb-5 lg:grid-cols-5" stats={cards} />
+      <StatGrid className="mb-5 sm:grid-cols-3 lg:grid-cols-5" stats={cards} />
       <StatsCharts
         categories={stats.categories}
         complexity={stats.complexity}
