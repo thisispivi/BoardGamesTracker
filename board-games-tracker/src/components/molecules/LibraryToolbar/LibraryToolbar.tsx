@@ -22,12 +22,12 @@ type LibraryToolbarProps = {
  *
  * The bar is the only filter surface on the page, so the cards start straight
  * away instead of below a tall panel. It sticks under the mobile header, and to
- * the top of the window from the large breakpoint. The bar itself spans the
- * whole content area, so its rule meets both edges however wide the window is,
- * while its controls stay aligned with the page inside. Search takes its own
- * row on a phone, where sharing one with both controls would leave it too
- * narrow to read. Everything else lives in the filter sheet its button opens,
- * which keeps the count of applied filters visible here.
+ * the top of the window from the large breakpoint, and bleeds out to the page
+ * gutters so its rule meets both edges of the content area while its controls
+ * stay aligned with the cards. Search takes its own row on a phone, where
+ * sharing one with both controls would leave it too narrow to read. Everything
+ * else lives in the filter sheet its button opens, which keeps the count of
+ * applied filters visible here.
  *
  * @param root0 - Properties that configure the compact browsing toolbar.
  * @param root0.action - Optional add-game control omitted from read-only libraries.
@@ -56,39 +56,37 @@ export function LibraryToolbar({
   return (
     <section
       aria-label={t("quickControls")}
-      className="bg-background/94 sticky top-18 z-10 mx-[calc(50%-50vw)] mb-6 w-screen border-b backdrop-blur-md lg:top-0"
+      className="bg-background/94 sticky top-18 z-10 -mx-5 mb-6 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b px-5 py-3 backdrop-blur-md sm:-mx-8 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:px-8 lg:top-0 lg:-mx-10 lg:px-10"
     >
-      <div className="mx-auto grid w-full max-w-320 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-5 py-3 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:px-8 lg:px-12">
-        <label className="relative col-span-2 block min-w-0 sm:col-span-1">
-          <span className="sr-only">{t("searchLabel")}</span>
-          <Search
-            aria-hidden="true"
-            className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2"
-          />
-          <input
-            className="bg-card focus-visible:border-primary/50 h-11 w-full rounded-lg border pr-3 pl-9 text-sm shadow-sm"
-            onChange={(event) => onQueryChange(event.target.value)}
-            placeholder={t("searchPlaceholder")}
-            type="search"
-            value={filters.query}
-          />
-        </label>
-        <button
-          aria-label={t("openFilters")}
-          className="bg-card hover:bg-muted relative flex h-11 items-center gap-2 rounded-lg border px-3 text-sm font-bold shadow-sm transition-colors"
-          onClick={onOpenFilters}
-          type="button"
-        >
-          <SlidersHorizontal aria-hidden="true" className="size-4" />
-          <span className="hidden sm:inline">{t("filters")}</span>
-          {activeFilterCount > 0 ? (
-            <span className="bg-primary text-primary-foreground min-w-5 rounded-full px-1.5 py-0.5 text-xs tabular-nums">
-              {activeFilterCount}
-            </span>
-          ) : null}
-        </button>
-        {action}
-      </div>
+      <label className="relative col-span-2 block min-w-0 sm:col-span-1">
+        <span className="sr-only">{t("searchLabel")}</span>
+        <Search
+          aria-hidden="true"
+          className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2"
+        />
+        <input
+          className="bg-card focus-visible:border-primary/50 h-11 w-full rounded-lg border pr-3 pl-9 text-sm shadow-sm"
+          onChange={(event) => onQueryChange(event.target.value)}
+          placeholder={t("searchPlaceholder")}
+          type="search"
+          value={filters.query}
+        />
+      </label>
+      <button
+        aria-label={t("openFilters")}
+        className="bg-card hover:bg-muted relative flex h-11 items-center gap-2 rounded-lg border px-3 text-sm font-bold shadow-sm transition-colors"
+        onClick={onOpenFilters}
+        type="button"
+      >
+        <SlidersHorizontal aria-hidden="true" className="size-4" />
+        <span className="hidden sm:inline">{t("filters")}</span>
+        {activeFilterCount > 0 ? (
+          <span className="bg-primary text-primary-foreground min-w-5 rounded-full px-1.5 py-0.5 text-xs tabular-nums">
+            {activeFilterCount}
+          </span>
+        ) : null}
+      </button>
+      {action}
     </section>
   );
 }
