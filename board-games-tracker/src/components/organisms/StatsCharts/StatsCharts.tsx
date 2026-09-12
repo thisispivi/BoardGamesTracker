@@ -24,7 +24,10 @@ import type {
   DecadeDatum,
   PlayerCountDatum,
   PlaytimeDatum,
+  PriceBand,
+  PriceBandDatum,
 } from "@/core";
+import { priceBandBounds } from "@/core";
 import { cn } from "@/utils/cn";
 import { fittingCornerRadius } from "@/utils/fittingCornerRadius";
 import { getTaxonomyLabel } from "@/utils/gameTaxonomy";
@@ -89,6 +92,7 @@ type StatsChartsProps = {
   mostExpensive: CountDatum[];
   playerCounts: PlayerCountDatum[];
   playtime: PlaytimeDatum[];
+  prices: PriceBandDatum[];
 };
 
 /** Recharts tooltip datum normalized for the shared tooltip renderer. */
@@ -113,6 +117,7 @@ type TooltipEntry = {
  * @param root0.mostExpensive - Highest-cost games included in the ranking.
  * @param root0.playerCounts - Base games playable at each exact table size.
  * @param root0.playtime - Base games grouped by declared session length.
+ * @param root0.prices - Priced games grouped into spend brackets.
  * @returns The rendered stats charts.
  */
 export function StatsCharts({
@@ -126,6 +131,7 @@ export function StatsCharts({
   mostExpensive,
   playerCounts,
   playtime,
+  prices,
 }: StatsChartsProps): ReactNode {
   const format = useFormatter();
   const locale = useLocale();
@@ -177,6 +183,44 @@ export function StatsCharts({
     });
   }
 
+  /**
+   * Formats a bracket bound as a round figure in the user's own currency.
+   *
+   * @param value - Bracket bound, always a whole amount.
+   * @returns The localized amount without decimals.
+   */
+  function formatPriceBound(value: number): string {
+    return format.number(value, {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 0,
+    });
+  }
+
+  /**
+   * Names one spend bracket by its bounds in the user's own currency.
+   *
+   * @param band - Bracket key, ordered from cheapest to dearest.
+   * @returns The localized bracket label.
+   */
+  function formatPriceBand(band: PriceBand): string {
+    const bands = Object.keys(priceBandBounds) as PriceBand[];
+    const previousBand = bands[bands.indexOf(band) - 1];
+    const lower =
+      previousBand === undefined ? null : priceBandBounds[previousBand];
+    const upper = priceBandBounds[band];
+    if (upper === null) {
+      return t("stats.price.over", { value: formatPriceBound(lower ?? 0) });
+    }
+    if (lower === null) {
+      return t("stats.price.upTo", { value: formatPriceBound(upper) });
+    }
+    return t("stats.price.between", {
+      from: formatPriceBound(lower),
+      to: formatPriceBound(upper),
+    });
+  }
+
   const complexityData = complexity.map((datum, index) => ({
     fill: complexityColor(index),
     name: t(`stats.complexity.${datum.key}`),
@@ -203,6 +247,10 @@ export function StatsCharts({
   }));
   const decadeData = decades.map((datum) => ({
     name: t("stats.decade", { decade: String(datum.decade) }),
+    value: datum.value,
+  }));
+  const priceData = prices.map((datum) => ({
+    name: formatPriceBand(datum.key),
     value: datum.value,
   }));
 
@@ -335,7 +383,7 @@ export function StatsCharts({
         )}
       </ChartCard>
 
-      <ChartCard className="xl:col-span-2" title={t("stats.decadesChart")}>
+      <ChartCard title={t("stats.decadesChart")}>
         {decadeData.length ? (
           <ResponsiveContainer height="100%" width="100%">
             <AreaChart
@@ -386,6 +434,18 @@ export function StatsCharts({
               />
             </AreaChart>
           </ResponsiveContainer>
+        ) : (
+          <EmptyChart />
+        )}
+      </ChartCard>
+
+      <ChartCard hint={t("stats.priceHint")} title={t("stats.priceChart")}>
+        {priceData.some((datum) => datum.value > 0) ? (
+          <ColumnChart
+            color={chartColors.amber}
+            data={priceData}
+            valueFormatter={formatGameCount}
+          />
         ) : (
           <EmptyChart />
         )}
