@@ -28,6 +28,7 @@ import type {
 import { cn } from "@/utils/cn";
 import { fittingCornerRadius } from "@/utils/fittingCornerRadius";
 import { getTaxonomyLabel } from "@/utils/gameTaxonomy";
+import { weightNumberFormat } from "@/utils/weightFormat";
 
 /**
  * Saturated series colors, deliberately independent of the interface palette.
@@ -172,7 +173,7 @@ export function StatsCharts({
    */
   function formatWeight(value: number | string): string {
     return t("stats.weightValue", {
-      value: format.number(Number(value), { maximumFractionDigits: 2 }),
+      value: format.number(Number(value), weightNumberFormat),
     });
   }
 

@@ -65,6 +65,6 @@ describe("ShelfPulse", () => {
     });
 
     expect(screen.getByText("Brass")).toBeInTheDocument();
-    expect(screen.getByText("3.9 / 5")).toBeInTheDocument();
+    expect(screen.getByText("3.90 / 5")).toBeInTheDocument();
   });
 });

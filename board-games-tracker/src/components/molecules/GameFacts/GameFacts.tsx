@@ -7,6 +7,7 @@ import type { ReactNode } from "react";
 import type { CollectionGame } from "@/core";
 import { useDurationFormatter } from "@/hooks/useDurationFormatter";
 import { cn } from "@/utils/cn";
+import { weightNumberFormat } from "@/utils/weightFormat";
 
 /** Game metadata and optional presentation classes rendered in a compact row. */
 type GameFactsProps = {
@@ -66,19 +67,13 @@ export function GameFacts({ className, game }: GameFactsProps): ReactNode {
       {game.weight !== null ? (
         <span
           aria-label={t("weight", {
-            weight: format.number(game.weight, {
-              maximumFractionDigits: 5,
-              minimumFractionDigits: 2,
-            }),
+            weight: format.number(game.weight, weightNumberFormat),
           })}
           role="listitem"
         >
           <span aria-hidden="true" className="flex items-center gap-1.5">
             <Brain className="size-3.5 shrink-0" />
-            {format.number(game.weight, {
-              maximumFractionDigits: 5,
-              minimumFractionDigits: 2,
-            })}
+            {format.number(game.weight, weightNumberFormat)}
           </span>
         </span>
       ) : null}
