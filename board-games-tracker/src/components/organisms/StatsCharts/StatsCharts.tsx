@@ -61,8 +61,11 @@ const rankingLabelInset = 2;
 /** Horizontal space, in pixels, reserved for the labels of a ranking chart. */
 const rankingLabelWidth = 188;
 
-/** Character budget of a ranking label before it is ellipsized. */
-const rankingLabelBudget = 28;
+/** Clear space, in pixels, kept between a ranking label and the bars. */
+const rankingLabelGap = 12;
+
+/** Line box height, in pixels, of one ranking label. */
+const rankingLabelHeight = 20;
 
 /** Hover highlight drawn behind the active bar. */
 const tooltipCursor = { fill: "var(--muted)", opacity: 0.5 };
@@ -525,6 +528,11 @@ type RankingTickProps = {
 /**
  * Ranking axis label rendered flush with the left edge of the plotting area.
  *
+ * The label is laid out as text in a box the width of its gutter, so the
+ * browser ellipsizes it exactly where the bars begin. Counting characters
+ * instead let a wide-glyph name spill its ellipsis over the first bar, since
+ * the same count measures wider in capitals than in lower case.
+ *
  * @param root0 - Properties that configure ranking tick.
  * @param root0.payload - Axis entry carrying the label of the row.
  * @param root0.y - Vertical center of the row, in pixels.
@@ -532,15 +540,16 @@ type RankingTickProps = {
  */
 function RankingTick({ payload, y }: RankingTickProps): ReactNode {
   return (
-    <text
-      dominantBaseline="central"
-      fill="var(--foreground)"
-      fontSize={13}
+    <foreignObject
+      height={rankingLabelHeight}
+      width={rankingLabelWidth - rankingLabelInset - rankingLabelGap}
       x={rankingLabelInset}
-      y={y}
+      y={(y ?? 0) - rankingLabelHeight / 2}
     >
-      {truncate(payload?.value ?? "", rankingLabelBudget)}
-    </text>
+      <span className="text-foreground block truncate text-[0.8125rem] leading-5">
+        {payload?.value ?? ""}
+      </span>
+    </foreignObject>
   );
 }
 
@@ -734,17 +743,6 @@ function complexityColor(index: number): string {
   return (
     complexityColors[index % complexityColors.length] ?? chartColors.emerald
   );
-}
-
-/**
- * Ellipsizes an axis label while the tooltip retains the complete title.
- *
- * @param value - The full category or mechanic name.
- * @param maximum - Character budget for the rendered label, including the ellipsis.
- * @returns The original text or a shortened ellipsis-terminated label.
- */
-function truncate(value: string, maximum: number): string {
-  return value.length > maximum ? `${value.slice(0, maximum - 1)}…` : value;
 }
 
 /**
