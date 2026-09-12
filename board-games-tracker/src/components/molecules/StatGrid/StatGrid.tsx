@@ -11,10 +11,11 @@ type StatFraction = {
   total: string;
 };
 
-/** A single headline figure with its icon and localized caption. */
+/** A single headline figure with its icon, localized caption, and group tint. */
 type Stat = {
   icon: LucideIcon;
   label: string;
+  tone?: "accent" | "primary";
   value: number | string | StatFraction;
 };
 
@@ -32,6 +33,8 @@ type StatGridProps = {
  * read as its spoken label, while sighted readers get the part emphasized over
  * a muted total and a bar showing the share. The tiles are translucent, which
  * reads as a plain card on a flat page and lets a tinted backdrop show through.
+ * The tint separates one family of figures from another at a glance, so a
+ * caller ordering figures by subject can colour each run accordingly.
  *
  * @param root0 - Properties that configure stat grid.
  * @param root0.className - Optional classes merged with the component styles, typically the responsive column count.
@@ -47,14 +50,21 @@ export function StatGrid({ className, stats }: StatGridProps): ReactNode {
     <dl className={cn("grid grid-cols-2 gap-3", className)}>
       {stats.map((stat) => (
         <div
-          className="glass-panel flex min-w-0 items-center gap-3 rounded-xl p-4 sm:gap-4 sm:p-5"
+          className="glass-panel hover:border-primary/35 flex min-w-0 items-center gap-3 rounded-xl p-4 transition-colors sm:gap-4 sm:p-5"
           key={stat.label}
         >
-          <span className="bg-primary/12 text-primary grid size-10 shrink-0 place-items-center rounded-lg sm:size-11">
+          <span
+            className={cn(
+              "grid size-10 shrink-0 place-items-center rounded-lg ring-1 sm:size-11",
+              stat.tone === "accent"
+                ? "bg-accent/12 text-accent ring-accent/20"
+                : "bg-primary/12 text-primary ring-primary/20",
+            )}
+          >
             <stat.icon aria-hidden="true" className="size-4.5 sm:size-5" />
           </span>
           <div className="flex min-w-0 flex-1 flex-col-reverse">
-            <dt className="text-muted-foreground truncate text-xs sm:text-sm">
+            <dt className="text-muted-foreground truncate text-[0.6875rem] font-semibold tracking-wide uppercase sm:text-xs">
               {stat.label}
             </dt>
             <dd className="font-display min-w-0 text-xl font-bold tabular-nums sm:text-2xl">
@@ -72,10 +82,16 @@ export function StatGrid({ className, stats }: StatGridProps): ReactNode {
                   </span>
                   <span
                     aria-hidden="true"
-                    className="bg-primary/12 my-1.5 block h-1.5 overflow-hidden rounded-full"
+                    className={cn(
+                      "my-1.5 block h-1.5 overflow-hidden rounded-full",
+                      stat.tone === "accent" ? "bg-accent/12" : "bg-primary/12",
+                    )}
                   >
                     <span
-                      className="bg-primary block h-full rounded-full"
+                      className={cn(
+                        "block h-full rounded-full",
+                        stat.tone === "accent" ? "bg-accent" : "bg-primary",
+                      )}
                       style={{
                         width: `${Math.round(Math.min(Math.max(stat.value.ratio, 0), 1) * 100)}%`,
                       }}

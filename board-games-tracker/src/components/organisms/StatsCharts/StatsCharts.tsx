@@ -455,7 +455,9 @@ type RankingChartProps = {
  *
  * Labels start at the left edge of the plotting area rather than hugging the
  * bars, so the whole gutter is available to a long name instead of being padded
- * away whenever a short one sits above it.
+ * away whenever a short one sits above it. Every row is labelled: left to its
+ * own spacing rule the axis drops every other name once the rows are close
+ * together, which leaves half the ranking unreadable.
  *
  * @param root0 - Properties that configure ranking chart.
  * @param root0.color - Fill painted on every bar of the chart.
@@ -492,6 +494,7 @@ function RankingChart({
         <YAxis
           axisLine={false}
           dataKey="name"
+          interval={0}
           tick={<RankingTick />}
           tickLine={false}
           type="category"
