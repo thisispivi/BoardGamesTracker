@@ -114,7 +114,7 @@ export function UserDataCard({ className }: UserDataCardProps): ReactNode {
 
         <form
           className="min-w-0 rounded-lg border p-4 sm:p-5"
-          onSubmit={importData}
+          onSubmit={(event) => void importData(event)}
         >
           <h3 className="font-bold">{t("importTitle")}</h3>
           <p className="text-muted-foreground mt-1 text-sm leading-6">

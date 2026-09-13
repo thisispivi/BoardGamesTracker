@@ -49,12 +49,16 @@ export function MailResetPasswordForm({
     }
 
     setPending(true);
-    const { error: resetError } = await authClient.resetPassword({
-      newPassword,
-      token,
-    });
-    setPending(false);
-    if (resetError) {
+    let outcome;
+    try {
+      outcome = await authClient.resetPassword({ newPassword, token });
+    } catch {
+      setError(t("auth.unreachable"));
+      return;
+    } finally {
+      setPending(false);
+    }
+    if (outcome.error) {
       setError(t("reset.expired"));
       return;
     }
@@ -76,7 +80,10 @@ export function MailResetPasswordForm({
   }
 
   return (
-    <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
+    <form
+      className="mt-6 space-y-5"
+      onSubmit={(event) => void handleSubmit(event)}
+    >
       <label className="block text-sm font-bold">
         <span className="mb-2 block">{t("reset.newPassword")}</span>
         <input

@@ -43,6 +43,8 @@
     "verificationResent": "If the address is eligible, another verification email is on its way.",
     "backToSignIn": "Back to sign in",
     "failure": "Authentication failed. Please try again.",
+    "unreachable": "The server could not be reached. Check your connection and try again.",
+    "signOutFailed": "Signing out failed. Try again.",
     "banned": "This account has been suspended. Contact an administrator.",
     "signUpDisabled": "Registration is closed on this instance."
   },

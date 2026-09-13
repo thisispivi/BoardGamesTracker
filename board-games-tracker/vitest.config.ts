@@ -24,10 +24,10 @@ export default defineConfig({
        * Raise these as coverage grows rather than leaving slack behind.
        */
       thresholds: {
-        branches: 60,
-        functions: 75,
-        lines: 80,
-        statements: 80,
+        branches: 65,
+        functions: 78,
+        lines: 82,
+        statements: 81,
       },
     },
     environment: "jsdom",

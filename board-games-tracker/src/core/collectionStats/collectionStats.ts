@@ -37,8 +37,11 @@ export type PlayerCountDatum = { players: number; value: number };
 /** How many base games were first published in one decade. */
 export type DecadeDatum = { decade: number; value: number };
 
-/** Spend brackets for a priced game, from cheapest to dearest. */
-export type PriceBand = "upTo25" | "upTo50" | "upTo100" | "over100";
+/** Spend bracket identifiers, from cheapest to dearest. */
+export const priceBands = ["upTo25", "upTo50", "upTo100", "over100"] as const;
+
+/** One spend bracket a priced game can fall into. */
+export type PriceBand = (typeof priceBands)[number];
 
 /**
  * Upper bound of each spend bracket in the user's own currency.
