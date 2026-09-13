@@ -330,6 +330,13 @@ before writing routing, caching, or data-fetching code.**
 3. Log through `@/server/logger`'s `log(level, event, context)`. `event` is a
    `snake_case` identifier (`game_discovery_failed`). Never `console.log`.
 4. Never surface a raw upstream error message to the client.
+5. Every promise is awaited, returned, or explicitly discarded with `void`.
+   `no-floating-promises` and `no-misused-promises` are type-aware and run over
+   `src`, so an unawaited request cannot slip into review.
+6. A handler that talks to the network handles its own failure: clear the
+   pending state in `finally` and tell the user what happened. Attach it to JSX
+   through a synchronous wrapper (`onSubmit={(event) => void submit(event)}`)
+   so a rejection can never escape as an unhandled rejection.
 
 ## 12. Dependencies and dead code
 

@@ -27,7 +27,7 @@ import type {
   PriceBand,
   PriceBandDatum,
 } from "@/core";
-import { priceBandBounds } from "@/core";
+import { priceBandBounds, priceBands } from "@/core";
 import { cn } from "@/utils/cn";
 import { fittingCornerRadius } from "@/utils/fittingCornerRadius";
 import { getTaxonomyLabel } from "@/utils/gameTaxonomy";
@@ -204,8 +204,7 @@ export function StatsCharts({
    * @returns The localized bracket label.
    */
   function formatPriceBand(band: PriceBand): string {
-    const bands = Object.keys(priceBandBounds) as PriceBand[];
-    const previousBand = bands[bands.indexOf(band) - 1];
+    const previousBand = priceBands[priceBands.indexOf(band) - 1];
     const lower =
       previousBand === undefined ? null : priceBandBounds[previousBand];
     const upper = priceBandBounds[band];

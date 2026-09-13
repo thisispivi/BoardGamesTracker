@@ -43,6 +43,8 @@
     "verificationResent": "Se l’indirizzo è idoneo, riceverai un’altra email di verifica.",
     "backToSignIn": "Torna all'accesso",
     "failure": "Autenticazione non riuscita. Riprova.",
+    "unreachable": "Server non raggiungibile. Controlla la connessione e riprova.",
+    "signOutFailed": "Disconnessione non riuscita. Riprova.",
     "banned": "Questo account è stato sospeso. Contatta un amministratore.",
     "signUpDisabled": "Le registrazioni sono chiuse su questa istanza."
   },

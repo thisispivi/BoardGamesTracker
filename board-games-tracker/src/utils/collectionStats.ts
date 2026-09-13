@@ -9,7 +9,7 @@ import type {
   PriceBandDatum,
   StatGame,
 } from "@/core";
-import { priceBandBounds } from "@/core";
+import { priceBandBounds, priceBands } from "@/core";
 import { isExpansionCategory } from "@/utils/gameTaxonomy";
 import { gameWeightBands, getGameWeightBand } from "@/utils/gameWeight";
 
@@ -171,18 +171,19 @@ function countWeightBands(
  * @returns One count per bracket, from cheapest to dearest.
  */
 function countPriceBands(collection: StatGame[]): PriceBandDatum[] {
-  const bands = Object.keys(priceBandBounds) as PriceBand[];
-  const counts = new Map(bands.map((band) => [band, 0]));
+  const counts = new Map<PriceBand, number>(
+    priceBands.map((band) => [band, 0]),
+  );
   for (const game of collection) {
     if (game.gifted || game.moneySpent <= 0) continue;
     const band =
-      bands.find((key) => {
+      priceBands.find((key) => {
         const bound = priceBandBounds[key];
         return bound !== null && game.moneySpent <= bound;
       }) ?? "over100";
     counts.set(band, (counts.get(band) ?? 0) + 1);
   }
-  return bands.map((key) => ({ key, value: counts.get(key) ?? 0 }));
+  return priceBands.map((key) => ({ key, value: counts.get(key) ?? 0 }));
 }
 
 /**

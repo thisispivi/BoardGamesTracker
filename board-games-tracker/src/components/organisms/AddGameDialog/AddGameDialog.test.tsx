@@ -19,7 +19,7 @@ afterEach(() => {
 });
 
 describe("AddGameDialog", () => {
-  it("starts a debounced search after three characters without a button", () => {
+  it("starts a debounced search after three characters without a button", async () => {
     vi.useFakeTimers();
     const fetchMock = vi.fn(() => new Promise<Response>(() => undefined));
     vi.stubGlobal("fetch", fetchMock);
@@ -34,13 +34,13 @@ describe("AddGameDialog", () => {
     const input = screen.getByPlaceholderText("Game title or BGG URL");
 
     fireEvent.change(input, { target: { value: "Wi" } });
-    act(() => vi.advanceTimersByTime(500));
+    await act(async () => void vi.advanceTimersByTime(500));
     expect(fetchMock).not.toHaveBeenCalled();
 
     fireEvent.change(input, { target: { value: "Win" } });
-    act(() => vi.advanceTimersByTime(599));
+    await act(async () => void vi.advanceTimersByTime(599));
     expect(fetchMock).not.toHaveBeenCalled();
-    act(() => vi.advanceTimersByTime(1));
+    await act(async () => void vi.advanceTimersByTime(1));
     expect(fetchMock).toHaveBeenCalledOnce();
     expect(fetchMock).toHaveBeenCalledWith(
       "/api/games/search?q=Win",

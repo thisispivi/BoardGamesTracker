@@ -17,6 +17,18 @@ const appImports = {
     "Routes are entry points; move shared behavior to its owning module.",
 };
 
+/**
+ * Type-aware rules that catch the promise mistakes review keeps missing.
+ *
+ * They need the TypeScript program, so they are scoped to `src` rather than
+ * paid for on config and scripts that gain nothing from them.
+ */
+const promiseSafety = {
+  "@typescript-eslint/await-thenable": "error",
+  "@typescript-eslint/no-floating-promises": "error",
+  "@typescript-eslint/no-misused-promises": "error",
+};
+
 /** Atomic Design layers, outermost last. A layer may only import earlier ones. */
 const componentLayers = ["atoms", "molecules", "organisms", "templates"];
 
@@ -108,7 +120,14 @@ const eslintConfig = defineConfig([
   },
   {
     files: ["src/**/*.{ts,tsx}"],
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
     rules: {
+      ...promiseSafety,
       "@typescript-eslint/consistent-type-imports": "error",
       "@typescript-eslint/no-non-null-assertion": "error",
       "no-restricted-imports": [

@@ -82,12 +82,17 @@ export function AuthForm({
   async function resendVerification(): Promise<void> {
     if (!noticeEmail) return;
     setPending(true);
-    await authClient.sendVerificationEmail({
-      email: noticeEmail,
-      callbackURL: "/dashboard",
-    });
-    setPending(false);
-    toast.success(t("verificationResent"));
+    try {
+      await authClient.sendVerificationEmail({
+        email: noticeEmail,
+        callbackURL: "/dashboard",
+      });
+      toast.success(t("verificationResent"));
+    } catch {
+      toast.error(t("unreachable"));
+    } finally {
+      setPending(false);
+    }
   }
 
   /**
@@ -103,31 +108,40 @@ export function AuthForm({
     setPending(true);
     const form = new FormData(event.currentTarget);
     const email = String(form.get("email") ?? "").trim();
-
-    if (mode === "forgot") {
-      await authClient.requestPasswordReset({
-        email,
-        redirectTo: "/reset-password",
-      });
-      setNoticeEmail(email);
-      setNotice("passwordReset");
-      setPending(false);
-      return;
-    }
-
     const password = String(form.get("password") ?? "");
     const name = String(form.get("name") ?? "").trim();
-    const result =
-      mode === "signup"
-        ? await authClient.signUp.email({
-            email,
-            password,
-            name,
-            callbackURL: "/dashboard",
-          })
-        : await authClient.signIn.email({ email, password, rememberMe: true });
 
-    setPending(false);
+    let result;
+    try {
+      if (mode === "forgot") {
+        await authClient.requestPasswordReset({
+          email,
+          redirectTo: "/reset-password",
+        });
+        setNoticeEmail(email);
+        setNotice("passwordReset");
+        return;
+      }
+      result =
+        mode === "signup"
+          ? await authClient.signUp.email({
+              email,
+              password,
+              name,
+              callbackURL: "/dashboard",
+            })
+          : await authClient.signIn.email({
+              email,
+              password,
+              rememberMe: true,
+            });
+    } catch {
+      toast.error(t("unreachable"));
+      return;
+    } finally {
+      setPending(false);
+    }
+
     if (result.error) {
       if (mailEnabled && result.error.code === "EMAIL_NOT_VERIFIED") {
         setNoticeEmail(email);
@@ -167,7 +181,7 @@ export function AuthForm({
           <Button
             className="mt-6 w-full"
             disabled={pending}
-            onClick={resendVerification}
+            onClick={() => void resendVerification()}
             type="button"
             variant="secondary"
           >
@@ -208,7 +222,11 @@ export function AuthForm({
                 : t("signUpDescription")}
         </p>
       </div>
-      <form className="space-y-5" method="post" onSubmit={handleSubmit}>
+      <form
+        className="space-y-5"
+        method="post"
+        onSubmit={(event) => void handleSubmit(event)}
+      >
         {mode === "signup" ? (
           <label className="block text-sm font-semibold">
             {t("name")}

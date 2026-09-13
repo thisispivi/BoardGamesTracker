@@ -4,6 +4,7 @@ import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
+import { toast } from "sonner";
 
 import { authClient } from "@/client/authClient";
 
@@ -22,7 +23,12 @@ export function SignOutButton(): ReactNode {
    * @returns A promise that resolves after navigation is refreshed.
    */
   async function signOut(): Promise<void> {
-    await authClient.signOut();
+    try {
+      await authClient.signOut();
+    } catch {
+      toast.error(t("auth.signOutFailed"));
+      return;
+    }
     router.push("/");
     router.refresh();
   }
@@ -30,7 +36,7 @@ export function SignOutButton(): ReactNode {
   return (
     <button
       className="text-muted-foreground hover:bg-danger/10 hover:text-danger mt-3 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition"
-      onClick={signOut}
+      onClick={() => void signOut()}
       type="button"
     >
       <LogOut className="size-4.5" />
