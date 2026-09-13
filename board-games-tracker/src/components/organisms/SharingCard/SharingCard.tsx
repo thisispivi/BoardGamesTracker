@@ -190,7 +190,7 @@ export function SharingCard({
     <section
       aria-busy={pending}
       className={cn(
-        "bg-card shadow-soft h-full overflow-hidden rounded-xl border p-5 sm:p-8",
+        "bg-card shadow-soft overflow-hidden rounded-xl border p-5 sm:p-8",
         className,
       )}
     >
@@ -209,7 +209,7 @@ export function SharingCard({
           </div>
         </div>
 
-        <div className="grid gap-3 lg:grid-cols-3">
+        <div className="grid gap-3">
           <ShareToggle
             checked={sharing.collection}
             description={t("sharing.shareCollectionHelp")}
@@ -240,7 +240,7 @@ export function SharingCard({
             </p>
             <div className="flex flex-wrap items-center gap-2">
               {shareUrl ? (
-                <code className="bg-muted min-w-0 flex-1 truncate rounded-lg px-3 py-2 text-xs">
+                <code className="bg-muted w-full min-w-52 flex-1 truncate rounded-lg px-3 py-2 text-xs sm:w-auto">
                   {shareUrl}
                 </code>
               ) : null}

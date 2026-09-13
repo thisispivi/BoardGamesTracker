@@ -1,12 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import {
-  Banknote,
-  BookOpen,
-  Gift,
-  Heart,
-  Info,
-  ShieldCheck,
-} from "lucide-react";
+import { BookOpen, Gift, Heart, Info, ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
 import { getFormatter, getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
@@ -70,12 +63,14 @@ function LibraryFact({
 }
 
 /**
- * Account and session settings laid out as a bento of equal-height cards.
+ * Account and session settings laid out as a bento of self-sized cards.
  *
- * Every row of the grid is filled at each breakpoint, so no card leaves a gap
- * beside it: identity pairs with currency, sharing and account security split
- * the next row, and the two destructive controls sit together beside the
- * portable-data card.
+ * The cards flow down balanced columns rather than sitting in fixed rows, so
+ * each keeps the height of its own content: a short card never stretches to
+ * match a tall neighbour, and none ends in the empty band a stretched row
+ * leaves behind. Columns drop from three to two to one as the window narrows,
+ * and every card stacks its own controls, so no text is squeezed into a
+ * fraction of a column.
  *
  * @returns The rendered settings page.
  */
@@ -112,8 +107,8 @@ export default async function SettingsPage(): Promise<ReactNode> {
         eyebrow={t("settings.eyebrow")}
         title={t("settings.title")}
       />
-      <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-6 xl:grid-cols-12">
-        <section className="bg-card shadow-soft flex h-full flex-col gap-6 rounded-xl border p-5 sm:p-8 md:col-span-6 xl:col-span-8">
+      <div className="grid min-w-0 grid-cols-1 items-start gap-4 lg:grid-cols-2">
+        <section className="bg-card shadow-soft flex flex-col gap-6 rounded-xl border p-5 sm:p-8">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="flex min-w-0 items-center gap-4">
               <Avatar className="size-14 text-lg" name={session.user.name} />
@@ -144,7 +139,16 @@ export default async function SettingsPage(): Promise<ReactNode> {
               />
             ))}
           </dl>
-          <p className="text-muted-foreground mt-auto flex items-start gap-2 border-t pt-5 text-xs leading-5">
+          <label className="block">
+            <span className="text-muted-foreground text-[0.6875rem] font-semibold tracking-wide uppercase">
+              {t("settings.currency")}
+            </span>
+            <span className="text-muted-foreground mb-2 block text-sm leading-5">
+              {t("settings.currencyBody")}
+            </span>
+            <CurrencySelect initialCurrency={preferences.currency} />
+          </label>
+          <p className="text-muted-foreground flex items-start gap-2 border-t pt-5 text-xs leading-5">
             <ShieldCheck
               aria-hidden="true"
               className="text-primary mt-0.5 size-4 shrink-0"
@@ -153,26 +157,8 @@ export default async function SettingsPage(): Promise<ReactNode> {
           </p>
         </section>
 
-        <section className="bg-card shadow-soft flex h-full flex-col justify-between gap-6 rounded-xl border p-5 sm:p-8 md:col-span-6 xl:col-span-4">
-          <div className="flex items-start gap-4">
-            <span className="bg-primary/10 text-primary grid size-11 shrink-0 place-items-center rounded-lg">
-              <Banknote aria-hidden="true" className="size-5" />
-            </span>
-            <div className="min-w-0">
-              <h2 className="font-display text-lg font-bold sm:text-xl">
-                {t("settings.currency")}
-              </h2>
-              <p className="text-muted-foreground mt-1 text-sm leading-5">
-                {t("settings.currencyBody")}
-              </p>
-            </div>
-          </div>
-          <CurrencySelect initialCurrency={preferences.currency} />
-        </section>
-
         <SharingCard
           appUrl={env.NEXT_PUBLIC_APP_URL}
-          className="md:col-span-6 xl:col-span-5"
           shareCollection={preferences.shareCollection}
           sharePrices={preferences.sharePrices}
           shareToken={preferences.shareToken}
@@ -180,18 +166,17 @@ export default async function SettingsPage(): Promise<ReactNode> {
         />
 
         <AccountSettingsCard
-          className="md:col-span-6 xl:col-span-7"
           email={session.user.email}
           mailEnabled={isMailConfigured()}
         />
 
-        <UserDataCard className="md:col-span-6 xl:col-span-6" />
+        <UserDataCard />
 
-        <ClearLibraryCard className="md:col-span-3" library="collection" />
+        <ClearLibraryCard library="collection" />
 
-        <ClearLibraryCard className="md:col-span-3" library="wishlist" />
+        <ClearLibraryCard library="wishlist" />
 
-        <section className="bg-card shadow-soft flex h-full flex-col justify-between gap-6 rounded-xl border p-5 sm:p-8 md:col-span-6 xl:col-span-12">
+        <section className="bg-card shadow-soft flex flex-col gap-5 rounded-xl border p-5 sm:p-8 lg:col-span-2">
           <div className="flex items-start gap-4">
             <span className="bg-primary/10 text-primary grid size-11 shrink-0 place-items-center rounded-lg">
               <Info aria-hidden="true" className="size-5" />
