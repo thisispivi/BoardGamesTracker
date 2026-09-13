@@ -13,12 +13,19 @@ import { cn } from "@/utils/cn";
 
 const formats = ["json", "csv", "xlsx", "sql"] as const;
 
+/** Optional placement classes for the portable-data card. */
+type UserDataCardProps = {
+  className?: string;
+};
+
 /**
  * Export and restore controls for the current user's portable app data.
  *
+ * @param root0 - Properties that place the card.
+ * @param root0.className - Classes merged with the card, typically its grid placement.
  * @returns The rendered user data card.
  */
-export function UserDataCard(): ReactNode {
+export function UserDataCard({ className }: UserDataCardProps): ReactNode {
   const [importing, setImporting] = useState(false);
   const router = useRouter();
   const t = useTranslations("data");
@@ -67,7 +74,12 @@ export function UserDataCard(): ReactNode {
   }
 
   return (
-    <section className="bg-card shadow-soft h-full max-w-full min-w-0 overflow-hidden rounded-xl border p-5 sm:p-8">
+    <section
+      className={cn(
+        "bg-card shadow-soft h-full max-w-full min-w-0 overflow-hidden rounded-xl border p-5 sm:p-8",
+        className,
+      )}
+    >
       <div className="flex items-center gap-4">
         <span className="bg-primary/10 text-primary grid size-12 shrink-0 place-items-center rounded-lg">
           <FileArchive className="size-5" />

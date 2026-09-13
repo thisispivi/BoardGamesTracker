@@ -14,9 +14,11 @@ import { toast } from "sonner";
 import { authClient } from "@/client/authClient";
 import { Button } from "@/components/atoms/Button/Button";
 import { ConfirmDialog } from "@/components/molecules/ConfirmDialog/ConfirmDialog";
+import { cn } from "@/utils/cn";
 
 /** Account preferences displayed and edited by the settings card. */
 type AccountSettingsCardProps = {
+  className?: string;
   email: string;
   mailEnabled: boolean;
 };
@@ -25,11 +27,13 @@ type AccountSettingsCardProps = {
  * Lets an account owner update credentials or permanently delete the account.
  *
  * @param root0 - Properties that configure the account settings card.
+ * @param root0.className - Classes merged with the card, typically its grid placement.
  * @param root0.email - The account's current email address.
  * @param root0.mailEnabled - Whether sensitive account actions require email confirmation.
  * @returns The rendered account settings controls.
  */
 export function AccountSettingsCard({
+  className,
   email,
   mailEnabled,
 }: AccountSettingsCardProps): ReactNode {
@@ -119,7 +123,10 @@ export function AccountSettingsCard({
   return (
     <section
       aria-busy={isPending}
-      className="bg-card shadow-soft h-full rounded-xl border p-5 sm:p-8"
+      className={cn(
+        "bg-card shadow-soft h-full rounded-xl border p-5 sm:p-8",
+        className,
+      )}
     >
       <div className="flex items-center gap-4">
         <span className="bg-primary/10 text-primary grid size-12 shrink-0 place-items-center rounded-lg">
