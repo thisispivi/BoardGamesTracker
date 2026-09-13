@@ -448,6 +448,13 @@
       "medium": "1–2 h",
       "long": "Oltre 2 h"
     },
+    "priceChart": "Spesa per gioco",
+    "priceHint": "Contano solo i giochi con un prezzo registrato; i regali sono esclusi.",
+    "price": {
+      "upTo": "Fino a {value}",
+      "between": "{from}–{to}",
+      "over": "Oltre {value}"
+    },
     "decade": "Anni {decade}",
     "noValue": "—"
   },

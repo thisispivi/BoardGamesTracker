@@ -448,6 +448,13 @@
       "medium": "1–2 h",
       "long": "Over 2 h"
     },
+    "priceChart": "Spend per game",
+    "priceHint": "Only games with a recorded price count; gifts are left out.",
+    "price": {
+      "upTo": "Up to {value}",
+      "between": "{from}–{to}",
+      "over": "Over {value}"
+    },
     "decade": "{decade}s",
     "noValue": "—"
   },

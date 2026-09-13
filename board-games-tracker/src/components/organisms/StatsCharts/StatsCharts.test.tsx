@@ -24,6 +24,7 @@ function renderCharts(): void {
         mostExpensive={[]}
         playerCounts={[]}
         playtime={[]}
+        prices={[]}
       />
     </NextIntlClientProvider>,
   );

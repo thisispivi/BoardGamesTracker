@@ -31,6 +31,25 @@ function game(overrides: Partial<StatGame>): StatGame {
 }
 
 describe("calculateCollectionStats", () => {
+  it("buckets recorded prices and leaves gifts out of the cheapest bracket", () => {
+    const stats = calculateCollectionStats([
+      game({ moneySpent: 25 }),
+      game({ moneySpent: 25.01 }),
+      game({ moneySpent: 50 }),
+      game({ moneySpent: 99.99 }),
+      game({ moneySpent: 100.01 }),
+      game({ gifted: true, moneySpent: 0 }),
+      game({ moneySpent: 0 }),
+    ]);
+
+    expect(stats.prices).toEqual([
+      { key: "upTo25", value: 1 },
+      { key: "upTo50", value: 2 },
+      { key: "upTo100", value: 1 },
+      { key: "over100", value: 1 },
+    ]);
+  });
+
   it("calculates spend and excludes expansion taxonomy noise", () => {
     const stats = calculateCollectionStats([
       game({

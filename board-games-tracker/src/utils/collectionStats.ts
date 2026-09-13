@@ -5,8 +5,11 @@ import type {
   PlayerCountDatum,
   PlaytimeBand,
   PlaytimeDatum,
+  PriceBand,
+  PriceBandDatum,
   StatGame,
 } from "@/core";
+import { priceBandBounds } from "@/core";
 import { isExpansionCategory } from "@/utils/gameTaxonomy";
 import { gameWeightBands, getGameWeightBand } from "@/utils/gameWeight";
 
@@ -92,6 +95,7 @@ export function calculateCollectionStats(
     complexity: countWeightBands(collection),
     playerCounts: countPlayerCounts(baseGames),
     playtime: countPlaytimeBands(baseGames),
+    prices: countPriceBands(collection),
     decades: countDecades(baseGames),
     playedBaseGames: baseGames.filter((game) => game.hasPlayed).length,
     ...rankByWeight(baseGames),
@@ -154,6 +158,31 @@ function countWeightBands(
     }
   }
   return gameWeightBands.map((key) => ({ key, value: counts.get(key) ?? 0 }));
+}
+
+/**
+ * Counts how many recorded purchases fall inside each spend bracket.
+ *
+ * Only a game with a price above zero counts: a gift records no spend, and
+ * placing it in the cheapest bracket would read as a bargain purchase. Empty
+ * brackets are retained so the chart keeps a stable shape as a shelf grows.
+ *
+ * @param collection - The collection items to analyze.
+ * @returns One count per bracket, from cheapest to dearest.
+ */
+function countPriceBands(collection: StatGame[]): PriceBandDatum[] {
+  const bands = Object.keys(priceBandBounds) as PriceBand[];
+  const counts = new Map(bands.map((band) => [band, 0]));
+  for (const game of collection) {
+    if (game.gifted || game.moneySpent <= 0) continue;
+    const band =
+      bands.find((key) => {
+        const bound = priceBandBounds[key];
+        return bound !== null && game.moneySpent <= bound;
+      }) ?? "over100";
+    counts.set(band, (counts.get(band) ?? 0) + 1);
+  }
+  return bands.map((key) => ({ key, value: counts.get(key) ?? 0 }));
 }
 
 /**

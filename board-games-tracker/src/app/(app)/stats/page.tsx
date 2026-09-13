@@ -168,6 +168,7 @@ export default async function StatsPage(): Promise<ReactNode> {
         mostExpensive={stats.mostExpensive}
         playerCounts={stats.playerCounts}
         playtime={stats.playtime}
+        prices={stats.prices}
       />
     </>
   );
