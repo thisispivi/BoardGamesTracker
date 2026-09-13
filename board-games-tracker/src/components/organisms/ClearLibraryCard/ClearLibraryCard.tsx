@@ -9,12 +9,14 @@ import { toast } from "sonner";
 import { Button } from "@/components/atoms/Button/Button";
 import type { CollectionActionState } from "@/core";
 import { clearLibraryAction } from "@/server/actions/collection";
+import { cn } from "@/utils/cn";
 import { clearCollectionConfirmation } from "@/utils/collectionConfirmation";
 
 const initialState: CollectionActionState = { success: false, message: "" };
 
 /** Library section targeted by the destructive clear operation. */
 type ClearLibraryCardProps = {
+  className?: string;
   library: "collection" | "wishlist";
 };
 
@@ -22,10 +24,12 @@ type ClearLibraryCardProps = {
  * Destructive settings card for clearing one of the signed-in user's libraries.
  *
  * @param root0 - Properties that configure clear library card.
+ * @param root0.className - Classes merged with the card, typically its grid placement.
  * @param root0.library - Library section whose games will be deleted.
  * @returns The rendered clear library card.
  */
 export function ClearLibraryCard({
+  className,
   library,
 }: ClearLibraryCardProps): ReactNode {
   const t = useTranslations();
@@ -56,7 +60,12 @@ export function ClearLibraryCard({
   }, [router, state]);
 
   return (
-    <section className="bg-card shadow-soft border-danger/25 h-full rounded-xl border p-5 sm:p-8">
+    <section
+      className={cn(
+        "bg-card shadow-soft border-danger/25 h-full rounded-xl border p-5 sm:p-8",
+        className,
+      )}
+    >
       <div className="flex h-full flex-col justify-between gap-7">
         <div className="flex items-start gap-4">
           <span className="bg-danger/10 text-danger grid size-12 shrink-0 place-items-center rounded-lg">

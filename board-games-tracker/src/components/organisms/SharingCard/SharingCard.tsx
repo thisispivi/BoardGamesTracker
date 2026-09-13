@@ -22,6 +22,7 @@ type SharingState = {
 
 /** Public URL and sharing settings displayed by the account card. */
 type SharingCardProps = {
+  className?: string;
   appUrl: string;
   shareCollection: boolean;
   sharePrices: boolean;
@@ -84,6 +85,7 @@ function ShareToggle({
  * Opt-in controls for publishing a collection, a wishlist, and their prices.
  *
  * @param root0 - Properties that configure sharing card.
+ * @param root0.className - Classes merged with the card, typically its grid placement.
  * @param root0.appUrl - Public base URL used to build the sharing link.
  * @param root0.shareCollection - Whether owned games are visible on the public page.
  * @param root0.sharePrices - Whether monetary values are visible on the public page.
@@ -93,6 +95,7 @@ function ShareToggle({
  */
 export function SharingCard({
   appUrl,
+  className,
   shareCollection,
   sharePrices,
   shareToken,
@@ -186,7 +189,10 @@ export function SharingCard({
   return (
     <section
       aria-busy={pending}
-      className="bg-card shadow-soft overflow-hidden rounded-xl border p-5 sm:p-8"
+      className={cn(
+        "bg-card shadow-soft h-full overflow-hidden rounded-xl border p-5 sm:p-8",
+        className,
+      )}
     >
       <div className="flex flex-col gap-6">
         <div className="flex items-start gap-4">
