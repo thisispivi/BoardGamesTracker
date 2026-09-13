@@ -76,7 +76,7 @@ export function UserDataCard({ className }: UserDataCardProps): ReactNode {
   return (
     <section
       className={cn(
-        "bg-card shadow-soft h-full max-w-full min-w-0 overflow-hidden rounded-xl border p-5 sm:p-8",
+        "bg-card shadow-soft max-w-full min-w-0 overflow-hidden rounded-xl border p-5 sm:p-8",
         className,
       )}
     >
@@ -90,7 +90,7 @@ export function UserDataCard({ className }: UserDataCardProps): ReactNode {
         </div>
       </div>
 
-      <div className="mt-7 grid min-w-0 gap-6 lg:grid-cols-2">
+      <div className="mt-7 grid min-w-0 gap-4">
         <div className="min-w-0 rounded-lg border p-4 sm:p-5">
           <h3 className="font-bold">{t("exportTitle")}</h3>
           <p className="text-muted-foreground mt-1 text-sm leading-6">

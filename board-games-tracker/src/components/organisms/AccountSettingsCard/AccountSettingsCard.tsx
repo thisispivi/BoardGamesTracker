@@ -124,7 +124,7 @@ export function AccountSettingsCard({
     <section
       aria-busy={isPending}
       className={cn(
-        "bg-card shadow-soft h-full rounded-xl border p-5 sm:p-8",
+        "bg-card shadow-soft rounded-xl border p-5 sm:p-8",
         className,
       )}
     >
@@ -141,7 +141,7 @@ export function AccountSettingsCard({
           </p>
         </div>
       </div>
-      <div className="mt-7 grid gap-6 lg:grid-cols-2">
+      <div className="mt-7 grid gap-4">
         <form className="rounded-lg border p-4 sm:p-5" onSubmit={changeEmail}>
           <h3 className="flex items-center gap-2 font-bold">
             {t("settings.email")}
@@ -181,7 +181,7 @@ export function AccountSettingsCard({
           <p className="text-muted-foreground mt-1 text-sm leading-6">
             {t("settings.passwordBody")}
           </p>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <div className="mt-4 grid gap-4">
             <label className="block text-sm font-bold">
               <span className="mb-2 block">
                 {t("settings.currentPassword")}

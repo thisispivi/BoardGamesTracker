@@ -62,11 +62,11 @@ export function ClearLibraryCard({
   return (
     <section
       className={cn(
-        "bg-card shadow-soft border-danger/25 h-full rounded-xl border p-5 sm:p-8",
+        "bg-card shadow-soft border-danger/25 rounded-xl border p-5 sm:p-8",
         className,
       )}
     >
-      <div className="flex h-full flex-col justify-between gap-7">
+      <div className="flex flex-col gap-5">
         <div className="flex items-start gap-4">
           <span className="bg-danger/10 text-danger grid size-12 shrink-0 place-items-center rounded-lg">
             <TriangleAlert className="size-5" />
