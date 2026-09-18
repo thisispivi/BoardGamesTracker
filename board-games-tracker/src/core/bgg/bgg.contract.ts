@@ -1,9 +1,12 @@
 import { z } from "zod";
 
-import { bggImageUrlSchema, labelSchema } from "@/core/shared/shared.contract";
-
-/** Validates a BoardGameGeek object identifier. */
-const bggObjectIdSchema = z.number().int().min(1).max(10_000_000);
+import {
+  bggIdSchema,
+  bggImageUrlSchema,
+  gameNameSchema,
+  labelSchema,
+  yearPublishedSchema,
+} from "@/core/shared/shared.contract";
 
 /**
  * Validates normalized metadata scraped from BoardGameGeek's public sources.
@@ -15,12 +18,12 @@ const bggObjectIdSchema = z.number().int().min(1).max(10_000_000);
  * metadata the add form can still use.
  */
 export const bggMetadataSchema = z.object({
-  bggId: bggObjectIdSchema,
+  bggId: bggIdSchema,
   bggRating: z.number().min(0).max(10).nullable(),
   categories: z.array(labelSchema).max(50),
   description: z.string().max(10_000),
-  expandsBggIds: z.array(bggObjectIdSchema).max(200),
-  expansionBggIds: z.array(bggObjectIdSchema).max(200),
+  expandsBggIds: z.array(bggIdSchema).max(200),
+  expansionBggIds: z.array(bggIdSchema).max(200),
   families: z.array(labelSchema).max(50),
   imageUrl: bggImageUrlSchema.nullable(),
   isExpansion: z.boolean(),
@@ -29,9 +32,9 @@ export const bggMetadataSchema = z.object({
   mechanics: z.array(labelSchema).max(50),
   minPlayers: z.number().int().min(1).max(99),
   minPlaytime: z.number().int().min(0).max(10_000),
-  name: z.string().trim().min(1).max(160),
+  name: gameNameSchema,
   weight: z.number().min(1).max(5).nullable(),
-  yearPublished: z.number().int().min(1800).max(2200).nullable(),
+  yearPublished: yearPublishedSchema.nullable(),
 });
 
 /** Normalized metadata parsed from BoardGameGeek. */

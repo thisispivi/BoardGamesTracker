@@ -1,17 +1,21 @@
 import { z } from "zod";
 
-import type { BggMetadata } from "@/core";
 import {
-  hasExpansionCategory,
+  bggIdSchema,
+  bggImageUrlSchema,
+  type BggMetadata,
+  earliestPublicationYear,
+  latestPublicationYear,
   maxTaxonomyLabelLength,
-} from "@/utils/gameTaxonomy";
+} from "@/core";
+import { hasExpansionCategory } from "@/utils/gameTaxonomy";
 
 /** Maximum public page size accepted by the metadata parser. */
 const maxHtmlLength = 5_000_000;
 
 const geekdoLinkSchema = z.object({
   name: z.string().min(1).max(160),
-  objectid: z.coerce.number().int().min(1).max(10_000_000).optional(),
+  objectid: z.coerce.number().pipe(bggIdSchema).optional(),
 });
 
 const geekdoItemResponseSchema = z.object({
@@ -201,18 +205,11 @@ function linkLabels(links: readonly { name: string }[] | undefined): string[] {
  * Accepts only artwork from BGG's public HTTPS image CDN.
  *
  * @param value - The untrusted metadata image URL.
- * @returns A canonical trusted URL, or null.
+ * @returns The trusted URL, or null.
  */
 function trustedImage(value: string | null): string | null {
-  if (!value) return null;
-  try {
-    const url = new URL(value);
-    return url.protocol === "https:" && url.hostname === "cf.geekdo-images.com"
-      ? url.toString()
-      : null;
-  } catch {
-    return null;
-  }
+  const parsed = bggImageUrlSchema.safeParse(value);
+  return parsed.success ? parsed.data : null;
 }
 
 /**
@@ -283,7 +280,13 @@ export function parseBggJsonResponses(
     minPlaytime,
     name: item.name.trim(),
     weight: jsonNumber(stats?.avgweight, 1, 5),
-    yearPublished: wholeNumber(jsonNumber(item.yearpublished, 1800, 2200)),
+    yearPublished: wholeNumber(
+      jsonNumber(
+        item.yearpublished,
+        earliestPublicationYear,
+        latestPublicationYear,
+      ),
+    ),
   };
 }
 
@@ -378,7 +381,12 @@ export function parseBggHtmlPage(
     weight: pageNumber(html, ["averageweight", "averageWeight"], 1, 5),
     yearPublished:
       wholeNumber(
-        pageNumber(html, ["yearpublished", "yearPublished"], 1800, 2200),
+        pageNumber(
+          html,
+          ["yearpublished", "yearPublished"],
+          earliestPublicationYear,
+          latestPublicationYear,
+        ),
       ) ?? (titleYear ? Number(titleYear) : null),
   };
 }

@@ -1,16 +1,18 @@
 import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
 
-import { appOriginSchema, databaseUrlSchema, httpEndpointSchema } from "@/core";
+import {
+  appOriginSchema,
+  booleanStringSchema,
+  databaseUrlSchema,
+  httpEndpointSchema,
+} from "@/core";
 
 /** Validated application environment. */
 export const env = createEnv({
   server: {
     ADMIN_EMAIL: z.email().optional(),
-    ALLOW_SIGN_UP: z
-      .enum(["true", "false"])
-      .default("false")
-      .transform((value) => value === "true"),
+    ALLOW_SIGN_UP: booleanStringSchema.default(false),
     BETTER_AUTH_SECRET: z.string().min(32).max(4_096),
     BETTER_AUTH_URL: appOriginSchema,
     DATABASE_URL: databaseUrlSchema,
@@ -32,14 +34,8 @@ export const env = createEnv({
     SMTP_PASSWORD: z.string().min(1).max(1_000).optional(),
     SMTP_PORT: z.coerce.number().int().min(1).max(65_535).default(587),
     SMTP_REPLY_TO: z.email().optional(),
-    SMTP_REQUIRE_TLS: z
-      .enum(["true", "false"])
-      .default("true")
-      .transform((value) => value === "true"),
-    SMTP_SECURE: z
-      .enum(["true", "false"])
-      .default("false")
-      .transform((value) => value === "true"),
+    SMTP_REQUIRE_TLS: booleanStringSchema.default(true),
+    SMTP_SECURE: booleanStringSchema.default(false),
     SMTP_USER: z.string().min(1).max(500).optional(),
   },
   client: {

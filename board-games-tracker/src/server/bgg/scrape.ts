@@ -19,6 +19,56 @@ const maxJsonLength = 2_000_000;
  */
 const metadataCache = new TtlCache<BggMetadata>(6 * 60 * 60 * 1000, 2_000);
 
+/** Hosts a public BoardGameGeek page may redirect to and still be trusted. */
+const bggPageHosts = new Set(["boardgamegeek.com", "www.boardgamegeek.com"]);
+
+/** Request headers presented to BoardGameGeek's public HTML pages. */
+const htmlRequestHeaders = {
+  Accept: "text/html,application/xhtml+xml",
+  "Accept-Language": "en-US,en;q=0.8",
+  "User-Agent": "BoardGamesTracker/0.1 (self-hosted metadata scraper)",
+};
+
+/**
+ * Fetches a public BoardGameGeek page, following one redirect within the site.
+ *
+ * BoardGameGeek answers a bare game URL with a redirect to its slugged
+ * canonical form, so refusing redirects would leave every page unreachable.
+ * The hop is resolved by hand rather than by the fetch API so that only an
+ * HTTPS BoardGameGeek target is ever requested; anything else ends the scrape.
+ *
+ * @param url - HTTPS BoardGameGeek page to load.
+ * @param remainingHops - Redirects still allowed before giving up.
+ * @returns The final response, or null when the page is not reachable on BoardGameGeek.
+ */
+async function fetchBggPage(
+  url: URL,
+  remainingHops: number,
+): Promise<Response | null> {
+  const response = await fetch(url, {
+    headers: htmlRequestHeaders,
+    cache: "no-store",
+    redirect: "manual",
+    signal: AbortSignal.timeout(12_000),
+  });
+  const location = response.headers.get("location");
+  if (response.status < 300 || response.status > 399 || !location) {
+    return response;
+  }
+
+  await response.body?.cancel();
+  const target = URL.parse(location, url);
+  if (
+    remainingHops === 0 ||
+    !target ||
+    target.protocol !== "https:" ||
+    !bggPageHosts.has(target.hostname)
+  ) {
+    return null;
+  }
+  return fetchBggPage(target, remainingHops - 1);
+}
+
 /**
  * Scrapes metadata embedded in one public BoardGameGeek game page.
  *
@@ -26,18 +76,12 @@ const metadataCache = new TtlCache<BggMetadata>(6 * 60 * 60 * 1000, 2_000);
  * @returns Normalized public metadata, or null when the page is unavailable.
  */
 async function scrapeHtmlPage(bggId: number): Promise<BggMetadata | null> {
-  const response = await fetch(`https://boardgamegeek.com/boardgame/${bggId}`, {
-    headers: {
-      Accept: "text/html,application/xhtml+xml",
-      "Accept-Language": "en-US,en;q=0.8",
-      "User-Agent": "BoardGamesTracker/0.1 (self-hosted metadata scraper)",
-    },
-    cache: "no-store",
-    redirect: "error",
-    signal: AbortSignal.timeout(12_000),
-  });
+  const response = await fetchBggPage(
+    new URL(`https://boardgamegeek.com/boardgame/${bggId}`),
+    1,
+  );
   if (
-    !response.ok ||
+    !response?.ok ||
     !response.headers.get("content-type")?.includes("text/html")
   ) {
     return null;

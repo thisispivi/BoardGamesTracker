@@ -1,3 +1,4 @@
+import { maxTaxonomyLabelLength } from "@/core";
 import taxonomy from "@/i18n/taxonomy/it.json";
 
 /** BoardGameGeek taxonomy labels keyed by their stable English source values. */
@@ -9,14 +10,6 @@ export const bggCategories = Object.keys(bggCategoryLabels);
 
 /** Canonical BoardGameGeek mechanic names. */
 export const bggMechanics = Object.keys(bggMechanicLabels);
-
-/**
- * Longest taxonomy label the application stores.
- *
- * Every path that writes a label caps it here so a category typed in the edit
- * form, or scraped from BoardGameGeek, still survives an export and re-import.
- */
-export const maxTaxonomyLabelLength = 120;
 
 const expansionCategories = new Set([
   "expansion",

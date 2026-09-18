@@ -26,7 +26,13 @@ import { Button } from "@/components/atoms/Button/Button";
 import { GameArtwork } from "@/components/atoms/GameArtwork/GameArtwork";
 import { Tooltip } from "@/components/atoms/Tooltip/Tooltip";
 import { ConfirmDialog } from "@/components/molecules/ConfirmDialog/ConfirmDialog";
-import type { AdminGame, AdminGamesPage, CollectionActionState } from "@/core";
+import {
+  type AdminGame,
+  type AdminGamesPage,
+  type CollectionActionState,
+  earliestPublicationYear,
+  latestPublicationYear,
+} from "@/core";
 import {
   getAdminGamesPageAction,
   refreshGameCatalogBatchAction,
@@ -168,8 +174,8 @@ function EditGameMetadataDialog({ game, onClose }: EditDialogProps): ReactNode {
                   <input
                     className="field-input"
                     defaultValue={game.yearPublished ?? ""}
-                    max={2200}
-                    min={1800}
+                    max={latestPublicationYear}
+                    min={earliestPublicationYear}
                     name="yearPublished"
                     type="number"
                   />

@@ -2,7 +2,11 @@ import "server-only";
 
 import Fuse from "fuse.js";
 
-import { type DiscoveredGame, searxngResponseSchema } from "@/core";
+import {
+  bggIdSchema,
+  type DiscoveredGame,
+  searxngResponseSchema,
+} from "@/core";
 import { env } from "@/env";
 import {
   parseBoardGameArtwork,
@@ -165,12 +169,7 @@ export async function discoverBoardGameImages(
   const uniqueCandidates = [
     ...new Map(
       candidates
-        .filter(
-          (game) =>
-            Number.isInteger(game.bggId) &&
-            game.bggId > 0 &&
-            game.bggId <= 10_000_000,
-        )
+        .filter((game) => bggIdSchema.safeParse(game.bggId).success)
         .map((game) => [game.bggId, game]),
     ).values(),
   ].slice(0, 2_000);

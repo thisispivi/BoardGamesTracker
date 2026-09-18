@@ -30,3 +30,11 @@ export const sharingSchema = z
     sharePrices:
       (sharing.shareCollection || sharing.shareWishlist) && sharing.sharePrices,
   }));
+
+/**
+ * Validates the shape of a library share token before it reaches a query.
+ *
+ * Tokens are 128 random bits as lowercase hexadecimal, and the database
+ * enforces the same shape, so anything else is refused without a lookup.
+ */
+export const shareTokenSchema = z.string().regex(/^[a-f0-9]{32}$/);

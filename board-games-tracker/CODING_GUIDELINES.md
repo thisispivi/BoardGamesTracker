@@ -102,8 +102,8 @@ Additional rules:
 6. Tests live next to the code they cover, never in a separate `__tests__` tree.
 
 Rules 1 and 4 are enforced by `no-restricted-imports` in `eslint.config.mjs`,
-along with the ban on `src/core` importing `src/server`. Extend that config
-rather than this list when a new boundary needs protecting.
+along with the bans on `src/core` importing `src/server` or `src/utils`. Extend
+that config rather than this list when a new boundary needs protecting.
 
 ### Where a new feature goes
 
@@ -123,12 +123,14 @@ this order:
 | UI                                                 | `src/components/<layer>/<Name>/<Name>.tsx`                 |
 | User-visible copy                                  | `messages/en.json` **and** `messages/it.json`              |
 
-Dependencies point one way: `app` → `components` → `utils`, and `app` →
-`server` → `core`. Components may call server actions and browser adapters in
-`client`. Only colocated route tests may import `app`. `core` contains no React
-or Next.js runtime dependencies. `utils` holds isomorphic helpers only — a file there that
-reaches for the database, `env`, or React is in the wrong place, and a file
-named for a grab bag (`helpers.ts`, `misc.ts`) does not belong there at all.
+Dependencies point one way: `app` → `components` → `utils` → `core`, and `app`
+→ `server` → `core`. Components may call server actions and browser adapters in
+`client`. Only colocated route tests may import `app`. `core` is the innermost
+layer: it contains no React or Next.js runtime dependencies and imports nothing
+from `server` or `utils`, so a constant both a contract and a helper need lives
+in `core`. `utils` holds isomorphic helpers only — a file there that reaches for
+the database, `env`, or React is in the wrong place, and a file named for a grab
+bag (`helpers.ts`, `misc.ts`) does not belong there at all.
 
 Reach for a shared abstraction when two call sites express the _same_ rule, not
 when they merely look alike. Two similar-looking validations of different
@@ -280,7 +282,18 @@ before writing routing, caching, or data-fetching code.**
 12. One concept, one schema. Import or compose the schema that owns a shape
     instead of writing a second one; two rules that only look alike stay
     separate.
-13. Validation proves a payload is well-formed, not that the caller may use it.
+13. Bounds that several domains share live once, in
+    `src/core/shared/shared.contract.ts`: the BoardGameGeek identifier, game
+    title, publication year, purchase price, artwork URL, taxonomy label, and
+    the `true`/`false` text that forms, spreadsheet cells, and environment
+    variables carry. `emptyAsNull` reads a blank form field as null, and
+    `refineGameRanges` rejects a player or duration range whose maximum is
+    below its minimum. Reuse these before writing a bound inline, and add a new
+    primitive there only when a second domain needs the same rule.
+14. A `.refine` callback runs even when an earlier check in the chain failed,
+    so it must not throw on malformed input. Parse with `URL.parse` or another
+    non-throwing call and return false instead.
+15. Validation proves a payload is well-formed, not that the caller may use it.
     A parsed request still goes through the authorization in rule 7.
 
 ## 9. Server boundaries and security

@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import {
   adminPageSchema,
   type AuditLogPage,
-  bannedSchema,
+  booleanStringSchema,
   roleSchema,
   userIdSchema,
 } from "@/core";
@@ -113,7 +113,7 @@ export async function updateUserRoleAction(formData: FormData): Promise<void> {
 export async function toggleUserBanAction(formData: FormData): Promise<void> {
   const actor = await requireAdmin();
   const targetId = userIdSchema.parse(formData.get("userId"));
-  const banned = bannedSchema.parse(formData.get("banned")) === "true";
+  const banned = booleanStringSchema.parse(formData.get("banned"));
   await manageUser(actor.user.id, targetId, async (transaction) => {
     await transaction
       .update(user)
