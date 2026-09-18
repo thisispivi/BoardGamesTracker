@@ -142,11 +142,8 @@ application, with health checks and a persistent database volume.
    to administrator. Keep `ALLOW_SIGN_UP=false` unless public registration is
    intentional.
 
-If you expect to rebuild this deployment, also set
-`NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` to a value from `openssl rand -base64 32`
-before the first build and keep it. Next.js derives Server Action identifiers
-from that key and generates a new one per build, so without it every rebuild
-breaks the pages visitors already have open.
+Everything after the first start, including backups, upgrades, and every
+supported setting, is in [DEPLOYMENT.md](./DEPLOYMENT.md).
 
 ### Local development
 
@@ -172,92 +169,6 @@ The application and Drizzle commands both read `board-games-tracker/.env.local`.
 Application URLs must be HTTP(S) origins without paths, credentials, queries, or
 fragments. The development server listens on <http://localhost:12500>.
 
-## Deployment
-
-### Production
-
-Docker Compose is the deployment baseline. Run every `docker compose` command
-in this section from `board-games-tracker/`.
-
-- Put the application behind an HTTPS reverse proxy and set `APP_URL` to the
-  public origin.
-- Generate unique secrets for PostgreSQL, Better Auth, and SearXNG.
-- Keep PostgreSQL and SearXNG on the private Compose network.
-- Keep the `backup` service running and copy its dumps off the host.
-- Configure Sentry-compatible monitoring only if you want it.
-- Configure transactional SMTP before enabling public registration.
-
-The application container runs pending migrations before starting the
-production server. Review generated migrations and take a database backup
-before every upgrade.
-
-### Backups
-
-The `backup` service dumps the database into `board-games-tracker/backups` once
-a week and keeps the eight newest dumps, about two months of history. Old dumps
-are only removed after a new one succeeds. Change the schedule with
-`BACKUP_INTERVAL_DAYS`, `BACKUP_KEEP`, and `BACKUP_DIRECTORY` in `.env`.
-
-Dumps contain account emails and password hashes, so they are readable only by
-their owner. Copy them to another machine too: a backup on the same disk does
-not survive losing that disk.
-
-### Upgrades
-
-Take a fresh backup, then rebuild:
-
-```bash
-docker compose exec backup sh /usr/local/bin/backup-database.sh --once
-```
-
-```bash
-docker compose pull && docker compose up --build -d
-```
-
-### Moving an existing deployment to the application folder
-
-Earlier versions kept `docker-compose.yml` at the repository root. Compose names
-containers after the folder that holds that file, so stop the old stack before
-pulling this layout, then start it again from `board-games-tracker/`. The
-database volume has a fixed name, so its data carries over.
-
-1. From the repository root, before pulling:
-
-   ```bash
-   docker compose down
-   ```
-
-2. Pull the new layout and move your settings and backups next to Compose:
-
-   ```bash
-   git pull
-   mv .env board-games-tracker/.env
-   mv backups board-games-tracker/backups
-   ```
-
-3. Start the stack again:
-
-   ```bash
-   cd board-games-tracker && docker compose up --build -d
-   ```
-
-### Restoring a backup
-
-Stop the application, restore a dump over the current database, and start the
-application again:
-
-```bash
-docker compose stop app
-```
-
-```bash
-docker compose exec -T database pg_restore --clean --if-exists --no-owner -U board_games_tracker -d board_games_tracker < backups/board-games-tracker-20260911T020000Z.dump
-```
-
-```bash
-docker compose start app
-```
-
 ## Your data stays yours
 
 Accounts, collection records, preferences, and cached game metadata live in
@@ -268,55 +179,6 @@ audit records.
 Discovery does contact the metadata and image sources configured through
 SearXNG, so review those sources and their privacy policies before opening the
 instance to a group.
-
-## Configuration
-
-[`.env.example`](./board-games-tracker/.env.example) documents every supported
-setting. The application variables that matter most:
-
-| Variable                             | Required | Purpose                                                                    |
-| ------------------------------------ | -------- | -------------------------------------------------------------------------- |
-| `DATABASE_URL`                       | Yes      | PostgreSQL connection string                                               |
-| `BETTER_AUTH_SECRET`                 | Yes      | Authentication signing secret with at least 32 characters                  |
-| `BETTER_AUTH_URL`                    | Yes      | Canonical application origin for local or non-Compose runs                 |
-| `NEXT_PUBLIC_APP_URL`                | Yes      | Public application origin exposed to the browser                           |
-| `SEARXNG_URL`                        | Yes      | Server-side SearXNG endpoint                                               |
-| `ADMIN_EMAIL`                        | No       | Additional email address eligible for administrator bootstrap              |
-| `ALLOW_SIGN_UP`                      | No       | Enables registration when set to `true`                                    |
-| `HEALTH_CHECK_TOKEN`                 | No       | Requires a bearer token on `/api/health`                                   |
-| `LOG_LEVEL`                          | No       | Server log verbosity                                                       |
-| `SENTRY_DSN`                         | No       | Server-side Sentry-compatible error reporting                              |
-| `NEXT_PUBLIC_SENTRY_DSN`             | No       | Browser-side Sentry-compatible error reporting                             |
-| `NEXT_PUBLIC_SENTRY_ENVIRONMENT`     | No       | Monitoring environment name                                                |
-| `NEXT_PUBLIC_SENTRY_RELEASE`         | No       | Monitoring release identifier; defaults to the `package.json` version      |
-| `SENTRY_AUTH_TOKEN_FILE`             | No       | File containing the source-map upload token                                |
-| `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` | No       | Build-time key that keeps Server Action identifiers stable across rebuilds |
-| `SMTP_HOST`                          | No       | Transactional SMTP server; enables email flows with `SMTP_FROM_EMAIL`      |
-| `SMTP_PORT`                          | No       | SMTP port, normally `465` or `587`                                         |
-| `SMTP_SECURE`                        | No       | Uses implicit TLS; set to `true` for port `465`                            |
-| `SMTP_REQUIRE_TLS`                   | No       | Requires STARTTLS when implicit TLS is disabled                            |
-| `SMTP_USER`                          | No       | SMTP username; must be paired with `SMTP_PASSWORD`                         |
-| `SMTP_PASSWORD`                      | No       | SMTP password or provider API credential                                   |
-| `SMTP_FROM_NAME`                     | No       | Display name used for transactional messages                               |
-| `SMTP_FROM_EMAIL`                    | No       | Verified sender address; enables email flows with `SMTP_HOST`              |
-| `SMTP_REPLY_TO`                      | No       | Optional monitored reply address                                           |
-
-Compose deployments use `APP_URL` for the public origin and derive the internal
-database and SearXNG addresses automatically.
-
-### Transactional email
-
-Set both `SMTP_HOST` and `SMTP_FROM_EMAIL` to enable email verification and
-self-service password recovery. Port `465` normally uses `SMTP_SECURE=true`;
-port `587` uses `SMTP_SECURE=false` and `SMTP_REQUIRE_TLS=true`. Credentials are
-optional only for SMTP relays that explicitly allow unauthenticated delivery.
-
-For reliable production delivery, verify the sender domain with your email
-provider and publish its SPF, DKIM, and DMARC records. Use a dedicated
-transactional sender, keep `SMTP_REPLY_TO` monitored if replies should reach a
-person, and rotate SMTP credentials as you would any production secret. The
-application sends multipart English or Italian messages through a pooled TLS
-connection and does not log recipient addresses or action links.
 
 ## Development workflow
 
@@ -407,6 +269,7 @@ supported versions, and how to report a vulnerability.
 
 | Document                                                           | Covers                                                       |
 | ------------------------------------------------------------------ | ------------------------------------------------------------ |
+| [DEPLOYMENT.md](./DEPLOYMENT.md)                                   | Production checklist, backups, upgrades, and every setting   |
 | [SECURITY.md](./SECURITY.md)                                       | Threat model, deployment checklist, and vulnerability report |
 | [CONTRIBUTING.md](./CONTRIBUTING.md)                               | Contribution workflow and review expectations                |
 | [CODING_GUIDELINES.md](./board-games-tracker/CODING_GUIDELINES.md) | Mandatory code, documentation, test, and architecture rules  |
