@@ -1,6 +1,11 @@
 import { z } from "zod";
 
-import { bggImageUrlSchema } from "@/core/shared/shared.contract";
+import {
+  bggIdSchema,
+  bggImageUrlSchema,
+  gameNameSchema,
+  yearPublishedSchema,
+} from "@/core/shared/shared.contract";
 
 /** Validates the untrusted result payload returned by SearXNG. */
 export const searxngResponseSchema = z.object({
@@ -27,7 +32,7 @@ export const searxngResponseSchema = z.object({
  * discovery did not construct itself.
  */
 export const gameDiscoveryResultSchema = z.object({
-  bggId: z.number().int().min(1).max(10_000_000),
+  bggId: bggIdSchema,
   bggUrl: z
     .string()
     .regex(
@@ -35,10 +40,13 @@ export const gameDiscoveryResultSchema = z.object({
     ),
   imageUrl: bggImageUrlSchema.nullable(),
   isExpansion: z.boolean(),
-  name: z.string().trim().min(1).max(160),
+  name: gameNameSchema,
   selectionToken: z.string().min(1).max(4_000),
-  yearPublished: z.number().int().min(1800).max(2200).nullable(),
+  yearPublished: yearPublishedSchema.nullable(),
 });
 
 /** Board-game result discovered through the configured metasearch service. */
 export type GameDiscoveryResult = z.infer<typeof gameDiscoveryResultSchema>;
+
+/** A discovery candidate before its selection token is signed. */
+export type DiscoveredGame = Omit<GameDiscoveryResult, "selectionToken">;

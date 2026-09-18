@@ -1,4 +1,4 @@
-import type { GameDiscoveryResult } from "@/core";
+import { bggImageUrlSchema, type DiscoveredGame, maxBggId } from "@/core";
 import { normalizeSearchText } from "@/utils/search";
 
 /** BGG "thing" sections that map onto a collectable game entry. */
@@ -55,7 +55,7 @@ export function parseBoardGameUrl(rawUrl: string): BggUrlIdentity | null {
       !gameSections.has(section) ||
       !Number.isSafeInteger(bggId) ||
       bggId <= 0 ||
-      bggId > 10_000_000
+      bggId > maxBggId
     ) {
       return null;
     }
@@ -80,7 +80,7 @@ export function parseBoardGameUrl(rawUrl: string): BggUrlIdentity | null {
 export function parseBoardGameResult(
   title: string,
   rawUrl: string,
-): Omit<GameDiscoveryResult, "selectionToken"> | null {
+): DiscoveredGame | null {
   try {
     const parsedUrl = parseBoardGameUrl(rawUrl);
     if (!parsedUrl) return null;
@@ -119,22 +119,11 @@ export function parseBoardGameImage(
   rawImageUrl: string,
 ): { bggId: number; imageUrl: string } | null {
   const game = parseBoardGameUrl(pageUrl);
-  if (!game) {
+  const image = bggImageUrlSchema.safeParse(rawImageUrl);
+  if (!game || !image.success) {
     return null;
   }
-
-  try {
-    const image = new URL(rawImageUrl);
-    if (
-      image.protocol !== "https:" ||
-      image.hostname !== "cf.geekdo-images.com"
-    ) {
-      return null;
-    }
-    return { bggId: game.bggId, imageUrl: image.toString() };
-  } catch {
-    return null;
-  }
+  return { bggId: game.bggId, imageUrl: image.data };
 }
 
 /**
@@ -154,15 +143,16 @@ export function parseBoardGameArtwork(
   rawImageUrl: string,
   candidateName: string,
 ): string | null {
+  const image = bggImageUrlSchema.safeParse(rawImageUrl);
+  if (!image.success) {
+    return null;
+  }
+
   try {
     const page = new URL(pageUrl);
-    const image = new URL(rawImageUrl);
     if (
       (page.protocol !== "https:" && page.protocol !== "http:") ||
-      page.hostname.toLowerCase().replace(/^www\./, "") !==
-        "boardgamegeek.com" ||
-      image.protocol !== "https:" ||
-      image.hostname !== "cf.geekdo-images.com"
+      page.hostname.toLowerCase().replace(/^www\./, "") !== "boardgamegeek.com"
     ) {
       return null;
     }
@@ -179,7 +169,7 @@ export function parseBoardGameArtwork(
     ) {
       return null;
     }
-    return image.toString();
+    return image.data;
   } catch {
     return null;
   }

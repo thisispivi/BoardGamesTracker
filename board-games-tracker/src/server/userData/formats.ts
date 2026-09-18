@@ -3,6 +3,7 @@ import ExcelJS from "exceljs";
 import { z } from "zod";
 
 import {
+  booleanStringSchema,
   type PortableGame,
   type UserDataDocument,
   userDataDocumentSchema,
@@ -52,11 +53,6 @@ type FlatGame = Partial<Record<(typeof gameHeaders)[number], string>>;
 
 /** Validates that a decoded tabular document is string-valued throughout. */
 const tabularRowsSchema = z.array(z.record(z.string(), z.string()));
-
-/** Rejects missing or malformed Boolean cells before document normalization. */
-const booleanCellSchema = z
-  .enum(["true", "false"])
-  .transform((value) => value === "true");
 
 /**
  * A decoded tabular row before `userDataDocumentSchema` validates it.
@@ -482,18 +478,18 @@ function flatToGame(row: FlatGame): DecodedGame {
     maxPlaytime: requiredNumber(row.maxPlaytime),
     weight: optionalNumber(row.weight),
     bggRating: optionalNumber(row.bggRating),
-    isExpansion: booleanCellSchema.parse(row.isExpansion),
+    isExpansion: booleanStringSchema.parse(row.isExpansion),
     categories: parseLabels(requiredCell(row.categories)),
     mechanics: parseLabels(requiredCell(row.mechanics)),
     families: parseLabels(requiredCell(row.families)),
-    favorite: booleanCellSchema.parse(row.favorite),
+    favorite: booleanStringSchema.parse(row.favorite),
     personalRating: optionalNumber(row.personalRating),
     notes: unprotectCell(requiredCell(row.notes)),
     moneySpent: requiredNumber(row.moneySpent),
-    gifted: booleanCellSchema.parse(row.gifted),
+    gifted: booleanStringSchema.parse(row.gifted),
     expandsBggIds: parseBggIds(row.expandsBggIds),
     expansionBggIds: parseBggIds(row.expansionBggIds),
-    hasPlayed: booleanCellSchema.parse(row.hasPlayed ?? "false"),
+    hasPlayed: booleanStringSchema.parse(row.hasPlayed ?? "false"),
   };
 }
 

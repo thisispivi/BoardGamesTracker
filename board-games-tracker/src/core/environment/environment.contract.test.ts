@@ -20,6 +20,18 @@ describe("environment URLs", () => {
   ])("rejects an unusable application origin: %s", (url) => {
     expect(appOriginSchema.safeParse(url).success).toBe(false);
   });
+  it.each(["localhost:12500", "", "not a url"])(
+    "rejects text that is not a URL without throwing: %j",
+    (value) => {
+      expect(appOriginSchema.safeParse(value).success).toBe(false);
+      expect(httpEndpointSchema.safeParse(value).success).toBe(false);
+    },
+  );
+  it("rejects a database setting that is not a URL without throwing", () => {
+    expect(databaseUrlSchema.safeParse("board_games_tracker").success).toBe(
+      false,
+    );
+  });
   it("accepts private HTTP services but requires PostgreSQL for persistence", () => {
     expect(httpEndpointSchema.safeParse("http://searxng:8080").success).toBe(
       true,

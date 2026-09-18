@@ -1,8 +1,14 @@
 import { z } from "zod";
 
-import { bggImageUrlSchema, labelSchema } from "@/core/shared/shared.contract";
-
-const optionalImageSchema = bggImageUrlSchema.nullable();
+import {
+  bggIdSchema,
+  bggImageUrlSchema,
+  gameNameSchema,
+  labelSchema,
+  moneySpentSchema,
+  refineGameRanges,
+  yearPublishedSchema,
+} from "@/core/shared/shared.contract";
 
 /** Validates a supported user-data import or export format. */
 export const userDataFormatSchema = z.enum(["json", "csv", "xlsx", "sql"]);
@@ -11,11 +17,11 @@ export const userDataFormatSchema = z.enum(["json", "csv", "xlsx", "sql"]);
 export const portableGameSchema = z
   .object({
     location: z.enum(["collection", "wishlist"]),
-    bggId: z.number().int().min(1).max(10_000_000),
-    name: z.string().trim().min(1).max(160),
+    bggId: bggIdSchema,
+    name: gameNameSchema,
     description: z.string().max(20_000),
-    imageUrl: optionalImageSchema,
-    yearPublished: z.number().int().min(1800).max(2200).nullable(),
+    imageUrl: bggImageUrlSchema.nullable(),
+    yearPublished: yearPublishedSchema.nullable(),
     minPlayers: z.number().int().min(1).max(99),
     maxPlayers: z.number().int().min(1).max(99),
     minPlaytime: z.number().int().min(0).max(10_000),
@@ -32,20 +38,13 @@ export const portableGameSchema = z
     favorite: z.boolean(),
     personalRating: z.number().min(0).max(10).nullable(),
     notes: z.string().max(4_000),
-    moneySpent: z.number().min(0).max(999_999_999.99),
+    moneySpent: moneySpentSchema,
     gifted: z.boolean().default(false),
-    expandsBggIds: z
-      .array(z.number().int().min(1).max(10_000_000))
-      .max(200)
-      .default([]),
-    expansionBggIds: z
-      .array(z.number().int().min(1).max(10_000_000))
-      .max(200)
-      .default([]),
+    expandsBggIds: z.array(bggIdSchema).max(200).default([]),
+    expansionBggIds: z.array(bggIdSchema).max(200).default([]),
     hasPlayed: z.boolean().default(false),
   })
-  .refine((game) => game.maxPlayers >= game.minPlayers)
-  .refine((game) => game.maxPlaytime >= game.minPlaytime)
+  .superRefine(refineGameRanges)
   .transform((game) => ({
     ...game,
     categories: [...new Set(game.categories)],
@@ -85,3 +84,12 @@ export const userDataDocumentSchema = z
       seen.add(item.bggId);
     }
   });
+
+/** One portable owned or wished-for board-game record. */
+export type PortableGame = z.infer<typeof portableGameSchema>;
+
+/** Versioned, canonical representation shared by every export format. */
+export type UserDataDocument = z.infer<typeof userDataDocumentSchema>;
+
+/** Supported portable user-data serialization formats. */
+export type UserDataFormat = z.infer<typeof userDataFormatSchema>;

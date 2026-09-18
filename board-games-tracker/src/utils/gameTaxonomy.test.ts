@@ -1,13 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { labelSchema } from "@/core";
+import { labelSchema, maxTaxonomyLabelLength } from "@/core";
 import {
   bggCategories,
   bggMechanics,
   getTaxonomyLabel,
   hasExpansionCategory,
   isExpansionCategory,
-  maxTaxonomyLabelLength,
   parseTaxonomyLabels,
 } from "@/utils/gameTaxonomy";
 

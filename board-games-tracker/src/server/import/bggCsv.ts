@@ -3,8 +3,11 @@ import { z } from "zod";
 
 import {
   type BggCsvImport,
+  earliestPublicationYear,
   type ImportedBggGame,
   importedRowSchema,
+  latestPublicationYear,
+  maxBggId,
 } from "@/core";
 
 const requiredColumns = [
@@ -75,7 +78,7 @@ function decimal(
 function normalizeRow(
   row: z.infer<typeof importedRowSchema>,
 ): ImportedBggGame | null {
-  const bggId = integer(row.objectid, 1, 10_000_000);
+  const bggId = integer(row.objectid, 1, maxBggId);
   const minPlayers = integer(row.minplayers, 1, 99);
   const maxPlayers = integer(row.maxplayers, 1, 99);
   const rawMinPlaytime = integer(row.minplaytime, 0, 10_000);
@@ -99,7 +102,7 @@ function normalizeRow(
   const normalizedYear = row.yearpublished.trim();
   const yearPublished =
     normalizedYear && normalizedYear !== "0"
-      ? integer(normalizedYear, 1800, 2200)
+      ? integer(normalizedYear, earliestPublicationYear, latestPublicationYear)
       : null;
   if (normalizedYear && normalizedYear !== "0" && yearPublished === null) {
     return null;

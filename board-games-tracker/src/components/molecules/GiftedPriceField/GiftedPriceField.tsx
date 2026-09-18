@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { type ReactNode, useId, useState } from "react";
 
 import { Tooltip } from "@/components/atoms/Tooltip/Tooltip";
+import { maxMoneySpent } from "@/core";
 import { cn } from "@/utils/cn";
 
 /** Properties that coordinate gifted state with a monetary form field. */
@@ -58,7 +59,7 @@ export function GiftedPriceField({
             <input
               className="field-input"
               defaultValue={defaultValue}
-              max={999_999_999.99}
+              max={maxMoneySpent}
               min={0}
               name="moneySpent"
               required

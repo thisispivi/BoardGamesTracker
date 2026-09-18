@@ -1,5 +1,12 @@
 import { z } from "zod";
 
+import {
+  booleanStringSchema,
+  gameNameSchema,
+  refineGameRanges,
+  yearPublishedSchema,
+} from "@/core/shared/shared.contract";
+
 /** Validates a bounded account identifier. */
 export const userIdSchema = z.string().min(1).max(128);
 
@@ -11,9 +18,6 @@ export const adminSearchSchema = z.string().trim().max(200).catch("");
 
 /** Validates an application role. */
 export const roleSchema = z.enum(["user", "admin"]);
-
-/** Validates serialized ban-state form values. */
-export const bannedSchema = z.enum(["true", "false"]);
 
 /** Validates the payload authenticated by a password-reset token. */
 export const passwordResetTokenSchema = z.object({
@@ -33,62 +37,17 @@ export const gameMetadataSchema = z
     description: z.string().max(10_000).default(""),
     families: z.string().max(1_000).default(""),
     gameId: z.uuid(),
-    isExpansion: z
-      .enum(["true", "false"])
-      .transform((value) => value === "true"),
+    isExpansion: booleanStringSchema,
     maxPlayers: z.coerce.number().int().min(1).max(99),
     maxPlaytime: z.coerce.number().int().min(0).max(10_000),
     mechanics: z.string().max(1_000).default(""),
     minPlayers: z.coerce.number().int().min(1).max(99),
     minPlaytime: z.coerce.number().int().min(0).max(10_000),
-    name: z.string().trim().min(1).max(160),
+    name: gameNameSchema,
     weight: z.coerce.number().min(0).max(5).nullable(),
-    yearPublished: z.coerce.number().int().min(1800).max(2200).nullable(),
+    yearPublished: z.coerce.number().pipe(yearPublishedSchema).nullable(),
   })
-  .refine((game) => game.maxPlayers >= game.minPlayers, {
-    message: "Maximum players cannot be lower than minimum players.",
-    path: ["maxPlayers"],
-  })
-  .refine((game) => game.maxPlaytime >= game.minPlaytime, {
-    message: "Maximum duration cannot be lower than minimum duration.",
-    path: ["maxPlaytime"],
-  });
-
-/** Serialized shared game row rendered by the administrator console. */
-export type AdminGame = {
-  bggId: number;
-  bggRating: number | null;
-  categories: string[];
-  description: string;
-  families: string[];
-  id: string;
-  imageUrl: string | null;
-  isExpansion: boolean;
-  maxPlayers: number;
-  maxPlaytime: number;
-  mechanics: string[];
-  minPlayers: number;
-  minPlaytime: number;
-  name: string;
-  owners: number;
-  yearPublished: number | null;
-  weight: number | null;
-};
-
-/** One bounded page of shared game records rendered by the administrator console. */
-export type AdminGamesPage = {
-  games: AdminGame[];
-  page: number;
-  pages: number;
-};
+  .superRefine(refineGameRanges);
 
 /** Validates where a catalog refresh resumes: the last game processed, or null to start. */
 export const catalogRefreshCursorSchema = z.uuid().nullable();
-
-/** Outcome of refreshing one batch of the shared catalog from BoardGameGeek. */
-export type CatalogRefreshBatch = {
-  failed: number;
-  nextCursor: string | null;
-  refreshed: number;
-  total: number;
-};

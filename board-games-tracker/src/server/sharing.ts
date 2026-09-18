@@ -5,7 +5,7 @@ import { randomBytes } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { cache } from "react";
 
-import type { CollectionGame } from "@/core";
+import { type CollectionGame, shareTokenSchema } from "@/core";
 import { getCollection, getWishlist } from "@/server/collection";
 import { db } from "@/server/db";
 import { user } from "@/server/db/schema";
@@ -46,7 +46,7 @@ export function createShareToken(): string {
 export const getSharedLibrary = cache(async function getSharedLibrary(
   token: string,
 ): Promise<SharedLibrary | null> {
-  if (!/^[a-f0-9]{32}$/.test(token)) {
+  if (!shareTokenSchema.safeParse(token).success) {
     return null;
   }
 

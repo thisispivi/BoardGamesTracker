@@ -14,9 +14,11 @@ import { GiftedPriceField } from "@/components/molecules/GiftedPriceField/Gifted
 import {
   type BggMetadata,
   type CollectionActionState,
+  earliestPublicationYear,
   type GameDiscoveryResult,
   gameMetadataResponseSchema,
   gameSearchResponseSchema,
+  latestPublicationYear,
 } from "@/core";
 import { addGameAction } from "@/server/actions/collection";
 import { normalizeSearchText } from "@/utils/search";
@@ -420,8 +422,8 @@ function SelectedGameForm({
             defaultValue={
               details?.yearPublished ?? selected.yearPublished ?? ""
             }
-            max={2200}
-            min={1800}
+            max={latestPublicationYear}
+            min={earliestPublicationYear}
             name="yearPublished"
             placeholder={t("add.yearPlaceholder")}
             type="number"

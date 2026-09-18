@@ -355,7 +355,9 @@ before ExcelJS builds the workbook. BGG CSV uploads allow 5 MiB, with separate
 space for multipart overhead in the Server Action limit. Imports preserve
 existing shared catalog metadata; administrators make corrections in the console.
 
-Zod contracts live in `src/core/<domain>/*.contract.ts`. Validate untrusted
+Zod contracts live in `src/core/<domain>/*.contract.ts`, and the bounds several
+domains share (BoardGameGeek identifiers, publication years, prices, artwork
+URLs) live once in `src/core/shared/shared.contract.ts`. Validate untrusted
 forms, HTTP responses, imports, and configuration once at entry, then pass typed
 values to domain code. Runtime contracts own their inferred TypeScript types;
 validation does not grant permission to modify another account's data.
@@ -365,8 +367,9 @@ staged files; pushing runs the whole `pnpm check` gate. CI repeats both and adds
 the production build, so a hook is a fast warning, not the real gate.
 
 ESLint enforces the architectural boundaries rather than leaving them to review:
-imports go through the `@/` alias, `src/core` cannot import `src/server`, and
-Atomic Design stays one-way, so an atom cannot reach for an organism.
+imports go through the `@/` alias, `src/core` cannot import `src/server` or
+`src/utils`, and Atomic Design stays one-way, so an atom cannot reach for an
+organism.
 
 ### Releasing a version
 

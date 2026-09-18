@@ -2,7 +2,7 @@ import "server-only";
 
 import { asc, count, eq, gt, ilike, or } from "drizzle-orm";
 
-import type { AdminGamesPage, BggMetadata } from "@/core";
+import { type AdminGamesPage, type BggMetadata, maxBggId } from "@/core";
 import { db } from "@/server/db";
 import { collectionItems, games } from "@/server/db/schema";
 import { escapeLikePattern } from "@/utils/likePattern";
@@ -42,7 +42,7 @@ export async function getAdminGamesPage(
   const term = search.trim();
   const parsedNumber = /^\d{1,8}$/.test(term) ? Number(term) : undefined;
   const numericTerm =
-    parsedNumber !== undefined && parsedNumber <= 10_000_000
+    parsedNumber !== undefined && parsedNumber <= maxBggId
       ? parsedNumber
       : undefined;
   const namePattern = `%${escapeLikePattern(term)}%`;

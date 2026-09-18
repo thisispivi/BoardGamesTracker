@@ -7,13 +7,14 @@ import { z } from "zod";
 import {
   type BggCsvImport,
   type BggMetadata,
+  booleanStringSchema,
   type CollectionActionState,
   editCollectionItemSchema,
   gameDetailsSchema,
   type GameSelection,
-  giftedSchema,
   itemIdSchema,
   libraryDestinationSchema,
+  purchaseCollectionItemSchema,
 } from "@/core";
 import { writeAuditEvent } from "@/server/audit";
 import { scrapeBggMetadata } from "@/server/bgg/scrape";
@@ -535,8 +536,7 @@ export async function removeGameAction(formData: FormData): Promise<void> {
 export async function toggleFavoriteAction(formData: FormData): Promise<void> {
   const session = await requireUser();
   const itemId = itemIdSchema.parse(formData.get("itemId"));
-  const favorite =
-    z.enum(["true", "false"]).parse(formData.get("favorite")) === "true";
+  const favorite = booleanStringSchema.parse(formData.get("favorite"));
   await db
     .update(collectionItems)
     .set({ favorite, updatedAt: new Date() })
@@ -558,8 +558,7 @@ export async function toggleFavoriteAction(formData: FormData): Promise<void> {
 export async function togglePlayedAction(formData: FormData): Promise<void> {
   const session = await requireUser();
   const itemId = itemIdSchema.parse(formData.get("itemId"));
-  const hasPlayed =
-    z.enum(["true", "false"]).parse(formData.get("hasPlayed")) === "true";
+  const hasPlayed = booleanStringSchema.parse(formData.get("hasPlayed"));
   await db
     .update(collectionItems)
     .set({ hasPlayed, updatedAt: new Date() })
@@ -586,21 +585,11 @@ export async function moveWishlistToCollectionAction(
 ): Promise<CollectionActionState> {
   const session = await requireUser();
   const t = await getTranslations();
-  const parsed = z
-    .object({
-      gifted: giftedSchema,
-      itemId: itemIdSchema,
-      moneySpent: z.coerce.number().min(0).max(999_999_999.99),
-    })
-    .transform((item) => ({
-      ...item,
-      moneySpent: item.gifted ? 0 : item.moneySpent,
-    }))
-    .safeParse({
-      gifted: formData.get("gifted"),
-      itemId: formData.get("itemId"),
-      moneySpent: formData.get("moneySpent"),
-    });
+  const parsed = purchaseCollectionItemSchema.safeParse({
+    gifted: formData.get("gifted"),
+    itemId: formData.get("itemId"),
+    moneySpent: formData.get("moneySpent"),
+  });
   if (!parsed.success) {
     return {
       success: false,
