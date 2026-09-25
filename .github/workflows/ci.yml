@@ -56,3 +56,22 @@ jobs:
       - name: Enforce the coverage floor
         run: pnpm test:coverage
       - run: pnpm build
+
+  release:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - name: Create GitHub Release for the verified build
+        working-directory: board-games-tracker
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          release=$(node scripts/build.mjs --print-release)
+          if ! gh release view "$release" >/dev/null 2>&1; then
+            gh release create "$release" --target "$GITHUB_SHA" --title "$release" --generate-notes
+          fi

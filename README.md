@@ -235,19 +235,17 @@ organism.
 
 ### Releasing a version
 
-The `version` field in `board-games-tracker/package.json` is the release
-identifier. Every build reports it to error monitoring, so a Bugsink issue names
-the version it came from and stops being attributed to earlier ones.
+`pnpm build` generates a `build-<hash>` identifier from the application source.
+The same identifier is included in browser and server errors sent to Bugsink.
+Rebuilding the same source keeps the identifier, including in Docker builds.
+After the quality gates pass on `main`, CI creates a GitHub Release with that
+identifier as its tag. No version edit or manual tag is needed.
 
-To cut a release, bump the version, commit it, and rebuild:
+To see the identifier before building, run from `board-games-tracker/`:
 
 ```bash
-pnpm version minor --no-git-tag-version
+node scripts/build.mjs --print-release
 ```
-
-Use `patch` for fixes, `minor` for features, and `major` for a breaking change.
-Setting `NEXT_PUBLIC_SENTRY_RELEASE` overrides the identifier for one build, for
-example to report a commit SHA instead.
 
 ## Security
 

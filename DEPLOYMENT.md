@@ -114,7 +114,6 @@ setting. The application variables that matter most:
 | `SENTRY_DSN`                         | No       | Server-side Sentry-compatible error reporting                              |
 | `NEXT_PUBLIC_SENTRY_DSN`             | No       | Browser-side Sentry-compatible error reporting                             |
 | `NEXT_PUBLIC_SENTRY_ENVIRONMENT`     | No       | Monitoring environment name                                                |
-| `NEXT_PUBLIC_SENTRY_RELEASE`         | No       | Monitoring release identifier; defaults to the `package.json` version      |
 | `SENTRY_AUTH_TOKEN_FILE`             | No       | File containing the source-map upload token                                |
 | `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` | No       | Build-time key that keeps Server Action identifiers stable across rebuilds |
 | `SMTP_HOST`                          | No       | Transactional SMTP server; enables email flows with `SMTP_FROM_EMAIL`      |
@@ -148,11 +147,12 @@ connection and does not log recipient addresses or action links.
 ### Error monitoring
 
 Set `SENTRY_DSN` and `NEXT_PUBLIC_SENTRY_DSN` to report errors to a
-Sentry-compatible service such as a self-hosted Bugsink instance. Every build
-reports the `version` field of `board-games-tracker/package.json` as its
-release, so an issue names the version it came from. Source-map upload is a
-build-time option; see the `SENTRY_*` entries in `.env.example`. Check the
-connection from a machine holding the DSN with:
+Sentry-compatible service such as a self-hosted Bugsink instance. The build
+generates a source-based `build-<hash>` release identifier and includes it in
+browser and server errors. CI creates a matching GitHub Release after a `main`
+build passes. Source-map upload is a build-time option; see the `SENTRY_*`
+entries in `.env.example`. Check the connection from a machine holding the DSN
+with:
 
 ```bash
 pnpm bugsink:test
