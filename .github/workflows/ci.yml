@@ -63,15 +63,69 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    defaults:
+      run:
+        working-directory: board-games-tracker
+    env:
+      DATABASE_URL: postgresql://build:build@127.0.0.1:5432/build
+      BETTER_AUTH_SECRET: build-only-secret-not-used-at-runtime-000000000
+      BETTER_AUTH_URL: http://localhost:3000
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      SEARXNG_URL: http://127.0.0.1:8080
     steps:
       - uses: actions/checkout@v7
-      - name: Create GitHub Release for the verified build
-        working-directory: board-games-tracker
+        with:
+          fetch-depth: 0
+      - name: Choose the next version
+        id: version
+        run: |
+          latest=$(git tag --list 'v*' --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1 || true)
+          if [ -n "$latest" ] && git merge-base --is-ancestor HEAD "$latest"; then
+            echo 'skip=true' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ -n "$latest" ]; then
+            messages=$(git log "$latest..HEAD" --format=%B)
+            bump=patch
+            if grep -Eq '(^[a-z]+(\([^)]+\))?!:|^BREAKING CHANGE:)' <<< "$messages"; then
+              bump=major
+            elif grep -Eq '^feat(\([^)]+\))?:' <<< "$messages"; then
+              bump=minor
+            fi
+            if [ "$(node -p 'require("./package.json").version')" != "${latest#v}" ]; then
+              echo 'Package version does not match the latest release tag.' >&2
+              exit 1
+            fi
+            npm version "$bump" --no-git-tag-version
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          fi
+          echo "tag=v$(node -p 'require("./package.json").version')" >> "$GITHUB_OUTPUT"
+      - uses: pnpm/setup@v2
+        if: steps.version.outputs.changed == 'true'
+        with:
+          version: 11.24.0
+          runtime: node@24.21.0
+          cache: true
+          cache-dependency-path: board-games-tracker/pnpm-lock.yaml
+          package-json-file: board-games-tracker/package.json
+          install: false
+      - name: Install dependencies for the versioned build
+        if: steps.version.outputs.changed == 'true'
+        run: pnpm install --frozen-lockfile
+      - name: Verify the versioned build
+        if: steps.version.outputs.changed == 'true'
+        run: pnpm build
+      - name: Publish GitHub Release
+        if: steps.version.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
-          release=$(node scripts/build.mjs --print-release)
-          if ! gh release view "$release" >/dev/null 2>&1; then
-            gh release create "$release" --target "$GITHUB_SHA" --title "$release" --generate-notes
+          if [ "${{ steps.version.outputs.changed }}" = 'true' ]; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add package.json
+            git commit -m "chore(release): ${{ steps.version.outputs.tag }}"
+            git push origin HEAD:main
           fi
+          gh release create '${{ steps.version.outputs.tag }}' --target "$(git rev-parse HEAD)" --title '${{ steps.version.outputs.tag }}' --generate-notes

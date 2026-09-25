@@ -148,11 +148,11 @@ connection and does not log recipient addresses or action links.
 
 Set `SENTRY_DSN` and `NEXT_PUBLIC_SENTRY_DSN` to report errors to a
 Sentry-compatible service such as a self-hosted Bugsink instance. The build
-generates a source-based `build-<hash>` release identifier and includes it in
-browser and server errors. CI creates a matching GitHub Release after a `main`
-build passes. Source-map upload is a build-time option; see the `SENTRY_*`
-entries in `.env.example`. Check the connection from a machine holding the DSN
-with:
+uses the version in `board-games-tracker/package.json`, prefixed with `v`, in
+browser and server errors. CI updates the version automatically and creates a
+matching GitHub Release after a `main` build passes. Source-map upload is a
+build-time option; see the `SENTRY_*` entries in `.env.example`. Check the
+connection from a machine holding the DSN with:
 
 ```bash
 pnpm bugsink:test

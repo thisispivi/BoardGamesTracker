@@ -235,17 +235,13 @@ organism.
 
 ### Releasing a version
 
-`pnpm build` generates a `build-<hash>` identifier from the application source.
-The same identifier is included in browser and server errors sent to Bugsink.
-Rebuilding the same source keeps the identifier, including in Docker builds.
-After the quality gates pass on `main`, CI creates a GitHub Release with that
-identifier as its tag. No version edit or manual tag is needed.
-
-To see the identifier before building, run from `board-games-tracker/`:
-
-```bash
-node scripts/build.mjs --print-release
-```
+The version in `board-games-tracker/package.json` is included in browser and
+server errors sent to Bugsink with a `v` prefix. After the quality gates pass
+on `main`, CI creates a GitHub Release with the same version as its tag. The
+first release uses the existing package version. Later releases update it
+automatically from conventional commits: breaking changes advance major,
+`feat` advances minor, and other changes advance patch. No manual version edit
+or tag is needed.
 
 ## Security
 

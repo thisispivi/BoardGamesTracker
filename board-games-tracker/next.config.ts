@@ -7,7 +7,7 @@ import { version } from "./package.json";
 const sentryRelease =
   process.env.NEXT_PUBLIC_SENTRY_RELEASE ||
   process.env.SENTRY_RELEASE ||
-  version;
+  `v${version}`;
 
 const nextConfig: NextConfig = {
   output: "standalone",
