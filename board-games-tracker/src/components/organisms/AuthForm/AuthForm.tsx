@@ -1,7 +1,6 @@
 "use client";
 
 import { Eye, EyeOff, LoaderCircle, MailCheck } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { type ReactNode, useState } from "react";
 import { toast } from "sonner";
@@ -56,7 +55,6 @@ export function AuthForm({
   bootstrapRequired,
   mailEnabled,
 }: AuthFormProps): ReactNode {
-  const router = useRouter();
   const t = useTranslations("auth");
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [notice, setNotice] = useState<AuthNotice | null>(null);
@@ -158,7 +156,7 @@ export function AuthForm({
       return;
     }
 
-    router.replace("/dashboard");
+    window.location.replace("/dashboard");
   }
 
   if (notice) {
