@@ -1,6 +1,6 @@
 {
   "name": "board-games-tracker",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "A secure, self-hosted board-game collection and game-night picker.",
   "packageManager": "pnpm@11.24.0",
