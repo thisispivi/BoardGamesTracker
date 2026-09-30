@@ -6,6 +6,4 @@ drizzle
 next-env.d.ts
 out
 build
-test-results
-playwright-report
 pnpm-lock.yaml

@@ -1,158 +1,152 @@
 # Deployment
 
-How to run Board Games Tracker in production, keep it backed up, upgrade it,
-and configure it. The quick start for a first install is in the
-[README](./README.md#docker). Run every `docker compose` command below from
-`board-games-tracker/`.
+For a first install, follow the [quick start](./README.md#quick-start). This
+page covers what comes after. Run every command from `board-games-tracker/`.
 
-## Production checklist
+## Before you go live
 
-- Put the application behind an HTTPS reverse proxy and set `APP_URL` to the
-  public origin.
-- Generate unique secrets for PostgreSQL, Better Auth, and SearXNG.
-- Keep PostgreSQL and SearXNG on the private Compose network.
-- Keep the `backup` service running and copy its dumps off the host.
-- Configure Sentry-compatible monitoring only if you want it.
-- Configure transactional SMTP before enabling public registration.
+1. Put the app behind an HTTPS reverse proxy and set `APP_URL` to its public
+   address.
+2. Use a different random value for `POSTGRES_PASSWORD`, `BETTER_AUTH_SECRET`,
+   and `SEARXNG_SECRET`.
+3. Expose only the app port. PostgreSQL and SearXNG stay on the private Compose
+   network.
+4. Set up [email](#email) before you set `ALLOW_SIGN_UP=true`.
+5. Copy your backups to another machine.
 
-The application container runs pending migrations before starting the
-production server. Review generated migrations and take a database backup
-before every upgrade. [SECURITY.md](./SECURITY.md) has the operator checklist
-for hardening the deployment.
+[SECURITY.md](./SECURITY.md) has the full hardening checklist.
 
 ## Backups
 
-The `backup` service dumps the database into `board-games-tracker/backups` once
-a week and keeps the eight newest dumps, about two months of history. Old dumps
-are only removed after a new one succeeds. Change the schedule with
-`BACKUP_INTERVAL_DAYS`, `BACKUP_KEEP`, and `BACKUP_DIRECTORY` in `.env`.
+The `backup` service writes a database dump to `board-games-tracker/backups`
+once a week. It keeps the eight newest dumps, about two months. An old dump is
+deleted only after a new one succeeds.
 
-Dumps contain account emails and password hashes, so they are readable only by
-their owner. Copy them to another machine too: a backup on the same disk does
-not survive losing that disk.
-
-Write a dump right now:
+Back up right now:
 
 ```bash
 docker compose exec backup sh /usr/local/bin/backup-database.sh --once
 ```
 
-## Upgrades
+Dumps contain account emails and password hashes, so only their owner can read
+them. A backup on the same disk does not survive losing that disk, so copy the
+dumps elsewhere.
 
-Take a fresh backup, then rebuild:
+| Setting                | Default     | Meaning                 |
+| ---------------------- | ----------- | ----------------------- |
+| `BACKUP_INTERVAL_DAYS` | `7`         | Days between dumps      |
+| `BACKUP_KEEP`          | `8`         | Dumps kept              |
+| `BACKUP_DIRECTORY`     | `./backups` | Where dumps are written |
 
-```bash
-docker compose pull && docker compose up --build -d
-```
+## Upgrade
 
-If you expect to rebuild often, set `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` to a
-value from `openssl rand -base64 32` before the first build and keep it.
-Next.js derives Server Action identifiers from that key and generates a new
-one per build, so without it every rebuild breaks the pages visitors already
-have open.
+1. Back up right now, with the command above.
 
-### Moving an existing deployment to the application folder
-
-Earlier versions kept `docker-compose.yml` at the repository root. Compose names
-containers after the folder that holds that file, so stop the old stack before
-pulling this layout, then start it again from `board-games-tracker/`. The
-database volume has a fixed name, so its data carries over.
-
-1. From the repository root, before pulling:
-
-   ```bash
-   docker compose down
-   ```
-
-2. Pull the new layout and move your settings and backups next to Compose:
+2. Get the new version:
 
    ```bash
    git pull
-   mv .env board-games-tracker/.env
-   mv backups board-games-tracker/backups
    ```
 
-3. Start the stack again:
+3. Rebuild and restart:
 
    ```bash
-   cd board-games-tracker && docker compose up --build -d
+   docker compose pull && docker compose up --build -d
    ```
 
-## Restoring a backup
+The app applies database migrations when it starts.
 
-Stop the application, restore a dump over the current database, and start the
-application again:
+Set `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` once, before your first build, to the
+output of `openssl rand -base64 32`. Without it, every rebuild breaks the pages
+people already have open.
 
-```bash
-docker compose stop app
-```
+## Restore a backup
 
-```bash
-docker compose exec -T database pg_restore --clean --if-exists --no-owner -U board_games_tracker -d board_games_tracker < backups/board-games-tracker-20260911T020000Z.dump
-```
+1. Stop the app:
 
-```bash
-docker compose start app
-```
+   ```bash
+   docker compose stop app
+   ```
 
-## Configuration
+2. Restore a dump over the current database. Replace the file name with yours:
 
-[`.env.example`](./board-games-tracker/.env.example) documents every supported
-setting. The application variables that matter most:
+   ```bash
+   docker compose exec -T database pg_restore --clean --if-exists --no-owner -U board_games_tracker -d board_games_tracker < backups/board-games-tracker-20260911T020000Z.dump
+   ```
 
-| Variable                             | Required | Purpose                                                                    |
-| ------------------------------------ | -------- | -------------------------------------------------------------------------- |
-| `DATABASE_URL`                       | Yes      | PostgreSQL connection string                                               |
-| `BETTER_AUTH_SECRET`                 | Yes      | Authentication signing secret with at least 32 characters                  |
-| `BETTER_AUTH_URL`                    | Yes      | Canonical application origin for local or non-Compose runs                 |
-| `NEXT_PUBLIC_APP_URL`                | Yes      | Public application origin exposed to the browser                           |
-| `SEARXNG_URL`                        | Yes      | Server-side SearXNG endpoint                                               |
-| `ADMIN_EMAIL`                        | No       | Additional email address eligible for administrator bootstrap              |
-| `ALLOW_SIGN_UP`                      | No       | Enables registration when set to `true`                                    |
-| `HEALTH_CHECK_TOKEN`                 | No       | Requires a bearer token on `/api/health`                                   |
-| `LOG_LEVEL`                          | No       | Server log verbosity                                                       |
-| `SENTRY_DSN`                         | No       | Server-side Sentry-compatible error reporting                              |
-| `NEXT_PUBLIC_SENTRY_DSN`             | No       | Browser-side Sentry-compatible error reporting                             |
-| `NEXT_PUBLIC_SENTRY_ENVIRONMENT`     | No       | Monitoring environment name                                                |
-| `SENTRY_AUTH_TOKEN_FILE`             | No       | File containing the source-map upload token                                |
-| `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` | No       | Build-time key that keeps Server Action identifiers stable across rebuilds |
-| `SMTP_HOST`                          | No       | Transactional SMTP server; enables email flows with `SMTP_FROM_EMAIL`      |
-| `SMTP_PORT`                          | No       | SMTP port, normally `465` or `587`                                         |
-| `SMTP_SECURE`                        | No       | Uses implicit TLS; set to `true` for port `465`                            |
-| `SMTP_REQUIRE_TLS`                   | No       | Requires STARTTLS when implicit TLS is disabled                            |
-| `SMTP_USER`                          | No       | SMTP username; must be paired with `SMTP_PASSWORD`                         |
-| `SMTP_PASSWORD`                      | No       | SMTP password or provider API credential                                   |
-| `SMTP_FROM_NAME`                     | No       | Display name used for transactional messages                               |
-| `SMTP_FROM_EMAIL`                    | No       | Verified sender address; enables email flows with `SMTP_HOST`              |
-| `SMTP_REPLY_TO`                      | No       | Optional monitored reply address                                           |
+3. Start the app:
 
-Compose deployments use `APP_URL` for the public origin and derive the internal
-database and SearXNG addresses automatically. Application URLs must be HTTP(S)
-origins without paths, credentials, queries, or fragments.
+   ```bash
+   docker compose start app
+   ```
 
-### Transactional email
+## Settings
 
-Set both `SMTP_HOST` and `SMTP_FROM_EMAIL` to enable email verification and
-self-service password recovery. Port `465` normally uses `SMTP_SECURE=true`;
-port `587` uses `SMTP_SECURE=false` and `SMTP_REQUIRE_TLS=true`. Credentials are
-optional only for SMTP relays that explicitly allow unauthenticated delivery.
+[`.env.example`](./board-games-tracker/.env.example) lists every setting with a
+comment.
 
-For reliable production delivery, verify the sender domain with your email
-provider and publish its SPF, DKIM, and DMARC records. Use a dedicated
-transactional sender, keep `SMTP_REPLY_TO` monitored if replies should reach a
-person, and rotate SMTP credentials as you would any production secret. The
-application sends multipart English or Italian messages through a pooled TLS
-connection and does not log recipient addresses or action links.
+With Docker Compose you set the four values from the quick start. Compose
+builds the rest from them. `APP_PORT` changes the published port.
+
+Without Compose, these five are required:
+
+| Variable              | Purpose                                    |
+| --------------------- | ------------------------------------------ |
+| `DATABASE_URL`        | PostgreSQL connection string               |
+| `BETTER_AUTH_SECRET`  | Signing secret, at least 32 characters     |
+| `BETTER_AUTH_URL`     | The app's address, as the server sees it   |
+| `NEXT_PUBLIC_APP_URL` | The app's address, as the browser sees it  |
+| `SEARXNG_URL`         | SearXNG address, reachable from the server |
+
+An app address is a plain origin such as `https://games.example.com`, with no
+path, query, or credentials.
+
+### Access
+
+| Variable             | Purpose                                                       |
+| -------------------- | ------------------------------------------------------------- |
+| `ALLOW_SIGN_UP`      | `true` lets anyone register. The default is `false`           |
+| `ADMIN_EMAIL`        | An account registered with this address becomes administrator |
+| `HEALTH_CHECK_TOKEN` | Makes `/api/health` require this bearer token, 16+ characters |
+| `LOG_LEVEL`          | `debug`, `info`, `warn`, or `error`                           |
+
+### Email
+
+Email is off by default. Set `SMTP_HOST` and `SMTP_FROM_EMAIL` together to turn
+on address verification and password recovery.
+
+| Variable           | Purpose                                        |
+| ------------------ | ---------------------------------------------- |
+| `SMTP_HOST`        | Mail server                                    |
+| `SMTP_PORT`        | `465` or `587`                                 |
+| `SMTP_SECURE`      | `true` for port `465`                          |
+| `SMTP_REQUIRE_TLS` | `true` for port `587`                          |
+| `SMTP_USER`        | Username. Set it together with `SMTP_PASSWORD` |
+
+| Variable          | Purpose                       |
+| ----------------- | ----------------------------- |
+| `SMTP_PASSWORD`   | Password or provider API key  |
+| `SMTP_FROM_EMAIL` | Sender address                |
+| `SMTP_FROM_NAME`  | Sender name                   |
+| `SMTP_REPLY_TO`   | Address that receives replies |
+
+Publish SPF, DKIM, and DMARC records for the sender domain, or your mail is
+likely to land in spam. The app never logs recipient addresses or action links.
 
 ### Error monitoring
 
-Set `SENTRY_DSN` and `NEXT_PUBLIC_SENTRY_DSN` to report errors to a
-Sentry-compatible service such as a self-hosted Bugsink instance. The build
-uses the version in `board-games-tracker/package.json`, prefixed with `v`, in
-browser and server errors. CI updates the version automatically and creates a
-matching GitHub Release after a `main` build passes. Source-map upload is a
-build-time option; see the `SENTRY_*` entries in `.env.example`. Check the
-connection from a machine holding the DSN with:
+Monitoring is off by default. It works with Sentry and with compatible services
+such as a self-hosted Bugsink.
+
+| Variable                         | Purpose                               |
+| -------------------------------- | ------------------------------------- |
+| `SENTRY_DSN`                     | Reports server errors                 |
+| `NEXT_PUBLIC_SENTRY_DSN`         | Reports browser errors                |
+| `NEXT_PUBLIC_SENTRY_ENVIRONMENT` | Environment name shown on each error  |
+| `SENTRY_AUTH_TOKEN_FILE`         | File with the source-map upload token |
+
+Each error carries the app version, such as `v0.1.2`. Check the connection
+with:
 
 ```bash
 pnpm bugsink:test

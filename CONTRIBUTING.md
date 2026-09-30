@@ -1,16 +1,33 @@
 # Contributing
 
-Thank you for improving Board Games Tracker.
+1. Set up the project with the [development steps](./README.md#development).
+2. Branch from `main`. Name the branch after the change: `feat/weekly-backups`,
+   `fix/admin-search`, `docs/restore-guide`.
+3. Make the change, and add or update the test file beside the code it covers.
+4. Run the checks from `board-games-tracker/`:
 
-1. Create a focused branch from `main`, named `kind/short-name` after its Conventional Commit type: `feat/weekly-backups`, `fix/admin-search`, `docs/restore-guide`.
-2. Work inside `board-games-tracker/`, where the application lives. Install with `pnpm install --frozen-lockfile` and copy `.env.example` to `.env.local`.
-3. Add or update `fileName.test.ts(x)` beside the source file it covers.
-4. From `board-games-tracker/`, run `pnpm check`, `pnpm test:coverage`,
-   `pnpm build`, and `pnpm audit --audit-level=moderate`. `pnpm install` sets up
-   the Git hooks: committing formats and lints staged files, and pushing runs
-   `pnpm check`. Never bypass them with `--no-verify`.
-5. Describe user impact, schema changes, screenshots, and security considerations in the pull request.
+   ```bash
+   pnpm check && pnpm test:coverage && pnpm build && pnpm audit --audit-level=moderate
+   ```
 
-Read [`CODING_GUIDELINES.md`](board-games-tracker/CODING_GUIDELINES.md) before your first change. It is the authoritative style guide and covers naming, file layout, mandatory JSDoc, typing rules, i18n, data contracts, security boundaries, and tests. The same file is wired into the Claude, Codex, and GitHub Copilot configurations, so assistants working in this repository follow it too.
+5. Open a pull request. Say what changes for users, note any database change,
+   and add screenshots for interface work.
 
-Schema changes require a generated and reviewed migration. Never commit secrets, local environment files, database dumps, or user data.
+## Rules
+
+Read [CODING_GUIDELINES.md](./board-games-tracker/CODING_GUIDELINES.md) before
+your first change. It covers naming, file layout, typing, validation, security,
+and tests.
+
+- Write commit messages as
+  [Conventional Commits](https://www.conventionalcommits.org/). CI uses them to
+  pick the next version.
+- Change the database through `src/server/db/schema.ts` and `pnpm db:generate`.
+  Do not edit files in `drizzle/` by hand.
+- Do not commit secrets, `.env` files, database dumps, or user data.
+- Do not skip the Git hooks with `--no-verify`.
+
+## AI assistants
+
+`AGENTS.md` and `CLAUDE.md` live in `board-games-tracker/` and point to the
+coding guidelines. Start your assistant from that folder so it reads them.
