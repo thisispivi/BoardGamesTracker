@@ -1,50 +1,59 @@
-# Security policy
+# Security
 
-## Reporting a vulnerability
+## Report a vulnerability
 
-Do not open a public issue for a suspected vulnerability. Contact the repository owner privately with the affected version, reproduction steps, impact, and any suggested mitigation. Avoid accessing data that is not yours and do not run denial-of-service tests.
+1. Do not open a public issue.
+2. Open this repository's **Security** tab and choose **Report a
+   vulnerability**. If that button is missing, contact the owner through their
+   GitHub profile.
+3. Include the version, the steps to reproduce it, and the impact.
 
-The maintainer should acknowledge a report within seven days, provide a remediation plan after triage, and coordinate disclosure after supported releases are fixed.
+Expect a reply within seven days. Only the latest release gets security fixes.
 
-## Supported versions
+While testing, do not read data that is not yours and do not run
+denial-of-service tests.
 
-Only the latest release on the default branch receives security updates.
+## Harden a deployment
 
-## Operator checklist
+**First start**
 
-- Terminate TLS at a maintained reverse proxy and never expose production over plain HTTP.
-- Generate unique database and Better Auth secrets; store them in a secret manager, not the repository.
-- Keep `ALLOW_SIGN_UP=false` in production except during a controlled additional-registration window. An empty installation permits exactly the first administrator setup, so complete bootstrap from a trusted network before exposing it publicly.
-- Treat `ADMIN_EMAIL` as a temporary bootstrap credential: every successful registration matching it becomes an administrator. Unset it after creating the intended account, especially before enabling `ALLOW_SIGN_UP=true`.
-- Set `HEALTH_CHECK_TOKEN` to protect the database-backed health probe, and configure the orchestrator to send it as a bearer token.
-- Restrict inbound traffic to the application port and keep PostgreSQL on a private network.
-- Configure log retention and access controls. Audit events can contain user IDs and request IP addresses.
-- Back up and test restore procedures before every upgrade.
-- Run `pnpm audit`, the test suite, and a production build for each dependency update.
-- Rotate `BETTER_AUTH_SECRET` using Better Auth's supported secret-rotation procedure if compromise is suspected.
-- Review administrator accounts and recent audit events regularly.
+- Create the first account from a trusted network, before the app is public.
+  An empty installation lets exactly one person register, and that person
+  becomes the administrator.
+- Use a different random value for every secret, and keep them out of the
+  repository.
+- Keep `ALLOW_SIGN_UP=false` unless you want open registration.
+- Unset `ADMIN_EMAIL` once your administrator exists. Any account registered
+  with that address becomes an administrator.
 
-## Deliberate limitations
+**Network**
 
-Registration holds a nonblocking PostgreSQL advisory lock through the complete
-Better Auth signup handler. Competing registrations receive HTTP 429 and can
-retry. Keep registrations on the application's `/api/auth/sign-up/email`
-entry point; a direct server-side Better Auth signup call would bypass this lock.
+- Serve the app over HTTPS from a reverse proxy. Never expose it over plain
+  HTTP.
+- Expose only the app port. Keep PostgreSQL on a private network.
+- Make the proxy overwrite the forwarding headers a client sends, and limit
+  request size and connection time.
+- Set `HEALTH_CHECK_TOKEN` so `/api/health` is not open to everyone.
 
-Administrator role changes, bans, and removals lock and recheck the acting
-administrator and target together. Better Auth's separate `/admin/*` endpoints
-are disabled because they bypass these application safeguards. An administrator
-must be demoted by another administrator before deleting its own account.
-Administrator-issued reset tokens are checked again under credential locks;
-password replacement and session revocation commit together.
+**Ongoing**
 
-Rate limits are in memory and apply per application instance. Multiple instances
-need a shared limiter or equivalent protection at the reverse proxy. Configure
-the proxy to replace client-supplied forwarding headers and impose request-body
-and connection-time limits before requests reach Node.js.
+- Test a restore, not only the backup, before each upgrade.
+- Review administrator accounts and the audit log regularly.
+- Restrict who can read logs. Audit events hold user IDs and IP addresses.
+- If `BETTER_AUTH_SECRET` leaks, rotate it with Better Auth's rotation
+  procedure.
 
-Email verification and password-reset mail require operator-provided SMTP and
-are disabled by default. Without SMTP, an administrator can issue a one-hour,
-single-use reset link from the administration console and deliver it through a
-trusted channel. Email ownership remains unverified until SMTP verification is
-enabled. Configure it before allowing untrusted registrations.
+## Known limits
+
+- **Rate limits are per process.** They live in memory. If you run several
+  instances, add a shared limiter at the reverse proxy.
+- **Sign-ups run one at a time.** A second sign-up sent at the same moment gets
+  HTTP 429 and can retry. This holds only for the app's
+  `/api/auth/sign-up/email` route. A direct server-side Better Auth sign-up
+  call would skip it.
+- **Without email, addresses are unverified.** An administrator can create a
+  one-hour, single-use password reset link and pass it on by hand. Set up email
+  before you allow registration by people you do not know.
+- **An administrator cannot delete their own account.** Another administrator
+  has to demote them first. Better Auth's own `/admin/*` routes are disabled,
+  because they skip the app's checks.
