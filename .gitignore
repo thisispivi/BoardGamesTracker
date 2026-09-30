@@ -1,57 +1,35 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
+# dependencies and build output
 board-games-tracker/node_modules/
-board-games-tracker/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
-
-# testing
-board-games-tracker/coverage/
-
-# next.js
 board-games-tracker/.next/
 board-games-tracker/out/
-
-# production
 board-games-tracker/build/
+board-games-tracker/coverage/
+*.tsbuildinfo
+next-env.d.ts
 
-# misc
-.DS_Store
-*.pem
-.claude/
-.agents/
-skills-lock.json
-
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# env files (can opt-in for committing if needed)
+# secrets and local settings
 .env*
 !.env.example
 board-games-tracker/.sentry-auth-token
+*.pem
 *.key
-*.log
+
+# data
+board-games-tracker/backups/
 *.sqlite*
 *.db
 *.sql
 !board-games-tracker/drizzle/*.sql
-board-games-tracker/backups/
-board-games-tracker/test-results/
-board-games-tracker/playwright-report/
-Thumbs.db
+
+# logs
+*.log
+
+# local tooling
+.claude/
+.agents/
 .codex/
+skills-lock.json
 
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# operating system
+.DS_Store
+Thumbs.db

@@ -1,28 +1,4 @@
 {
-  "github.copilot.chat.codeGeneration.useInstructionFiles": true,
-  "github.copilot.chat.codeGeneration.instructions": [
-    {
-      "file": "board-games-tracker/CODING_GUIDELINES.md"
-    },
-    {
-      "file": "board-games-tracker/AGENTS.md"
-    }
-  ],
-  "github.copilot.chat.reviewSelection.instructions": [
-    {
-      "file": "board-games-tracker/CODING_GUIDELINES.md"
-    }
-  ],
-  "github.copilot.chat.testGeneration.instructions": [
-    {
-      "file": "board-games-tracker/CODING_GUIDELINES.md"
-    }
-  ],
-  "github.copilot.chat.commitMessageGeneration.instructions": [
-    {
-      "text": "Use Conventional Commits: type(scope): imperative summary."
-    }
-  ],
   "editor.unicodeHighlight.allowedCharacters": {
     "–": true
   },
