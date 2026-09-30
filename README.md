@@ -169,6 +169,16 @@ The application and Drizzle commands both read `board-games-tracker/.env.local`.
 Application URLs must be HTTP(S) origins without paths, credentials, queries, or
 fragments. The development server listens on <http://localhost:12500>.
 
+**Windows:** if `pnpm dev` or `pnpm build` stops at "Failed to load native
+binding" with `ERR_SWC_NATIVE_CACHE`, SWC is refusing its default cache under
+`%LOCALAPPDATA%` because that folder grants another package write access. Give
+it a short folder of your own. The path has to stay short, because SWC builds
+file names inside it that can pass the 260-character Windows limit.
+
+```powershell
+$env:SWC_NATIVE_BINDING_CACHE = "$env:USERPROFILE\.swc-cache"
+```
+
 ## Your data stays yours
 
 Accounts, collection records, preferences, and cached game metadata live in

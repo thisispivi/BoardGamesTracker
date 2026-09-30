@@ -364,7 +364,9 @@ before writing routing, caching, or data-fetching code.**
    Next.js, ESLint, and TypeScript stack. Do not force a major version through
    unmet peer ranges. Record the reason when an apparently newer major is held.
 5. Lockfile changes are part of the diff and MUST be reviewed. Never mix npm or
-   Yarn lockfiles into this pnpm repository.
+   Yarn lockfiles into this pnpm repository. `pnpm-lock.yaml` is generated, so
+   `.prettierignore` skips it: pnpm and Dependabot write it in their own quote
+   style, and formatting it would fail every automated dependency update.
 6. `pnpm audit --audit-level=moderate` must pass. An `ignoreGhsas` entry in
    `pnpm-workspace.yaml` requires a nearby explanation of the advisory, why the
    installed tree is safe, and the condition for removing the exception.
