@@ -23,6 +23,14 @@ allowBuilds:
 auditConfig:
   ignoreGhsas:
     - GHSA-mh99-v99m-4gvg
+    # braces has no patched release for this recursive glob-pattern DoS. It is
+    # only reached through eslint-config-next > @next/eslint-plugin-next >
+    # fast-glob > micromatch, all development-only. The plugin consumes trusted
+    # ESLint rootDir settings; this app configures no rootDir glob, and request
+    # input never reaches that tooling. It is absent from the production tree.
+    # Remove this exception when a patched release is available or the package
+    # becomes reachable from untrusted glob patterns.
+    - GHSA-vfj7-8cjw-p6xm
 overrides:
   # Patched 1.x backport. The legacy minimatch@3 stack pulled in by ExcelJS and
   # ESLint still requires the 1.x line, so pin its newest release instead of
