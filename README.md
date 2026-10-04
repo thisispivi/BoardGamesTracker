@@ -159,15 +159,9 @@ PostgreSQL.
 
 ### Before a pull request
 
-```bash
-pnpm check && pnpm test:coverage && pnpm build && pnpm audit --audit-level=moderate
-```
-
-`pnpm install` sets up Git hooks. A commit formats and lints the staged files,
-and a push runs `pnpm check`. CI runs the full command above.
-
-The code rules are in
-[CODING_GUIDELINES.md](./board-games-tracker/CODING_GUIDELINES.md).
+`pnpm install` sets up Git hooks: a commit formats and lints the staged files,
+and a push runs `pnpm check`. The full gate and the rules for a change are in
+[CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ### Releases
 
@@ -208,29 +202,6 @@ harden a deployment.
 | [SECURITY.md](./SECURITY.md)                                       | Reporting a vulnerability, hardening    |
 | [CONTRIBUTING.md](./CONTRIBUTING.md)                               | How to send a change                    |
 | [CODING_GUIDELINES.md](./board-games-tracker/CODING_GUIDELINES.md) | Code, test, and architecture rules      |
-
-## Project layout
-
-```text
-.
-├── .github/                  CI and Dependabot
-├── board-games-tracker/      The application
-│   ├── drizzle/              Generated database migrations
-│   ├── messages/             English and Italian text
-│   ├── scripts/              Migration, backup, and maintenance scripts
-│   ├── searxng/              Search configuration
-│   ├── src/
-│   │   ├── app/              Pages and HTTP routes
-│   │   ├── components/       Interface, from atoms to templates
-│   │   ├── core/             Shared types and validation schemas
-│   │   ├── server/           Database, accounts, and outside services
-│   │   └── utils/            Small helpers that run anywhere
-│   ├── docker-compose.yml
-│   └── Dockerfile
-├── CONTRIBUTING.md
-├── DEPLOYMENT.md
-└── SECURITY.md
-```
 
 ## License
 
