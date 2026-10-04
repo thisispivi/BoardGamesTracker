@@ -3,24 +3,20 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { LoaderCircle, ShoppingBag, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useLocale, useTranslations } from "next-intl";
-import { type ReactNode, useActionState, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
+import { type ReactNode, useActionState, useState } from "react";
 
 import { Button } from "@/components/atoms/Button/Button";
 import { Tooltip } from "@/components/atoms/Tooltip/Tooltip";
 import { ConfirmDialog } from "@/components/molecules/ConfirmDialog/ConfirmDialog";
-import { GameArtworkLink } from "@/components/molecules/GameArtworkLink/GameArtworkLink";
-import { GameFacts } from "@/components/molecules/GameFacts/GameFacts";
-import { GameTitle } from "@/components/molecules/GameTitle/GameTitle";
 import { GiftedPriceField } from "@/components/molecules/GiftedPriceField/GiftedPriceField";
-import { TagRow } from "@/components/molecules/TagRow/TagRow";
+import { GameCardShell } from "@/components/organisms/GameCardShell/GameCardShell";
 import type { CollectionActionState, CollectionGame } from "@/core";
 import { useActionFeedback } from "@/hooks/useActionFeedback";
 import {
   moveWishlistToCollectionAction,
   removeGameAction,
 } from "@/server/actions/collection";
-import { buildGameTags } from "@/utils/gameTags";
 
 const initialState: CollectionActionState = { success: false, message: "" };
 
@@ -136,56 +132,35 @@ export function WishlistCard({
   eager = false,
   game,
 }: WishlistCardProps): ReactNode {
-  const locale = useLocale();
   const t = useTranslations();
-  const tags = useMemo(() => buildGameTags(game, locale), [game, locale]);
 
   return (
-    <article className="bg-card shadow-soft hover:border-accent/50 flex flex-col overflow-hidden rounded-xl border transition-colors duration-200">
-      <div className="flex gap-3 p-3 sm:gap-4 sm:p-4">
-        <GameArtworkLink
-          artworkClassName="h-full w-full"
-          className="aspect-square min-h-20 self-stretch sm:min-h-24"
-          eager={eager}
-          game={game}
-        />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <div className="flex min-w-0 items-start gap-1">
-            <div className="min-w-0 flex-1">
-              <GameTitle
-                className="font-display text-sm leading-snug font-bold sm:text-base"
-                name={game.name}
-              />
-              <p className="text-muted-foreground mt-1 text-xs">
-                {game.yearPublished ?? t("common.yearUnknown")}
-              </p>
-            </div>
-            <div className="-mt-1 -mr-1 flex shrink-0 items-center">
-              <PurchaseDialog currency={currency} game={game} />
-              <ConfirmDialog
-                action={removeGameAction}
-                cancelLabel={t("common.cancel")}
-                confirmLabel={t("wishlist.remove")}
-                description={t("wishlist.removeBody")}
-                fields={{ itemId: game.id }}
-                title={t("wishlist.removeTitle", { name: game.name })}
-                tooltip={t("wishlist.removeHint")}
-                trigger={
-                  <button
-                    aria-label={t("wishlist.removeTitle", { name: game.name })}
-                    className="text-muted-foreground hover:bg-muted hover:text-danger grid size-8 shrink-0 cursor-pointer place-items-center rounded-full transition"
-                    type="button"
-                  >
-                    <Trash2 className="size-4" />
-                  </button>
-                }
-              />
-            </div>
-          </div>
-          <TagRow className="mt-2.5" tags={tags} />
-          <GameFacts className="mt-2.5 border-t pt-2.5" game={game} />
-        </div>
-      </div>
-    </article>
+    <GameCardShell
+      actions={
+        <>
+          <PurchaseDialog currency={currency} game={game} />
+          <ConfirmDialog
+            action={removeGameAction}
+            cancelLabel={t("common.cancel")}
+            confirmLabel={t("wishlist.remove")}
+            description={t("wishlist.removeBody")}
+            fields={{ itemId: game.id }}
+            title={t("wishlist.removeTitle", { name: game.name })}
+            tooltip={t("wishlist.removeHint")}
+            trigger={
+              <button
+                aria-label={t("wishlist.removeTitle", { name: game.name })}
+                className="text-muted-foreground hover:bg-muted hover:text-danger grid size-8 shrink-0 cursor-pointer place-items-center rounded-full transition"
+                type="button"
+              >
+                <Trash2 className="size-4" />
+              </button>
+            }
+          />
+        </>
+      }
+      eager={eager}
+      game={game}
+    />
   );
 }
