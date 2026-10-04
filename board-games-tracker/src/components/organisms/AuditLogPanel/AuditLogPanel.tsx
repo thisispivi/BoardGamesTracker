@@ -48,10 +48,6 @@ export function AuditLogPanel({ initialPage }: AuditLogPanelProps): ReactNode {
       navigationLabel={t("admin.trail")}
       onPageChange={loadPage}
       page={result.page}
-      pageLabel={t("admin.auditPage", {
-        page: result.page,
-        pages: result.pages,
-      })}
       pages={result.pages}
       pending={pending}
     >

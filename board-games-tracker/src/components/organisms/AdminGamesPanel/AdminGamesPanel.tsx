@@ -515,10 +515,6 @@ export function AdminGamesPanel({
         navigationLabel={t("adminGames.title")}
         onPageChange={(page) => loadPage(page, query)}
         page={result.page}
-        pageLabel={t("adminGames.page", {
-          page: result.page,
-          pages: result.pages,
-        })}
         pages={result.pages}
         pending={pending}
       >

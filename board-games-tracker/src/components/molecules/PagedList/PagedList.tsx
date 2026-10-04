@@ -16,7 +16,6 @@ type PagedListProps = {
   navigationLabel: string;
   onPageChange: (page: number) => void;
   page: number;
-  pageLabel: string;
   pages: number;
   pending: boolean;
 };
@@ -34,7 +33,6 @@ type PagedListProps = {
  * @param root0.navigationLabel - Accessible name of the pagination landmark.
  * @param root0.onPageChange - Requests a one-based page number.
  * @param root0.page - One-based number of the current page.
- * @param root0.pageLabel - Localized position such as "Page 2 of 5".
  * @param root0.pages - Total number of pages, at least one.
  * @param root0.pending - Whether a page request is in flight.
  * @returns The results with their pagination controls.
@@ -46,7 +44,6 @@ export function PagedList({
   navigationLabel,
   onPageChange,
   page,
-  pageLabel,
   pages,
   pending,
 }: PagedListProps): ReactNode {
@@ -85,10 +82,10 @@ export function PagedList({
           type="button"
           variant="secondary"
         >
-          <ChevronLeft className="size-4" /> {t("admin.previous")}
+          <ChevronLeft className="size-4" /> {t("common.previous")}
         </Button>
         <p className="text-muted-foreground text-xs font-bold tabular-nums">
-          {pageLabel}
+          {t("common.page", { page, pages })}
         </p>
         <Button
           className="min-w-0 px-2 sm:min-w-28 sm:px-3"
@@ -98,7 +95,7 @@ export function PagedList({
           type="button"
           variant="secondary"
         >
-          {t("admin.next")} <ChevronRight className="size-4" />
+          {t("common.next")} <ChevronRight className="size-4" />
         </Button>
       </nav>
     </>

@@ -74,7 +74,10 @@
     "expansion": "Espansione",
     "duration": "{hours, plural, =0 {{minutes} min} other {{hours} h{minutes, plural, =0 {} other { {minutes} min}}}}",
     "fraction": "{part} su {total}",
-    "bggId": "BGG #{id}"
+    "bggId": "BGG #{id}",
+    "previous": "Precedente",
+    "next": "Successiva",
+    "page": "Pagina {page} di {pages}"
   },
   "nav": {
     "primary": "Navigazione principale",
@@ -523,11 +526,8 @@
     "recent": "Eventi di audit recenti",
     "system": "Sistema",
     "noEvents": "Nessun evento di audit.",
-    "auditPage": "Pagina {page} di {pages}",
     "loading": "Caricamento eventi di audit…",
     "loadError": "Impossibile caricare gli eventi di audit.",
-    "previous": "Precedente",
-    "next": "Successiva",
     "resetPassword": "Copia link di reimpostazione password",
     "resetFailed": "Non è stato possibile creare il link di reimpostazione",
     "resetCopied": "Link copiato. Scade dopo un'ora e funziona una sola volta.",
@@ -543,7 +543,6 @@
     "empty": "Nessun gioco corrisponde alla ricerca.",
     "loading": "Caricamento giochi…",
     "loadError": "Impossibile caricare i giochi.",
-    "page": "Pagina {page} di {pages}",
     "edit": "Modifica {name}",
     "name": "Nome",
     "rating": "Voto BGG",
