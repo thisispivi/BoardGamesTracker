@@ -1,13 +1,5 @@
 import { eq } from "drizzle-orm";
-import {
-  afterAll,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 vi.mock("@/server/db", async () => ({
@@ -69,16 +61,13 @@ import {
   getUserDataDocument,
   importUserDataDocument,
 } from "@/server/userData/data";
-import { migrateTestDatabase, testDatabase, testDb } from "@/test/database";
+import { setupTestDatabase, testDb } from "@/test/database";
 import { clearCollectionConfirmation } from "@/utils/collectionConfirmation";
 
 const gameId = "00000000-0000-4000-8000-000000000013";
 const itemId = "00000000-0000-4000-8000-000000000014";
 
-beforeAll(migrateTestDatabase, 30_000);
-afterAll(async () => {
-  await testDatabase.close();
-});
+setupTestDatabase();
 beforeEach(async () => {
   await testDb.delete(user);
   await testDb.delete(games);

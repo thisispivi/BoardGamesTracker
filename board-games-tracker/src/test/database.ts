@@ -1,20 +1,27 @@
 import { PGlite } from "@electric-sql/pglite";
 import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
+import { afterAll, beforeAll } from "vitest";
 
 import * as schema from "@/server/db/schema";
 
 /** Isolated PostgreSQL runtime that never connects to an operator's database. */
-export const testDatabase = new PGlite();
+const testDatabase = new PGlite();
 
 /** Executes application queries against the isolated PostgreSQL runtime. */
 export const testDb = drizzle(testDatabase, { schema });
 
 /**
- * Applies the checked-in production migrations to a fresh test database.
+ * Registers suite hooks that apply the checked-in production migrations before
+ * the first test and close the runtime after the last one.
  *
- * @returns Completion once the schema is ready for application queries.
+ * @returns Nothing.
  */
-export async function migrateTestDatabase(): Promise<void> {
-  await migrate(testDb, { migrationsFolder: "./drizzle" });
+export function setupTestDatabase(): void {
+  beforeAll(async () => {
+    await migrate(testDb, { migrationsFolder: "./drizzle" });
+  }, 30_000);
+  afterAll(async () => {
+    await testDatabase.close();
+  });
 }

@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 vi.mock("@/server/db", async () => ({
@@ -17,11 +17,12 @@ vi.mock("@/env", () => ({
 
 import { auth } from "@/server/auth";
 import { user } from "@/server/db/schema";
-import { migrateTestDatabase, testDatabase, testDb } from "@/test/database";
+import { setupTestDatabase, testDb } from "@/test/database";
+
+setupTestDatabase();
 
 let cookie = "";
 beforeAll(async () => {
-  await migrateTestDatabase();
   const response = await auth.handler(
     authRequest("sign-up/email", {
       name: "Administrator",
@@ -34,9 +35,6 @@ beforeAll(async () => {
     .getSetCookie()
     .map((value) => value.split(";")[0])
     .join("; ");
-}, 30_000);
-afterAll(async () => {
-  await testDatabase.close();
 });
 
 /**
