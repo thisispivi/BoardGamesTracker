@@ -3,11 +3,11 @@
 import { LoaderCircle, Trash2, TriangleAlert, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { type ReactNode, useActionState, useEffect, useState } from "react";
-import { toast } from "sonner";
+import { type ReactNode, useActionState, useState } from "react";
 
 import { Button } from "@/components/atoms/Button/Button";
 import type { CollectionActionState } from "@/core";
+import { useActionFeedback } from "@/hooks/useActionFeedback";
 import { clearLibraryAction } from "@/server/actions/collection";
 import { cn } from "@/utils/cn";
 import { clearCollectionConfirmation } from "@/utils/collectionConfirmation";
@@ -43,21 +43,11 @@ export function ClearLibraryCard({
   const isWishlist = library === "wishlist";
   const titleId = `clear-${library}-title`;
 
-  useEffect(() => {
-    if (!state.message) {
-      return;
-    }
-    if (state.success) {
-      toast.success(state.message);
-      router.refresh();
-      const timeout = window.setTimeout(() => {
-        setOpen(false);
-        setConfirmation("");
-      }, 0);
-      return () => window.clearTimeout(timeout);
-    }
-    toast.error(state.message);
-  }, [router, state]);
+  useActionFeedback(state, () => {
+    router.refresh();
+    setOpen(false);
+    setConfirmation("");
+  });
 
   return (
     <section

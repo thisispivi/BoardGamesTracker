@@ -4,14 +4,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { LoaderCircle, ShoppingBag, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import {
-  type ReactNode,
-  useActionState,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import { toast } from "sonner";
+import { type ReactNode, useActionState, useMemo, useState } from "react";
 
 import { Button } from "@/components/atoms/Button/Button";
 import { Tooltip } from "@/components/atoms/Tooltip/Tooltip";
@@ -22,6 +15,7 @@ import { GameTitle } from "@/components/molecules/GameTitle/GameTitle";
 import { GiftedPriceField } from "@/components/molecules/GiftedPriceField/GiftedPriceField";
 import { TagRow } from "@/components/molecules/TagRow/TagRow";
 import type { CollectionActionState, CollectionGame } from "@/core";
+import { useActionFeedback } from "@/hooks/useActionFeedback";
 import {
   moveWishlistToCollectionAction,
   removeGameAction,
@@ -53,17 +47,10 @@ function PurchaseDialog({ currency, game }: PurchaseDialogProps): ReactNode {
   const router = useRouter();
   const t = useTranslations();
 
-  useEffect(() => {
-    if (!state.message) return;
-    if (state.success) {
-      toast.success(state.message);
-      router.refresh();
-      const timeout = window.setTimeout(() => setOpen(false), 0);
-      return () => window.clearTimeout(timeout);
-    } else {
-      toast.error(state.message);
-    }
-  }, [router, state]);
+  useActionFeedback(state, () => {
+    router.refresh();
+    setOpen(false);
+  });
 
   return (
     <Dialog.Root onOpenChange={setOpen} open={open}>

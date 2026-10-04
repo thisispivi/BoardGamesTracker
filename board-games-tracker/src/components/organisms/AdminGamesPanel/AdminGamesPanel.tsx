@@ -33,6 +33,7 @@ import {
   earliestPublicationYear,
   latestPublicationYear,
 } from "@/core";
+import { useActionFeedback } from "@/hooks/useActionFeedback";
 import {
   getAdminGamesPageAction,
   refreshGameCatalogBatchAction,
@@ -96,17 +97,8 @@ function EditGameMetadataDialog({ game, onClose }: EditDialogProps): ReactNode {
     initialState,
   );
 
-  useEffect(() => {
-    for (const state of [saveState, refreshState]) {
-      if (!state.message) continue;
-      if (state.success) {
-        toast.success(state.message);
-        onClose();
-      } else {
-        toast.error(state.message);
-      }
-    }
-  }, [onClose, refreshState, saveState]);
+  useActionFeedback(saveState, onClose);
+  useActionFeedback(refreshState, onClose);
 
   return (
     <Dialog.Root onOpenChange={(next) => (next ? null : onClose())} open>

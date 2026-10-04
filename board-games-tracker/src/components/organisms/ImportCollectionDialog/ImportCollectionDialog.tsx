@@ -3,11 +3,11 @@
 import { FileUp, LoaderCircle, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { type ReactNode, useActionState, useEffect, useState } from "react";
-import { toast } from "sonner";
+import { type ReactNode, useActionState, useState } from "react";
 
 import { Button } from "@/components/atoms/Button/Button";
 import type { CollectionActionState } from "@/core";
+import { useActionFeedback } from "@/hooks/useActionFeedback";
 import { importBggCsvAction } from "@/server/actions/collection";
 
 const initialState: CollectionActionState = { success: false, message: "" };
@@ -26,18 +26,10 @@ export function ImportCollectionDialog(): ReactNode {
   );
   const router = useRouter();
 
-  useEffect(() => {
-    if (!state.message) {
-      return;
-    }
-    if (state.success) {
-      toast.success(state.message);
-      router.refresh();
-      const timeout = window.setTimeout(() => setOpen(false), 0);
-      return () => window.clearTimeout(timeout);
-    }
-    toast.error(state.message);
-  }, [router, state]);
+  useActionFeedback(state, () => {
+    router.refresh();
+    setOpen(false);
+  });
 
   return (
     <>

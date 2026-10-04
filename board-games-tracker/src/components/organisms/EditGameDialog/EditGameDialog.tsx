@@ -3,12 +3,12 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { LoaderCircle, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { type ReactNode, useActionState, useEffect } from "react";
-import { toast } from "sonner";
+import { type ReactNode, useActionState } from "react";
 
 import { Button } from "@/components/atoms/Button/Button";
 import { GiftedPriceField } from "@/components/molecules/GiftedPriceField/GiftedPriceField";
 import type { CollectionActionState, CollectionGame } from "@/core";
+import { useActionFeedback } from "@/hooks/useActionFeedback";
 import { updateCollectionItemAction } from "@/server/actions/collection";
 
 const initialState: CollectionActionState = { success: false, message: "" };
@@ -46,16 +46,7 @@ export function EditGameDialog({
     initialState,
   );
 
-  useEffect(() => {
-    if (!state.message) return;
-    if (state.success) {
-      toast.success(state.message);
-      const timeout = window.setTimeout(() => onOpenChange(false), 0);
-      return () => window.clearTimeout(timeout);
-    } else {
-      toast.error(state.message);
-    }
-  }, [onOpenChange, state]);
+  useActionFeedback(state, () => onOpenChange(false));
 
   return (
     <Dialog.Root onOpenChange={onOpenChange} open={open}>
