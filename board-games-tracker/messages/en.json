@@ -74,7 +74,10 @@
     "expansion": "Expansion",
     "duration": "{hours, plural, =0 {{minutes} min} other {{hours} h{minutes, plural, =0 {} other { {minutes} min}}}}",
     "fraction": "{part} of {total}",
-    "bggId": "BGG #{id}"
+    "bggId": "BGG #{id}",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {page} of {pages}"
   },
   "nav": {
     "primary": "Primary navigation",
@@ -523,11 +526,8 @@
     "recent": "Recent audit events",
     "system": "System",
     "noEvents": "No audit events yet.",
-    "auditPage": "Page {page} of {pages}",
     "loading": "Loading audit events…",
     "loadError": "The audit events could not be loaded.",
-    "previous": "Previous",
-    "next": "Next",
     "resetPassword": "Copy password reset link",
     "resetFailed": "The reset link could not be created",
     "resetCopied": "Reset link copied. It expires in one hour and works once.",
@@ -543,7 +543,6 @@
     "empty": "No games match that search.",
     "loading": "Loading games…",
     "loadError": "The games could not be loaded.",
-    "page": "Page {page} of {pages}",
     "edit": "Edit {name}",
     "name": "Name",
     "rating": "BGG rating",

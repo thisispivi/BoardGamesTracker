@@ -1,13 +1,5 @@
 import { eq } from "drizzle-orm";
-import {
-  afterAll,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { requireAdmin, scrapeBggMetadata, writeAuditEvent } = vi.hoisted(() => ({
   requireAdmin: vi.fn(),
@@ -35,7 +27,7 @@ import {
   refreshGameFromBggAction,
 } from "@/server/actions/adminGames";
 import { games } from "@/server/db/schema";
-import { migrateTestDatabase, testDatabase, testDb } from "@/test/database";
+import { setupTestDatabase, testDb } from "@/test/database";
 
 /**
  * Builds the metadata the scraper returns for one game.
@@ -78,10 +70,7 @@ async function seedGames(bggIds: number[]): Promise<void> {
     .values(bggIds.map((bggId) => ({ bggId, name: `Placeholder ${bggId}` })));
 }
 
-beforeAll(migrateTestDatabase, 30_000);
-afterAll(async () => {
-  await testDatabase.close();
-});
+setupTestDatabase();
 beforeEach(async () => {
   vi.clearAllMocks();
   await testDb.delete(games);

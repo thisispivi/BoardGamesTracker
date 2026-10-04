@@ -1,22 +1,20 @@
 "use client";
 
 import { CircleCheck, Heart } from "lucide-react";
-import { useFormatter, useLocale, useTranslations } from "next-intl";
-import { type ReactNode, useMemo } from "react";
+import { useFormatter, useTranslations } from "next-intl";
+import type { ReactNode } from "react";
 
 import { Tooltip } from "@/components/atoms/Tooltip/Tooltip";
 import { GameArtworkLink } from "@/components/molecules/GameArtworkLink/GameArtworkLink";
-import { GameFacts } from "@/components/molecules/GameFacts/GameFacts";
 import { GameTitle } from "@/components/molecules/GameTitle/GameTitle";
-import { TagRow } from "@/components/molecules/TagRow/TagRow";
 import { GameActionsMenu } from "@/components/organisms/GameActionsMenu/GameActionsMenu";
+import { GameCardShell } from "@/components/organisms/GameCardShell/GameCardShell";
 import type { CollectionGame } from "@/core";
 import {
   toggleFavoriteAction,
   togglePlayedAction,
 } from "@/server/actions/collection";
 import { cn } from "@/utils/cn";
-import { buildGameTags } from "@/utils/gameTags";
 
 /** Game record used by the optimistic favorite control. */
 type FavoriteControlProps = { game: CollectionGame };
@@ -182,11 +180,7 @@ type GameCardProps = {
 };
 
 /**
- * Horizontal board-game card with a small cover, a measured tag row, and its expansions.
- *
- * The artwork is deliberately thumbnail sized: the card is a scannable index
- * entry, and the facts, taxonomy, and actions are what the collection is
- * browsed by.
+ * Collection card with its owner controls and the expansions grouped under it.
  *
  * @param root0 - Properties that configure game card.
  * @param root0.compact - Whether to render the single-line expansion presentation.
@@ -205,9 +199,7 @@ export function GameCard({
   game,
   readOnly = false,
 }: GameCardProps): ReactNode {
-  const locale = useLocale();
   const t = useTranslations();
-  const tags = useMemo(() => buildGameTags(game, locale), [game, locale]);
 
   if (compact) {
     return (
@@ -218,38 +210,20 @@ export function GameCard({
   }
 
   return (
-    <article className="bg-card shadow-soft hover:border-accent/50 flex flex-col overflow-hidden rounded-xl border transition-colors duration-200">
-      <div className="flex gap-3 p-3 sm:gap-4 sm:p-4">
-        <GameArtworkLink
-          artworkClassName="h-full w-full"
-          className="aspect-square min-h-20 self-stretch sm:min-h-24"
-          eager={eager}
-          game={game}
-        />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <div className="flex min-w-0 items-start gap-1">
-            <div className="min-w-0 flex-1">
-              <GameTitle
-                className="font-display text-sm leading-snug font-bold sm:text-base"
-                name={game.name}
-              />
-              <p className="text-muted-foreground mt-1 flex flex-wrap items-center gap-1 text-xs">
-                <span>{game.yearPublished ?? t("common.yearUnknown")}</span>
-                <CollectionCost currency={currency} game={game} />
-              </p>
-            </div>
-            {readOnly ? null : (
-              <div className="-mt-1 -mr-1 flex shrink-0 items-center">
-                <FavoriteControl game={game} />
-                <PlayedControl game={game} />
-                <GameActionsMenu currency={currency} game={game} />
-              </div>
-            )}
-          </div>
-          <TagRow className="mt-2.5" tags={tags} />
-          <GameFacts className="mt-2.5 border-t pt-2.5" game={game} />
-        </div>
-      </div>
+    <GameCardShell
+      actions={
+        readOnly ? null : (
+          <>
+            <FavoriteControl game={game} />
+            <PlayedControl game={game} />
+            <GameActionsMenu currency={currency} game={game} />
+          </>
+        )
+      }
+      eager={eager}
+      game={game}
+      meta={<CollectionCost currency={currency} game={game} />}
+    >
       {expansions.length > 0 ? (
         <section className="bg-muted/40 border-t px-2 py-2 sm:px-3">
           <div className="text-muted-foreground flex items-center justify-between gap-2 px-1 pb-1 text-[0.6875rem] font-bold tracking-wide uppercase">
@@ -268,6 +242,6 @@ export function GameCard({
           </div>
         </section>
       ) : null}
-    </article>
+    </GameCardShell>
   );
 }

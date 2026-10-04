@@ -1,15 +1,12 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { type ReactNode, useState, useTransition } from "react";
 import { toast } from "sonner";
 
-import { AppSpinner } from "@/components/atoms/AppSpinner/AppSpinner";
-import { Button } from "@/components/atoms/Button/Button";
+import { PagedList } from "@/components/molecules/PagedList/PagedList";
 import type { AuditLogPage } from "@/core";
 import { getAuditLogPageAction } from "@/server/actions/admin";
-import { cn } from "@/utils/cn";
 
 /** Initial paginated audit records displayed by the administration panel. */
 type AuditLogPanelProps = { initialPage: AuditLogPage };
@@ -45,79 +42,39 @@ export function AuditLogPanel({ initialPage }: AuditLogPanelProps): ReactNode {
   }
 
   return (
-    <>
-      <div aria-busy={pending} className="relative min-h-32">
+    <PagedList
+      listClassName="filter-options"
+      loadingLabel={t("admin.loading")}
+      navigationLabel={t("admin.trail")}
+      onPageChange={loadPage}
+      page={result.page}
+      pages={result.pages}
+      pending={pending}
+    >
+      {result.events.map((event) => (
         <div
-          className={cn(
-            "filter-options max-h-128 space-y-1 overflow-y-auto overscroll-contain pr-1 transition-opacity",
-            pending ? "opacity-35" : "opacity-100",
-          )}
+          className="hover:bg-muted/60 grid gap-1 rounded-lg px-3 py-3 text-sm sm:grid-cols-[1fr_180px] sm:items-center"
+          key={event.id}
         >
-          {result.events.map((event) => (
-            <div
-              className="hover:bg-muted/60 grid gap-1 rounded-lg px-3 py-3 text-sm sm:grid-cols-[1fr_180px] sm:items-center"
-              key={event.id}
-            >
-              <div>
-                <strong>{event.action}</strong>
-                <span className="text-muted-foreground ml-2 text-xs">
-                  {event.actorName ?? t("admin.system")} · {event.targetType}
-                </span>
-              </div>
-              <time className="text-muted-foreground text-xs sm:text-right">
-                {format.dateTime(new Date(event.createdAt), {
-                  dateStyle: "medium",
-                  timeStyle: "short",
-                })}
-              </time>
-            </div>
-          ))}
-          {result.events.length === 0 ? (
-            <p className="text-muted-foreground py-8 text-center text-sm">
-              {t("admin.noEvents")}
-            </p>
-          ) : null}
-        </div>
-        {pending ? (
-          <div className="bg-card/72 absolute inset-0 grid place-items-center rounded-lg backdrop-blur-[2px]">
-            <div className="text-primary flex flex-col items-center gap-3 text-sm font-bold">
-              <AppSpinner className="size-7" label={t("admin.loading")} />
-              <span>{t("admin.loading")}</span>
-            </div>
+          <div>
+            <strong>{event.action}</strong>
+            <span className="text-muted-foreground ml-2 text-xs">
+              {event.actorName ?? t("admin.system")} · {event.targetType}
+            </span>
           </div>
-        ) : null}
-      </div>
-      <nav
-        aria-label={t("admin.trail")}
-        className="mt-5 flex items-center justify-between gap-4 border-t pt-5"
-      >
-        <Button
-          className="min-w-0 px-2 sm:min-w-28 sm:px-3"
-          disabled={pending || result.page <= 1}
-          onClick={() => loadPage(result.page - 1)}
-          size="sm"
-          type="button"
-          variant="secondary"
-        >
-          <ChevronLeft className="size-4" /> {t("admin.previous")}
-        </Button>
-        <p className="text-muted-foreground text-xs font-bold tabular-nums">
-          {t("admin.auditPage", {
-            page: result.page,
-            pages: result.pages,
-          })}
+          <time className="text-muted-foreground text-xs sm:text-right">
+            {format.dateTime(new Date(event.createdAt), {
+              dateStyle: "medium",
+              timeStyle: "short",
+            })}
+          </time>
+        </div>
+      ))}
+      {result.events.length === 0 ? (
+        <p className="text-muted-foreground py-8 text-center text-sm">
+          {t("admin.noEvents")}
         </p>
-        <Button
-          className="min-w-0 px-2 sm:min-w-28 sm:px-3"
-          disabled={pending || result.page >= result.pages}
-          onClick={() => loadPage(result.page + 1)}
-          size="sm"
-          type="button"
-          variant="secondary"
-        >
-          {t("admin.next")} <ChevronRight className="size-4" />
-        </Button>
-      </nav>
-    </>
+      ) : null}
+    </PagedList>
   );
 }

@@ -1,12 +1,4 @@
-import {
-  afterAll,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 vi.mock("@/server/db", async () => ({
@@ -16,7 +8,7 @@ vi.mock("@/server/db", async () => ({
 import type { LibraryFilters, LibraryPageRequest } from "@/core";
 import { getLibraryPage } from "@/server/collection";
 import { collectionItems, games, user } from "@/server/db/schema";
-import { migrateTestDatabase, testDatabase, testDb } from "@/test/database";
+import { setupTestDatabase, testDb } from "@/test/database";
 import { createLibraryFilters } from "@/utils/libraryFilters";
 
 /**
@@ -95,10 +87,7 @@ async function namesFor(
   return page.games.map((game) => game.name);
 }
 
-beforeAll(migrateTestDatabase, 30_000);
-afterAll(async () => {
-  await testDatabase.close();
-});
+setupTestDatabase();
 beforeEach(async () => {
   await testDb.delete(user);
   await testDb.delete(games);

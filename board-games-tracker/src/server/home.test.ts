@@ -1,12 +1,4 @@
-import {
-  afterAll,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 vi.mock("@/server/db", async () => ({
@@ -15,7 +7,7 @@ vi.mock("@/server/db", async () => ({
 
 import { collectionItems, games, user } from "@/server/db/schema";
 import { getHomeSummary } from "@/server/home";
-import { migrateTestDatabase, testDatabase, testDb } from "@/test/database";
+import { setupTestDatabase, testDb } from "@/test/database";
 
 /**
  * Derives a stable catalog row id from a BoardGameGeek id.
@@ -27,10 +19,7 @@ function gameId(bggId: number): string {
   return `00000000-0000-4000-8000-${String(bggId).padStart(12, "0")}`;
 }
 
-beforeAll(migrateTestDatabase, 30_000);
-afterAll(async () => {
-  await testDatabase.close();
-});
+setupTestDatabase();
 beforeEach(async () => {
   await testDb.delete(user);
   await testDb.delete(games);

@@ -6,7 +6,6 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { type ReactNode, useActionState, useEffect, useState } from "react";
-import { toast } from "sonner";
 
 import { AppSpinner } from "@/components/atoms/AppSpinner/AppSpinner";
 import { Button } from "@/components/atoms/Button/Button";
@@ -20,6 +19,7 @@ import {
   gameSearchResponseSchema,
   latestPublicationYear,
 } from "@/core";
+import { useActionFeedback } from "@/hooks/useActionFeedback";
 import { addGameAction } from "@/server/actions/collection";
 import { normalizeSearchText } from "@/utils/search";
 import { TtlCache } from "@/utils/ttlCache";
@@ -119,16 +119,10 @@ export function AddGameDialog({
     setSearchError(null);
   }
 
-  useEffect(() => {
-    if (!state.message) return;
-    if (state.success) {
-      toast.success(state.message);
-      router.refresh();
-      const timeout = window.setTimeout(() => changeOpen(false), 0);
-      return () => window.clearTimeout(timeout);
-    }
-    toast.error(state.message);
-  }, [router, state]);
+  useActionFeedback(state, () => {
+    router.refresh();
+    changeOpen(false);
+  });
 
   useEffect(() => {
     if (!selected) {

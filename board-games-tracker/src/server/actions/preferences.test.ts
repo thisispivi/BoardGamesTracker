@@ -1,13 +1,5 @@
 import { eq } from "drizzle-orm";
-import {
-  afterAll,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { requireUser } = vi.hoisted(() => ({ requireUser: vi.fn() }));
 vi.mock("server-only", () => ({}));
@@ -28,12 +20,9 @@ import {
   setSharingAction,
 } from "@/server/actions/preferences";
 import { user } from "@/server/db/schema";
-import { migrateTestDatabase, testDatabase, testDb } from "@/test/database";
+import { setupTestDatabase, testDb } from "@/test/database";
 
-beforeAll(migrateTestDatabase, 30_000);
-afterAll(async () => {
-  await testDatabase.close();
-});
+setupTestDatabase();
 beforeEach(async () => {
   await testDb.delete(user);
   await testDb

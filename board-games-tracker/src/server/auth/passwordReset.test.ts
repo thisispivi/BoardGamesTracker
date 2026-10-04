@@ -1,13 +1,5 @@
 import { eq } from "drizzle-orm";
-import {
-  afterAll,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 vi.mock("@/env", () => ({
@@ -41,12 +33,9 @@ import {
   verifyPasswordResetToken,
 } from "@/server/auth/passwordReset";
 import { account, session, user } from "@/server/db/schema";
-import { migrateTestDatabase, testDatabase, testDb } from "@/test/database";
+import { setupTestDatabase, testDb } from "@/test/database";
 
-beforeAll(migrateTestDatabase, 30_000);
-afterAll(async () => {
-  await testDatabase.close();
-});
+setupTestDatabase();
 beforeEach(async () => {
   await testDb.delete(user);
   await testDb

@@ -1,12 +1,9 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import { account, user } from "@/server/db/schema";
-import { migrateTestDatabase, testDatabase, testDb } from "@/test/database";
+import { setupTestDatabase, testDb } from "@/test/database";
 
-beforeAll(migrateTestDatabase, 30_000);
-afterAll(async () => {
-  await testDatabase.close();
-});
+setupTestDatabase();
 beforeEach(async () => {
   await testDb.delete(user);
   await testDb.insert(user).values([
