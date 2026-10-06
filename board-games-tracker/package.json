@@ -1,6 +1,6 @@
 {
   "name": "board-games-tracker",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "description": "A secure, self-hosted board-game collection and game-night picker.",
   "license": "MIT",

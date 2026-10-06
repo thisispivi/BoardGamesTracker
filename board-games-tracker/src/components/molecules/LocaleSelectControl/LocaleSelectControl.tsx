@@ -2,20 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import type { Locale } from "next-intl";
-import { useTranslations } from "next-intl";
 import { type ReactNode, useState, useTransition } from "react";
-import { CircleFlag } from "react-circle-flags";
 
-import { Select } from "@/components/atoms/Select/Select";
+import { LocalePicker } from "@/components/molecules/LocalePicker/LocalePicker";
 import { isLocale } from "@/i18n/config";
 import { setLocaleAction } from "@/server/actions/preferences";
 import { cn } from "@/utils/cn";
-
-/** Supported languages with the flag that identifies each one. */
-const localeOptions = [
-  { locale: "en", country: "gb", label: "English" },
-  { locale: "it", country: "it", label: "Italiano" },
-] as const;
 
 /** Properties that initialize the account locale selector. */
 type LocaleSelectControlProps = {
@@ -42,7 +34,6 @@ export function LocaleSelectControl({
   const [locale, setLocale] = useState(initialLocale);
   const [pending, startTransition] = useTransition();
   const router = useRouter();
-  const t = useTranslations();
 
   /**
    * Persists a supported locale and refreshes translated server content.
@@ -63,24 +54,7 @@ export function LocaleSelectControl({
 
   return (
     <div aria-busy={pending} className={cn("min-w-0 flex-1", className)}>
-      <Select
-        ariaLabel={t("locale.language")}
-        onValueChange={changeLocale}
-        options={localeOptions.map((option) => ({
-          value: option.locale,
-          label: (
-            <span className="flex items-center gap-2.5">
-              <CircleFlag
-                alt=""
-                className="size-5 shrink-0"
-                countryCode={option.country}
-              />
-              <span>{option.label}</span>
-            </span>
-          ),
-        }))}
-        value={locale}
-      />
+      <LocalePicker locale={locale} onValueChange={changeLocale} />
     </div>
   );
 }

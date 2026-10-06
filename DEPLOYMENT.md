@@ -14,8 +14,6 @@ page covers what comes after. Run every command from `board-games-tracker/`.
 4. Set up [email](#email) before you set `ALLOW_SIGN_UP=true`.
 5. Copy your backups to another machine.
 
-[SECURITY.md](./SECURITY.md) has the full hardening checklist.
-
 ## Backups
 
 The `backup` service writes a database dump to `board-games-tracker/backups`

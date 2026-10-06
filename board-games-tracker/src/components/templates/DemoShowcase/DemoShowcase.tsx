@@ -17,6 +17,7 @@ import { type ReactNode, useState } from "react";
 import { Avatar } from "@/components/atoms/Avatar/Avatar";
 import { Logo } from "@/components/atoms/Logo/Logo";
 import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
+import { LocalePicker } from "@/components/molecules/LocalePicker/LocalePicker";
 import { ThemeToggle } from "@/components/molecules/ThemeToggle/ThemeToggle";
 import { CollectionStatistics } from "@/components/organisms/CollectionStatistics/CollectionStatistics";
 import { DemoLibraryBrowser } from "@/components/organisms/DemoLibraryBrowser/DemoLibraryBrowser";
@@ -65,19 +66,14 @@ export function DemoShowcase({
         <DemoContent
           basePath={basePath}
           languageControl={
-            <select
-              aria-label={
-                locale === "it" ? italian.demo.language : english.demo.language
-              }
-              className="bg-card rounded-lg border px-3 py-2 text-sm"
-              onChange={(event) => {
-                if (isLocale(event.target.value)) setLocale(event.target.value);
-              }}
-              value={locale}
-            >
-              <option value="en">English</option>
-              <option value="it">Italiano</option>
-            </select>
+            <div className="min-w-0 flex-1">
+              <LocalePicker
+                locale={locale}
+                onValueChange={(value) => {
+                  if (isLocale(value)) setLocale(value);
+                }}
+              />
+            </div>
           }
           library={library}
           view={view}

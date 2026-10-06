@@ -5,6 +5,9 @@ import type { ReactNode } from "react";
 
 /** Metadata identifying the example library rather than an authenticated account. */
 export const metadata: Metadata = {
+  icons: {
+    icon: `${process.env.NEXT_PUBLIC_DEMO_BASE_PATH ?? ""}/favicon.png`,
+  },
   title: "Board Games Tracker · Demo",
   description:
     "Explore a fictional board-game collection, wishlist, statistics, and game-night picker.",

@@ -219,15 +219,11 @@ at 260 characters.
   limits.
 - Administrative and privacy changes are written to an audit log.
 
-[SECURITY.md](./SECURITY.md) explains how to report a vulnerability and how to
-harden a deployment.
-
 ## Documentation
 
 | Document                                                           | Covers                                  |
 | ------------------------------------------------------------------ | --------------------------------------- |
 | [DEPLOYMENT.md](./DEPLOYMENT.md)                                   | Going live, backups, upgrades, settings |
-| [SECURITY.md](./SECURITY.md)                                       | Reporting a vulnerability, hardening    |
 | [CONTRIBUTING.md](./CONTRIBUTING.md)                               | How to send a change                    |
 | [CODING_GUIDELINES.md](./board-games-tracker/CODING_GUIDELINES.md) | Code, test, and architecture rules      |
 
