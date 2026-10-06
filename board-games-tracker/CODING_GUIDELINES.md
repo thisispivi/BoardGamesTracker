@@ -267,7 +267,8 @@ before writing routing, caching, or data-fetching code.**
    fetch-then-check.
    Operations involving several accounts must lock the relevant rows and
    recheck authorization inside the transaction. User imports may create missing
-   catalog games, but only administrator actions may change existing metadata.
+   catalog games only from BoardGameGeek metadata, never from the uploaded
+   file, and only administrator actions may change existing metadata.
 8. Enforce invariants in the database as well as in code — `check`, `unique`,
    and foreign-key constraints — so a bug cannot corrupt state.
 9. Schema changes are made in `src/server/db/schema.ts` and then generated with

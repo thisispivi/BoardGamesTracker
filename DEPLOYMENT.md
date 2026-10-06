@@ -86,7 +86,9 @@ people already have open.
 comment.
 
 With Docker Compose you set the four values from the quick start. Compose
-builds the rest from them. `APP_PORT` changes the published port.
+builds the rest from them. `APP_PORT` changes the published port, and
+`APP_BIND_ADDRESS` the host address it listens on. The default, `127.0.0.1`,
+lets only a reverse proxy on the same machine reach the app.
 
 Without Compose, these five are required:
 
@@ -109,6 +111,7 @@ path, query, or credentials.
 | `ADMIN_EMAIL`        | An account registered with this address becomes administrator |
 | `HEALTH_CHECK_TOKEN` | Makes `/api/health` require this bearer token, 16+ characters |
 | `LOG_LEVEL`          | `debug`, `info`, `warn`, or `error`                           |
+| `TRUSTED_PROXIES`    | Comma-separated proxy addresses or CIDR ranges to trust       |
 
 ### Email
 

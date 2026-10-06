@@ -37,6 +37,7 @@ export const env = createEnv({
     SMTP_REQUIRE_TLS: booleanStringSchema.default(true),
     SMTP_SECURE: booleanStringSchema.default(false),
     SMTP_USER: z.string().min(1).max(500).optional(),
+    TRUSTED_PROXIES: z.string().trim().max(2_000).optional(),
   },
   client: {
     NEXT_PUBLIC_APP_URL: appOriginSchema,
@@ -73,6 +74,7 @@ export const env = createEnv({
     SMTP_REQUIRE_TLS: process.env.SMTP_REQUIRE_TLS,
     SMTP_SECURE: process.env.SMTP_SECURE,
     SMTP_USER: process.env.SMTP_USER,
+    TRUSTED_PROXIES: process.env.TRUSTED_PROXIES,
   },
   emptyStringAsUndefined: true,
   skipValidation: process.env.SKIP_ENV_VALIDATION === "true",

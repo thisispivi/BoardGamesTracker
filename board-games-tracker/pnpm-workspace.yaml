@@ -23,14 +23,6 @@ allowBuilds:
 auditConfig:
   ignoreGhsas:
     - GHSA-mh99-v99m-4gvg
-    # braces has no patched release for this recursive glob-pattern DoS. It is
-    # only reached through eslint-config-next > @next/eslint-plugin-next >
-    # fast-glob > micromatch, all development-only. The plugin consumes trusted
-    # ESLint rootDir settings; this app configures no rootDir glob, and request
-    # input never reaches that tooling. It is absent from the production tree.
-    # Remove this exception when a patched release is available or the package
-    # becomes reachable from untrusted glob patterns.
-    - GHSA-vfj7-8cjw-p6xm
 overrides:
   # Patched 1.x backport. The legacy minimatch@3 stack pulled in by ExcelJS and
   # ESLint still requires the 1.x line, so pin its newest release instead of
@@ -40,9 +32,15 @@ overrides:
   browserslist: 4.28.8
   exceljs>uuid: 11.1.1
   esbuild: 0.28.2
+  # braces has no patched release for GHSA-vfj7-8cjw-p6xm. The Next.js ESLint
+  # plugin pulls it in only through fast-glob's micromatch, and calls nothing
+  # but globSync(pattern, { onlyDirectories: true }), which tinyglobby provides
+  # with the same signature. Drop this once the plugin leaves fast-glob.
+  "@next/eslint-plugin-next>fast-glob": npm:tinyglobby@0.2.17
   # Reached through Sentry's bundler plugins and webpack's schema-utils.
   fast-uri: 3.1.8
   postcss: 8.5.26
   sharp: 0.35.4
+  source-map-js: 1.2.2
 packages:
   - .

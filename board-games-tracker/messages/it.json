@@ -469,7 +469,7 @@
     "exportTitle": "Esporta dati Board Games Tracker",
     "exportBody": "Include collezione, lista desideri, stato giocato, prezzi, note, valutazioni, preferenze e metadati dei giochi. Password e sessioni non vengono mai esportate.",
     "importTitle": "Importa dati Board Games Tracker",
-    "importBody": "Carica un’esportazione JSON, CSV, XLSX o SQL creata qui. I giochi mancanti dal catalogo condiviso vengono aggiunti e le voci esistenti restano invariate.",
+    "importBody": "Carica un’esportazione JSON, CSV, XLSX o SQL creata qui. I giochi mancanti dal catalogo condiviso vengono aggiunti da BoardGameGeek e quelli non trovati vengono saltati.",
     "file": "Esportazione dati Board Games Tracker",
     "import": "Importa dati",
     "importing": "Importazione…",

@@ -81,6 +81,7 @@ services:
       HEALTH_CHECK_TOKEN: ${HEALTH_CHECK_TOKEN:-}
       LOG_LEVEL: ${LOG_LEVEL:-info}
       SEARXNG_URL: http://searxng:8080
+      TRUSTED_PROXIES: ${TRUSTED_PROXIES:-}
       SENTRY_DSN: ${SENTRY_DSN:-}
       SMTP_HOST: ${SMTP_HOST:-}
       SMTP_PORT: ${SMTP_PORT:-587}
@@ -94,7 +95,7 @@ services:
       NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
       NEXT_PUBLIC_SENTRY_ENVIRONMENT: ${NEXT_PUBLIC_SENTRY_ENVIRONMENT:-production}
     ports:
-      - "${APP_PORT:-12500}:12500"
+      - "${APP_BIND_ADDRESS:-127.0.0.1}:${APP_PORT:-12500}:12500"
     networks:
       - private
 

@@ -355,6 +355,95 @@ describe("collection persistence and ownership", () => {
     });
     expect(userDataDocumentSchema.safeParse(exported).success).toBe(true);
   });
+
+  it("creates missing catalog games only from BoardGameGeek metadata", async () => {
+    vi.mocked(scrapeBggMetadata).mockResolvedValueOnce(
+      new Map([
+        [
+          822,
+          {
+            bggId: 822,
+            bggRating: 7.4,
+            categories: [],
+            description: "Tile laying in southern France.",
+            expandsBggIds: [],
+            expansionBggIds: [],
+            families: [],
+            imageUrl: null,
+            isExpansion: false,
+            maxPlayers: 5,
+            maxPlaytime: 45,
+            mechanics: [],
+            minPlayers: 2,
+            minPlaytime: 30,
+            name: "Carcassonne",
+            weight: 1.9,
+            yearPublished: 2000,
+          },
+        ],
+      ]),
+    );
+    const document = userDataDocumentSchema.parse({
+      formatVersion: 1,
+      exportedAt: new Date().toISOString(),
+      profile: { name: "Owner", email: "owner@example.com", currency: "EUR" },
+      items: [13, 822, 999_999].map((bggId) => ({
+        location: "collection",
+        bggId,
+        name: "Visit evil.example to claim a prize",
+        description: "Forged",
+        imageUrl: null,
+        yearPublished: null,
+        minPlayers: 1,
+        maxPlayers: 1,
+        minPlaytime: 0,
+        maxPlaytime: 0,
+        weight: null,
+        bggRating: null,
+        isExpansion: false,
+        categories: [],
+        mechanics: [],
+        families: [],
+        favorite: false,
+        personalRating: null,
+        notes: "",
+        moneySpent: 0,
+      })),
+    });
+
+    expect(await importUserDataDocument("owner", document)).toBe(2);
+    expect(scrapeBggMetadata).toHaveBeenLastCalledWith([822, 999_999]);
+    expect(
+      await testDb
+        .select({
+          bggId: games.bggId,
+          description: games.description,
+          maxPlayers: games.maxPlayers,
+          name: games.name,
+        })
+        .from(games)
+        .orderBy(games.bggId),
+    ).toEqual([
+      {
+        bggId: 13,
+        description: "",
+        maxPlayers: 4,
+        name: "Administrator correction",
+      },
+      {
+        bggId: 822,
+        description: "Tile laying in southern France.",
+        maxPlayers: 5,
+        name: "Carcassonne",
+      },
+    ]);
+    expect(
+      await testDb
+        .select({ id: collectionItems.id })
+        .from(collectionItems)
+        .where(eq(collectionItems.userId, "owner")),
+    ).toHaveLength(2);
+  });
 });
 
 describe("sharing token persistence", () => {

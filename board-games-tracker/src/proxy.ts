@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 import { env } from "@/env";
+import { resolveClientIp } from "@/server/security/clientIp";
 import { hasTrustedOrigin } from "@/server/security/origin";
 import { consumeRateLimit } from "@/server/security/rateLimit";
 
@@ -46,9 +47,9 @@ async function fingerprint(value: string): Promise<string> {
  * Identifies the caller for early per-caller rate limiting.
  *
  * Authenticated callers are keyed by session before the authoritative per-user
- * limit runs during session validation. Anonymous callers fall back to the
- * forwarded address, which a hostile client can spoof — the global limit is the
- * backstop for that case, not this one.
+ * limit runs during session validation. Anonymous callers are keyed by the
+ * nearest untrusted hop in the forwarding chain, which a client cannot forge
+ * when the app is reachable only through its reverse proxy.
  *
  * @param request - The incoming request.
  * @param sessionCookie - The session cookie presented by the caller, when any.
@@ -62,8 +63,7 @@ async function getCallerKey(
     return `session:${await fingerprint(sessionCookie)}`;
   }
 
-  const forwarded = request.headers.get("x-forwarded-for");
-  return `ip:${forwarded?.split(",")[0]?.trim() || "unknown"}`;
+  return `ip:${resolveClientIp(request.headers.get("x-forwarded-for")) ?? "unknown"}`;
 }
 
 /**
