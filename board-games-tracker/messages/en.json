@@ -360,7 +360,8 @@
     "deleteConfirmationSent": "Check your inbox to confirm permanent account deletion.",
     "deleteFailed": "The account could not be deleted. Check your password and try again.",
     "about": "About",
-    "aboutBody": "Where this application is developed, and who maintains it."
+    "aboutBody": "Where this application is developed, and who maintains it.",
+    "version": "App version: {version}"
   },
   "sharing": {
     "metaTitle": "Shared library",

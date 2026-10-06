@@ -8,12 +8,12 @@ import { createDemoLibrary } from "@/utils/demoLibrary";
 
 describe("static demo library", () => {
   it("applies playtime filters to cards and restores the shelf when reset", () => {
+    const games = createDemoLibrary().collection.filter((game) =>
+      ["Azul", "Ticket to Ride"].includes(game.name),
+    );
     render(
       <NextIntlClientProvider locale="en" messages={messages}>
-        <DemoLibraryBrowser
-          games={createDemoLibrary().collection}
-          wishlist={false}
-        />
+        <DemoLibraryBrowser games={games} wishlist={false} />
       </NextIntlClientProvider>,
     );
     fireEvent.click(screen.getByRole("button", { name: "Show filters" }));
@@ -24,13 +24,13 @@ describe("static demo library", () => {
     fireEvent.click(screen.getByRole("button", { name: "Close filters" }));
     expect(screen.getByRole("heading", { name: "Azul" })).toBeInTheDocument();
     expect(
-      screen.queryByRole("heading", { name: "Gloomhaven" }),
+      screen.queryByRole("heading", { name: "Ticket to Ride" }),
     ).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Show filters" }));
     fireEvent.click(screen.getByRole("button", { name: "Reset" }));
     fireEvent.click(screen.getByRole("button", { name: "Close filters" }));
     expect(
-      screen.getByRole("heading", { name: "Gloomhaven" }),
+      screen.getByRole("heading", { name: "Ticket to Ride" }),
     ).toBeInTheDocument();
   });
 

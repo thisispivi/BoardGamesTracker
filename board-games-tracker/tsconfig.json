@@ -21,6 +21,7 @@
       }
     ],
     "paths": {
+      "@package": ["./package.json"],
       "@/*": ["./src/*"],
       "@messages/*": ["./messages/*"]
     }

@@ -21,7 +21,8 @@ and tests.
 
 - Write commit messages as
   [Conventional Commits](https://www.conventionalcommits.org/). CI uses them to
-  pick the next version.
+  suggest the next version. Include a package version bump in a release PR;
+  CI publishes the merged version without pushing directly to protected `main`.
 - Change the database through `src/server/db/schema.ts` and `pnpm db:generate`.
   Do not edit files in `drizzle/` by hand.
 - Do not commit secrets, `.env` files, database dumps, or user data.

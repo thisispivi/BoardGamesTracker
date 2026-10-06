@@ -1,3 +1,4 @@
+import { version } from "@package";
 import type { LucideIcon } from "lucide-react";
 import { BookOpen, Gift, Heart, Info, ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
@@ -190,6 +191,9 @@ export default async function SettingsPage(): Promise<ReactNode> {
               </p>
             </div>
           </div>
+          <p className="text-muted-foreground text-sm">
+            {t("settings.version", { version })}
+          </p>
           <ProjectLinks />
         </section>
       </div>

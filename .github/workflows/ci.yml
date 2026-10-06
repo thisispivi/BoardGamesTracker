@@ -80,10 +80,15 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - name: Choose the next version
+      - name: Read the merged release version
         id: version
         run: |
           latest=$(git tag --list 'v*' --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1 || true)
+          current=$(node -p 'require("./package.json").version')
+          if ! grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' <<< "$current"; then
+            echo 'Release package versions must use stable semantic versioning.' >&2
+            exit 1
+          fi
           if [ -n "$latest" ] && git merge-base --is-ancestor HEAD "$latest"; then
             echo 'skip=true' >> "$GITHUB_OUTPUT"
             exit 0
@@ -96,42 +101,23 @@ jobs:
             elif grep -Eq '^feat(\([^)]+\))?:' <<< "$messages"; then
               bump=minor
             fi
-            if [ "$(node -p 'require("./package.json").version')" != "${latest#v}" ]; then
-              echo 'Package version does not match the latest release tag.' >&2
+            if [ "$current" = "${latest#v}" ]; then
+              echo "::notice title=Release version needs a pull request::Merge a $bump package version bump through a pull request to publish the next release."
+              echo 'skip=true' >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            if [ "$(printf '%s\n' "$current" "${latest#v}" | sort -V | head -n 1)" != "${latest#v}" ]; then
+              echo 'Package version must be newer than the latest release tag.' >&2
               exit 1
             fi
-            npm version "$bump" --no-git-tag-version
-            echo 'changed=true' >> "$GITHUB_OUTPUT"
           fi
-          echo "tag=v$(node -p 'require("./package.json").version')" >> "$GITHUB_OUTPUT"
-      - uses: pnpm/setup@v3
-        if: steps.version.outputs.changed == 'true'
-        with:
-          version: 11.24.0
-          runtime: node@24.21.0
-          cache: true
-          cache-dependency-path: board-games-tracker/pnpm-lock.yaml
-          package-json-file: board-games-tracker/package.json
-          install: false
-      - name: Install dependencies for the versioned build
-        if: steps.version.outputs.changed == 'true'
-        run: pnpm install --frozen-lockfile
-      - name: Verify the versioned build
-        if: steps.version.outputs.changed == 'true'
-        run: pnpm build
+          echo "tag=v$current" >> "$GITHUB_OUTPUT"
       - name: Publish GitHub Release
         if: steps.version.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
-          if [ "${{ steps.version.outputs.changed }}" = 'true' ]; then
-            git config user.name "$(git log -1 --format=%an)"
-            git config user.email "$(git log -1 --format=%ae)"
-            git add package.json
-            git commit -m "chore(release): ${{ steps.version.outputs.tag }}"
-            git push origin HEAD:main
-          fi
           gh release create '${{ steps.version.outputs.tag }}' --target "$(git rev-parse HEAD)" --title '${{ steps.version.outputs.tag }}' --generate-notes
 
   deploy-demo:

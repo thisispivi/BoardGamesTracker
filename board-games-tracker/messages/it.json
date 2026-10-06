@@ -360,7 +360,8 @@
     "deleteConfirmationSent": "Controlla la posta per confermare l’eliminazione definitiva dell’account.",
     "deleteFailed": "Non è stato possibile eliminare l'account. Controlla la password e riprova.",
     "about": "Informazioni",
-    "aboutBody": "Dove viene sviluppata questa applicazione e chi la mantiene."
+    "aboutBody": "Dove viene sviluppata questa applicazione e chi la mantiene.",
+    "version": "Versione dell'app: {version}"
   },
   "sharing": {
     "metaTitle": "Libreria condivisa",

@@ -186,8 +186,15 @@ and a push runs `pnpm check`. The full gate and the rules for a change are in
 
 ### Releases
 
-Merging to `main` publishes a GitHub Release. CI picks the version from the
-commit messages, so there is nothing to tag by hand.
+Version bumps go through pull requests, keeping `main` protected. Before a
+release, run `npm version minor --no-git-tag-version` from `board-games-tracker/`
+(use `patch` for fixes or `major` for breaking changes), and include the
+`package.json` change in a PR. CI publishes the tag and GitHub Release after that
+versioned commit passes the quality gate on `main`.
+
+Merges without a version bump still deploy the demo. The release job skips
+publishing and suggests a bump from the conventional commit messages; it never
+pushes a version commit directly to `main`.
 
 ### Troubleshooting
 

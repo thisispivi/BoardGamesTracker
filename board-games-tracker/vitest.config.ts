@@ -6,6 +6,7 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   resolve: {
     alias: {
+      "@package": fileURLToPath(new URL("./package.json", import.meta.url)),
       "@": fileURLToPath(new URL("./src", import.meta.url)),
       "@messages": fileURLToPath(new URL("./messages", import.meta.url)),
     },
