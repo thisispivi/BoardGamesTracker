@@ -1,0 +1,247 @@
+"use client";
+
+import { CircleCheck, Heart } from "lucide-react";
+import { useFormatter, useTranslations } from "next-intl";
+import type { ReactNode } from "react";
+
+import { Tooltip } from "@/components/atoms/Tooltip/Tooltip";
+import { GameArtworkLink } from "@/components/molecules/GameArtworkLink/GameArtworkLink";
+import { GameTitle } from "@/components/molecules/GameTitle/GameTitle";
+import { GameActionsMenu } from "@/components/organisms/GameActionsMenu/GameActionsMenu";
+import { GameCardShell } from "@/components/organisms/GameCardShell/GameCardShell";
+import type { CollectionGame } from "@/core";
+import {
+  toggleFavoriteAction,
+  togglePlayedAction,
+} from "@/server/actions/collection";
+import { cn } from "@/utils/cn";
+
+/** Game record used by the optimistic favorite control. */
+type FavoriteControlProps = { game: CollectionGame };
+
+/**
+ * Favorite toggle placed beside the card actions rather than over the artwork.
+ *
+ * @param root0 - Properties that configure favorite control.
+ * @param root0.game - Game record displayed or changed by the component.
+ * @returns A favorite toggle for the game.
+ */
+function FavoriteControl({ game }: FavoriteControlProps): ReactNode {
+  const t = useTranslations();
+  const label = game.favorite
+    ? t("game.removeFavorite")
+    : t("game.addFavorite");
+  return (
+    <form action={toggleFavoriteAction}>
+      <input name="itemId" type="hidden" value={game.id} />
+      <input name="favorite" type="hidden" value={String(!game.favorite)} />
+      <Tooltip content={label}>
+        <button
+          aria-label={label}
+          aria-pressed={game.favorite}
+          className={cn(
+            "grid size-8 shrink-0 place-items-center rounded-full transition",
+            game.favorite
+              ? "text-accent hover:bg-accent/10"
+              : "text-muted-foreground hover:bg-muted hover:text-accent",
+          )}
+          type="submit"
+        >
+          <Heart className={cn("size-4", game.favorite && "fill-current")} />
+        </button>
+      </Tooltip>
+    </form>
+  );
+}
+
+/** Game record used by the played-status control. */
+type PlayedControlProps = { game: CollectionGame };
+
+/**
+ * Marks an owned game as played or not played from its card.
+ *
+ * @param root0 - Properties that configure the played-status control.
+ * @param root0.game - Owned game whose private played status may change.
+ * @returns An accessible played-status toggle.
+ */
+function PlayedControl({ game }: PlayedControlProps): ReactNode {
+  const t = useTranslations();
+  const label = game.hasPlayed ? t("game.markUnplayed") : t("game.markPlayed");
+
+  return (
+    <form action={togglePlayedAction}>
+      <input name="itemId" type="hidden" value={game.id} />
+      <input name="hasPlayed" type="hidden" value={String(!game.hasPlayed)} />
+      <Tooltip content={label}>
+        <button
+          aria-label={label}
+          aria-pressed={game.hasPlayed}
+          className={cn(
+            "grid size-8 shrink-0 place-items-center rounded-full transition",
+            game.hasPlayed
+              ? "text-primary hover:bg-primary/10"
+              : "text-muted-foreground hover:bg-muted hover:text-primary",
+          )}
+          type="submit"
+        >
+          <CircleCheck aria-hidden="true" className="size-4" />
+        </button>
+      </Tooltip>
+    </form>
+  );
+}
+
+/** Game and currency used to display the recorded purchase cost. */
+type CollectionCostProps = {
+  currency: string;
+  game: CollectionGame;
+};
+
+/**
+ * Renders a recorded price or the gifted label without implying a zero price.
+ *
+ * @param root0 - Properties that configure collection cost.
+ * @param root0.currency - ISO currency code used to format monetary values.
+ * @param root0.game - Game record displayed or changed by the component.
+ * @returns The formatted purchase cost, or null when no price was recorded.
+ */
+function CollectionCost({ currency, game }: CollectionCostProps): ReactNode {
+  const format = useFormatter();
+  const t = useTranslations();
+  if (!game.gifted && game.moneySpent <= 0) return null;
+
+  return (
+    <>
+      <span aria-hidden="true">·</span>
+      <span className="text-foreground font-semibold">
+        {game.gifted
+          ? t("game.gifted")
+          : format.number(game.moneySpent, {
+              style: "currency",
+              currency,
+              maximumFractionDigits: 2,
+            })}
+      </span>
+    </>
+  );
+}
+
+/** Game, currency, and permissions used by one expansion row. */
+type ExpansionRowProps = {
+  currency: string;
+  game: CollectionGame;
+  readOnly: boolean;
+};
+
+/**
+ * Compact expansion line showing artwork, year, price, and its own actions.
+ *
+ * @param root0 - Properties that configure the expansion row.
+ * @param root0.currency - ISO currency code used to format monetary values.
+ * @param root0.game - Expansion record displayed or changed by the component.
+ * @param root0.readOnly - Whether mutation controls must be omitted.
+ * @returns The rendered expansion row.
+ */
+function ExpansionRow({
+  currency,
+  game,
+  readOnly,
+}: ExpansionRowProps): ReactNode {
+  const t = useTranslations();
+  return (
+    <div className="hover:bg-card flex items-center gap-2.5 rounded-lg p-1 transition">
+      <GameArtworkLink className="w-10 sm:w-11" game={game} />
+      <div className="min-w-0 flex-1">
+        <GameTitle as="p" className="text-xs font-semibold" name={game.name} />
+        <p className="text-muted-foreground mt-0.5 flex items-center gap-1 truncate text-[0.6875rem]">
+          <span>{game.yearPublished ?? t("common.yearUnknown")}</span>
+          <CollectionCost currency={currency} game={game} />
+        </p>
+      </div>
+      {readOnly ? null : (
+        <div className="flex shrink-0 items-center">
+          <FavoriteControl game={game} />
+          <PlayedControl game={game} />
+          <GameActionsMenu currency={currency} game={game} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Game data, related expansions, and permissions shown by a card. */
+type GameCardProps = {
+  compact?: boolean;
+  currency: string;
+  eager?: boolean;
+  expansions?: CollectionGame[];
+  game: CollectionGame;
+  readOnly?: boolean;
+};
+
+/**
+ * Collection card with its owner controls and the expansions grouped under it.
+ *
+ * @param root0 - Properties that configure game card.
+ * @param root0.compact - Whether to render the single-line expansion presentation.
+ * @param root0.currency - ISO currency code used to format monetary values.
+ * @param root0.eager - Whether the artwork should load with high priority.
+ * @param root0.expansions - Expansion entries associated with the base game.
+ * @param root0.game - Game record displayed or changed by the component.
+ * @param root0.readOnly - Whether mutation controls must be omitted.
+ * @returns The rendered game card.
+ */
+export function GameCard({
+  compact = false,
+  currency,
+  eager = false,
+  expansions = [],
+  game,
+  readOnly = false,
+}: GameCardProps): ReactNode {
+  const t = useTranslations();
+
+  if (compact) {
+    return (
+      <article className="bg-card shadow-soft hover:border-accent/40 rounded-xl border p-1.5 transition-colors duration-200">
+        <ExpansionRow currency={currency} game={game} readOnly={readOnly} />
+      </article>
+    );
+  }
+
+  return (
+    <GameCardShell
+      actions={
+        readOnly ? null : (
+          <>
+            <FavoriteControl game={game} />
+            <PlayedControl game={game} />
+            <GameActionsMenu currency={currency} game={game} />
+          </>
+        )
+      }
+      eager={eager}
+      game={game}
+      meta={<CollectionCost currency={currency} game={game} />}
+    >
+      {expansions.length > 0 ? (
+        <section className="bg-muted/40 border-t px-2 py-2 sm:px-3">
+          <div className="text-muted-foreground flex items-center justify-between gap-2 px-1 pb-1 text-[0.6875rem] font-bold tracking-wide uppercase">
+            <span>{t("game.expansions")}</span>
+            <span className="tabular-nums">{expansions.length}</span>
+          </div>
+          <div className="max-h-40 space-y-0.5 overflow-y-auto overscroll-contain pr-0.5">
+            {expansions.map((expansion) => (
+              <ExpansionRow
+                currency={currency}
+                game={expansion}
+                key={expansion.id}
+                readOnly={readOnly}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
+    </GameCardShell>
+  );
+}

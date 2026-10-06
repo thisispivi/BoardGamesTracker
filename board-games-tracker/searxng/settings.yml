@@ -1,0 +1,38 @@
+use_default_settings:
+  engines:
+    keep_only:
+      - bing images
+      - duckduckgo images
+      - mojeek
+      - privacywall
+      - yandex
+      - zapmeta
+
+general:
+  debug: false
+  instance_name: Board Games Tracker Discovery
+
+search:
+  safe_search: 1
+  formats:
+    - html
+    - json
+
+server:
+  bind_address: 0.0.0.0
+  limiter: false
+  image_proxy: false
+
+engines:
+  - name: bing images
+    disabled: false
+  - name: duckduckgo images
+    disabled: false
+  - name: mojeek
+    disabled: false
+  - name: privacywall
+    disabled: false
+  - name: yandex
+    disabled: false
+  - name: zapmeta
+    disabled: false

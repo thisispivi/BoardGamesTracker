@@ -1,0 +1,18 @@
+import { useTranslations } from "next-intl";
+import type { ReactNode } from "react";
+
+import { AppSpinner } from "@/components/atoms/AppSpinner/AppSpinner";
+
+/**
+ * Immediate fallback for navigation between authenticated pages.
+ *
+ * @returns A localized loading indicator within the authenticated shell.
+ */
+export default function Loading(): ReactNode {
+  const t = useTranslations();
+  return (
+    <div className="grid min-h-[60vh] place-items-center">
+      <AppSpinner className="size-10" label={t("common.loading")} />
+    </div>
+  );
+}

@@ -1,0 +1,1 @@
+ALTER TABLE "collection_items" ADD COLUMN "has_played" boolean DEFAULT false NOT NULL;

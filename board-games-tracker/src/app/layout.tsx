@@ -1,0 +1,74 @@
+import "./globals.css";
+
+import type { Metadata, Viewport } from "next";
+import { cookies, headers } from "next/headers";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getTranslations } from "next-intl/server";
+import type { ReactNode } from "react";
+
+import { Providers } from "@/components/templates/Providers/Providers";
+import { env } from "@/env";
+import { isAppTheme } from "@/utils/theme";
+
+/**
+ * Global metadata for search engines and browser integrations.
+ *
+ * @returns Localized metadata for the page.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations();
+  return {
+    metadataBase: new URL(env.NEXT_PUBLIC_APP_URL),
+    title: {
+      default: "Board Games Tracker",
+      template: "%s · Board Games Tracker",
+    },
+    description: t("app.description"),
+    applicationName: "Board Games Tracker",
+    robots: { index: true, follow: true },
+  };
+}
+
+/** Theme-aware browser viewport configuration. */
+export const viewport: Viewport = {
+  colorScheme: "light dark",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f6f4ed" },
+    { media: "(prefers-color-scheme: dark)", color: "#111511" },
+  ],
+};
+
+/**
+ * Root document shell with locale, theme, and toast providers.
+ *
+ * @param root0 - Properties that configure root layout.
+ * @param root0.children - Content rendered inside the component.
+ * @returns The rendered root layout.
+ */
+export default async function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>): Promise<ReactNode> {
+  const cookieStore = await cookies();
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
+  const locale = await getLocale();
+  const cookieTheme = cookieStore.get("theme")?.value;
+  const theme = isAppTheme(cookieTheme) ? cookieTheme : undefined;
+
+  return (
+    <html
+      className={theme === "dark" ? "dark" : undefined}
+      data-scroll-behavior="smooth"
+      lang={locale}
+      style={theme ? { colorScheme: theme } : undefined}
+      suppressHydrationWarning
+    >
+      <body>
+        <NextIntlClientProvider>
+          <Providers initialTheme={theme} nonce={nonce}>
+            {children}
+          </Providers>
+        </NextIntlClientProvider>
+      </body>
+    </html>
+  );
+}

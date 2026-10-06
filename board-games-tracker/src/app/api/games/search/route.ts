@@ -1,0 +1,47 @@
+import { getTranslations } from "next-intl/server";
+
+import { querySchema } from "@/core";
+import { discoverBoardGameByUrl } from "@/server/discovery/bggUrl";
+import { parseBoardGameUrl } from "@/server/discovery/resultParser";
+import { searchBoardGames } from "@/server/discovery/search";
+import { log } from "@/server/logger";
+import { consumeRateLimit } from "@/server/security/rateLimit";
+import { getSession } from "@/server/session";
+
+/**
+ * Discovers BoardGameGeek links for authenticated collection editors.
+ *
+ * @param request - The incoming request.
+ * @returns The HTTP response for the request.
+ */
+export async function GET(request: Request): Promise<Response> {
+  const t = await getTranslations();
+  const session = await getSession();
+  if (!session) {
+    return Response.json({ error: t("search.unauthorized") }, { status: 401 });
+  }
+  if (!consumeRateLimit(`search:${session.user.id}`, 20, 60_000)) {
+    return Response.json({ error: t("search.tooMany") }, { status: 429 });
+  }
+
+  const query = querySchema.safeParse(
+    new URL(request.url).searchParams.get("q"),
+  );
+  if (!query.success) {
+    return Response.json({ error: t("search.terms") }, { status: 400 });
+  }
+
+  try {
+    if (parseBoardGameUrl(query.data)) {
+      const game = await discoverBoardGameByUrl(query.data);
+      return Response.json({ results: game ? [game] : [] });
+    }
+    return Response.json({ results: await searchBoardGames(query.data) });
+  } catch (error) {
+    log("warn", "game_discovery_failed", {
+      actorId: session.user.id,
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+    return Response.json({ error: t("add.unavailable") }, { status: 502 });
+  }
+}

@@ -1,0 +1,46 @@
+# Held major versions. Each is the newest release compatible with the supported
+# Node, ESLint, and TypeScript stack; re-evaluate whenever the blocker below
+# ships a widened range.
+#   @types/node 26 - describes Node 26 APIs while `engines.node` supports 24.x,
+#     so the newer typings would admit calls the runtime does not have.
+#   eslint 10 - eslint-plugin-import, eslint-plugin-jsx-a11y, and
+#     eslint-plugin-react still declare a `^9` peer ceiling.
+#   typescript 7 - the typescript-eslint 8 packages cap their peer at <6.1.0.
+allowBuilds:
+  "@parcel/watcher": true
+  "@sentry/cli": true
+  "@swc/core": true
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
+# GHSA-mh99-v99m-4gvg is fixed in the tree by the brace-expansion override
+# below: 1.1.x is the maintainers' backport line of the 5.0.8 fix and contains the
+# EXPANSION_MAX_LENGTH bound. The advisory records only ">=5.0.8" as patched,
+# so `pnpm audit` still flags the 1.x line on version comparison alone.
+# brace-expansion 5.x cannot be used here: it exports a named `expand` instead
+# of a callable module, which breaks the minimatch@3 stack ExcelJS depends on.
+# Drop this exception once ExcelJS ships a modern glob stack.
+auditConfig:
+  ignoreGhsas:
+    - GHSA-mh99-v99m-4gvg
+overrides:
+  # Patched 1.x backport. The legacy minimatch@3 stack pulled in by ExcelJS and
+  # ESLint still requires the 1.x line, so pin its newest release instead of
+  # ignoring the advisories. Raise this whenever a new 1.x advisory lands.
+  brace-expansion: 1.1.21
+  # Security fixes for the transitive build-tool chains used by Next.js and Sentry.
+  browserslist: 4.28.8
+  exceljs>uuid: 11.1.1
+  esbuild: 0.28.2
+  # braces has no patched release for GHSA-vfj7-8cjw-p6xm. The Next.js ESLint
+  # plugin pulls it in only through fast-glob's micromatch, and calls nothing
+  # but globSync(pattern, { onlyDirectories: true }), which tinyglobby provides
+  # with the same signature. Drop this once the plugin leaves fast-glob.
+  "@next/eslint-plugin-next>fast-glob": npm:tinyglobby@0.2.17
+  # Reached through Sentry's bundler plugins and webpack's schema-utils.
+  fast-uri: 3.1.8
+  postcss: 8.5.26
+  sharp: 0.35.5
+  source-map-js: 1.2.2
+packages:
+  - .

@@ -1,0 +1,1 @@
+ALTER TABLE "games" ALTER COLUMN "weight" SET DATA TYPE numeric(6, 5);

@@ -1,0 +1,112 @@
+services:
+  database:
+    image: postgres:17.11-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-board_games_tracker}
+      POSTGRES_USER: ${POSTGRES_USER:-board_games_tracker}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - board_games_tracker_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-board_games_tracker} -d ${POSTGRES_DB:-board_games_tracker}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - private
+
+  backup:
+    image: postgres:17.11-alpine
+    restart: unless-stopped
+    init: true
+    stop_signal: SIGTERM
+    depends_on:
+      database:
+        condition: service_healthy
+    entrypoint: ["sh", "/usr/local/bin/backup-database.sh"]
+    environment:
+      PGHOST: database
+      PGDATABASE: ${POSTGRES_DB:-board_games_tracker}
+      PGUSER: ${POSTGRES_USER:-board_games_tracker}
+      PGPASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      BACKUP_INTERVAL_DAYS: ${BACKUP_INTERVAL_DAYS:-7}
+      BACKUP_KEEP: ${BACKUP_KEEP:-8}
+    volumes:
+      - ./scripts/backup-database.sh:/usr/local/bin/backup-database.sh:ro
+      - ${BACKUP_DIRECTORY:-./backups}:/backups
+    networks:
+      - private
+
+  searxng:
+    image: searxng/searxng:2026.8.29-d226b78bc
+    restart: unless-stopped
+    environment:
+      SEARXNG_SECRET: ${SEARXNG_SECRET:?Set SEARXNG_SECRET in .env}
+    volumes:
+      - ./searxng/settings.yml:/etc/searxng/settings.yml:ro
+    networks:
+      - private
+
+  app:
+    build:
+      context: .
+      args:
+        APP_URL: ${APP_URL:?Set APP_URL in .env}
+        NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
+        NEXT_PUBLIC_SENTRY_ENVIRONMENT: ${NEXT_PUBLIC_SENTRY_ENVIRONMENT:-production}
+        SENTRY_PROJECT: ${SENTRY_PROJECT:-}
+        SENTRY_URL: ${SENTRY_URL:-}
+        NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: ${NEXT_SERVER_ACTIONS_ENCRYPTION_KEY:-}
+      secrets:
+        - sentry_auth_token
+    restart: unless-stopped
+    depends_on:
+      database:
+        condition: service_healthy
+      searxng:
+        condition: service_started
+    environment:
+      HOSTNAME: "0.0.0.0"
+      DATABASE_URL: postgresql://${POSTGRES_USER:-board_games_tracker}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB:-board_games_tracker}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Set BETTER_AUTH_SECRET in .env}
+      BETTER_AUTH_URL: ${APP_URL:?Set APP_URL in .env}
+      NEXT_PUBLIC_APP_URL: ${APP_URL:?Set APP_URL in .env}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ALLOW_SIGN_UP: ${ALLOW_SIGN_UP:-false}
+      HEALTH_CHECK_TOKEN: ${HEALTH_CHECK_TOKEN:-}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      SEARXNG_URL: http://searxng:8080
+      TRUSTED_PROXIES: ${TRUSTED_PROXIES:-}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      SMTP_REQUIRE_TLS: ${SMTP_REQUIRE_TLS:-true}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM_NAME: ${SMTP_FROM_NAME:-Board Games Tracker}
+      SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL:-}
+      SMTP_REPLY_TO: ${SMTP_REPLY_TO:-}
+      NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
+      NEXT_PUBLIC_SENTRY_ENVIRONMENT: ${NEXT_PUBLIC_SENTRY_ENVIRONMENT:-production}
+    ports:
+      - "${APP_BIND_ADDRESS:-127.0.0.1}:${APP_PORT:-12500}:12500"
+    networks:
+      - private
+
+volumes:
+  board_games_tracker_data:
+    name: ${POSTGRES_VOLUME_NAME:-board_games_tracker_data}
+
+networks:
+  private:
+    driver: bridge
+
+secrets:
+  sentry_auth_token:
+    file: ${SENTRY_AUTH_TOKEN_FILE:-.sentry-auth-token.disabled}

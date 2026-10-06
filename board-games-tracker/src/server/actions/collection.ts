@@ -1,0 +1,692 @@
+"use server";
+
+import { and, eq, inArray, sql } from "drizzle-orm";
+import { getTranslations } from "next-intl/server";
+import { z } from "zod";
+
+import {
+  type BggCsvImport,
+  type BggMetadata,
+  booleanStringSchema,
+  type CollectionActionState,
+  editCollectionItemSchema,
+  gameDetailsSchema,
+  type GameSelection,
+  itemIdSchema,
+  libraryDestinationSchema,
+  purchaseCollectionItemSchema,
+} from "@/core";
+import { writeAuditEvent } from "@/server/audit";
+import { scrapeBggMetadata } from "@/server/bgg/scrape";
+import { db } from "@/server/db";
+import { collectionItems, gameImages, games } from "@/server/db/schema";
+import { discoverBoardGameImages } from "@/server/discovery/searxng";
+import { verifySelectionToken } from "@/server/discovery/selectionToken";
+import { downloadBggImage, downloadBggImages } from "@/server/images/bggImage";
+import { parseBggCollectionCsv } from "@/server/import/bggCsv";
+import {
+  revalidateAccountRoutes,
+  revalidateLibraryRoutes,
+} from "@/server/revalidate";
+import { consumeRateLimit } from "@/server/security/rateLimit";
+import { requireUser } from "@/server/session";
+import { clearCollectionConfirmation } from "@/utils/collectionConfirmation";
+import {
+  hasExpansionCategory,
+  parseTaxonomyLabels,
+} from "@/utils/gameTaxonomy";
+
+/** Validated local metadata accepted when a user adds a custom game. */
+type LocalGameDetails = z.infer<typeof gameDetailsSchema>;
+
+/**
+ * Inserts new catalog metadata while preserving existing shared records.
+ *
+ * @param selection - The verified identity decoded from the selection token.
+ * @param details - Validated local fields supplied by the user.
+ * @param metadata - Validated BoardGameGeek metadata for the game.
+ * @returns The stored game identifier and whether artwork was cached.
+ */
+async function upsertGame(
+  selection: GameSelection,
+  details: LocalGameDetails,
+  metadata?: BggMetadata,
+): Promise<{ id: string; imageCached: boolean }> {
+  const categories = parseTaxonomyLabels(details.categories);
+  const mechanics = parseTaxonomyLabels(details.mechanics);
+  const families = parseTaxonomyLabels(details.families);
+  const sourceUrl =
+    metadata?.imageUrl ?? details.imageUrl ?? selection.imageUrl;
+  const image = sourceUrl
+    ? await downloadBggImage(sourceUrl).catch(() => null)
+    : null;
+  const values = {
+    bggId: selection.bggId,
+    name: metadata?.name ?? selection.name,
+    description: metadata?.description ?? details.description,
+    imageUrl: sourceUrl,
+    thumbnailUrl: sourceUrl,
+    imageChecksum: image?.checksum ?? null,
+    yearPublished:
+      metadata?.yearPublished ??
+      details.yearPublished ??
+      selection.yearPublished,
+    minPlayers: metadata?.minPlayers ?? details.minPlayers,
+    maxPlayers: metadata?.maxPlayers ?? details.maxPlayers,
+    minPlaytime: metadata?.minPlaytime ?? details.minPlaytime,
+    maxPlaytime: metadata?.maxPlaytime ?? details.maxPlaytime,
+    weight: metadata?.weight ?? details.weight,
+    bggRating: metadata?.bggRating ?? null,
+    isExpansion:
+      (metadata?.isExpansion ?? false) ||
+      selection.isExpansion ||
+      hasExpansionCategory(categories),
+    expandsBggIds: metadata?.expandsBggIds ?? [],
+    expansionBggIds: metadata?.expansionBggIds ?? [],
+    categories: metadata?.categories.length ? metadata.categories : categories,
+    mechanics: metadata?.mechanics.length ? metadata.mechanics : mechanics,
+    families: metadata?.families.length ? metadata.families : families,
+    updatedAt: new Date(),
+  };
+  const record = await db.transaction(async (transaction) => {
+    if (image) {
+      await transaction.insert(gameImages).values(image).onConflictDoNothing({
+        target: gameImages.checksum,
+      });
+    }
+    const [saved] = await transaction
+      .insert(games)
+      .values(values)
+      .onConflictDoNothing({ target: games.bggId })
+      .returning({ id: games.id });
+    if (saved) return saved;
+    const [existing] = await transaction
+      .select({ id: games.id })
+      .from(games)
+      .where(eq(games.bggId, selection.bggId))
+      .limit(1);
+    return existing;
+  });
+
+  if (!record) {
+    throw new Error("The game could not be saved.");
+  }
+
+  return { id: record.id, imageCached: Boolean(image) };
+}
+
+/**
+ * Reads an uploaded CSV, turning an unparseable document into a null result.
+ *
+ * @param file - The uploaded collection export.
+ * @returns The parsed import, or null when the document is not readable.
+ */
+async function readBggCollectionCsv(file: File): Promise<BggCsvImport | null> {
+  try {
+    return parseBggCollectionCsv(await file.text());
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Imports owned games from a bounded official BoardGameGeek CSV export.
+ *
+ * @param _previous - The previous server-action state.
+ * @param formData - The submitted form data.
+ * @returns The outcome of the validated import operation.
+ */
+export async function importBggCsvAction(
+  _previous: CollectionActionState,
+  formData: FormData,
+): Promise<CollectionActionState> {
+  const session = await requireUser();
+  const t = await getTranslations();
+  if (!consumeRateLimit(`importCsv:${session.user.id}`, 2, 600_000)) {
+    return {
+      success: false,
+      message: t("action.importRateLimited"),
+    };
+  }
+
+  const file = formData.get("collection");
+  if (
+    !(file instanceof File) ||
+    !file.name.toLowerCase().endsWith(".csv") ||
+    file.size === 0 ||
+    file.size > 5 * 1024 * 1024
+  ) {
+    return {
+      success: false,
+      message: t("action.chooseCsv"),
+    };
+  }
+
+  const imported = await readBggCollectionCsv(file);
+  if (!imported) {
+    return {
+      success: false,
+      message: t("action.invalidCsv"),
+    };
+  }
+  if (imported.games.length === 0) {
+    return {
+      success: false,
+      message: t("action.noOwned"),
+    };
+  }
+
+  const metadataById = await scrapeBggMetadata(
+    imported.games.map((game) => game.bggId),
+  ).catch(() => new Map<number, BggMetadata>());
+  const artwork = await discoverBoardGameImages(
+    imported.games.map((game) => ({
+      bggId: game.bggId,
+      name: game.name,
+    })),
+  ).catch(() => new Map<number, string>());
+  for (const [bggId, metadata] of metadataById) {
+    if (metadata.imageUrl) {
+      artwork.set(bggId, metadata.imageUrl);
+    }
+  }
+  const cachedArtwork = await downloadBggImages(artwork);
+  const now = new Date();
+  await db.transaction(async (transaction) => {
+    const uniqueImages = [
+      ...new Map(
+        [...cachedArtwork.values()].map((image) => [image.checksum, image]),
+      ).values(),
+    ];
+    if (uniqueImages.length > 0) {
+      await transaction
+        .insert(gameImages)
+        .values(uniqueImages)
+        .onConflictDoNothing({ target: gameImages.checksum });
+    }
+    await transaction
+      .insert(games)
+      .values(
+        imported.games.map((game) => {
+          const metadata = metadataById.get(game.bggId);
+          return {
+            bggId: game.bggId,
+            name: metadata?.name ?? game.name,
+            description: metadata?.description ?? "",
+            imageUrl: artwork.get(game.bggId) ?? null,
+            thumbnailUrl: artwork.get(game.bggId) ?? null,
+            imageChecksum: cachedArtwork.get(game.bggId)?.checksum ?? null,
+            yearPublished: metadata?.yearPublished ?? game.yearPublished,
+            minPlayers: metadata?.minPlayers ?? game.minPlayers,
+            maxPlayers: metadata?.maxPlayers ?? game.maxPlayers,
+            minPlaytime: metadata?.minPlaytime ?? game.minPlaytime,
+            maxPlaytime: metadata?.maxPlaytime ?? game.maxPlaytime,
+            weight: metadata?.weight ?? game.weight,
+            bggRating: metadata?.bggRating ?? game.bggRating,
+            isExpansion: metadata?.isExpansion ?? game.isExpansion,
+            expandsBggIds: metadata?.expandsBggIds ?? [],
+            expansionBggIds: metadata?.expansionBggIds ?? [],
+            categories: metadata?.categories.length
+              ? metadata.categories
+              : game.categories,
+            mechanics: metadata?.mechanics ?? [],
+            families: metadata?.families ?? [],
+            updatedAt: now,
+          };
+        }),
+      )
+      .onConflictDoNothing({ target: games.bggId });
+    const savedGames = await transaction
+      .select({ bggId: games.bggId, id: games.id })
+      .from(games)
+      .where(
+        inArray(
+          games.bggId,
+          imported.games.map((game) => game.bggId),
+        ),
+      );
+    const ids = new Map(savedGames.map((game) => [game.bggId, game.id]));
+
+    await transaction
+      .insert(collectionItems)
+      .values(
+        imported.games.flatMap((game) => {
+          const gameId = ids.get(game.bggId);
+          return gameId === undefined
+            ? []
+            : [
+                {
+                  userId: session.user.id,
+                  gameId,
+                  hasPlayed: game.hasPlayed,
+                  owned: true,
+                  wishlist: false,
+                  personalRating: game.personalRating,
+                  notes: game.notes,
+                  updatedAt: now,
+                },
+              ];
+        }),
+      )
+      .onConflictDoUpdate({
+        target: [collectionItems.userId, collectionItems.gameId],
+        set: {
+          owned: true,
+          wishlist: false,
+          hasPlayed: sql`excluded.has_played`,
+          personalRating: sql`excluded.personal_rating`,
+          notes: sql`excluded.notes`,
+          updatedAt: now,
+        },
+      });
+  });
+
+  await writeAuditEvent({
+    actorId: session.user.id,
+    action: "collection.csv_imported",
+    targetType: "collection",
+    metadata: {
+      imported: imported.games.length,
+      artwork: cachedArtwork.size,
+      skipped: imported.skipped,
+      invalid: imported.invalid,
+    },
+  });
+  revalidateLibraryRoutes();
+
+  return {
+    success: true,
+    message: t("action.imported", {
+      games: imported.games.length,
+      artwork: cachedArtwork.size,
+    }),
+  };
+}
+
+/**
+ * Adds a discovered game with locally supplied picker metadata.
+ *
+ * @param _previous - The previous server-action state.
+ * @param formData - The submitted form data.
+ * @returns The outcome of the authorized server action.
+ */
+export async function addGameAction(
+  _previous: CollectionActionState,
+  formData: FormData,
+): Promise<CollectionActionState> {
+  const session = await requireUser();
+  const t = await getTranslations();
+  if (!consumeRateLimit(`addGame:${session.user.id}`, 10, 60_000)) {
+    return {
+      success: false,
+      message: t("action.addRateLimited"),
+    };
+  }
+
+  const token = z.string().max(4_000).safeParse(formData.get("selectionToken"));
+  const destination = libraryDestinationSchema.safeParse(
+    formData.get("destination") ?? "collection",
+  );
+  const selection = token.success ? verifySelectionToken(token.data) : null;
+  if (!selection || !destination.success) {
+    return {
+      success: false,
+      message: t("action.chooseGame"),
+    };
+  }
+
+  const details = gameDetailsSchema.safeParse({
+    categories: formData.get("categories"),
+    description: formData.get("description"),
+    families: formData.get("families"),
+    imageUrl: formData.get("imageUrl"),
+    maxPlayers: formData.get("maxPlayers"),
+    maxPlaytime: formData.get("maxPlaytime"),
+    mechanics: formData.get("mechanics"),
+    minPlayers: formData.get("minPlayers"),
+    minPlaytime: formData.get("minPlaytime"),
+    moneySpent: formData.get("moneySpent"),
+    gifted: formData.get("gifted"),
+    weight: formData.get("weight"),
+    yearPublished: formData.get("yearPublished"),
+  });
+  if (!details.success) {
+    return {
+      success: false,
+      message: t("action.checkDetails"),
+    };
+  }
+
+  if (destination.data === "wishlist") {
+    const [existingOwned] = await db
+      .select({ id: collectionItems.id })
+      .from(collectionItems)
+      .innerJoin(games, eq(collectionItems.gameId, games.id))
+      .where(
+        and(
+          eq(collectionItems.userId, session.user.id),
+          eq(games.bggId, selection.bggId),
+          eq(collectionItems.owned, true),
+        ),
+      )
+      .limit(1);
+    if (existingOwned) {
+      return {
+        success: false,
+        message: t("action.alreadyOwned"),
+      };
+    }
+  }
+
+  const metadata = (
+    await scrapeBggMetadata([selection.bggId]).catch(
+      () => new Map<number, BggMetadata>(),
+    )
+  ).get(selection.bggId);
+  const savedGame = await upsertGame(selection, details.data, metadata);
+  const isWishlist = destination.data === "wishlist";
+  const [savedItem] = await db
+    .insert(collectionItems)
+    .values({
+      userId: session.user.id,
+      gameId: savedGame.id,
+      moneySpent: isWishlist ? 0 : details.data.moneySpent,
+      gifted: isWishlist ? false : details.data.gifted,
+      owned: !isWishlist,
+      wishlist: isWishlist,
+    })
+    .onConflictDoUpdate({
+      target: [collectionItems.userId, collectionItems.gameId],
+      set: {
+        moneySpent: isWishlist ? 0 : details.data.moneySpent,
+        gifted: isWishlist ? false : details.data.gifted,
+        owned: !isWishlist,
+        wishlist: isWishlist,
+        updatedAt: new Date(),
+      },
+      ...(isWishlist ? { setWhere: eq(collectionItems.owned, false) } : {}),
+    })
+    .returning({ id: collectionItems.id });
+  if (!savedItem) {
+    return { success: false, message: t("action.alreadyOwned") };
+  }
+  await writeAuditEvent({
+    actorId: session.user.id,
+    action: isWishlist ? "wishlist.game_added" : "collection.game_added",
+    targetType: "game",
+    targetId: savedGame.id,
+    metadata: {
+      bggId: selection.bggId,
+      imageCached: savedGame.imageCached,
+    },
+  });
+  revalidateLibraryRoutes();
+  return {
+    success: true,
+    message: t(isWishlist ? "action.wishlisted" : "action.added", {
+      name: selection.name,
+    }),
+  };
+}
+
+/**
+ * Updates user-owned collection details without mutating shared game data.
+ *
+ * @param _previous - The previous server-action state.
+ * @param formData - The submitted form data.
+ * @returns The outcome of the authorized server action.
+ */
+export async function updateCollectionItemAction(
+  _previous: CollectionActionState,
+  formData: FormData,
+): Promise<CollectionActionState> {
+  const session = await requireUser();
+  const t = await getTranslations();
+  const parsed = editCollectionItemSchema.safeParse({
+    itemId: formData.get("itemId"),
+    moneySpent: formData.get("moneySpent"),
+    gifted: formData.get("gifted"),
+    notes: formData.get("notes"),
+    personalRating: formData.get("personalRating"),
+  });
+  if (!parsed.success) {
+    return {
+      success: false,
+      message: t("action.checkDetails"),
+    };
+  }
+
+  const [updated] = await db
+    .update(collectionItems)
+    .set({
+      moneySpent: parsed.data.moneySpent,
+      gifted: parsed.data.gifted,
+      notes: parsed.data.notes,
+      personalRating: parsed.data.personalRating,
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(collectionItems.id, parsed.data.itemId),
+        eq(collectionItems.userId, session.user.id),
+      ),
+    )
+    .returning({ id: collectionItems.id });
+  if (!updated) {
+    return {
+      success: false,
+      message: t("action.itemMissing"),
+    };
+  }
+
+  await writeAuditEvent({
+    actorId: session.user.id,
+    action: "collection.game_updated",
+    targetType: "collection_item",
+    targetId: updated.id,
+    metadata: {
+      gifted: parsed.data.gifted,
+      moneySpent: parsed.data.moneySpent,
+    },
+  });
+  revalidateLibraryRoutes();
+  return {
+    success: true,
+    message: t("action.gameUpdated"),
+  };
+}
+
+/**
+ * Removes one owned item after verifying it belongs to the current user.
+ *
+ * @param formData - The submitted form data.
+ * @returns A promise that resolves when the operation completes.
+ */
+export async function removeGameAction(formData: FormData): Promise<void> {
+  const session = await requireUser();
+  const itemId = itemIdSchema.parse(formData.get("itemId"));
+  const [deleted] = await db
+    .delete(collectionItems)
+    .where(
+      and(
+        eq(collectionItems.id, itemId),
+        eq(collectionItems.userId, session.user.id),
+      ),
+    )
+    .returning({ id: collectionItems.id, gameId: collectionItems.gameId });
+
+  if (deleted) {
+    await writeAuditEvent({
+      actorId: session.user.id,
+      action: "collection.game_removed",
+      targetType: "collection_item",
+      targetId: deleted.id,
+    });
+  }
+
+  revalidateLibraryRoutes();
+}
+
+/**
+ * Toggles a favorite after verifying collection ownership.
+ *
+ * @param formData - The submitted form data.
+ * @returns A promise that resolves when the operation completes.
+ */
+export async function toggleFavoriteAction(formData: FormData): Promise<void> {
+  const session = await requireUser();
+  const itemId = itemIdSchema.parse(formData.get("itemId"));
+  const favorite = booleanStringSchema.parse(formData.get("favorite"));
+  await db
+    .update(collectionItems)
+    .set({ favorite, updatedAt: new Date() })
+    .where(
+      and(
+        eq(collectionItems.id, itemId),
+        eq(collectionItems.userId, session.user.id),
+      ),
+    );
+  revalidateLibraryRoutes();
+}
+
+/**
+ * Updates played status after verifying collection ownership.
+ *
+ * @param formData - Submitted item identity and next predicate value.
+ * @returns A promise that resolves after affected library routes are invalidated.
+ */
+export async function togglePlayedAction(formData: FormData): Promise<void> {
+  const session = await requireUser();
+  const itemId = itemIdSchema.parse(formData.get("itemId"));
+  const hasPlayed = booleanStringSchema.parse(formData.get("hasPlayed"));
+  await db
+    .update(collectionItems)
+    .set({ hasPlayed, updatedAt: new Date() })
+    .where(
+      and(
+        eq(collectionItems.id, itemId),
+        eq(collectionItems.userId, session.user.id),
+        eq(collectionItems.owned, true),
+      ),
+    );
+  revalidateLibraryRoutes();
+}
+
+/**
+ * Moves a wished-for game into the owned collection with its purchase price.
+ *
+ * @param _previous - The previous server-action state.
+ * @param formData - The submitted form data.
+ * @returns The outcome of the authorized server action.
+ */
+export async function moveWishlistToCollectionAction(
+  _previous: CollectionActionState,
+  formData: FormData,
+): Promise<CollectionActionState> {
+  const session = await requireUser();
+  const t = await getTranslations();
+  const parsed = purchaseCollectionItemSchema.safeParse({
+    gifted: formData.get("gifted"),
+    itemId: formData.get("itemId"),
+    moneySpent: formData.get("moneySpent"),
+  });
+  if (!parsed.success) {
+    return {
+      success: false,
+      message: t("action.checkDetails"),
+    };
+  }
+
+  const [updated] = await db
+    .update(collectionItems)
+    .set({
+      moneySpent: parsed.data.moneySpent,
+      gifted: parsed.data.gifted,
+      owned: true,
+      wishlist: false,
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(collectionItems.id, parsed.data.itemId),
+        eq(collectionItems.userId, session.user.id),
+        eq(collectionItems.wishlist, true),
+      ),
+    )
+    .returning({ id: collectionItems.id });
+  if (!updated) {
+    return {
+      success: false,
+      message: t("action.itemMissing"),
+    };
+  }
+
+  await writeAuditEvent({
+    actorId: session.user.id,
+    action: "wishlist.game_purchased",
+    targetType: "collection_item",
+    targetId: updated.id,
+    metadata: {
+      gifted: parsed.data.gifted,
+      moneySpent: parsed.data.moneySpent,
+    },
+  });
+  revalidateLibraryRoutes();
+  return {
+    success: true,
+    message: t("action.movedToCollection"),
+  };
+}
+
+/**
+ * Permanently clears one library, leaving the other untouched.
+ *
+ * @param _previous - The previous server-action state.
+ * @param formData - The submitted form data.
+ * @returns The outcome of the authorized server action.
+ */
+export async function clearLibraryAction(
+  _previous: CollectionActionState,
+  formData: FormData,
+): Promise<CollectionActionState> {
+  const session = await requireUser();
+  const t = await getTranslations();
+  const library = libraryDestinationSchema.safeParse(
+    formData.get("library") ?? "collection",
+  );
+  const confirmation = z
+    .literal(clearCollectionConfirmation)
+    .safeParse(formData.get("confirmation"));
+  if (!confirmation.success || !library.success) {
+    return {
+      success: false,
+      message: t("action.confirmClear", {
+        confirmation: clearCollectionConfirmation,
+      }),
+    };
+  }
+
+  const isWishlist = library.data === "wishlist";
+  const deleted = await db
+    .delete(collectionItems)
+    .where(
+      and(
+        eq(collectionItems.userId, session.user.id),
+        isWishlist
+          ? eq(collectionItems.wishlist, true)
+          : eq(collectionItems.owned, true),
+      ),
+    )
+    .returning({ id: collectionItems.id });
+  await writeAuditEvent({
+    actorId: session.user.id,
+    action: isWishlist ? "wishlist.cleared" : "collection.cleared",
+    targetType: library.data,
+    metadata: { removed: deleted.length },
+  });
+  revalidateAccountRoutes();
+  return {
+    success: true,
+    message: t("action.cleared", { count: deleted.length }),
+  };
+}
