@@ -5,14 +5,12 @@ import type { ReactNode } from "react";
 
 import { buttonVariants } from "@/components/atoms/Button/Button";
 import { CoverFan } from "@/components/molecules/CoverFan/CoverFan";
-import { AddGameDialog } from "@/components/organisms/AddGameDialog/AddGameDialog";
-import { ImportCollectionDialog } from "@/components/organisms/ImportCollectionDialog/ImportCollectionDialog";
 import type { HomeSummary } from "@/core";
 import { cn } from "@/utils/cn";
 
-/** Greeting name, currency, and library snapshot shown in the home hero. */
+/** Greeting, empty-shelf actions, and library snapshot shown in the home hero. */
 type HomeHeroProps = {
-  currency: string;
+  emptyActions?: ReactNode;
   firstName: string;
   summary: HomeSummary;
 };
@@ -24,13 +22,13 @@ type HomeHeroProps = {
  * start one: adding a game by name or importing a BoardGameGeek export.
  *
  * @param root0 - Properties that configure the home hero.
- * @param root0.currency - ISO currency code preselected when adding a game.
+ * @param root0.emptyActions - Account-specific controls shown when the shelf is empty.
  * @param root0.firstName - Name used in the greeting.
  * @param root0.summary - Library snapshot supplying counts and covers.
  * @returns The home hero section.
  */
 export function HomeHero({
-  currency,
+  emptyActions,
   firstName,
   summary,
 }: HomeHeroProps): ReactNode {
@@ -59,10 +57,7 @@ export function HomeHero({
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           {isEmpty ? (
-            <>
-              <AddGameDialog currency={currency} />
-              <ImportCollectionDialog />
-            </>
+            emptyActions
           ) : (
             <>
               <Link className={cn(buttonVariants())} href="/play">

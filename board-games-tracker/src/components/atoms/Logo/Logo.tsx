@@ -6,6 +6,7 @@ import { cn } from "@/utils/cn";
 
 /** Properties that configure the product logo presentation. */
 type LogoProps = {
+  assetBasePath?: string;
   compact?: boolean;
   className?: string;
 };
@@ -14,11 +15,16 @@ type LogoProps = {
  * Board Games Tracker wordmark and compact geometric mark.
  *
  * @param root0 - Properties that configure logo.
+ * @param root0.assetBasePath - Static deployment prefix for the logo asset.
  * @param root0.compact - Whether to use the condensed presentation.
  * @param root0.className - Optional classes merged with the component styles.
  * @returns The rendered logo.
  */
-export function Logo({ compact = false, className }: LogoProps): ReactNode {
+export function Logo({
+  assetBasePath = "",
+  compact = false,
+  className,
+}: LogoProps): ReactNode {
   return (
     <Link
       aria-label={compact ? "Board Games Tracker" : undefined}
@@ -33,7 +39,7 @@ export function Logo({ compact = false, className }: LogoProps): ReactNode {
         aria-hidden="true"
         className="size-10 shrink-0 drop-shadow-sm"
         height={64}
-        src="/logo.svg"
+        src={`${assetBasePath}/logo.svg`}
         width={64}
       />
       {!compact ? (

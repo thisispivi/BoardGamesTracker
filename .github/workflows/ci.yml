@@ -56,6 +56,10 @@ jobs:
       - name: Enforce the coverage floor
         run: pnpm test:coverage
       - run: pnpm build
+      - name: Verify the public static demo
+        env:
+          DEMO_BASE_PATH: /${{ github.event.repository.name }}
+        run: pnpm demo:build
 
   release:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -122,10 +126,47 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           if [ "${{ steps.version.outputs.changed }}" = 'true' ]; then
-            git config user.name 'github-actions[bot]'
-            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git config user.name "$(git log -1 --format=%an)"
+            git config user.email "$(git log -1 --format=%ae)"
             git add package.json
             git commit -m "chore(release): ${{ steps.version.outputs.tag }}"
             git push origin HEAD:main
           fi
           gh release create '${{ steps.version.outputs.tag }}' --target "$(git rev-parse HEAD)" --title '${{ steps.version.outputs.tag }}' --generate-notes
+
+  deploy-demo:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    defaults:
+      run:
+        working-directory: board-games-tracker
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/setup@v3
+        with:
+          version: 11.24.0
+          runtime: node@24.21.0
+          cache: true
+          cache-dependency-path: board-games-tracker/pnpm-lock.yaml
+          package-json-file: board-games-tracker/package.json
+          install: false
+      - uses: actions/configure-pages@v5
+      - run: pnpm install --frozen-lockfile
+      - name: Build the fictional account showcase
+        env:
+          DEMO_BASE_PATH: /${{ github.event.repository.name }}
+        run: pnpm demo:build
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: board-games-tracker/demo/out
+      - name: Deploy the demo
+        id: deployment
+        uses: actions/deploy-pages@v4

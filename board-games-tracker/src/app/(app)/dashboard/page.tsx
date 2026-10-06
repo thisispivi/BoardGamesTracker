@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 
+import { AddGameDialog } from "@/components/organisms/AddGameDialog/AddGameDialog";
 import { HomeHero } from "@/components/organisms/HomeHero/HomeHero";
+import { ImportCollectionDialog } from "@/components/organisms/ImportCollectionDialog/ImportCollectionDialog";
 import { RecentlyAdded } from "@/components/organisms/RecentlyAdded/RecentlyAdded";
 import { ShelfPulse } from "@/components/organisms/ShelfPulse/ShelfPulse";
 import { UnplayedRail } from "@/components/organisms/UnplayedRail/UnplayedRail";
@@ -42,7 +44,12 @@ export default async function DashboardPage(): Promise<ReactNode> {
   return (
     <>
       <HomeHero
-        currency={preferences.currency}
+        emptyActions={
+          <>
+            <AddGameDialog currency={preferences.currency} />
+            <ImportCollectionDialog />
+          </>
+        }
         firstName={firstName}
         summary={summary}
       />

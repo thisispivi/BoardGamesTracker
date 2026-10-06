@@ -633,5 +633,11 @@
       "action": "Confirm account deletion",
       "safety": "Do not use the link if you did not request deletion. The link expires in 24 hours."
     }
+  },
+  "demo": {
+    "language": "Language",
+    "source": "View on GitHub",
+    "description": "Browse this fictional library, try the filters and pick a game. Account changes are unavailable in this demo.",
+    "title": "Example account"
   }
 }

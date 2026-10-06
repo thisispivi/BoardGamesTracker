@@ -211,6 +211,9 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "drizzle/**",
     "coverage/**",
+    "demo/.next/**",
+    "demo/out/**",
+    "demo/public/**",
   ]),
 ]);
 

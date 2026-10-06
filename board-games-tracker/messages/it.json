@@ -633,5 +633,11 @@
       "action": "Conferma eliminazione account",
       "safety": "Non usare il link se non hai richiesto l’eliminazione. Il link scade tra 24 ore."
     }
+  },
+  "demo": {
+    "language": "Lingua",
+    "source": "Vedi su GitHub",
+    "description": "Esplora questa libreria fittizia, prova i filtri e scegli un gioco. Le modifiche all'account non sono disponibili in questa demo.",
+    "title": "Account di esempio"
   }
 }
