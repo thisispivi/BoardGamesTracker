@@ -32,7 +32,11 @@ denial-of-service tests.
   HTTP.
 - Expose only the app port. Keep PostgreSQL on a private network.
 - Make the proxy overwrite the forwarding headers a client sends, and limit
-  request size and connection time.
+  request size and connection time. Behind several proxies or a CDN, list
+  every proxy in `TRUSTED_PROXIES`.
+- Keep the app port bound to `127.0.0.1` (the Compose default). Docker
+  publishes ports past host firewalls such as UFW, so a port bound to every
+  interface lets clients skip the proxy and forge their address.
 - Set `HEALTH_CHECK_TOKEN` so `/api/health` is not open to everyone.
 
 **Ongoing**

@@ -19,6 +19,7 @@ import * as schema from "@/server/db/schema";
 import { sendAuthActionMail } from "@/server/mail/authMail";
 import { isMailConfigured } from "@/server/mail/config";
 import { isCurrentlyBanned } from "@/server/security/ban";
+import { trustedProxies } from "@/server/security/clientIp";
 
 const bannedUserMessage = "This account has been suspended.";
 const mailEnabled = isMailConfigured();
@@ -177,6 +178,7 @@ export const auth = betterAuth({
       handler: (promise) => after(() => promise),
     },
     cookiePrefix: "board_games_tracker",
+    ipAddress: { trustedProxies },
     useSecureCookies: env.NODE_ENV === "production",
     defaultCookieAttributes: {
       httpOnly: true,
