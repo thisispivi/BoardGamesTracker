@@ -2,7 +2,7 @@
 
 import { Search, SlidersHorizontal } from "lucide-react";
 import { useTranslations } from "next-intl";
-import type { ReactNode } from "react";
+import { Children, type ReactNode } from "react";
 
 import type { LibraryFilters } from "@/core";
 import { countActiveFilters } from "@/utils/libraryFilters";
@@ -86,7 +86,7 @@ export function LibraryToolbar({
           </span>
         ) : null}
       </button>
-      {action}
+      {Children.toArray(action)}
     </section>
   );
 }

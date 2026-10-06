@@ -4,6 +4,9 @@ board-games-tracker/.next/
 board-games-tracker/out/
 board-games-tracker/build/
 board-games-tracker/coverage/
+board-games-tracker/demo/.next/
+board-games-tracker/demo/out/
+board-games-tracker/demo/public/
 *.tsbuildinfo
 next-env.d.ts
 

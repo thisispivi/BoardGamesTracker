@@ -10,6 +10,27 @@ own database.
 
 ![Next.js](https://img.shields.io/badge/next.js-000000.svg?style=for-the-badge&logo=nextdotjs&logoColor=white) ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB) ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white) ![Tailwind CSS](https://img.shields.io/badge/tailwind_css-06B6D4.svg?style=for-the-badge&logo=tailwindcss&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/postgresql-4169E1.svg?style=for-the-badge&logo=postgresql&logoColor=white) ![Drizzle](https://img.shields.io/badge/drizzle-C5F74F.svg?style=for-the-badge&logo=drizzle&logoColor=black) ![Zod](https://img.shields.io/badge/zod-3E67B1.svg?style=for-the-badge&logo=zod&logoColor=white) ![Radix UI](https://img.shields.io/badge/radix_ui-161618.svg?style=for-the-badge&logo=radixui&logoColor=white) ![Vitest](https://img.shields.io/badge/vitest-6E9F18.svg?style=for-the-badge&logo=vitest&logoColor=white) ![ESLint](https://img.shields.io/badge/eslint-4B3263.svg?style=for-the-badge&logo=eslint&logoColor=white) ![Prettier](https://img.shields.io/badge/prettier-F7B93E.svg?style=for-the-badge&logo=prettier&logoColor=black) ![pnpm](https://img.shields.io/badge/pnpm-%23F69220.svg?style=for-the-badge&logo=pnpm&logoColor=white) ![Node.js](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white) ![Docker](https://img.shields.io/badge/docker-2496ED.svg?style=for-the-badge&logo=docker&logoColor=white) ![SearXNG](https://img.shields.io/badge/searxng-3050FF.svg?style=for-the-badge&logo=searxng&logoColor=white) ![AI Generated](https://img.shields.io/badge/AI_Generated-FF69B4?style=for-the-badge&logo=probot&logoColor=white)
 
+## Explore the app
+
+[Open the live demo](https://thisispivi.github.io/BoardGamesTracker/) to explore
+Alex Morgan's fictional collection, wishlist, game-night picker, and statistics.
+No account is needed. The demo is read-only; search, filters, the picker, and
+theme controls work in your browser.
+
+These six screenshots show the actual webapp with an example account. Each
+image is **1920 × 1080**; click a preview to view it at full size.
+
+| Dashboard                                                                             | Collection                                                                                                    |
+| ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| [![Dashboard](./docs/screenshots/dashboard.jpg)](./docs/screenshots/dashboard.jpg)    | [![Collection](./docs/screenshots/collection.jpg)](./docs/screenshots/collection.jpg)                         |
+| Wishlist                                                                              | Game night                                                                                                    |
+| [![Wishlist](./docs/screenshots/wishlist.jpg)](./docs/screenshots/wishlist.jpg)       | [![Game-night picker](./docs/screenshots/game-night.jpg)](./docs/screenshots/game-night.jpg)                  |
+| Statistics                                                                            | Dark theme                                                                                                    |
+| [![Statistics](./docs/screenshots/statistics.jpg)](./docs/screenshots/statistics.jpg) | [![Collection in dark theme](./docs/screenshots/collection-dark.jpg)](./docs/screenshots/collection-dark.jpg) |
+
+See [showcase setup](./docs/SHOWCASE.md) for demo deployment and screenshot
+reproduction instructions.
+
 ## Quick start
 
 You need Docker with Compose.

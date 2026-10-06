@@ -9,6 +9,12 @@ export * from "@/core/collection/collection";
 export * from "@/core/collection/collection.contract";
 export * from "@/core/collection/library.contract";
 export * from "@/core/collectionStats/collectionStats";
+export type { DemoLibrary, DemoView } from "@/core/demo/demo.contract";
+export {
+  demoDatabaseUrlSchema,
+  demoLibrarySchema,
+  demoViews,
+} from "@/core/demo/demo.contract";
 export * from "@/core/discovery/discovery.contract";
 export * from "@/core/environment/environment.contract";
 export * from "@/core/home/home";
