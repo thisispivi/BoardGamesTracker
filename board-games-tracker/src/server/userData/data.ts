@@ -2,7 +2,8 @@ import "server-only";
 
 import { eq, inArray, sql } from "drizzle-orm";
 
-import type { UserDataDocument } from "@/core";
+import type { BggMetadata, UserDataDocument } from "@/core";
+import { scrapeBggMetadata } from "@/server/bgg/scrape";
 import { db } from "@/server/db";
 import { collectionItems, games, user } from "@/server/db/schema";
 
@@ -65,60 +66,81 @@ export async function getUserDataDocument(
 }
 
 /**
- * Merges validated account data without overwriting existing catalog metadata.
+ * Merges validated account data without trusting the file's catalog metadata.
+ *
+ * The games catalog is shared by every account, so a game missing from it is
+ * created only from BoardGameGeek's own metadata. Items whose game is neither
+ * in the catalog nor found on BoardGameGeek are skipped.
  *
  * @param userId - The authenticated user identifier.
  * @param document - The portable user-data document.
- * @returns The outcome of the validated import operation.
+ * @returns How many library items were imported.
  */
 export async function importUserDataDocument(
   userId: string,
   document: UserDataDocument,
 ): Promise<number> {
   const now = new Date();
+  const bggIds = document.items.map((item) => item.bggId);
+  const known = new Set(
+    bggIds.length === 0
+      ? []
+      : (
+          await db
+            .select({ bggId: games.bggId })
+            .from(games)
+            .where(inArray(games.bggId, bggIds))
+        ).map((game) => game.bggId),
+  );
+  const missing = bggIds.filter((bggId) => !known.has(bggId));
+  const metadataById =
+    missing.length === 0
+      ? new Map<number, BggMetadata>()
+      : await scrapeBggMetadata(missing).catch(
+          () => new Map<number, BggMetadata>(),
+        );
+  let imported = 0;
   await db.transaction(async (transaction) => {
     await transaction
       .update(user)
       .set({ currency: document.profile.currency, updatedAt: now })
       .where(eq(user.id, userId));
-
     if (document.items.length === 0) return;
-    await transaction
-      .insert(games)
-      .values(
-        document.items.map((item) => ({
-          bggId: item.bggId,
-          name: item.name,
-          description: item.description,
-          imageUrl: item.imageUrl,
-          thumbnailUrl: item.imageUrl,
-          yearPublished: item.yearPublished,
-          minPlayers: item.minPlayers,
-          maxPlayers: item.maxPlayers,
-          minPlaytime: item.minPlaytime,
-          maxPlaytime: item.maxPlaytime,
-          weight: item.weight,
-          bggRating: item.bggRating,
-          isExpansion: item.isExpansion,
-          expandsBggIds: item.expandsBggIds,
-          expansionBggIds: item.expansionBggIds,
-          categories: item.categories,
-          mechanics: item.mechanics,
-          families: item.families,
-          updatedAt: now,
-        })),
-      )
-      .onConflictDoNothing({ target: games.bggId });
+    if (metadataById.size > 0) {
+      await transaction
+        .insert(games)
+        .values(
+          [...metadataById.values()].map((metadata) => ({
+            bggId: metadata.bggId,
+            name: metadata.name,
+            description: metadata.description,
+            imageUrl: metadata.imageUrl,
+            thumbnailUrl: metadata.imageUrl,
+            yearPublished: metadata.yearPublished,
+            minPlayers: metadata.minPlayers,
+            maxPlayers: metadata.maxPlayers,
+            minPlaytime: metadata.minPlaytime,
+            maxPlaytime: metadata.maxPlaytime,
+            weight: metadata.weight,
+            bggRating: metadata.bggRating,
+            isExpansion: metadata.isExpansion,
+            expandsBggIds: metadata.expandsBggIds,
+            expansionBggIds: metadata.expansionBggIds,
+            categories: metadata.categories,
+            mechanics: metadata.mechanics,
+            families: metadata.families,
+            updatedAt: now,
+          })),
+        )
+        .onConflictDoNothing({ target: games.bggId });
+    }
     const savedGames = await transaction
       .select({ id: games.id, bggId: games.bggId })
       .from(games)
-      .where(
-        inArray(
-          games.bggId,
-          document.items.map((item) => item.bggId),
-        ),
-      );
+      .where(inArray(games.bggId, bggIds));
     const gameIds = new Map(savedGames.map((game) => [game.bggId, game.id]));
+    imported = document.items.filter((item) => gameIds.has(item.bggId)).length;
+    if (imported === 0) return;
 
     await transaction
       .insert(collectionItems)
@@ -159,5 +181,5 @@ export async function importUserDataDocument(
         },
       });
   });
-  return document.items.length;
+  return imported;
 }
