@@ -1,6 +1,6 @@
 # Showcase and screenshots
 
-The [public demo](https://thisispivi.github.io/BoardGamesTracker/) is an isolated
+The [public demo](https://demo.boardgames.pivi.dev/) is an isolated
 static Next.js export built from the application's UI components. Alex Morgan
 is a fictional account with 18 base games, two expansions, and six wishlist
 games. Purchase prices, favorites, ratings, played status, and dates are example
@@ -23,15 +23,17 @@ pnpm demo:dev
 Open <http://localhost:12501>. To build for GitHub Pages:
 
 ```bash
-DEMO_BASE_PATH=/BoardGamesTracker pnpm demo:build
+pnpm demo:build
 ```
 
-In PowerShell, set `$env:DEMO_BASE_PATH = '/BoardGamesTracker'` before running
-`pnpm demo:build`. Static files are written to `board-games-tracker/demo/out/`.
+The demo is served from the root of its custom domain, so no base path is
+needed. To host it under a subpath instead, set `DEMO_BASE_PATH` (for example
+`/BoardGamesTracker`) before building. Static files are written to `board-games-tracker/demo/out/`.
 Only that directory is uploaded by the deployment job. Every push to `main`
 deploys after the quality gate; pull requests validate the demo without publishing.
-GitHub Pages must use **GitHub Actions** as its publishing source. No `gh-pages`
-branch is needed.
+GitHub Pages must use **GitHub Actions** as its publishing source, with
+`demo.boardgames.pivi.dev` as its custom domain (a DNS `CNAME` record pointing to
+`thisispivi.github.io`). No `gh-pages` branch is needed.
 
 ## Reproduce the README screenshots
 
