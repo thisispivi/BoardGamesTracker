@@ -57,8 +57,6 @@ jobs:
         run: pnpm test:coverage
       - run: pnpm build
       - name: Verify the public static demo
-        env:
-          DEMO_BASE_PATH: /${{ github.event.repository.name }}
         run: pnpm demo:build
 
   release:
@@ -147,8 +145,6 @@ jobs:
       - uses: actions/configure-pages@v5
       - run: pnpm install --frozen-lockfile
       - name: Build the fictional account showcase
-        env:
-          DEMO_BASE_PATH: /${{ github.event.repository.name }}
         run: pnpm demo:build
       - uses: actions/upload-pages-artifact@v4
         with:

@@ -12,7 +12,7 @@ own database.
 
 ## Explore the app
 
-[Open the live demo](https://thisispivi.github.io/BoardGamesTracker/) to explore
+[Open the live demo](https://demo.boardgames.pivi.dev/) to explore
 Alex Morgan's fictional collection, wishlist, game-night picker, and statistics.
 No account is needed. The demo is read-only; search, filters, the picker, and
 theme controls work in your browser.
