@@ -17,7 +17,10 @@ export const env = createEnv({
     BETTER_AUTH_URL: appOriginSchema,
     DATABASE_URL: databaseUrlSchema,
     HEALTH_CHECK_TOKEN: z.string().min(16).optional(),
-    LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
+    LOG_LEVEL: z.preprocess(
+      (value) => (typeof value === "string" ? value.toLowerCase() : value),
+      z.enum(["debug", "info", "warn", "error"]).default("info"),
+    ),
     NODE_ENV: z
       .enum(["development", "production", "test"])
       .default("development"),
