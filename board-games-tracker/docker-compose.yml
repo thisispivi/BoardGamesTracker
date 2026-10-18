@@ -65,6 +65,7 @@ services:
       secrets:
         - sentry_auth_token
     restart: unless-stopped
+    init: true
     depends_on:
       database:
         condition: service_healthy
