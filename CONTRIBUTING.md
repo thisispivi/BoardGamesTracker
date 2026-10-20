@@ -4,11 +4,10 @@
 2. Branch from `main`. Name the branch after the change: `feat/weekly-backups`,
    `fix/admin-search`, `docs/restore-guide`.
 3. Make the change, and add or update the test file beside the code it covers.
-4. Run the checks from `board-games-tracker/`:
-
-   ```bash
-   pnpm check && pnpm test:coverage && pnpm build && pnpm audit --audit-level=moderate
-   ```
+4. Run the gate at the top of
+   [CODING_GUIDELINES.md](./board-games-tracker/CODING_GUIDELINES.md) from
+   `board-games-tracker/`. The `check` skill in `.claude/skills/` explains how
+   to fix each failure.
 
 5. Open a pull request. Say what changes for users, note any database change,
    and add screenshots for interface work.
@@ -31,4 +30,8 @@ and tests.
 ## AI assistants
 
 `AGENTS.md` and `CLAUDE.md` live in `board-games-tracker/` and point to the
-coding guidelines. Start your assistant from that folder so it reads them.
+coding guidelines. For Claude Code, start at the repository root: the root
+`CLAUDE.md` imports them, and `.claude/` holds the shared plugins and the
+project skills (`check`, `db-schema-change`, `server-action`, `api-route`,
+`env-setting`, `ui-component`). Other assistants can start in
+`board-games-tracker/`.

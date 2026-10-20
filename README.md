@@ -63,7 +63,8 @@ You need Docker with Compose.
 Registration closes after that first account. Set `ALLOW_SIGN_UP=true` in
 `.env` to let other people register.
 
-Backups, upgrades, and every setting are in [DEPLOYMENT.md](./DEPLOYMENT.md).
+Backups, upgrades, and the main settings are in [DEPLOYMENT.md](./DEPLOYMENT.md).
+`board-games-tracker/.env.example` lists every setting.
 
 ## Features
 
@@ -114,7 +115,9 @@ flowchart LR
     App --> Sources["BoardGameGeek pages and artwork"]
 ```
 
-- The browser talks only to the application.
+- The browser talks to the application, plus two optional outside hosts: the
+  flag images in the language picker, and your error-monitoring server if you
+  set one.
 - PostgreSQL holds accounts, libraries, cached game details, and the audit log.
 - Game search goes through a private SearXNG container. The server downloads
   artwork and serves it itself.
@@ -164,19 +167,35 @@ The app runs at <http://localhost:12500>.
 
 Run them from `board-games-tracker/`.
 
-| Command              | What it does                                    |
-| -------------------- | ----------------------------------------------- |
-| `pnpm dev`           | Starts the development server                   |
-| `pnpm check`         | Types, lint, formatting, tests, and unused code |
-| `pnpm test:coverage` | Tests, failing below the coverage floor         |
-| `pnpm build`         | Production build                                |
-| `pnpm db:generate`   | Writes a migration after you change the schema  |
-| `pnpm db:migrate`    | Applies migrations                              |
-| `pnpm lint:fix`      | Fixes lint errors                               |
-| `pnpm format`        | Fixes formatting                                |
+| Command              | What it does                                       |
+| -------------------- | -------------------------------------------------- |
+| `pnpm dev`           | Starts the development server                      |
+| `pnpm check`         | Types, lint, formatting, tests, and unused code    |
+| `pnpm test:coverage` | Tests, failing below the coverage floor            |
+| `pnpm build`         | Production build                                   |
+| `pnpm db:generate`   | Writes a migration after you change the schema     |
+| `pnpm db:migrate`    | Applies migrations                                 |
+| `pnpm images:cache`  | Downloads artwork for games that lack a local copy |
+| `pnpm lint:fix`      | Fixes lint errors                                  |
+| `pnpm format`        | Fixes formatting                                   |
 
 Tests need no database. They run the real migrations against an in-process
 PostgreSQL.
+
+### Repository layout
+
+```text
+.claude/               Claude Code settings and project skills
+.github/               CI workflow, Dependabot, Copilot instructions
+docs/                  Showcase notes and screenshots
+board-games-tracker/   The application
+  src/                 Code, laid out in CODING_GUIDELINES.md
+  messages/            English and Italian copy
+  drizzle/             Generated migrations
+  demo/                Static read-only demo
+  scripts/             Migrations, backups, demo seeding, image cache
+  searxng/             Private search engine settings
+```
 
 ### Before a pull request
 
@@ -221,11 +240,13 @@ at 260 characters.
 
 ## Documentation
 
-| Document                                                           | Covers                                  |
-| ------------------------------------------------------------------ | --------------------------------------- |
-| [DEPLOYMENT.md](./DEPLOYMENT.md)                                   | Going live, backups, upgrades, settings |
-| [CONTRIBUTING.md](./CONTRIBUTING.md)                               | How to send a change                    |
-| [CODING_GUIDELINES.md](./board-games-tracker/CODING_GUIDELINES.md) | Code, test, and architecture rules      |
+| Document                                                           | Covers                                               |
+| ------------------------------------------------------------------ | ---------------------------------------------------- |
+| [DEPLOYMENT.md](./DEPLOYMENT.md)                                   | Going live, backups, upgrades, settings              |
+| [CONTRIBUTING.md](./CONTRIBUTING.md)                               | How to send a change                                 |
+| [CODING_GUIDELINES.md](./board-games-tracker/CODING_GUIDELINES.md) | Code, test, and architecture rules                   |
+| [SHOWCASE.md](./docs/SHOWCASE.md)                                  | Demo deployment and screenshots                      |
+| [`.claude/skills/`](./.claude/skills)                              | Step-by-step checklists for AI assistants and people |
 
 ## License
 
