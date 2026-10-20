@@ -32,6 +32,7 @@ and tests.
 `AGENTS.md` and `CLAUDE.md` live in `board-games-tracker/` and point to the
 coding guidelines. For Claude Code, start at the repository root: the root
 `CLAUDE.md` imports them, and `.claude/` holds the shared plugins and the
-project skills (`check`, `db-schema-change`, `server-action`, `api-route`,
-`env-setting`, `ui-component`). Other assistants can start in
+project skills (`check`, `nextjs`, `react-best-practices`, `drizzle-queries`,
+`db-schema-change`, `server-action`, `api-route`, `env-setting`,
+`ui-component`). Other assistants can start in
 `board-games-tracker/`.
