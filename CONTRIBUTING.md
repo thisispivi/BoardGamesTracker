@@ -34,5 +34,7 @@ coding guidelines. For Claude Code, start at the repository root: the root
 `CLAUDE.md` imports them, and `.claude/` holds the shared plugins and the
 project skills (`check`, `nextjs`, `react-best-practices`, `drizzle-queries`,
 `db-schema-change`, `server-action`, `api-route`, `env-setting`,
-`ui-component`). Other assistants can start in
+`ui-component`). Third-party plugins are pinned to a commit
+`sha` in `.claude/settings.json`; review the upstream diff before you raise
+it. Keep personal plugins in `.claude/settings.local.json`, which Git ignores. Other assistants can start in
 `board-games-tracker/`.

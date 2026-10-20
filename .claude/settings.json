@@ -1,32 +1,40 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "extraKnownMarketplaces": {
-    "trailofbits": {
+    "trailofbits-pinned": {
       "source": {
-        "source": "github",
-        "repo": "trailofbits/skills"
-      }
-    },
-    "better-auth-agent-skills": {
-      "source": {
-        "source": "github",
-        "repo": "better-auth/skills"
-      }
-    },
-    "taste-skill": {
-      "source": {
-        "source": "github",
-        "repo": "Leonxlnx/taste-skill"
+        "source": "settings",
+        "name": "trailofbits-pinned",
+        "plugins": [
+          {
+            "name": "insecure-defaults",
+            "description": "Trail of Bits insecure-defaults, pinned to one commit",
+            "source": {
+              "source": "git-subdir",
+              "url": "trailofbits/skills",
+              "path": "plugins/insecure-defaults",
+              "sha": "5c99c03fb8a9ea568432ecbcba5d86e9f4ac2bf0"
+            }
+          },
+          {
+            "name": "supply-chain-risk-auditor",
+            "description": "Trail of Bits supply-chain-risk-auditor, pinned to one commit",
+            "source": {
+              "source": "git-subdir",
+              "url": "trailofbits/skills",
+              "path": "plugins/supply-chain-risk-auditor",
+              "sha": "5c99c03fb8a9ea568432ecbcba5d86e9f4ac2bf0"
+            }
+          }
+        ]
       }
     }
   },
   "enabledPlugins": {
     "security-guidance@claude-plugins-official": true,
     "claude-md-management@claude-plugins-official": true,
-    "supply-chain-risk-auditor@trailofbits": true,
-    "insecure-defaults@trailofbits": true,
-    "auth-skills@better-auth-agent-skills": true,
-    "taste-skill@taste-skill": true,
-    "context7@claude-plugins-official": true
+    "context7@claude-plugins-official": true,
+    "insecure-defaults@trailofbits-pinned": true,
+    "supply-chain-risk-auditor@trailofbits-pinned": true
   }
 }
