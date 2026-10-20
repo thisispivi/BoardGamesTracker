@@ -1,3 +1,5 @@
+import type { NodeOptions } from "@sentry/nextjs";
+
 import { scrubSentryEvent } from "@/utils/sentryScrub";
 
 /**
@@ -9,6 +11,29 @@ import { scrubSentryEvent } from "@/utils/sentryScrub";
  */
 const ignoredMessages = ["The destination stream closed early."];
 
+/** What the SDK may attach to an event, typed by the installed Sentry version. */
+type DataCollection = NonNullable<NodeOptions["dataCollection"]>;
+
+/**
+ * Turns off every category of request, user and runtime data the SDK collects.
+ *
+ * Sentry 11 replaced `sendDefaultPii` with these per-category switches, most of
+ * which default to on. `scrubSentryEvent` still strips the event as a second
+ * line of defence.
+ */
+const collectNothing: DataCollection = {
+  cookies: false,
+  databaseQueryData: false,
+  genAI: { inputs: false, outputs: false },
+  graphQL: { document: false, variables: false },
+  httpBodies: [],
+  httpHeaders: false,
+  queues: false,
+  stackFrameVariables: false,
+  urlQueryParams: false,
+  userInfo: false,
+};
+
 /** Execution environments with distinct Sentry integration settings. */
 type SentryRuntime = "browser" | "edge" | "server";
 
@@ -16,14 +41,13 @@ type SentryRuntime = "browser" | "edge" | "server";
 type SentryOptions = {
   attachStacktrace: boolean;
   beforeSend: typeof scrubSentryEvent;
+  dataCollection: DataCollection;
   dsn: string;
-  enableLogs: boolean;
   ignoreErrors: string[];
   environment: string;
   initialScope: { tags: { application: string; runtime: SentryRuntime } };
   release?: string;
   sendClientReports: boolean;
-  sendDefaultPii: boolean;
   tracesSampleRate: number;
 };
 
@@ -52,10 +76,9 @@ export function createSentryOptions(
     environment,
     ...(release ? { release } : {}),
     attachStacktrace: true,
-    enableLogs: false,
+    dataCollection: collectNothing,
     ignoreErrors: ignoredMessages,
     sendClientReports: false,
-    sendDefaultPii: false,
     tracesSampleRate: 0,
     initialScope: {
       tags: {
