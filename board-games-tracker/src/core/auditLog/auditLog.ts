@@ -1,5 +1,5 @@
 /** One serialized administrator audit-log event. */
-export type AuditLogEvent = {
+type AuditLogEvent = {
   action: string;
   actorName: string | null;
   createdAt: string;

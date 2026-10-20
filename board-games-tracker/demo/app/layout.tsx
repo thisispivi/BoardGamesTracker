@@ -13,6 +13,11 @@ export const metadata: Metadata = {
     "Explore a fictional board-game collection, wishlist, statistics, and game-night picker.",
 };
 
+/** Showcase page rendered inside the static demo document. */
+type DemoLayoutProps = {
+  children: ReactNode;
+};
+
 /**
  * Supplies the document for the isolated static showcase.
  *
@@ -20,11 +25,7 @@ export const metadata: Metadata = {
  * @param root0.children - Selected showcase page.
  * @returns A static document without authentication, headers, or database access.
  */
-export default function DemoLayout({
-  children,
-}: {
-  children: ReactNode;
-}): ReactNode {
+export default function DemoLayout({ children }: DemoLayoutProps): ReactNode {
   return (
     <html lang="en" suppressHydrationWarning>
       <body>{children}</body>

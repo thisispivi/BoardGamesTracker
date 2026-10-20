@@ -34,6 +34,12 @@ function getServerLocale(): AppLocale {
   return defaultLocale;
 }
 
+/** Failure and retry callback supplied by the root Next.js error boundary. */
+type GlobalErrorProps = {
+  error: Error & { digest?: string };
+  reset: () => void;
+};
+
 /**
  * Isolates failures in the root layout itself, which the nested error boundary cannot catch.
  *
@@ -50,10 +56,7 @@ function getServerLocale(): AppLocale {
 export default function GlobalError({
   error,
   reset,
-}: {
-  error: Error & { digest?: string };
-  reset: () => void;
-}): ReactNode {
+}: GlobalErrorProps): ReactNode {
   const locale = useSyncExternalStore(
     subscribeToLocale,
     getBrowserLocale,

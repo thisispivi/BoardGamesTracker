@@ -17,6 +17,11 @@ export function generateStaticParams(): { view: string }[] {
   return demoViews.map((view) => ({ view }));
 }
 
+/** Build-time route parameters naming the showcase page. */
+type DemoPageProps = {
+  params: Promise<{ view: string }>;
+};
+
 /**
  * Renders one of the fictional account's statically exported product pages.
  *
@@ -26,9 +31,7 @@ export function generateStaticParams(): { view: string }[] {
  */
 export default async function DemoPage({
   params,
-}: {
-  params: Promise<{ view: string }>;
-}): Promise<ReactNode> {
+}: DemoPageProps): Promise<ReactNode> {
   const { view } = await params;
   const selected = demoViews.find((candidate) => candidate === view);
   if (!selected) notFound();

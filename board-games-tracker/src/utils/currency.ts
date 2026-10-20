@@ -31,7 +31,7 @@ export function isCurrency(value: unknown): value is Currency {
  * Returns the compact symbol shown beside a supported currency code.
  *
  * @param currency - ISO currency code used to format monetary values.
- * @returns The localized symbol, or the currency code when no symbol exists.
+ * @returns The symbol for the currency; every supported currency has one.
  */
 export function getCurrencySymbol(currency: Currency): string {
   return currencySymbols[currency];

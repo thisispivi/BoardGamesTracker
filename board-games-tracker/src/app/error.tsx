@@ -8,6 +8,12 @@ import { type ReactNode, useEffect } from "react";
 import { Button } from "@/components/atoms/Button/Button";
 import { AuthShell } from "@/components/templates/AuthShell/AuthShell";
 
+/** Failure and retry callback supplied by the Next.js error boundary. */
+type ErrorBoundaryProps = {
+  error: Error & { digest?: string };
+  reset: () => void;
+};
+
 /**
  * Isolates unexpected render failures without leaking stack traces.
  *
@@ -19,10 +25,7 @@ import { AuthShell } from "@/components/templates/AuthShell/AuthShell";
 export default function ErrorBoundary({
   error,
   reset,
-}: {
-  error: Error & { digest?: string };
-  reset: () => void;
-}): ReactNode {
+}: ErrorBoundaryProps): ReactNode {
   const t = useTranslations("error");
   useEffect(() => {
     Sentry.captureException(error);

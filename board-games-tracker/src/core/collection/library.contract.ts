@@ -15,13 +15,13 @@ const maxCardText = 4_000;
 const maxCardList = 1_000;
 
 /** Validates a three-state Boolean library facet. */
-export const libraryBooleanFilterSchema = z.enum(["all", "yes", "no"]);
+const libraryBooleanFilterSchema = z.enum(["all", "yes", "no"]);
 
 /** Validates which kinds of games a library page includes. */
-export const libraryGameTypeSchema = z.enum(["all", "baseGames", "expansions"]);
+const libraryGameTypeSchema = z.enum(["all", "baseGames", "expansions"]);
 
 /** Validates the ordering applied to a library page. */
-export const librarySortSchema = z.enum([
+const librarySortSchema = z.enum([
   "nameAscending",
   "nameDescending",
   "weightAscending",
@@ -31,7 +31,7 @@ export const librarySortSchema = z.enum([
 ]);
 
 /** Validates a complexity facet supported by the collection filters. */
-export const libraryWeightFilterSchema = z.enum([
+const libraryWeightFilterSchema = z.enum([
   "all",
   "light",
   "medium",
@@ -40,7 +40,7 @@ export const libraryWeightFilterSchema = z.enum([
 ]);
 
 /** Validates an inclusive non-negative range used by sliders. */
-export const numberRangeSchema = z
+const numberRangeSchema = z
   .strictObject({
     max: z.number().int().min(0).max(10_000),
     min: z.number().int().min(0).max(10_000),
@@ -48,7 +48,7 @@ export const numberRangeSchema = z
   .refine((range) => range.max >= range.min);
 
 /** Validates the complete filter state sent to paginated library queries. */
-export const libraryFiltersSchema = z.strictObject({
+const libraryFiltersSchema = z.strictObject({
   categories: z.array(z.string().trim().min(1).max(160)).max(100),
   favoriteFilter: libraryBooleanFilterSchema,
   gameType: libraryGameTypeSchema,

@@ -6,6 +6,12 @@ import postgres from "postgres";
 import { env } from "@/env";
 import * as schema from "@/server/db/schema";
 
+/**
+ * Development-only slot on `globalThis` that keeps one connection pool across
+ * hot reloads. The cast is safe because the slot is optional and only this
+ * module writes it; it can go when Next.js stops re-evaluating server modules
+ * on reload.
+ */
 const globalDatabase = globalThis as unknown as {
   sqlClient?: ReturnType<typeof postgres>;
 };

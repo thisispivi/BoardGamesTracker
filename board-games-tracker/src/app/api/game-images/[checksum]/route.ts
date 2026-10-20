@@ -36,7 +36,7 @@ export async function GET(
 
   const etag = `"${checksum.data}"`;
   const headers = new Headers({
-    "Cache-Control": "public, max-age=31536000, immutable",
+    "Cache-Control": `public, max-age=${365 * 24 * 60 * 60}, immutable`,
     "Content-Length": String(image.size),
     "Content-Type": image.mimeType,
     ETag: etag,

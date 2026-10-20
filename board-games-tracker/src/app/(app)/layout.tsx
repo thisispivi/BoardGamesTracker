@@ -3,6 +3,11 @@ import type { ReactNode } from "react";
 import { AppShell } from "@/components/templates/AppShell/AppShell";
 import { requireUser } from "@/server/session";
 
+/** Authenticated pages rendered inside the product shell. */
+type AuthenticatedLayoutProps = {
+  children: React.ReactNode;
+};
+
 /**
  * Authenticated product shell with server-validated authorization.
  *
@@ -12,9 +17,7 @@ import { requireUser } from "@/server/session";
  */
 export default async function AuthenticatedLayout({
   children,
-}: {
-  children: React.ReactNode;
-}): Promise<ReactNode> {
+}: AuthenticatedLayoutProps): Promise<ReactNode> {
   const session = await requireUser();
 
   return <AppShell user={session.user}>{children}</AppShell>;

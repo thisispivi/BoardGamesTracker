@@ -21,6 +21,11 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("metaTitle") };
 }
 
+/** Query parameters that choose between sign-in and registration. */
+type LoginPageProps = {
+  searchParams: Promise<{ mode?: string | string[] }>;
+};
+
 /**
  * Direct login and registration page.
  *
@@ -34,9 +39,7 @@ export async function generateMetadata(): Promise<Metadata> {
  */
 export default async function LoginPage({
   searchParams,
-}: {
-  searchParams: Promise<{ mode?: string | string[] }>;
-}): Promise<ReactNode> {
+}: LoginPageProps): Promise<ReactNode> {
   await connection();
   const [session, bootstrapRequired] = await Promise.all([
     getSession(),

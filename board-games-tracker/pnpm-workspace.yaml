@@ -1,7 +1,7 @@
 # Held major versions. Each is the newest release compatible with the supported
 # Node, ESLint, and TypeScript stack; re-evaluate whenever the blocker below
 # ships a widened range.
-#   @types/node 26 - describes Node 26 APIs while `engines.node` supports 24.x,
+#   @types/node 26 - describes Node 26 APIs while every runtime here is Node 24,
 #     so the newer typings would admit calls the runtime does not have.
 #   eslint 10 - eslint-plugin-import, eslint-plugin-jsx-a11y, and
 #     eslint-plugin-react still declare a `^9` peer ceiling.

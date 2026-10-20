@@ -1,5 +1,3 @@
-.git
-.github
 .husky
 .next
 coverage
@@ -12,10 +10,4 @@ node_modules
 !drizzle/*.sql
 backups
 *.log
-.codex
-.vscode
-npm-debug.log*
-README.md
 *.tsbuildinfo
-.agents
-.claude
