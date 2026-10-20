@@ -16,9 +16,15 @@ describe("createSentryOptions", () => {
       environment: "staging",
       release: "release-123",
       attachStacktrace: true,
-      enableLogs: false,
+      dataCollection: {
+        cookies: false,
+        httpBodies: [],
+        httpHeaders: false,
+        stackFrameVariables: false,
+        urlQueryParams: false,
+        userInfo: false,
+      },
       sendClientReports: false,
-      sendDefaultPii: false,
       tracesSampleRate: 0,
       initialScope: {
         tags: {
