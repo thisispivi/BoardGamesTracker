@@ -112,6 +112,15 @@ path, query, or credentials.
 | `LOG_LEVEL`          | `info`  | `debug`, `info`, `warn`, or `error`, in any case                                                                 |
 | `TRUSTED_PROXIES`    | unset   | Comma-separated proxy addresses or CIDR ranges to trust                                                          |
 
+The app reads the client address from `X-Forwarded-For`, walking it from the
+right and skipping every hop listed in `TRUSTED_PROXIES`. Behind a single
+reverse proxy that replaces the header, leave it empty. When a CDN such as
+Cloudflare sits in front of your own reverse proxy, add the CDN's address
+ranges ([Cloudflare publishes them](https://www.cloudflare.com/ips/)) and keep
+them current. Otherwise every visitor arriving through the same Cloudflare data
+centre shares one rate-limit bucket, and the audit log records Cloudflare's
+address instead of the visitor's.
+
 ### Email
 
 Email is off by default. Set `SMTP_HOST` and `SMTP_FROM_EMAIL` together to turn
