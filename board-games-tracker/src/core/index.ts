@@ -25,4 +25,3 @@ export * from "@/core/shared/shared.contract";
 export * from "@/core/theme/theme";
 export * from "@/core/ui/ui";
 export * from "@/core/userData/userData.contract";
-export type { AppLocale } from "@/i18n/config";

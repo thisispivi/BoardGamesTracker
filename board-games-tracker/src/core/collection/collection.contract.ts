@@ -17,7 +17,7 @@ export const itemIdSchema = z.uuid();
  * A missing or blank value therefore means not gifted, unlike the required
  * Boolean fields that reject anything but an explicit `true` or `false`.
  */
-export const giftedSchema = z
+const giftedSchema = z
   .enum(["true", "false"])
   .nullish()
   .transform((value) => value === "true");

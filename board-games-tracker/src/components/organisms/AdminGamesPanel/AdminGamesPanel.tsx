@@ -47,6 +47,12 @@ type EditDialogProps = {
   onClose: () => void;
 };
 
+/** Labelled metadata field contents and label. */
+type FieldProps = {
+  children: ReactNode;
+  label: string;
+};
+
 /**
  * Labelled input used throughout the metadata editor.
  *
@@ -55,13 +61,7 @@ type EditDialogProps = {
  * @param root0.label - Localized label displayed by the control.
  * @returns The rendered field.
  */
-function Field({
-  children,
-  label,
-}: {
-  children: ReactNode;
-  label: string;
-}): ReactNode {
+function Field({ children, label }: FieldProps): ReactNode {
   return (
     <label className="block text-sm font-bold">
       <span className="mb-2 block">{label}</span>

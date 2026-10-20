@@ -14,7 +14,7 @@ import {
 export const userDataFormatSchema = z.enum(["json", "csv", "xlsx", "sql"]);
 
 /** One portable owned or wished-for board-game record. */
-export const portableGameSchema = z
+const portableGameSchema = z
   .object({
     location: z.enum(["collection", "wishlist"]),
     bggId: bggIdSchema,

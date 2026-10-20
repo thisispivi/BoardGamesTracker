@@ -9,5 +9,5 @@ import type { AppTheme } from "@/core";
  * @returns Nothing.
  */
 export function persistThemeCookie(theme: AppTheme): void {
-  document.cookie = `theme=${theme}; Path=/; Max-Age=31536000; SameSite=Lax`;
+  document.cookie = `theme=${theme}; Path=/; Max-Age=${365 * 24 * 60 * 60}; SameSite=Lax`;
 }

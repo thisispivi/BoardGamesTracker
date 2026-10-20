@@ -187,7 +187,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   if (env.NODE_ENV === "production") {
     response.headers.set(
       "Strict-Transport-Security",
-      "max-age=63072000; includeSubDomains; preload",
+      `max-age=${2 * 365 * 24 * 60 * 60}; includeSubDomains; preload`,
     );
   }
   return response;
