@@ -15,6 +15,8 @@ vi.mock("@/env", () => ({
   },
 }));
 
+import { eq } from "drizzle-orm";
+
 import { auth } from "@/server/auth";
 import { user } from "@/server/db/schema";
 import { setupTestDatabase, testDb } from "@/test/database";
@@ -87,5 +89,37 @@ describe("authentication policy", () => {
       code: "ADMIN_DELETION_REQUIRES_DEMOTION",
     });
     expect(await testDb.select().from(user)).toHaveLength(1);
+  });
+
+  it("does not promote an unverified ADMIN_EMAIL sign-up when mail is off", async () => {
+    vi.resetModules();
+    vi.doMock("@/server/db", () => ({ db: testDb }));
+    vi.doMock("@/env", () => ({
+      env: {
+        ADMIN_EMAIL: "owner@example.com",
+        ALLOW_SIGN_UP: true,
+        BETTER_AUTH_SECRET: "test-only-secret-with-at-least-32-characters",
+        BETTER_AUTH_URL: "http://localhost:3000",
+        NEXT_PUBLIC_APP_URL: "http://localhost:3000",
+        NODE_ENV: "test",
+      },
+    }));
+    const { auth: openAuth } = await import("@/server/auth");
+
+    const response = await openAuth.handler(
+      authRequest("sign-up/email", {
+        name: "Impostor",
+        email: "OWNER@example.com",
+        password: "impostor-password-long",
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(
+      await testDb
+        .select({ role: user.role })
+        .from(user)
+        .where(eq(user.email, "owner@example.com")),
+    ).toEqual([{ role: "user" }]);
   });
 });
