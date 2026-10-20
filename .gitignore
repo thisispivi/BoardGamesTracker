@@ -28,10 +28,7 @@ board-games-tracker/backups/
 *.log
 
 # local tooling
-.claude/
-.agents/
-.codex/
-skills-lock.json
+.claude/settings.local.json
 
 # operating system
 .DS_Store
