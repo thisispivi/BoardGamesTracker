@@ -1,7 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { type UserDataDocument, userDataFormatSchema } from "@/core";
 import { parseUserData, serializeUserData } from "@/server/userData/formats";
+
+vi.mock("server-only", () => ({}));
 
 const document: UserDataDocument = {
   formatVersion: 1,

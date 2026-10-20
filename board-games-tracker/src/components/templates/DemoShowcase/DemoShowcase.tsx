@@ -29,7 +29,8 @@ import { UnplayedRail } from "@/components/organisms/UnplayedRail/UnplayedRail";
 import { WishlistSpotlight } from "@/components/organisms/WishlistSpotlight/WishlistSpotlight";
 import { Providers } from "@/components/templates/Providers/Providers";
 import type { DemoLibrary, DemoView } from "@/core";
-import { type AppLocale, isLocale } from "@/i18n/config";
+import type { AppLocale } from "@/core";
+import { isLocale } from "@/i18n/config";
 import { cn } from "@/utils/cn";
 import { demoNow, summarizeDemoLibrary } from "@/utils/demoLibrary";
 

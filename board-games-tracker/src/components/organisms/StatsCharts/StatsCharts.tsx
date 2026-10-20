@@ -28,6 +28,7 @@ import type {
   PriceBandDatum,
 } from "@/core";
 import { priceBandBounds, priceBands } from "@/core";
+import { useCurrencyFormatter } from "@/hooks/useCurrencyFormatter";
 import { cn } from "@/utils/cn";
 import { fittingCornerRadius } from "@/utils/fittingCornerRadius";
 import { getTaxonomyLabel } from "@/utils/gameTaxonomy";
@@ -137,19 +138,7 @@ export function StatsCharts({
   const locale = useLocale();
   const t = useTranslations();
 
-  /**
-   * Formats a chart value in the user's preferred currency.
-   *
-   * @param value - Monetary chart value expressed in the preferred currency.
-   * @returns The localized currency string.
-   */
-  function formatCurrency(value: number): string {
-    return format.number(value, {
-      style: "currency",
-      currency,
-      maximumFractionDigits: 2,
-    });
-  }
+  const formatCurrency = useCurrencyFormatter(currency);
 
   /**
    * Formats a chart count as a plain localized number for an axis tick.

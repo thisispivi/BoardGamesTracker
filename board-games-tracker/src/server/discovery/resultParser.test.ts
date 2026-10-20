@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   parseBoardGameArtwork,
@@ -6,6 +6,8 @@ import {
   parseBoardGameResult,
   parseBoardGameUrl,
 } from "@/server/discovery/resultParser";
+
+vi.mock("server-only", () => ({}));
 
 describe("BoardGameGeek URL parsing", () => {
   it("accepts canonical game URLs with an optional slug", () => {

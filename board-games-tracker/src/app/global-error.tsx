@@ -4,7 +4,8 @@ import * as Sentry from "@sentry/nextjs";
 import type { ReactNode } from "react";
 import { useEffect, useSyncExternalStore } from "react";
 
-import { type AppLocale, defaultLocale } from "@/i18n/config";
+import type { AppLocale } from "@/core";
+import { defaultLocale } from "@/i18n/config";
 import { fallbackMessages, getFallbackLocale } from "@/i18n/fallbackMessages";
 
 /**

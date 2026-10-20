@@ -1,6 +1,8 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { parseBggCollectionCsv } from "@/server/import/bggCsv";
+
+vi.mock("server-only", () => ({}));
 
 const header = [
   "objectname",

@@ -17,6 +17,7 @@ import { Button } from "@/components/atoms/Button/Button";
 import { GameArtwork } from "@/components/atoms/GameArtwork/GameArtwork";
 import { Tooltip } from "@/components/atoms/Tooltip/Tooltip";
 import { ConfirmDialog } from "@/components/molecules/ConfirmDialog/ConfirmDialog";
+import { LabeledField } from "@/components/molecules/LabeledField/LabeledField";
 import { PagedList } from "@/components/molecules/PagedList/PagedList";
 import {
   type AdminGame,
@@ -46,29 +47,6 @@ type EditDialogProps = {
   game: AdminGame;
   onClose: () => void;
 };
-
-/** Labelled metadata field contents and label. */
-type FieldProps = {
-  children: ReactNode;
-  label: string;
-};
-
-/**
- * Labelled input used throughout the metadata editor.
- *
- * @param root0 - Properties that configure one labelled metadata field.
- * @param root0.children - Content rendered inside the component.
- * @param root0.label - Localized label displayed by the control.
- * @returns The rendered field.
- */
-function Field({ children, label }: FieldProps): ReactNode {
-  return (
-    <label className="block text-sm font-bold">
-      <span className="mb-2 block">{label}</span>
-      {children}
-    </label>
-  );
-}
 
 /**
  * Editable form for one shared game's metadata.
@@ -144,7 +122,7 @@ function EditGameMetadataDialog({ game, onClose }: EditDialogProps): ReactNode {
 
             <form action={save} className="space-y-5">
               <input name="gameId" type="hidden" value={game.id} />
-              <Field label={t("adminGames.name")}>
+              <LabeledField label={t("adminGames.name")}>
                 <input
                   className="field-input"
                   defaultValue={game.name}
@@ -152,9 +130,9 @@ function EditGameMetadataDialog({ game, onClose }: EditDialogProps): ReactNode {
                   name="name"
                   required
                 />
-              </Field>
+              </LabeledField>
               <div className="grid gap-4 sm:grid-cols-3">
-                <Field label={t("add.year")}>
+                <LabeledField label={t("add.year")}>
                   <input
                     className="field-input"
                     defaultValue={game.yearPublished ?? ""}
@@ -163,8 +141,8 @@ function EditGameMetadataDialog({ game, onClose }: EditDialogProps): ReactNode {
                     name="yearPublished"
                     type="number"
                   />
-                </Field>
-                <Field label={t("add.minPlayers")}>
+                </LabeledField>
+                <LabeledField label={t("add.minPlayers")}>
                   <input
                     className="field-input"
                     defaultValue={game.minPlayers}
@@ -174,8 +152,8 @@ function EditGameMetadataDialog({ game, onClose }: EditDialogProps): ReactNode {
                     required
                     type="number"
                   />
-                </Field>
-                <Field label={t("add.maxPlayers")}>
+                </LabeledField>
+                <LabeledField label={t("add.maxPlayers")}>
                   <input
                     className="field-input"
                     defaultValue={game.maxPlayers}
@@ -185,8 +163,8 @@ function EditGameMetadataDialog({ game, onClose }: EditDialogProps): ReactNode {
                     required
                     type="number"
                   />
-                </Field>
-                <Field label={t("add.minMinutes")}>
+                </LabeledField>
+                <LabeledField label={t("add.minMinutes")}>
                   <input
                     className="field-input"
                     defaultValue={game.minPlaytime}
@@ -196,8 +174,8 @@ function EditGameMetadataDialog({ game, onClose }: EditDialogProps): ReactNode {
                     required
                     type="number"
                   />
-                </Field>
-                <Field label={t("add.maxMinutes")}>
+                </LabeledField>
+                <LabeledField label={t("add.maxMinutes")}>
                   <input
                     className="field-input"
                     defaultValue={game.maxPlaytime}
@@ -207,8 +185,8 @@ function EditGameMetadataDialog({ game, onClose }: EditDialogProps): ReactNode {
                     required
                     type="number"
                   />
-                </Field>
-                <Field label={t("add.complexity")}>
+                </LabeledField>
+                <LabeledField label={t("add.complexity")}>
                   <input
                     className="field-input"
                     defaultValue={game.weight ?? ""}
@@ -218,10 +196,10 @@ function EditGameMetadataDialog({ game, onClose }: EditDialogProps): ReactNode {
                     step="any"
                     type="number"
                   />
-                </Field>
+                </LabeledField>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label={t("adminGames.rating")}>
+                <LabeledField label={t("adminGames.rating")}>
                   <input
                     className="field-input"
                     defaultValue={game.bggRating ?? ""}
@@ -231,8 +209,8 @@ function EditGameMetadataDialog({ game, onClose }: EditDialogProps): ReactNode {
                     step={0.01}
                     type="number"
                   />
-                </Field>
-                <Field label={t("adminGames.kind")}>
+                </LabeledField>
+                <LabeledField label={t("adminGames.kind")}>
                   <select
                     className="field-input"
                     defaultValue={String(game.isExpansion)}
@@ -241,33 +219,33 @@ function EditGameMetadataDialog({ game, onClose }: EditDialogProps): ReactNode {
                     <option value="false">{t("adminGames.baseGame")}</option>
                     <option value="true">{t("common.expansion")}</option>
                   </select>
-                </Field>
+                </LabeledField>
               </div>
-              <Field label={t("add.categories")}>
+              <LabeledField label={t("add.categories")}>
                 <input
                   className="field-input"
                   defaultValue={game.categories.join(", ")}
                   maxLength={1_000}
                   name="categories"
                 />
-              </Field>
-              <Field label={t("add.mechanics")}>
+              </LabeledField>
+              <LabeledField label={t("add.mechanics")}>
                 <input
                   className="field-input"
                   defaultValue={game.mechanics.join(", ")}
                   maxLength={1_000}
                   name="mechanics"
                 />
-              </Field>
-              <Field label={t("add.families")}>
+              </LabeledField>
+              <LabeledField label={t("add.families")}>
                 <input
                   className="field-input"
                   defaultValue={game.families.join(", ")}
                   maxLength={1_000}
                   name="families"
                 />
-              </Field>
-              <Field label={t("add.description")}>
+              </LabeledField>
+              <LabeledField label={t("add.description")}>
                 <textarea
                   className="field-input min-h-24 py-3"
                   defaultValue={game.description}
@@ -275,7 +253,7 @@ function EditGameMetadataDialog({ game, onClose }: EditDialogProps): ReactNode {
                   name="description"
                   rows={4}
                 />
-              </Field>
+              </LabeledField>
               <div className="flex justify-end gap-2 border-t pt-5">
                 <Button onClick={onClose} type="button" variant="secondary">
                   {t("common.cancel")}

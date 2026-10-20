@@ -1,7 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { bggMetadataSchema } from "@/core";
 import { parseBggHtmlPage, parseBggJsonResponses } from "@/server/bgg/parser";
+
+vi.mock("server-only", () => ({}));
 
 const ticketToRideHtml = `
   <html>

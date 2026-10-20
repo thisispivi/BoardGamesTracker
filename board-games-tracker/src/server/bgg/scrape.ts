@@ -2,6 +2,7 @@ import "server-only";
 
 import type { BggMetadata } from "@/core";
 import { parseBggHtmlPage, parseBggJsonResponses } from "@/server/bgg/parser";
+import { getBggGameUrl } from "@/utils/bggGameUrl";
 import { readBoundedBody } from "@/utils/readBoundedBody";
 import { TtlCache } from "@/utils/ttlCache";
 
@@ -76,10 +77,7 @@ async function fetchBggPage(
  * @returns Normalized public metadata, or null when the page is unavailable.
  */
 async function scrapeHtmlPage(bggId: number): Promise<BggMetadata | null> {
-  const response = await fetchBggPage(
-    new URL(`https://boardgamegeek.com/boardgame/${bggId}`),
-    1,
-  );
+  const response = await fetchBggPage(new URL(getBggGameUrl(bggId)), 1);
   if (
     !response?.ok ||
     !response.headers.get("content-type")?.includes("text/html")

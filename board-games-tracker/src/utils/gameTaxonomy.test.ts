@@ -1,9 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import { labelSchema, maxTaxonomyLabelLength } from "@/core";
+import taxonomy from "@/i18n/taxonomy/it.json";
 import {
-  bggCategories,
-  bggMechanics,
   getTaxonomyLabel,
   hasExpansionCategory,
   isExpansionCategory,
@@ -34,6 +33,8 @@ describe("game taxonomy", () => {
   });
 
   it("localizes every published BGG category and mechanic", () => {
+    const bggCategories = Object.keys(taxonomy.category);
+    const bggMechanics = Object.keys(taxonomy.mechanic);
     expect(bggCategories).toHaveLength(85);
     expect(bggMechanics).toHaveLength(200);
     for (const category of bggCategories) {

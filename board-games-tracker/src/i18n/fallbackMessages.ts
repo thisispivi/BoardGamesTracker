@@ -1,4 +1,5 @@
-import { type AppLocale, defaultLocale, isLocale } from "@/i18n/config";
+import type { AppLocale } from "@/core";
+import { defaultLocale, isLocale, readLocaleCookie } from "@/i18n/config";
 
 /**
  * Copy for the crash screen shown when the root layout itself fails to render.
@@ -22,6 +23,6 @@ export const fallbackMessages: Record<
  * @returns The preferred locale, or the default one when none is recorded.
  */
 export function getFallbackLocale(cookie: string): AppLocale {
-  const preference = /(?:^|;\s*)locale=([^;]*)/.exec(cookie)?.[1];
+  const preference = readLocaleCookie(cookie);
   return isLocale(preference) ? preference : defaultLocale;
 }
