@@ -37,6 +37,15 @@ const transferLimit = 10;
 const transferWindowMs = 10 * 60_000;
 
 /**
+ * Allowance for imports, matching the BoardGameGeek CSV import.
+ *
+ * Each import may fetch metadata for up to 2,000 unknown games from
+ * BoardGameGeek, so a looser limit would let one account make the server hammer
+ * BoardGameGeek and get its address blocked for every user.
+ */
+const importLimit = 2;
+
+/**
  * Exports only the signed-in user's portable application data.
  *
  * @param request - The incoming request.
@@ -99,7 +108,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (
     !consumeRateLimit(
       `userDataImport:${session.user.id}`,
-      transferLimit,
+      importLimit,
       transferWindowMs,
     )
   ) {
