@@ -153,7 +153,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDevelopment ? " 'unsafe-eval'" : ""}`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob: https://cf.geekdo-images.com https://react-circle-flags.pages.dev",
+    "img-src 'self' data: blob: https://cf.geekdo-images.com",
     "font-src 'self' data:",
     `connect-src 'self' https://api.geekdo.com${errorReportingOrigin ? ` ${errorReportingOrigin}` : ""}`,
     "object-src 'none'",
