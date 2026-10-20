@@ -7,16 +7,6 @@
         "name": "trailofbits-pinned",
         "plugins": [
           {
-            "name": "insecure-defaults",
-            "description": "Trail of Bits insecure-defaults, pinned to one commit",
-            "source": {
-              "source": "git-subdir",
-              "url": "trailofbits/skills",
-              "path": "plugins/insecure-defaults",
-              "sha": "5c99c03fb8a9ea568432ecbcba5d86e9f4ac2bf0"
-            }
-          },
-          {
             "name": "supply-chain-risk-auditor",
             "description": "Trail of Bits supply-chain-risk-auditor, pinned to one commit",
             "source": {
@@ -32,9 +22,6 @@
   },
   "enabledPlugins": {
     "security-guidance@claude-plugins-official": true,
-    "claude-md-management@claude-plugins-official": true,
-    "context7@claude-plugins-official": true,
-    "insecure-defaults@trailofbits-pinned": true,
     "supply-chain-risk-auditor@trailofbits-pinned": true
   }
 }

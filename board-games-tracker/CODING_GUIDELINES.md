@@ -242,6 +242,8 @@ before writing routing, caching, or data-fetching code.**
    regions get `aria-busy` and live regions `aria-live`.
 9. `next/image` for artwork, `next/link` for internal navigation. External links
    carry `rel="noreferrer"` (or `noopener noreferrer`) with `target="_blank"`.
+10. If the static demo renders a component you changed, also run
+    `pnpm demo:build`.
 
 ## 7. Internationalisation
 
@@ -338,6 +340,12 @@ before writing routing, caching, or data-fetching code.**
    exceptions run outside the validated environment: `next.config.ts`,
    `src/instrumentation.ts` (`NEXT_RUNTIME`), `scripts/`, and the demo's base
    path in `demo/app/`.
+10. Route handlers call `getSession()` and return 401 without a session;
+    state-changing requests also check `hasTrustedOrigin(request)`. Read
+    uploads with `readBoundedBody` and a byte cap.
+11. After a mutation, refresh pages with `revalidateLibraryRoutes`,
+    `revalidateAccountRoutes` or `revalidateSharedGameRoutes` from
+    `@/server/revalidate`.
 
 ## 10. Tests
 
@@ -354,6 +362,8 @@ before writing routing, caching, or data-fetching code.**
    to an isolated PGlite PostgreSQL runtime. They must never use `DATABASE_URL`.
    PGlite verifies SQL and transaction behavior, but does not replace deployment
    tests of multiple PostgreSQL connections or independent application instances.
+   Mock `@/server/db` with `testDb` and call `setupTestDatabase()`;
+   `src/server/actions/preferences.test.ts` shows the pattern.
 
 ## 11. Errors and logging
 
