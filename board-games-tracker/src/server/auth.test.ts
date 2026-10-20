@@ -90,6 +90,19 @@ describe("authentication policy", () => {
     });
     expect(await testDb.select().from(user)).toHaveLength(1);
   });
+  it("refuses an email change while mail delivery is not configured", async () => {
+    const response = await auth.handler(
+      authRequest("change-email", { newEmail: "someone-else@example.com" }),
+    );
+
+    expect(response.ok).toBe(false);
+    expect(
+      await testDb
+        .select({ email: user.email })
+        .from(user)
+        .where(eq(user.name, "Administrator")),
+    ).toEqual([{ email: "admin@example.com" }]);
+  });
 
   it("does not promote an unverified ADMIN_EMAIL sign-up when mail is off", async () => {
     vi.resetModules();

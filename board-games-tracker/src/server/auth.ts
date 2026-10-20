@@ -95,8 +95,7 @@ export const auth = betterAuth({
     : {}),
   user: {
     changeEmail: {
-      enabled: true,
-      updateEmailWithoutVerification: !mailEnabled,
+      enabled: mailEnabled,
       ...(mailEnabled
         ? {
             sendChangeEmailConfirmation: async (

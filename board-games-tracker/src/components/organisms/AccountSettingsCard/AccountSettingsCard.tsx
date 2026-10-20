@@ -50,22 +50,18 @@ export function AccountSettingsCard({
    */
   function changeEmail(event: SubmitEvent<HTMLFormElement>): void {
     event.preventDefault();
+    if (!mailEnabled) return;
     startTransition(async () => {
       const { error } = await authClient.changeEmail({
         newEmail: emailValue,
-        ...(mailEnabled ? { callbackURL: "/settings" } : {}),
+        callbackURL: "/settings",
       });
       if (error) {
         toast.error(t("settings.emailFailed"));
         return;
       }
-      if (mailEnabled) {
-        setEmailValue(email);
-        toast.success(t("settings.emailConfirmationSent"));
-        return;
-      }
-      router.refresh();
-      toast.success(t("settings.emailUpdated"));
+      setEmailValue(email);
+      toast.success(t("settings.emailConfirmationSent"));
     });
   }
 
@@ -147,7 +143,9 @@ export function AccountSettingsCard({
             {t("settings.email")}
           </h3>
           <p className="text-muted-foreground mt-1 text-sm leading-6">
-            {t("settings.emailBody")}
+            {mailEnabled
+              ? t("settings.emailBody")
+              : t("settings.emailNeedsMail")}
           </p>
           <label className="mt-4 block text-sm font-bold">
             <span className="mb-2 block">{t("settings.email")}</span>
@@ -155,20 +153,23 @@ export function AccountSettingsCard({
               autoComplete="email"
               className="field-input"
               onChange={(event) => setEmailValue(event.target.value)}
+              readOnly={!mailEnabled}
               required
               type="email"
               value={emailValue}
             />
           </label>
-          <Button
-            className="mt-4 w-full sm:w-fit"
-            disabled={isPending || emailValue === email}
-            size="sm"
-            type="submit"
-            variant="secondary"
-          >
-            {t("settings.saveEmail")}
-          </Button>
+          {mailEnabled ? (
+            <Button
+              className="mt-4 w-full sm:w-fit"
+              disabled={isPending || emailValue === email}
+              size="sm"
+              type="submit"
+              variant="secondary"
+            >
+              {t("settings.saveEmail")}
+            </Button>
+          ) : null}
         </form>
         <form
           className="rounded-lg border p-4 sm:p-5"
