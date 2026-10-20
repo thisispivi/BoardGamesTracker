@@ -3,7 +3,9 @@
 This is the canonical standard for every change in this repository, whether it
 is written by a human or an agent. `AGENTS.md`, `CLAUDE.md`, and
 `.github/copilot-instructions.md` are adapters that point here; shared rules
-belong only in this file.
+belong only in this file. The task checklists in the repository root's
+`.claude/skills/` apply these rules to recurring changes. When a skill and this
+file disagree, this file wins and the skill is corrected in the same change.
 
 Rules use **MUST** for requirements, **SHOULD** for the project default, and
 **MAY** for context-dependent choices. Existing violations are not precedent.
@@ -73,17 +75,17 @@ parallel. `pnpm lint:fix` and `pnpm format` fix the mechanical failures.
 
 ## 2. File and directory naming
 
-| Kind                   | Location                                   | Naming                         | Example                                       |
-| ---------------------- | ------------------------------------------ | ------------------------------ | --------------------------------------------- |
-| React component        | `src/components/<layer>/<Name>/<Name>.tsx` | `PascalCase` dir **and** file  | `src/components/atoms/Button/Button.tsx`      |
-| Component test         | beside its component                       | `<Name>.test.tsx`              | `src/components/atoms/Button/Button.test.tsx` |
-| Shared type / contract | `src/core/<domain>/<domain>[.contract].ts` | `camelCase`                    | `src/core/discovery/discovery.contract.ts`    |
-| Server-only module     | `src/server/<area>/<module>.ts`            | `camelCase`                    | `src/server/discovery/searxng.ts`             |
-| Server action module   | `src/server/actions/<domain>.ts`           | `camelCase`                    | `src/server/actions/collection.ts`            |
-| Isomorphic helper      | `src/utils/<name>.ts`                      | `camelCase`                    | `src/utils/ttlCache.ts`                       |
-| Unit test              | beside its source file                     | `<name>.test.ts`               | `src/utils/search.test.ts`                    |
-| Route / page           | `src/app/**`                               | Next.js reserved names, lower  | `src/app/(app)/share/[userId]/page.tsx`       |
-| Migration              | `drizzle/`                                 | generated — never hand-written | `drizzle/0007_flowery_blizzard.sql`           |
+| Kind                   | Location                                   | Naming                         | Example                                                         |
+| ---------------------- | ------------------------------------------ | ------------------------------ | --------------------------------------------------------------- |
+| React component        | `src/components/<layer>/<Name>/<Name>.tsx` | `PascalCase` dir **and** file  | `src/components/atoms/Button/Button.tsx`                        |
+| Component test         | beside its component                       | `<Name>.test.tsx`              | `src/components/molecules/ConfirmDialog/ConfirmDialog.test.tsx` |
+| Shared type / contract | `src/core/<domain>/<domain>[.contract].ts` | `camelCase`                    | `src/core/discovery/discovery.contract.ts`                      |
+| Server-only module     | `src/server/<area>/<module>.ts`            | `camelCase`                    | `src/server/discovery/searxng.ts`                               |
+| Server action module   | `src/server/actions/<domain>.ts`           | `camelCase`                    | `src/server/actions/collection.ts`                              |
+| Isomorphic helper      | `src/utils/<name>.ts`                      | `camelCase`                    | `src/utils/ttlCache.ts`                                         |
+| Unit test              | beside its source file                     | `<name>.test.ts`               | `src/utils/search.test.ts`                                      |
+| Route / page           | `src/app/**`                               | Next.js reserved names, lower  | `src/app/share/[token]/page.tsx`                                |
+| Migration              | `drizzle/`                                 | generated — never hand-written | `drizzle/0007_flowery_blizzard.sql`                             |
 
 Additional rules:
 
@@ -94,11 +96,13 @@ Additional rules:
 3. Import components by their full path
    (`@/components/atoms/Button/Button`). No barrel/`index.ts` re-export files
    anywhere except `src/core/index.ts`, which is the single public contract
-   barrel and the Knip entry point.
+   barrel and a Knip entry point.
 4. Always import through the `@/` alias. Never use a relative parent path
    (`../../`); a sibling `./` import inside a component folder is fine.
 5. Directories are `PascalCase` only for component folders; everywhere else use
-   `camelCase`. Never `snake_case` or `kebab-case` in `src/`.
+   `camelCase`. Never `snake_case` or `kebab-case` in `src/`, except route
+   segments under `src/app/`, which are URLs (`api/user-data`,
+   `reset-password`).
 6. Tests live next to the code they cover, never in a separate `__tests__` tree.
 
 Rules 1 and 4 are enforced by `no-restricted-imports` in `eslint.config.mjs`,
@@ -181,7 +185,7 @@ public contract, not filler added to satisfy lint.
 4. Booleans read as predicates: `isExpansion`, `hasSearched`, `shareCollection`.
    Never `flag`, `status`, or a negated name like `notReady`.
 5. Functions are verb phrases: `parseBoardGameUrl`, `consumeRateLimit`,
-   `getSharedCollection`. React hooks start with `use`.
+   `getSharedLibrary`. React hooks start with `use`.
 6. Async functions that fetch return the thing, not the act: `getCollection`,
    not `doGetCollection`.
 7. No abbreviations beyond established domain terms (`bgg`, `csv`, `url`, `db`).
@@ -189,7 +193,8 @@ public contract, not filler added to satisfy lint.
 8. Unused-by-contract parameters are prefixed with `_` (`_previous`).
 9. Named exports everywhere. `export default` is allowed **only** where a
    framework requires it: `page.tsx`, `layout.tsx`, `error.tsx`, `not-found.tsx`,
-   `loading.tsx`, `manifest.ts`, and config files.
+   `loading.tsx`, `global-error.tsx`, `manifest.ts`, `src/i18n/request.ts`
+   (next-intl), and config files.
 
 ## 5. Formatting
 
@@ -302,11 +307,14 @@ before writing routing, caching, or data-fetching code.**
 1. Anything touching the database, secrets, or `env` server keys starts with
    `import "server-only";`.
 2. Server actions start with `"use server"`, call `requireUser()` (or
-   `requireAdmin`) first, validate input second, and act third.
+   `requireAdmin`) first, validate input second, and act third. An action that
+   is public by design (`setLocaleAction`, the token-based
+   `resetPasswordAction`) skips the first step and is rate-limited instead.
 3. Rate-limit every action reachable by an unauthenticated or cheap-to-repeat
    path with `consumeRateLimit`.
 4. Never log or return secrets, tokens, password hashes, or another user's data.
-   Error responses are translated and generic; details go to `log()`.
+   Error responses are generic, either a translated message or a fixed error
+   code such as `{ error: "unauthorized" }`; details go to `log()`.
 5. Redact at the source. When data must not be shared, strip it in the query or
    the server module — never merely hide it in the UI.
 6. Treat every external URL as hostile: parse with `URL`, allowlist the
@@ -314,10 +322,14 @@ before writing routing, caching, or data-fetching code.**
    than passing the input through.
 7. Write an audit event with `writeAuditEvent` for administrative and
    privacy-affecting changes.
-8. Any new outbound host must be added to the CSP in `src/proxy.ts`, and any new
+8. Any new host the browser loads from must be added to the CSP in
+   `src/proxy.ts`, and any new
    authenticated route prefix to `protectedPrefixes`.
 9. Secrets come from `src/env.ts` only. Never read `process.env` directly in
-   application code, and never commit an environment file.
+   application code, and never commit an environment file. The existing
+   exceptions run outside the validated environment: `next.config.ts`,
+   `src/instrumentation.ts` (`NEXT_RUNTIME`), `scripts/`, and the demo's base
+   path in `demo/app/`.
 
 ## 10. Tests
 
@@ -356,7 +368,7 @@ before writing routing, caching, or data-fetching code.**
 
 1. Knip runs in `pnpm check`: unused files, exports, and dependencies fail the
    build. Delete dead code instead of retaining it "for later".
-2. Use Depcheck as a corroborating audit, not as the source of truth. It cannot
+2. Use Depcheck (`pnpm dlx depcheck`; it is not a dependency) as a corroborating audit, not as the source of truth. It cannot
    understand every PostCSS, Tailwind, CLI, or framework configuration; verify
    each report against package scripts and configuration before removing it.
 3. Prefer deletion to addition, the platform to a package, and an existing
