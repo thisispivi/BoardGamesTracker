@@ -1,3 +1,4 @@
+import { unstable_doesMiddlewareMatch } from "next/experimental/testing/server";
 import { NextRequest } from "next/server";
 import { describe, expect, it, vi } from "vitest";
 
@@ -6,7 +7,7 @@ vi.mock("@/env", () => ({
   env: { NEXT_PUBLIC_APP_URL: "https://board-games.example", NODE_ENV: "test" },
 }));
 
-import { proxy } from "@/proxy";
+import { config, proxy } from "@/proxy";
 
 const appOrigin = "https://board-games.example";
 
@@ -75,5 +76,23 @@ describe("proxy", () => {
     const response = await proxy(new NextRequest(`${appOrigin}/login`));
 
     expect(response.status).toBe(200);
+  });
+
+  it.each([{ "next-router-prefetch": "1" }, { purpose: "prefetch" }])(
+    "still rate-limits requests that claim to be prefetches: %o",
+    (headers) => {
+      expect(
+        unstable_doesMiddlewareMatch({ config, headers, url: "/collection" }),
+      ).toBe(true);
+    },
+  );
+
+  it("skips static assets and the health check", () => {
+    expect(
+      unstable_doesMiddlewareMatch({ config, url: "/_next/static/chunk.js" }),
+    ).toBe(false);
+    expect(unstable_doesMiddlewareMatch({ config, url: "/api/health" })).toBe(
+      false,
+    );
   });
 });
