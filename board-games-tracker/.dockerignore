@@ -11,3 +11,7 @@ node_modules
 backups
 *.log
 *.tsbuildinfo
+demo/.next
+demo/out
+demo/public
+public/demo
