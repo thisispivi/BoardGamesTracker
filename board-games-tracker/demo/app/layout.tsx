@@ -1,5 +1,6 @@
 import "./globals.css";
 
+import english from "@messages/en.json";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
@@ -8,9 +9,8 @@ export const metadata: Metadata = {
   icons: {
     icon: `${process.env.NEXT_PUBLIC_DEMO_BASE_PATH ?? ""}/favicon.png`,
   },
-  title: "Board Games Tracker · Demo",
-  description:
-    "Explore a fictional board-game collection, wishlist, statistics, and game-night picker.",
+  title: english.demo.metaTitle,
+  description: english.demo.metaDescription,
 };
 
 /** Showcase page rendered inside the static demo document. */

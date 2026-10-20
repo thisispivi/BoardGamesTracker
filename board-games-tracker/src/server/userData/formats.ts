@@ -1,3 +1,5 @@
+import "server-only";
+
 import { parse } from "csv-parse/sync";
 import ExcelJS from "exceljs";
 import { z } from "zod";

@@ -1,7 +1,9 @@
 import ExcelJS from "exceljs";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { validateWorkbookArchive } from "@/server/userData/workbookArchive";
+
+vi.mock("server-only", () => ({}));
 
 describe("workbook archive limits", () => {
   it("accepts a normal compressed workbook", async () => {

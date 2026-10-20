@@ -1,6 +1,6 @@
 import type messages from "@messages/en.json";
 
-import type { AppLocale } from "@/i18n/config";
+import type { AppLocale } from "@/core";
 
 declare module "next-intl" {
   /** Build-time application configuration injected by Next.js. */

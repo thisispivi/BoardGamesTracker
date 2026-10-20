@@ -1,3 +1,5 @@
+import "server-only";
+
 import { fromBufferPromise } from "yauzl";
 
 const maxExpandedBytes = 32 * 1024 * 1024;

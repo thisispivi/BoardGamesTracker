@@ -639,6 +639,8 @@
     "language": "Lingua",
     "source": "Vedi su GitHub",
     "description": "Esplora questa libreria fittizia, prova i filtri e scegli un gioco. Le modifiche all'account non sono disponibili in questa demo.",
-    "title": "Account di esempio"
+    "title": "Account di esempio",
+    "metaTitle": "Board Games Tracker · Demo",
+    "metaDescription": "Esplora una collezione di giochi da tavolo immaginaria, con lista dei desideri, statistiche e scelta del gioco per la serata."
   }
 }

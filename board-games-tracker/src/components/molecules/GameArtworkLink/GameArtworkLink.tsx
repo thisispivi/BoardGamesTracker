@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import { GameArtwork } from "@/components/atoms/GameArtwork/GameArtwork";
 import { Tooltip } from "@/components/atoms/Tooltip/Tooltip";
 import type { CollectionGame } from "@/core";
+import { getBggGameUrl } from "@/utils/bggGameUrl";
 import { cn } from "@/utils/cn";
 
 /** Artwork size and game used by the BoardGameGeek artwork link. */
@@ -44,7 +45,7 @@ export function GameArtworkLink({
           "ring-primary/50 block min-w-0 shrink-0 self-start rounded-lg ring-offset-2 ring-offset-transparent transition hover:ring-2",
           className,
         )}
-        href={`https://boardgamegeek.com/boardgame/${game.bggId}`}
+        href={getBggGameUrl(game.bggId)}
         rel="noopener noreferrer"
         target="_blank"
       >

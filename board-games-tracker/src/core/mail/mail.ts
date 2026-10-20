@@ -1,4 +1,4 @@
-import type { AppLocale } from "@/i18n/config";
+import type { AppLocale } from "@/core/preferences/preferences.contract";
 
 /** Transactional authentication messages delivered through SMTP. */
 export type TransactionalMailKind =

@@ -3,7 +3,8 @@ import "server-only";
 import { getTranslations } from "next-intl/server";
 
 import type { TransactionalMail, TransactionalMailInput } from "@/core";
-import { type AppLocale, defaultLocale, isLocale } from "@/i18n/config";
+import type { AppLocale } from "@/core";
+import { defaultLocale, isLocale, readLocaleCookie } from "@/i18n/config";
 
 /** Light-theme palette mirroring the application tokens in `globals.css`. */
 const palette = {
@@ -56,9 +57,7 @@ function escapeHtml(value: string): string {
  * @returns The supported locale used to render the message.
  */
 export function getMailLocale(request?: Request): AppLocale {
-  const preference = request?.headers
-    .get("cookie")
-    ?.match(/(?:^|;\s*)locale=([^;]*)/)?.[1];
+  const preference = readLocaleCookie(request?.headers.get("cookie") ?? "");
   if (isLocale(preference)) return preference;
 
   const primary = request?.headers

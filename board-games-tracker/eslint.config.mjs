@@ -155,6 +155,8 @@ const eslintConfig = defineConfig([
                 "@/utils",
                 "@/utils/**",
                 "@/env",
+                "@/i18n",
+                "@/i18n/**",
                 "react",
                 "next",
                 "next/**",

@@ -5,7 +5,8 @@ import { scrubSentryEvent } from "@/utils/sentryScrub";
 
 describe("scrubSentryEvent", () => {
   it("removes user identity and sensitive request fields", () => {
-    const event = {
+    const event: ErrorEvent = {
+      type: undefined,
       exception: { values: [{ type: "Error", value: "boom" }] },
       request: {
         url: "https://example.test/admin?token=secret#private",
@@ -17,7 +18,7 @@ describe("scrubSentryEvent", () => {
         query_string: "token=secret",
       },
       user: { id: "1", email: "person@example.test" },
-    } as unknown as ErrorEvent;
+    };
 
     const scrubbed = scrubSentryEvent(event);
 
@@ -32,9 +33,10 @@ describe("scrubSentryEvent", () => {
   });
 
   it("leaves an event with no request untouched beyond the user field", () => {
-    const event = {
+    const event: ErrorEvent = {
+      type: undefined,
       exception: { values: [{ type: "Error", value: "boom" }] },
-    } as unknown as ErrorEvent;
+    };
 
     const scrubbed = scrubSentryEvent(event);
 
@@ -44,15 +46,17 @@ describe("scrubSentryEvent", () => {
   });
 
   it("strips secrets from relative request URLs", () => {
-    const event = {
+    const event: ErrorEvent = {
+      type: undefined,
       request: { url: "/collection?invite=secret#dialog" },
-    } as unknown as ErrorEvent;
+    };
 
     expect(scrubSentryEvent(event).request?.url).toBe("/collection");
   });
 
   it("strips query data from navigation breadcrumbs", () => {
-    const event = {
+    const event: ErrorEvent = {
+      type: undefined,
       breadcrumbs: [
         {
           category: "navigation",
@@ -62,7 +66,7 @@ describe("scrubSentryEvent", () => {
           },
         },
       ],
-    } as unknown as ErrorEvent;
+    };
 
     const breadcrumb = scrubSentryEvent(event).breadcrumbs?.[0];
 

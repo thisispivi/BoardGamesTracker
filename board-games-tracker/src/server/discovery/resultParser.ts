@@ -1,3 +1,5 @@
+import "server-only";
+
 import { bggImageUrlSchema, type DiscoveredGame, maxBggId } from "@/core";
 import { normalizeSearchText } from "@/utils/search";
 

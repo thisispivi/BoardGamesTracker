@@ -19,6 +19,7 @@ import { PageHeader } from "@/components/atoms/PageHeader/PageHeader";
 import { StatGrid } from "@/components/molecules/StatGrid/StatGrid";
 import { StatsCharts } from "@/components/organisms/StatsCharts/StatsCharts";
 import type { CollectionGame } from "@/core";
+import { useCurrencyFormatter } from "@/hooks/useCurrencyFormatter";
 import { calculateCollectionStats } from "@/utils/collectionStats";
 import { weightNumberFormat } from "@/utils/weightFormat";
 
@@ -44,19 +45,7 @@ export function CollectionStatistics({
   const t = useTranslations();
   const stats = calculateCollectionStats(collection);
 
-  /**
-   * Formats a monetary statistic in the user's preferred currency.
-   *
-   * @param value - Monetary value expressed in the preferred currency.
-   * @returns The localized currency string.
-   */
-  function formatCurrency(value: number): string {
-    return format.number(value, {
-      style: "currency",
-      currency: currency,
-      maximumFractionDigits: 2,
-    });
-  }
+  const formatCurrency = useCurrencyFormatter(currency);
 
   /**
    * Describes a subset of a total for a fraction tile.

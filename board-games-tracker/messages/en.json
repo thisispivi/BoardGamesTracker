@@ -639,6 +639,8 @@
     "language": "Language",
     "source": "View on GitHub",
     "description": "Browse this fictional library, try the filters and pick a game. Account changes are unavailable in this demo.",
-    "title": "Example account"
+    "title": "Example account",
+    "metaTitle": "Board Games Tracker · Demo",
+    "metaDescription": "Explore a fictional board-game collection, wishlist, statistics, and game-night picker."
   }
 }

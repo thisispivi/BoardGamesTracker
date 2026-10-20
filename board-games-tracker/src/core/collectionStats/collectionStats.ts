@@ -1,4 +1,5 @@
 import type { GameWeightBand } from "@/core/collection/collection";
+import type { PriceBand } from "@/core/collectionStats/collectionStats.contract";
 
 /** Minimum collection shape required for aggregate statistics. */
 export type StatGame = {
@@ -36,25 +37,6 @@ export type PlayerCountDatum = { players: number; value: number };
 
 /** How many base games were first published in one decade. */
 export type DecadeDatum = { decade: number; value: number };
-
-/** Spend bracket identifiers, from cheapest to dearest. */
-export const priceBands = ["upTo25", "upTo50", "upTo100", "over100"] as const;
-
-/** One spend bracket a priced game can fall into. */
-export type PriceBand = (typeof priceBands)[number];
-
-/**
- * Upper bound of each spend bracket in the user's own currency.
- *
- * The brackets are deliberately currency-blind: they describe what the user
- * recorded, whatever that currency is, and the dearest one is open-ended.
- */
-export const priceBandBounds: Record<PriceBand, number | null> = {
-  upTo25: 25,
-  upTo50: 50,
-  upTo100: 100,
-  over100: null,
-};
 
 /** One spend bracket and how many priced games fall inside it. */
 export type PriceBandDatum = { key: PriceBand; value: number };

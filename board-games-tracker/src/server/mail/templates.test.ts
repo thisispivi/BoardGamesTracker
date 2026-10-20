@@ -19,7 +19,9 @@ vi.mock("next-intl/server", () => ({
         .split(".")
         .reduce<unknown>(
           (branch, segment) =>
-            (branch as Record<string, unknown> | undefined)?.[segment],
+            typeof branch === "object" && branch !== null
+              ? Reflect.get(branch, segment)
+              : undefined,
           catalog,
         );
       return typeof message === "string"

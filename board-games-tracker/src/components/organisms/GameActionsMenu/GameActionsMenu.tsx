@@ -10,6 +10,7 @@ import { ConfirmDialog } from "@/components/molecules/ConfirmDialog/ConfirmDialo
 import { EditGameDialog } from "@/components/organisms/EditGameDialog/EditGameDialog";
 import type { CollectionGame } from "@/core";
 import { removeGameAction } from "@/server/actions/collection";
+import { getBggGameUrl } from "@/utils/bggGameUrl";
 import { cn } from "@/utils/cn";
 
 /** Shared layout of one row inside the overflow menu. */
@@ -76,7 +77,7 @@ export function GameActionsMenu({
             </button>
             <a
               className={menuItemClass}
-              href={`https://boardgamegeek.com/boardgame/${game.bggId}`}
+              href={getBggGameUrl(game.bggId)}
               onClick={() => setMenuOpen(false)}
               rel="noopener noreferrer"
               target="_blank"

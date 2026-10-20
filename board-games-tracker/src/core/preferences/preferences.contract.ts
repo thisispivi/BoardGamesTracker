@@ -18,6 +18,12 @@ export const currencySchema = z.enum([
 /** Supported ISO 4217 code inferred from the account settings contract. */
 export type Currency = z.infer<typeof currencySchema>;
 
+/** Validates a supported application UI locale. */
+export const localeSchema = z.enum(["en", "it"]);
+
+/** Supported application locale. */
+export type AppLocale = z.infer<typeof localeSchema>;
+
 /** Validates library-sharing preferences, keeping prices opt-in. */
 export const sharingSchema = z
   .object({

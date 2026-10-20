@@ -1,4 +1,4 @@
-import { relations, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import {
   boolean,
   check,
@@ -290,24 +290,3 @@ export const auditLogs = pgTable(
     index("audit_actor_idx").on(table.actorId),
   ],
 );
-
-/** User-to-collection relational map. */
-export const userRelations = relations(user, ({ many }) => ({
-  sessions: many(session),
-  accounts: many(account),
-  collectionItems: many(collectionItems),
-}));
-
-/** Collection-to-game relational map. */
-export const collectionRelations = relations(collectionItems, ({ one }) => ({
-  user: one(user, { fields: [collectionItems.userId], references: [user.id] }),
-  game: one(games, {
-    fields: [collectionItems.gameId],
-    references: [games.id],
-  }),
-}));
-
-/** Game-to-collection relational map. */
-export const gameRelations = relations(games, ({ many }) => ({
-  collectionItems: many(collectionItems),
-}));

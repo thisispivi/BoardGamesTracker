@@ -10,6 +10,7 @@ import { type ReactNode, useActionState, useEffect, useState } from "react";
 import { AppSpinner } from "@/components/atoms/AppSpinner/AppSpinner";
 import { Button } from "@/components/atoms/Button/Button";
 import { GiftedPriceField } from "@/components/molecules/GiftedPriceField/GiftedPriceField";
+import { LabeledField } from "@/components/molecules/LabeledField/LabeledField";
 import {
   type BggMetadata,
   type CollectionActionState,
@@ -410,7 +411,7 @@ function SelectedGameForm({
       )}
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <Field label={t("add.year")}>
+        <LabeledField label={t("add.year")}>
           <input
             className="field-input"
             defaultValue={
@@ -422,8 +423,8 @@ function SelectedGameForm({
             placeholder={t("add.yearPlaceholder")}
             type="number"
           />
-        </Field>
-        <Field label={t("add.minPlayers")}>
+        </LabeledField>
+        <LabeledField label={t("add.minPlayers")}>
           <input
             className="field-input"
             defaultValue={details?.minPlayers ?? 1}
@@ -433,8 +434,8 @@ function SelectedGameForm({
             required
             type="number"
           />
-        </Field>
-        <Field label={t("add.maxPlayers")}>
+        </LabeledField>
+        <LabeledField label={t("add.maxPlayers")}>
           <input
             className="field-input"
             defaultValue={details?.maxPlayers ?? 4}
@@ -444,8 +445,8 @@ function SelectedGameForm({
             required
             type="number"
           />
-        </Field>
-        <Field label={t("add.minMinutes")}>
+        </LabeledField>
+        <LabeledField label={t("add.minMinutes")}>
           <input
             className="field-input"
             defaultValue={details?.minPlaytime ?? 30}
@@ -455,8 +456,8 @@ function SelectedGameForm({
             required
             type="number"
           />
-        </Field>
-        <Field label={t("add.maxMinutes")}>
+        </LabeledField>
+        <LabeledField label={t("add.maxMinutes")}>
           <input
             className="field-input"
             defaultValue={details?.maxPlaytime ?? 60}
@@ -466,8 +467,8 @@ function SelectedGameForm({
             required
             type="number"
           />
-        </Field>
-        <Field label={t("add.complexity")}>
+        </LabeledField>
+        <LabeledField label={t("add.complexity")}>
           <input
             className="field-input"
             defaultValue={details?.weight ?? 2.5}
@@ -477,7 +478,7 @@ function SelectedGameForm({
             step="any"
             type="number"
           />
-        </Field>
+        </LabeledField>
         {destination === "collection" ? (
           <GiftedPriceField className="sm:col-span-3" currency={currency} />
         ) : (
@@ -488,7 +489,7 @@ function SelectedGameForm({
         )}
       </div>
 
-      <Field label={t("add.categories")}>
+      <LabeledField label={t("add.categories")}>
         <input
           className="field-input"
           defaultValue={details?.categories.join(", ") ?? ""}
@@ -496,8 +497,8 @@ function SelectedGameForm({
           name="categories"
           placeholder={t("add.categoriesPlaceholder")}
         />
-      </Field>
-      <Field label={t("add.mechanics")}>
+      </LabeledField>
+      <LabeledField label={t("add.mechanics")}>
         <input
           className="field-input"
           defaultValue={details?.mechanics.join(", ") ?? ""}
@@ -505,8 +506,8 @@ function SelectedGameForm({
           name="mechanics"
           placeholder={t("add.mechanicsPlaceholder")}
         />
-      </Field>
-      <Field label={t("add.families")}>
+      </LabeledField>
+      <LabeledField label={t("add.families")}>
         <input
           className="field-input"
           defaultValue={details?.families.join(", ") ?? ""}
@@ -514,8 +515,8 @@ function SelectedGameForm({
           name="families"
           placeholder={t("add.familiesPlaceholder")}
         />
-      </Field>
-      <Field label={t("add.artwork")}>
+      </LabeledField>
+      <LabeledField label={t("add.artwork")}>
         <input
           className="field-input"
           defaultValue={details?.imageUrl ?? selected.imageUrl ?? ""}
@@ -524,8 +525,8 @@ function SelectedGameForm({
           placeholder={t("add.artworkPlaceholder")}
           type="url"
         />
-      </Field>
-      <Field label={t("add.description")}>
+      </LabeledField>
+      <LabeledField label={t("add.description")}>
         <textarea
           className="field-input min-h-24 py-3"
           defaultValue={details?.description.slice(0, 2_000) ?? ""}
@@ -534,7 +535,7 @@ function SelectedGameForm({
           placeholder={t("add.descriptionPlaceholder")}
           rows={3}
         />
-      </Field>
+      </LabeledField>
       <div className="flex justify-end border-t pt-5">
         <Button
           aria-label={adding ? t("common.loading") : undefined}
@@ -556,28 +557,5 @@ function SelectedGameForm({
         </Button>
       </div>
     </form>
-  );
-}
-
-/** Label and content rendered by a compact form field wrapper. */
-type FieldProps = {
-  children: React.ReactNode;
-  label: string;
-};
-
-/**
- * Consistent label wrapper for local game metadata inputs.
- *
- * @param root0 - Properties that configure one labelled add-game field.
- * @param root0.children - Content rendered inside the component.
- * @param root0.label - Localized label displayed by the control.
- * @returns A labeled form-field wrapper.
- */
-function Field({ children, label }: FieldProps): ReactNode {
-  return (
-    <label className="block text-sm font-bold">
-      <span className="mb-2 block">{label}</span>
-      {children}
-    </label>
   );
 }
