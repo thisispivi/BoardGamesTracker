@@ -193,16 +193,15 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   return response;
 }
 
-/** Limits proxy execution to documents and application API routes. */
+/**
+ * Limits proxy execution to documents and application API routes.
+ *
+ * Prefetch requests are deliberately not exempt: the exemption would be keyed
+ * on headers any client can send, letting a caller skip the rate limits and the
+ * Server Action origin check.
+ */
 export const config = {
   matcher: [
-    {
-      source:
-        "/((?!_next/static|_next/image|favicon.ico|api/health|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-      missing: [
-        { type: "header", key: "next-router-prefetch" },
-        { type: "header", key: "purpose", value: "prefetch" },
-      ],
-    },
+    "/((?!_next/static|_next/image|favicon.ico|api/health|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
