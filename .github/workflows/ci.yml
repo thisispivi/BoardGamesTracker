@@ -143,4 +143,4 @@ jobs:
           path: board-games-tracker/demo/out
       - name: Deploy the demo
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
