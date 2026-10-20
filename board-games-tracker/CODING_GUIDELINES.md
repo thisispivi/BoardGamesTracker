@@ -47,6 +47,8 @@ parallel. `pnpm lint:fix` and `pnpm format` fix the mechanical failures.
 ## 1. Language and type safety
 
 1. TypeScript only. No `.js`/`.jsx` source files outside build configuration.
+   `scripts/migrate.mjs` is the one exception: it runs inside the production
+   image, which ships without `tsx`.
 2. `strict`, `noUncheckedIndexedAccess`, and `exactOptionalPropertyTypes` are on
    and must stay on. Index access yields `T | undefined` — handle it, do not
    assert it away.
@@ -96,9 +98,12 @@ Additional rules:
 3. Import components by their full path
    (`@/components/atoms/Button/Button`). No barrel/`index.ts` re-export files
    anywhere except `src/core/index.ts`, which is the single public contract
-   barrel and a Knip entry point.
-4. Always import through the `@/` alias. Never use a relative parent path
-   (`../../`); a sibling `./` import inside a component folder is fine.
+   barrel. It is not a Knip entry, so Knip still reports core exports nothing
+   imports.
+4. Always import through the `@/` alias (`@messages/*` for the catalogs and
+   `@package` for `package.json` are the only other aliases). Never use a
+   relative parent path (`../../`); a sibling `./` import inside a component
+   folder is fine.
 5. Directories are `PascalCase` only for component folders; everywhere else use
    `camelCase`. Never `snake_case` or `kebab-case` in `src/`, except route
    segments under `src/app/`, which are URLs (`api/user-data`,
@@ -305,7 +310,10 @@ before writing routing, caching, or data-fetching code.**
 ## 9. Server boundaries and security
 
 1. Anything touching the database, secrets, or `env` server keys starts with
-   `import "server-only";`.
+   `import "server-only";`, and so does every module under `src/server/`.
+   `src/server/db/schema.ts` and `src/server/images/bggImage.ts` are the
+   exceptions, because drizzle-kit and `scripts/` load them outside Next.js.
+   Tests of a `server-only` module add `vi.mock("server-only", () => ({}))`.
 2. Server actions start with `"use server"`, call `requireUser()` (or
    `requireAdmin`) first, validate input second, and act third. An action that
    is public by design (`setLocaleAction`, the token-based
@@ -355,6 +363,8 @@ before writing routing, caching, or data-fetching code.**
    asked for fails loud with a translated message.
 3. Log through `@/server/logger`'s `log(level, event, context)`. `event` is a
    `snake_case` identifier (`game_discovery_failed`). Never `console.log`.
+   Command-line scripts in `scripts/` report to the terminal with
+   `console.info` and `console.error` instead.
 4. Never surface a raw upstream error message to the client.
 5. Every promise is awaited, returned, or explicitly discarded with `void`.
    `no-floating-promises` and `no-misused-promises` are type-aware and run over

@@ -115,9 +115,8 @@ flowchart LR
     App --> Sources["BoardGameGeek pages and artwork"]
 ```
 
-- The browser talks to the application, plus two optional outside hosts: the
-  flag images in the language picker, and your error-monitoring server if you
-  set one.
+- The browser talks only to the application, and to your error-monitoring
+  server if you set one.
 - PostgreSQL holds accounts, libraries, cached game details, and the audit log.
 - Game search goes through a private SearXNG container. The server downloads
   artwork and serves it itself.
@@ -206,7 +205,7 @@ and a push runs `pnpm check`. The full gate and the rules for a change are in
 ### Releases
 
 Version bumps go through pull requests, keeping `main` protected. Before a
-release, run `npm version minor --no-git-tag-version` from `board-games-tracker/`
+release, run `pnpm version minor --no-git-tag-version` from `board-games-tracker/`
 (use `patch` for fixes or `major` for breaking changes), and include the
 `package.json` change in a PR. CI publishes the tag and GitHub Release after that
 versioned commit passes the quality gate on `main`.
