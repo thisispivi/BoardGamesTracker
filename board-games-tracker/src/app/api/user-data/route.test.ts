@@ -3,13 +3,13 @@ import { File } from "node:buffer";
 import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { getSession, importUserDataDocument, parseUserData } = vi.hoisted(
-  () => ({
+const { consumeRateLimit, getSession, importUserDataDocument, parseUserData } =
+  vi.hoisted(() => ({
+    consumeRateLimit: vi.fn(() => true),
     getSession: vi.fn(),
     importUserDataDocument: vi.fn(),
     parseUserData: vi.fn(),
-  }),
-);
+  }));
 vi.mock("@/server/session", () => ({ getSession }));
 vi.mock("@/server/userData/data", () => ({
   getUserDataDocument: vi.fn(),
@@ -26,9 +26,7 @@ vi.mock("@/server/security/origin", () => ({
   hasTrustedOrigin: (request: Request) =>
     request.headers.get("origin") === "https://tracker.test",
 }));
-vi.mock("@/server/security/rateLimit", () => ({
-  consumeRateLimit: () => true,
-}));
+vi.mock("@/server/security/rateLimit", () => ({ consumeRateLimit }));
 vi.mock("@/server/revalidate", () => ({ revalidateAccountRoutes: vi.fn() }));
 
 import { POST } from "@/app/api/user-data/route";
@@ -92,6 +90,21 @@ describe("user-data upload boundary", () => {
     const request = upload();
     request.headers.set("content-type", "multipart/form-data");
     expect((await POST(request)).status).toBe(400);
+  });
+  it("allows two imports per account every ten minutes", async () => {
+    await POST(upload());
+
+    expect(consumeRateLimit).toHaveBeenCalledWith(
+      "userDataImport:owner",
+      2,
+      10 * 60_000,
+    );
+  });
+  it("refuses an import once the account's allowance is spent", async () => {
+    consumeRateLimit.mockReturnValueOnce(false);
+
+    expect((await POST(upload())).status).toBe(429);
+    expect(importUserDataDocument).not.toHaveBeenCalled();
   });
   it("imports only into the authenticated account", async () => {
     expect((await POST(upload())).status).toBe(200);
