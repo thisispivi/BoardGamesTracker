@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { db } from "@/server/db";
 import { auditLogs } from "@/server/db/schema";
 import { log } from "@/server/logger";
+import { resolveClientIp } from "@/server/security/clientIp";
 
 /** Security-relevant event fields accepted by the audit writer. */
 type AuditInput = {
@@ -18,16 +19,15 @@ type AuditInput = {
 /**
  * Persists a security-relevant administrative or user event.
  *
+ * The recorded address comes from `resolveClientIp`, the same trusted-proxy
+ * walk the rate limiter uses, so a client cannot write a forged address into
+ * the log by prepending it to `X-Forwarded-For`.
+ *
  * @param input - Validated audit event fields to persist.
  * @returns A promise that resolves after the audit event is persisted.
  */
 export async function writeAuditEvent(input: AuditInput): Promise<void> {
-  const requestHeaders = await headers();
-  const forwardedFor = requestHeaders
-    .get("x-forwarded-for")
-    ?.split(",")[0]
-    ?.trim();
-  const ipAddress = forwardedFor || requestHeaders.get("x-real-ip");
+  const ipAddress = resolveClientIp((await headers()).get("x-forwarded-for"));
 
   await db.insert(auditLogs).values({
     actorId: input.actorId,
