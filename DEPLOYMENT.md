@@ -104,13 +104,13 @@ path, query, or credentials.
 
 ### Access
 
-| Variable             | Default | Purpose                                                       |
-| -------------------- | ------- | ------------------------------------------------------------- |
-| `ALLOW_SIGN_UP`      | `false` | `true` lets anyone register                                   |
-| `ADMIN_EMAIL`        | unset   | An account registered with this address becomes administrator |
-| `HEALTH_CHECK_TOKEN` | unset   | Makes `/api/health` require this bearer token, 16+ characters |
-| `LOG_LEVEL`          | `info`  | `debug`, `info`, `warn`, or `error`, in any case              |
-| `TRUSTED_PROXIES`    | unset   | Comma-separated proxy addresses or CIDR ranges to trust       |
+| Variable             | Default | Purpose                                                                                                          |
+| -------------------- | ------- | ---------------------------------------------------------------------------------------------------------------- |
+| `ALLOW_SIGN_UP`      | `false` | `true` lets anyone register                                                                                      |
+| `ADMIN_EMAIL`        | unset   | An account registered with this address becomes administrator. Needs [email](#email), so the address is verified |
+| `HEALTH_CHECK_TOKEN` | unset   | Makes `/api/health` require this bearer token, 16+ characters                                                    |
+| `LOG_LEVEL`          | `info`  | `debug`, `info`, `warn`, or `error`, in any case                                                                 |
+| `TRUSTED_PROXIES`    | unset   | Comma-separated proxy addresses or CIDR ranges to trust                                                          |
 
 ### Email
 

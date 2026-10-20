@@ -24,7 +24,13 @@ import { trustedProxies } from "@/server/security/clientIp";
 const bannedUserMessage = "This account has been suspended.";
 const mailEnabled = isMailConfigured();
 
-/** Better Auth server with hardened email/password sessions and RBAC. */
+/**
+ * Better Auth server with hardened email/password sessions and RBAC.
+ *
+ * The first account always becomes an administrator. A later sign-up matching
+ * `ADMIN_EMAIL` does too, but only when email delivery is configured, because
+ * only then must the registrant prove they own the address before signing in.
+ */
 export const auth = betterAuth({
   appName: "Board Games Tracker",
   baseURL: env.BETTER_AUTH_URL,
@@ -224,6 +230,7 @@ export const auth = betterAuth({
           }
 
           const matchesConfiguredAdmin =
+            mailEnabled &&
             env.ADMIN_EMAIL &&
             newUser.email.toLowerCase() === env.ADMIN_EMAIL.toLowerCase();
 
