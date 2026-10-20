@@ -59,5 +59,4 @@ grep -rl "<api name>" board-games-tracker/node_modules/next/dist/docs/01-app
 - `next dev` rewrites the block between the `nextjs-agent-rules` markers in
   `board-games-tracker/AGENTS.md`. Commit that change; do not fight it.
 
-For React rendering and performance rules, use the `react-best-practices`
-skill. Then run the `check` skill.
+Then run the `check` skill.
