@@ -18,10 +18,28 @@
           }
         ]
       }
+    },
+    "owasp-pinned": {
+      "source": {
+        "source": "settings",
+        "name": "owasp-pinned",
+        "plugins": [
+          {
+            "name": "owasp-security",
+            "description": "agamm/claude-code-owasp, pinned to one commit",
+            "source": {
+              "source": "github",
+              "repo": "agamm/claude-code-owasp",
+              "sha": "8ac7965caa212b4a850aff8d3df0081ab3fa9eed"
+            }
+          }
+        ]
+      }
     }
   },
   "enabledPlugins": {
     "security-guidance@claude-plugins-official": true,
-    "supply-chain-risk-auditor@trailofbits-pinned": true
+    "supply-chain-risk-auditor@trailofbits-pinned": true,
+    "owasp-security@owasp-pinned": true
   }
 }
