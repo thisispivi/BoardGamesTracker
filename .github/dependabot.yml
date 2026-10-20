@@ -25,6 +25,14 @@ updates:
     ignore:
       - dependency-name: node
         update-types: [version-update:semver-major]
+  - package-ecosystem: docker-compose
+    directory: /board-games-tracker
+    schedule:
+      interval: weekly
+    ignore:
+      # A PostgreSQL major upgrade needs a dump and restore, not a tag bump.
+      - dependency-name: postgres
+        update-types: [version-update:semver-major]
   - package-ecosystem: github-actions
     directory: /
     schedule:
