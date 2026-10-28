@@ -40,8 +40,7 @@ async function cacheExistingImages(): Promise<void> {
     for (const game of pending) {
       if (game.imageUrl) sources.set(game.bggId, game.imageUrl);
     }
-    const images = await downloadBggImages(sources);
-    for (const [bggId, image] of images) {
+    const images = await downloadBggImages(sources, async (bggId, image) => {
       await database.transaction(async (transaction) => {
         await transaction
           .insert(gameImages)
@@ -58,7 +57,7 @@ async function cacheExistingImages(): Promise<void> {
           .set({ imageChecksum: image.checksum, updatedAt: sql`now()` })
           .where(and(eq(games.bggId, bggId), isNull(games.imageChecksum)));
       });
-    }
+    });
     console.info(
       `Cached ${images.size} of ${pending.length} existing BGG cover images.`,
     );

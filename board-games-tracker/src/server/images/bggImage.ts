@@ -105,16 +105,22 @@ export async function downloadBggImage(
 }
 
 /**
- * Downloads a bounded image map with limited outbound concurrency.
+ * Downloads and stores a bounded image map with limited outbound concurrency.
+ *
+ * Each image is handed to `store` as soon as it downloads and is then released,
+ * so memory holds at most one image per concurrent download rather than the
+ * whole batch. An image that fails to download or store is skipped.
  *
  * @param sources - BoardGameGeek artwork URLs keyed by stable game identifier.
- * @returns The images that downloaded successfully, keyed by game identifier.
+ * @param store - Persists one verified image for the given game.
+ * @returns The checksums of the images stored, keyed by game identifier.
  */
 export async function downloadBggImages(
   sources: Map<number, string>,
-): Promise<Map<number, StoredGameImage>> {
+  store: (bggId: number, image: StoredGameImage) => Promise<void>,
+): Promise<Map<number, string>> {
   const entries = [...sources.entries()].slice(0, 500);
-  const images = new Map<number, StoredGameImage>();
+  const checksums = new Map<number, string>();
   let cursor = 0;
 
   /**
@@ -131,7 +137,9 @@ export async function downloadBggImages(
       }
       const [bggId, sourceUrl] = entry;
       try {
-        images.set(bggId, await downloadBggImage(sourceUrl));
+        const image = await downloadBggImage(sourceUrl);
+        await store(bggId, image);
+        checksums.set(bggId, image.checksum);
       } catch {
         continue;
       }
@@ -139,5 +147,5 @@ export async function downloadBggImages(
   }
 
   await Promise.all(Array.from({ length: 3 }, () => worker()));
-  return images;
+  return checksums;
 }
