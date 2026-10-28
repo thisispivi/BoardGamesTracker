@@ -82,6 +82,25 @@ describe("proxy", () => {
     expect(response.status).toBe(200);
   });
 
+  it.each(["/play", "/admin/users"])(
+    "sends an anonymous visitor on %s to the login page",
+    async (path) => {
+      const response = await proxy(new NextRequest(`${appOrigin}${path}`));
+
+      expect(response.status).toBe(307);
+      expect(response.headers.get("location")).toBe(`${appOrigin}/login`);
+    },
+  );
+
+  it.each(["/playground", "/administrator"])(
+    "does not treat %s as a protected route",
+    async (path) => {
+      const response = await proxy(new NextRequest(`${appOrigin}${path}`));
+
+      expect(response.status).toBe(200);
+    },
+  );
+
   it("rate-limits forged session cookies by client address", async () => {
     /**
      * Sends one page request carrying a fresh, unsigned session cookie.
