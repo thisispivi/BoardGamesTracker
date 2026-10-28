@@ -4,7 +4,11 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 vi.mock("@/env", () => ({
-  env: { NEXT_PUBLIC_APP_URL: "https://board-games.example", NODE_ENV: "test" },
+  env: {
+    BETTER_AUTH_SECRET: "test-secret-with-enough-length-0000000000",
+    NEXT_PUBLIC_APP_URL: "https://board-games.example",
+    NODE_ENV: "test",
+  },
 }));
 
 import { config, proxy } from "@/proxy";
@@ -76,6 +80,29 @@ describe("proxy", () => {
     const response = await proxy(new NextRequest(`${appOrigin}/login`));
 
     expect(response.status).toBe(200);
+  });
+
+  it("rate-limits forged session cookies by client address", async () => {
+    /**
+     * Sends one page request carrying a fresh, unsigned session cookie.
+     *
+     * @returns The proxy's response.
+     */
+    function sendForgedCookie(): Promise<Response> {
+      return proxy(
+        new NextRequest(`${appOrigin}/login`, {
+          headers: {
+            cookie: `board_games_tracker.session_token=${crypto.randomUUID()}.forged`,
+            "x-forwarded-for": "203.0.113.9",
+          },
+        }),
+      );
+    }
+
+    for (let attempt = 0; attempt < 300; attempt += 1) {
+      expect((await sendForgedCookie()).status).toBe(200);
+    }
+    expect((await sendForgedCookie()).status).toBe(429);
   });
 
   it.each([{ "next-router-prefetch": "1" }, { purpose: "prefetch" }])(

@@ -6,6 +6,7 @@ import { env } from "@/env";
 import { resolveClientIp } from "@/server/security/clientIp";
 import { hasTrustedOrigin } from "@/server/security/origin";
 import { consumeRateLimit } from "@/server/security/rateLimit";
+import { hasValidSessionSignature } from "@/server/security/sessionCookie";
 
 const protectedPrefixes = [
   "/dashboard",
@@ -46,8 +47,9 @@ async function fingerprint(value: string): Promise<string> {
 /**
  * Identifies the caller for early per-caller rate limiting.
  *
- * Authenticated callers are keyed by session before the authoritative per-user
- * limit runs during session validation. Anonymous callers are keyed by the
+ * Callers presenting a correctly signed session cookie are keyed by session
+ * before the authoritative per-user limit runs during session validation. Any
+ * other caller, including one sending an invented cookie, is keyed by the
  * nearest untrusted hop in the forwarding chain, which a client cannot forge
  * when the app is reachable only through its reverse proxy.
  *
@@ -59,7 +61,10 @@ async function getCallerKey(
   request: NextRequest,
   sessionCookie: string | null,
 ): Promise<string> {
-  if (sessionCookie) {
+  if (
+    sessionCookie &&
+    hasValidSessionSignature(sessionCookie, env.BETTER_AUTH_SECRET)
+  ) {
     return `session:${await fingerprint(sessionCookie)}`;
   }
 
