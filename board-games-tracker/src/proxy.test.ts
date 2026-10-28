@@ -1,3 +1,5 @@
+import { createHmac } from "node:crypto";
+
 import { unstable_doesMiddlewareMatch } from "next/experimental/testing/server";
 import { NextRequest } from "next/server";
 import { describe, expect, it, vi } from "vitest";
@@ -122,6 +124,47 @@ describe("proxy", () => {
       expect((await sendForgedCookie()).status).toBe(200);
     }
     expect((await sendForgedCookie()).status).toBe(429);
+  });
+
+  it("gives every spelling of one signed cookie the same bucket", async () => {
+    const token = crypto.randomUUID();
+    const signature = createHmac(
+      "sha256",
+      "test-secret-with-enough-length-0000000000",
+    )
+      .update(token)
+      .digest("base64");
+
+    for (let attempt = 0; attempt < 300; attempt += 1) {
+      const response = await proxy(
+        new NextRequest(`${appOrigin}/login`, {
+          headers: {
+            cookie: `board_games_tracker.session_token=${token}.${signature}`,
+            "x-forwarded-for": `198.51.100.${attempt % 250}`,
+          },
+        }),
+      );
+      expect(response.status).toBe(200);
+    }
+    const variant = await proxy(
+      new NextRequest(`${appOrigin}/login`, {
+        headers: {
+          cookie: `board_games_tracker.session_token=${token}.${signature}!`,
+          "x-forwarded-for": "198.51.100.251",
+        },
+      }),
+    );
+    const exhausted = await proxy(
+      new NextRequest(`${appOrigin}/login`, {
+        headers: {
+          cookie: `board_games_tracker.session_token=${token}.${signature}`,
+          "x-forwarded-for": "198.51.100.252",
+        },
+      }),
+    );
+
+    expect(variant.status).toBe(200);
+    expect(exhausted.status).toBe(429);
   });
 
   it.each([{ "next-router-prefetch": "1" }, { purpose: "prefetch" }])(
