@@ -198,6 +198,45 @@ describe("collection persistence and ownership", () => {
     ).toEqual([{ hasPlayed: false }]);
   });
 
+  it("keeps a stored rating and notes when a re-imported CSV leaves them blank", async () => {
+    await testDb.insert(collectionItems).values({
+      gameId,
+      notes: "Bought at Essen",
+      owned: true,
+      personalRating: 9,
+      userId: "owner",
+    });
+
+    const blank = await importBggCsvAction(
+      { success: false, message: "" },
+      csvForm(`${csvHeader}
+Catan,13,1,1,6,30,60,2000,2,7,0,0`),
+    );
+    expect(blank.success).toBe(true);
+    expect(
+      await testDb
+        .select({
+          notes: collectionItems.notes,
+          rating: collectionItems.personalRating,
+        })
+        .from(collectionItems),
+    ).toEqual([{ notes: "Bought at Essen", rating: 9 }]);
+
+    await importBggCsvAction(
+      { success: false, message: "" },
+      csvForm(`${csvHeader},comment
+Catan,13,1,1,6,30,60,2000,2,7,6,0,Replayed`),
+    );
+    expect(
+      await testDb
+        .select({
+          notes: collectionItems.notes,
+          rating: collectionItems.personalRating,
+        })
+        .from(collectionItems),
+    ).toEqual([{ notes: "Replayed", rating: 6 }]);
+  });
+
   it("creates missing CSV games only from BoardGameGeek metadata", async () => {
     vi.mocked(scrapeBggMetadata).mockResolvedValueOnce(
       new Map([
