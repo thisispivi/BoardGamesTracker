@@ -11,12 +11,17 @@ vi.mock("@/server/audit", () => ({ writeAuditEvent: vi.fn() }));
 vi.mock("@/server/revalidate", () => ({ revalidateAccountRoutes: vi.fn() }));
 vi.mock("@/env", () => ({ env: { NODE_ENV: "test" } }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
-vi.mock("next/headers", () => ({ cookies: vi.fn() }));
+const { setCookie } = vi.hoisted(() => ({ setCookie: vi.fn() }));
+vi.mock("next/headers", () => ({
+  cookies: async () => ({ set: setCookie }),
+  headers: async () => new Headers({ "x-forwarded-for": "203.0.113.7" }),
+}));
 
 import {
   getShareTokenAction,
   regenerateShareTokenAction,
   setCurrencyAction,
+  setLocaleAction,
   setSharingAction,
 } from "@/server/actions/preferences";
 import { user } from "@/server/db/schema";
@@ -165,5 +170,18 @@ describe("display currency", () => {
       .where(eq(user.id, "owner"))
       .limit(1);
     expect(row?.currency).toBe("EUR");
+  });
+});
+
+describe("display locale", () => {
+  it("stops changing the locale once a client address exhausts its allowance", async () => {
+    const form = new FormData();
+    form.set("locale", "it");
+
+    for (let attempt = 0; attempt < 31; attempt += 1) {
+      await setLocaleAction(form);
+    }
+
+    expect(setCookie).toHaveBeenCalledTimes(30);
   });
 });
