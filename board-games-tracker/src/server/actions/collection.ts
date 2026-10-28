@@ -132,6 +132,10 @@ async function readBggCollectionCsv(file: File): Promise<BggCsvImport | null> {
 /**
  * Imports owned games from a bounded official BoardGameGeek CSV export.
  *
+ * The games catalog is shared by every account, so a game missing from it is
+ * created only from BoardGameGeek's own metadata. Rows whose game is neither
+ * in the catalog nor found on BoardGameGeek are skipped.
+ *
  * @param _previous - The previous server-action state.
  * @param formData - The submitted form data.
  * @returns The outcome of the validated import operation.
@@ -176,23 +180,36 @@ export async function importBggCsvAction(
     };
   }
 
-  const metadataById = await scrapeBggMetadata(
-    imported.games.map((game) => game.bggId),
-  ).catch(() => new Map<number, BggMetadata>());
+  const bggIds = imported.games.map((game) => game.bggId);
+  const known = new Set(
+    (
+      await db
+        .select({ bggId: games.bggId })
+        .from(games)
+        .where(inArray(games.bggId, bggIds))
+    ).map((game) => game.bggId),
+  );
+  const missing = bggIds.filter((bggId) => !known.has(bggId));
+  const metadataById =
+    missing.length === 0
+      ? new Map<number, BggMetadata>()
+      : await scrapeBggMetadata(missing).catch(
+          () => new Map<number, BggMetadata>(),
+        );
+  const creatable = [...metadataById.values()];
   const artwork = await discoverBoardGameImages(
-    imported.games.map((game) => ({
-      bggId: game.bggId,
-      name: game.name,
-    })),
+    creatable
+      .filter((metadata) => !metadata.imageUrl)
+      .map((metadata) => ({ bggId: metadata.bggId, name: metadata.name })),
   ).catch(() => new Map<number, string>());
-  for (const [bggId, metadata] of metadataById) {
+  for (const metadata of creatable) {
     if (metadata.imageUrl) {
-      artwork.set(bggId, metadata.imageUrl);
+      artwork.set(metadata.bggId, metadata.imageUrl);
     }
   }
   const cachedArtwork = await downloadBggImages(artwork);
   const now = new Date();
-  await db.transaction(async (transaction) => {
+  const importedCount = await db.transaction(async (transaction) => {
     const uniqueImages = [
       ...new Map(
         [...cachedArtwork.values()].map((image) => [image.checksum, image]),
@@ -204,70 +221,62 @@ export async function importBggCsvAction(
         .values(uniqueImages)
         .onConflictDoNothing({ target: gameImages.checksum });
     }
-    await transaction
-      .insert(games)
-      .values(
-        imported.games.map((game) => {
-          const metadata = metadataById.get(game.bggId);
-          return {
-            bggId: game.bggId,
-            name: metadata?.name ?? game.name,
-            description: metadata?.description ?? "",
-            imageUrl: artwork.get(game.bggId) ?? null,
-            thumbnailUrl: artwork.get(game.bggId) ?? null,
-            imageChecksum: cachedArtwork.get(game.bggId)?.checksum ?? null,
-            yearPublished: metadata?.yearPublished ?? game.yearPublished,
-            minPlayers: metadata?.minPlayers ?? game.minPlayers,
-            maxPlayers: metadata?.maxPlayers ?? game.maxPlayers,
-            minPlaytime: metadata?.minPlaytime ?? game.minPlaytime,
-            maxPlaytime: metadata?.maxPlaytime ?? game.maxPlaytime,
-            weight: metadata?.weight ?? game.weight,
-            bggRating: metadata?.bggRating ?? game.bggRating,
-            isExpansion: metadata?.isExpansion ?? game.isExpansion,
-            expandsBggIds: metadata?.expandsBggIds ?? [],
-            expansionBggIds: metadata?.expansionBggIds ?? [],
-            categories: metadata?.categories.length
-              ? metadata.categories
-              : game.categories,
-            mechanics: metadata?.mechanics ?? [],
-            families: metadata?.families ?? [],
+    if (creatable.length > 0) {
+      await transaction
+        .insert(games)
+        .values(
+          creatable.map((metadata) => ({
+            bggId: metadata.bggId,
+            name: metadata.name,
+            description: metadata.description,
+            imageUrl: artwork.get(metadata.bggId) ?? null,
+            thumbnailUrl: artwork.get(metadata.bggId) ?? null,
+            imageChecksum: cachedArtwork.get(metadata.bggId)?.checksum ?? null,
+            yearPublished: metadata.yearPublished,
+            minPlayers: metadata.minPlayers,
+            maxPlayers: metadata.maxPlayers,
+            minPlaytime: metadata.minPlaytime,
+            maxPlaytime: metadata.maxPlaytime,
+            weight: metadata.weight,
+            bggRating: metadata.bggRating,
+            isExpansion: metadata.isExpansion,
+            expandsBggIds: metadata.expandsBggIds,
+            expansionBggIds: metadata.expansionBggIds,
+            categories: metadata.categories,
+            mechanics: metadata.mechanics,
+            families: metadata.families,
             updatedAt: now,
-          };
-        }),
-      )
-      .onConflictDoNothing({ target: games.bggId });
+          })),
+        )
+        .onConflictDoNothing({ target: games.bggId });
+    }
     const savedGames = await transaction
       .select({ bggId: games.bggId, id: games.id })
       .from(games)
-      .where(
-        inArray(
-          games.bggId,
-          imported.games.map((game) => game.bggId),
-        ),
-      );
+      .where(inArray(games.bggId, bggIds));
     const ids = new Map(savedGames.map((game) => [game.bggId, game.id]));
+    const items = imported.games.flatMap((game) => {
+      const gameId = ids.get(game.bggId);
+      return gameId === undefined
+        ? []
+        : [
+            {
+              userId: session.user.id,
+              gameId,
+              hasPlayed: game.hasPlayed,
+              owned: true,
+              wishlist: false,
+              personalRating: game.personalRating,
+              notes: game.notes,
+              updatedAt: now,
+            },
+          ];
+    });
+    if (items.length === 0) return 0;
 
     await transaction
       .insert(collectionItems)
-      .values(
-        imported.games.flatMap((game) => {
-          const gameId = ids.get(game.bggId);
-          return gameId === undefined
-            ? []
-            : [
-                {
-                  userId: session.user.id,
-                  gameId,
-                  hasPlayed: game.hasPlayed,
-                  owned: true,
-                  wishlist: false,
-                  personalRating: game.personalRating,
-                  notes: game.notes,
-                  updatedAt: now,
-                },
-              ];
-        }),
-      )
+      .values(items)
       .onConflictDoUpdate({
         target: [collectionItems.userId, collectionItems.gameId],
         set: {
@@ -279,6 +288,7 @@ export async function importBggCsvAction(
           updatedAt: now,
         },
       });
+    return items.length;
   });
 
   await writeAuditEvent({
@@ -286,7 +296,8 @@ export async function importBggCsvAction(
     action: "collection.csv_imported",
     targetType: "collection",
     metadata: {
-      imported: imported.games.length,
+      imported: importedCount,
+      notFound: imported.games.length - importedCount,
       artwork: cachedArtwork.size,
       skipped: imported.skipped,
       invalid: imported.invalid,
@@ -297,7 +308,7 @@ export async function importBggCsvAction(
   return {
     success: true,
     message: t("action.imported", {
-      games: imported.games.length,
+      games: importedCount,
       artwork: cachedArtwork.size,
     }),
   };

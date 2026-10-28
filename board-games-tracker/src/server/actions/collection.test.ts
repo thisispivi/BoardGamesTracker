@@ -8,6 +8,9 @@ vi.mock("@/server/db", async () => ({
 vi.mock("@/server/session", () => ({
   requireUser: async () => ({ user: { id: "owner" } }),
 }));
+vi.mock("@/server/security/rateLimit", () => ({
+  consumeRateLimit: () => true,
+}));
 vi.mock("@/server/audit", () => ({ writeAuditEvent: vi.fn() }));
 vi.mock("@/server/revalidate", () => ({
   revalidateAccountRoutes: vi.fn(),
@@ -110,6 +113,23 @@ function addForm(destination: "collection" | "wishlist"): FormData {
   return form;
 }
 
+/**
+ * Wraps CSV text in the form the import dialog submits.
+ *
+ * @param csv - BoardGameGeek collection export text.
+ * @returns Form data carrying the export as an uploaded file.
+ */
+function csvForm(csv: string): FormData {
+  const file = new File([csv], "collection.csv", { type: "text/csv" });
+  Object.defineProperty(file, "text", { value: async () => csv });
+  const form = new FormData();
+  form.set("collection", file);
+  return form;
+}
+
+const csvHeader =
+  "objectname,objectid,own,minplayers,maxplayers,minplaytime,maxplaytime,yearpublished,avgweight,baverage,rating,numplays";
+
 describe("collection persistence and ownership", () => {
   it("preserves a purchase made while a wishlist add is waiting for metadata", async () => {
     vi.mocked(scrapeBggMetadata).mockImplementationOnce(async () => {
@@ -176,6 +196,60 @@ describe("collection persistence and ownership", () => {
         .select({ hasPlayed: collectionItems.hasPlayed })
         .from(collectionItems),
     ).toEqual([{ hasPlayed: false }]);
+  });
+
+  it("creates missing CSV games only from BoardGameGeek metadata", async () => {
+    vi.mocked(scrapeBggMetadata).mockResolvedValueOnce(
+      new Map([
+        [
+          822,
+          {
+            bggId: 822,
+            bggRating: 7.5,
+            categories: ["Tile Placement"],
+            description: "From BoardGameGeek",
+            expandsBggIds: [],
+            expansionBggIds: [],
+            families: [],
+            imageUrl: null,
+            isExpansion: false,
+            maxPlayers: 5,
+            maxPlaytime: 45,
+            mechanics: [],
+            minPlayers: 2,
+            minPlaytime: 30,
+            name: "Carcassonne",
+            weight: 1.9,
+            yearPublished: 2000,
+          },
+        ],
+      ]),
+    );
+    const result = await importBggCsvAction(
+      { success: false, message: "" },
+      csvForm(
+        `${csvHeader}
+Forged name,822,1,1,99,1,999,1999,5,1,8,1
+Unknown upload,999999,1,1,4,10,20,2001,2,6,7,0`,
+      ),
+    );
+
+    expect(result.success).toBe(true);
+    expect(scrapeBggMetadata).toHaveBeenLastCalledWith([822, 999_999]);
+    expect(
+      await testDb
+        .select({
+          bggId: games.bggId,
+          maxPlayers: games.maxPlayers,
+          name: games.name,
+        })
+        .from(games)
+        .where(eq(games.bggId, 822)),
+    ).toEqual([{ bggId: 822, maxPlayers: 5, name: "Carcassonne" }]);
+    expect(
+      await testDb.select().from(games).where(eq(games.bggId, 999_999)),
+    ).toEqual([]);
+    expect(await testDb.select().from(collectionItems)).toHaveLength(1);
   });
 
   it("purchases a wishlist item, updates personal fields, and clears only its owner's library", async () => {
