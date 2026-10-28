@@ -6,6 +6,21 @@ import { type GameSelection, selectionSchema } from "@/core";
 import { env } from "@/env";
 
 /**
+ * Signs a selection payload under a label reserved for selection tokens.
+ *
+ * The secret is shared with Better Auth and password-reset links, so the label
+ * keeps a signature issued in any other context from verifying here.
+ *
+ * @param payload - The base64url-encoded selection payload.
+ * @returns The raw HMAC-SHA256 signature.
+ */
+function signSelection(payload: string): Buffer {
+  return createHmac("sha256", env.BETTER_AUTH_SECRET)
+    .update(`selection.${payload}`)
+    .digest();
+}
+
+/**
  * Creates an authenticated, short-lived token for a discovery result.
  *
  * @param selection - The game selection to sign.
@@ -18,10 +33,7 @@ export function createSelectionToken(selection: GameSelection): string {
       expiresAt: Date.now() + 60 * 60 * 1000,
     }),
   ).toString("base64url");
-  const signature = createHmac("sha256", env.BETTER_AUTH_SECRET)
-    .update(payload)
-    .digest("base64url");
-  return `${payload}.${signature}`;
+  return `${payload}.${signSelection(payload).toString("base64url")}`;
 }
 
 /**
@@ -36,9 +48,7 @@ export function verifySelectionToken(token: string): GameSelection | null {
     return null;
   }
 
-  const expected = createHmac("sha256", env.BETTER_AUTH_SECRET)
-    .update(payload)
-    .digest();
+  const expected = signSelection(payload);
   const supplied = Buffer.from(signature, "base64url");
   if (
     supplied.length !== expected.length ||
