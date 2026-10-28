@@ -17,6 +17,7 @@ vi.mock("@/env", () => ({
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 
 import {
+  createPasswordResetLinkAction,
   deleteUserAction,
   toggleUserBanAction,
   updateUserRoleAction,
@@ -66,6 +67,29 @@ describe("administrator account safeguards", () => {
         .where(eq(user.id, "target")),
     ).toEqual([{ role: "admin" }]);
   });
+  it("issues a reset link for another account", async () => {
+    await expect(createPasswordResetLinkAction(mutationForm())).resolves.toBe(
+      "https://tracker.test/reset-password/signed",
+    );
+  });
+
+  it("refuses a reset link from a demoted administrator", async () => {
+    await testDb.update(user).set({ role: "user" }).where(eq(user.id, "actor"));
+
+    await expect(createPasswordResetLinkAction(mutationForm())).rejects.toThrow(
+      "no longer authorized",
+    );
+  });
+
+  it("refuses a reset link for the acting administrator", async () => {
+    const form = new FormData();
+    form.set("userId", "actor");
+
+    await expect(createPasswordResetLinkAction(form)).rejects.toThrow(
+      "their own account",
+    );
+  });
+
   it("cannot delete the acting administrator", async () => {
     const form = mutationForm();
     form.set("userId", "actor");
