@@ -17,7 +17,7 @@ import {
   purchaseCollectionItemSchema,
 } from "@/core";
 import { writeAuditEvent } from "@/server/audit";
-import { scrapeBggMetadata } from "@/server/bgg/scrape";
+import { importScrapeBudgetMs, scrapeBggMetadata } from "@/server/bgg/scrape";
 import { db } from "@/server/db";
 import { collectionItems, gameImages, games } from "@/server/db/schema";
 import { discoverBoardGameImages } from "@/server/discovery/searxng";
@@ -194,7 +194,7 @@ export async function importBggCsvAction(
   const metadataById =
     missing.length === 0
       ? new Map<number, BggMetadata>()
-      : await scrapeBggMetadata(missing).catch(
+      : await scrapeBggMetadata(missing, importScrapeBudgetMs).catch(
           () => new Map<number, BggMetadata>(),
         );
   const creatable = [...metadataById.values()];

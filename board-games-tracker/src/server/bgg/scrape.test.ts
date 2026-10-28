@@ -128,3 +128,34 @@ describe("scrapeBggMetadata", () => {
     expect((await scrapeBggMetadata([30549])).has(30549)).toBe(false);
   });
 });
+
+describe("scrapeBggMetadata time budget", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("starts no batch once the budget has run out", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    const fetchStub = vi.fn(async () => {
+      vi.setSystemTime(Date.now() + 61_000);
+      return new Response(null, { status: 503 });
+    });
+    vi.stubGlobal("fetch", fetchStub);
+
+    const metadata = await scrapeBggMetadata(
+      [910_001, 910_002, 910_003, 910_004, 910_005],
+      60_000,
+    );
+
+    expect(metadata.size).toBe(0);
+    const requestedIds = new Set(
+      fetchStub.mock.calls.map(
+        (call: unknown[]) =>
+          String(call[0]).match(/(?:objectid=|boardgame\/)(\d+)/)?.[1],
+      ),
+    );
+    expect(requestedIds).toEqual(
+      new Set(["910001", "910002", "910003", "910004"]),
+    );
+  });
+});

@@ -3,7 +3,7 @@ import "server-only";
 import { eq, inArray, sql } from "drizzle-orm";
 
 import type { BggMetadata, UserDataDocument } from "@/core";
-import { scrapeBggMetadata } from "@/server/bgg/scrape";
+import { importScrapeBudgetMs, scrapeBggMetadata } from "@/server/bgg/scrape";
 import { db } from "@/server/db";
 import { collectionItems, games, user } from "@/server/db/schema";
 
@@ -96,7 +96,7 @@ export async function importUserDataDocument(
   const metadataById =
     missing.length === 0
       ? new Map<number, BggMetadata>()
-      : await scrapeBggMetadata(missing).catch(
+      : await scrapeBggMetadata(missing, importScrapeBudgetMs).catch(
           () => new Map<number, BggMetadata>(),
         );
   let imported = 0;
