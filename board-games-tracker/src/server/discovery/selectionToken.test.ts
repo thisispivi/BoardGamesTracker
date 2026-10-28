@@ -1,3 +1,5 @@
+import { createHmac } from "node:crypto";
+
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
@@ -42,6 +44,18 @@ describe("selection tokens", () => {
     expect(verifySelectionToken(createSelectionToken(selection))).toEqual(
       selection,
     );
+  });
+
+  it("rejects a signature made over the payload without the selection label", () => {
+    const [payload = ""] = createSelectionToken(selection).split(".");
+    const unlabelled = createHmac(
+      "sha256",
+      "selection-token-test-secret-0123456789",
+    )
+      .update(payload)
+      .digest("base64url");
+
+    expect(verifySelectionToken(`${payload}.${unlabelled}`)).toBeNull();
   });
 
   it("rejects a payload edited after signing", () => {
