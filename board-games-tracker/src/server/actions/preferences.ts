@@ -2,7 +2,7 @@
 
 import { and, eq, or, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 import { currencySchema, sharingSchema } from "@/core";
 import { env } from "@/env";
@@ -11,11 +11,19 @@ import { writeAuditEvent } from "@/server/audit";
 import { db } from "@/server/db";
 import { user } from "@/server/db/schema";
 import { revalidateAccountRoutes } from "@/server/revalidate";
+import { resolveClientIp } from "@/server/security/clientIp";
+import { consumeRateLimit } from "@/server/security/rateLimit";
 import { requireUser } from "@/server/session";
 import { createShareToken } from "@/server/sharing";
 
+/** Locale changes one client address may make per minute. */
+const localeChangeLimit = 30;
+
 /**
  * Persists a validated display locale in a same-site cookie.
+ *
+ * The action needs no session, so it is limited per client address: each call
+ * invalidates the whole layout tree.
  *
  * @param formData - The submitted form data.
  * @returns A promise that resolves when the operation completes.
@@ -23,6 +31,16 @@ import { createShareToken } from "@/server/sharing";
 export async function setLocaleAction(formData: FormData): Promise<void> {
   const locale = String(formData.get("locale") ?? "");
   if (!isLocale(locale)) {
+    return;
+  }
+  const clientIp = resolveClientIp((await headers()).get("x-forwarded-for"));
+  if (
+    !consumeRateLimit(
+      `locale:${clientIp ?? "unknown"}`,
+      localeChangeLimit,
+      60_000,
+    )
+  ) {
     return;
   }
 
