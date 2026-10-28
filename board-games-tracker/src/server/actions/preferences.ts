@@ -1,7 +1,6 @@
 "use server";
 
 import { and, eq, or, sql } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
 import { cookies, headers } from "next/headers";
 
 import { currencySchema, sharingSchema } from "@/core";
@@ -10,7 +9,11 @@ import { isLocale } from "@/i18n/config";
 import { writeAuditEvent } from "@/server/audit";
 import { db } from "@/server/db";
 import { user } from "@/server/db/schema";
-import { revalidateAccountRoutes } from "@/server/revalidate";
+import {
+  revalidateAccountRoutes,
+  revalidateAllRoutes,
+  revalidateSettingsRoutes,
+} from "@/server/revalidate";
 import { resolveClientIp } from "@/server/security/clientIp";
 import { consumeRateLimit } from "@/server/security/rateLimit";
 import { requireUser } from "@/server/session";
@@ -51,7 +54,7 @@ export async function setLocaleAction(formData: FormData): Promise<void> {
     path: "/",
     maxAge: 60 * 60 * 24 * 365,
   });
-  revalidatePath("/", "layout");
+  revalidateAllRoutes();
 }
 
 /**
@@ -117,7 +120,7 @@ export async function setSharingAction(formData: FormData): Promise<void> {
     targetId: session.user.id,
     metadata: parsed.data,
   });
-  revalidatePath("/settings");
+  revalidateSettingsRoutes();
 }
 
 /**
@@ -167,7 +170,7 @@ export async function getShareTokenAction(): Promise<string | null> {
     targetType: "user",
     targetId: session.user.id,
   });
-  revalidatePath("/settings");
+  revalidateSettingsRoutes();
   return token;
 }
 
@@ -201,6 +204,6 @@ export async function regenerateShareTokenAction(): Promise<string | null> {
     targetType: "user",
     targetId: session.user.id,
   });
-  revalidatePath("/settings");
+  revalidateSettingsRoutes();
   return updated.shareToken;
 }

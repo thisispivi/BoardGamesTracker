@@ -8,7 +8,11 @@ vi.mock("@/server/db", async () => ({
 }));
 vi.mock("@/server/session", () => ({ requireUser }));
 vi.mock("@/server/audit", () => ({ writeAuditEvent: vi.fn() }));
-vi.mock("@/server/revalidate", () => ({ revalidateAccountRoutes: vi.fn() }));
+vi.mock("@/server/revalidate", () => ({
+  revalidateAccountRoutes: vi.fn(),
+  revalidateAllRoutes: vi.fn(),
+  revalidateSettingsRoutes: vi.fn(),
+}));
 vi.mock("@/env", () => ({ env: { NODE_ENV: "test" } }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 const { setCookie } = vi.hoisted(() => ({ setCookie: vi.fn() }));

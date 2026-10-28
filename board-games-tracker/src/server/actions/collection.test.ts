@@ -15,6 +15,7 @@ vi.mock("@/server/audit", () => ({ writeAuditEvent: vi.fn() }));
 vi.mock("@/server/revalidate", () => ({
   revalidateAccountRoutes: vi.fn(),
   revalidateLibraryRoutes: vi.fn(),
+  revalidateSettingsRoutes: vi.fn(),
 }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("next-intl/server", () => ({

@@ -343,9 +343,11 @@ before writing routing, caching, or data-fetching code.**
 10. Route handlers call `getSession()` and return 401 without a session;
     state-changing requests also check `hasTrustedOrigin(request)`. Read
     uploads with `readBoundedBody` and a byte cap.
-11. After a mutation, refresh pages with `revalidateLibraryRoutes`,
-    `revalidateAccountRoutes` or `revalidateSharedGameRoutes` from
-    `@/server/revalidate`.
+11. After a mutation, refresh pages with the helpers in `@/server/revalidate`
+    (`revalidateLibraryRoutes`, `revalidateAccountRoutes`,
+    `revalidateSharedGameRoutes`, `revalidateSettingsRoutes`,
+    `revalidateAdminRoutes`, `revalidateAllRoutes`), never with a hard-coded
+    `revalidatePath`.
 
 ## 10. Tests
 
