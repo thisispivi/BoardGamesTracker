@@ -6,7 +6,7 @@ import { env } from "@/env";
 import { resolveClientIp } from "@/server/security/clientIp";
 import { hasTrustedOrigin } from "@/server/security/origin";
 import { consumeRateLimit } from "@/server/security/rateLimit";
-import { hasValidSessionSignature } from "@/server/security/sessionCookie";
+import { readSignedSessionToken } from "@/server/security/sessionCookie";
 
 const protectedPrefixes = [
   "/dashboard",
@@ -47,8 +47,8 @@ async function fingerprint(value: string): Promise<string> {
 /**
  * Identifies the caller for early per-caller rate limiting.
  *
- * Callers presenting a correctly signed session cookie are keyed by session
- * before the authoritative per-user limit runs during session validation. Any
+ * Callers presenting a correctly signed session cookie are keyed by the
+ * signed token, so every spelling of one cookie shares a bucket, before the authoritative per-user limit runs during session validation. Any
  * other caller, including one sending an invented cookie, is keyed by the
  * nearest untrusted hop in the forwarding chain, which a client cannot forge
  * when the app is reachable only through its reverse proxy.
@@ -61,11 +61,11 @@ async function getCallerKey(
   request: NextRequest,
   sessionCookie: string | null,
 ): Promise<string> {
-  if (
-    sessionCookie &&
-    hasValidSessionSignature(sessionCookie, env.BETTER_AUTH_SECRET)
-  ) {
-    return `session:${await fingerprint(sessionCookie)}`;
+  const sessionToken = sessionCookie
+    ? readSignedSessionToken(sessionCookie, env.BETTER_AUTH_SECRET)
+    : null;
+  if (sessionToken) {
+    return `session:${await fingerprint(sessionToken)}`;
   }
 
   return `ip:${resolveClientIp(request.headers.get("x-forwarded-for")) ?? "unknown"}`;
