@@ -134,7 +134,8 @@ async function readBggCollectionCsv(file: File): Promise<BggCsvImport | null> {
  *
  * The games catalog is shared by every account, so a game missing from it is
  * created only from BoardGameGeek's own metadata. Rows whose game is neither
- * in the catalog nor found on BoardGameGeek are skipped.
+ * in the catalog nor found on BoardGameGeek are skipped. Re-importing a game
+ * keeps its stored rating and notes when the export leaves those cells blank.
  *
  * @param _previous - The previous server-action state.
  * @param formData - The submitted form data.
@@ -283,8 +284,8 @@ export async function importBggCsvAction(
           owned: true,
           wishlist: false,
           hasPlayed: sql`excluded.has_played`,
-          personalRating: sql`excluded.personal_rating`,
-          notes: sql`excluded.notes`,
+          personalRating: sql`coalesce(excluded.personal_rating, ${collectionItems.personalRating})`,
+          notes: sql`case when excluded.notes = '' then ${collectionItems.notes} else excluded.notes end`,
           updatedAt: now,
         },
       });
