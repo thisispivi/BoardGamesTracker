@@ -172,8 +172,9 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   requestHeaders.set("x-nonce", nonce);
   requestHeaders.set("Content-Security-Policy", policy);
 
-  const isProtected = protectedPrefixes.some((prefix) =>
-    request.nextUrl.pathname.startsWith(prefix),
+  const { pathname } = request.nextUrl;
+  const isProtected = protectedPrefixes.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
   if (isProtected && !sessionCookie) {
     return NextResponse.redirect(new URL("/login", request.url));
