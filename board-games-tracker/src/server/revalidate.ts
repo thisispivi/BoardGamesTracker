@@ -27,12 +27,39 @@ export function revalidateLibraryRoutes(): void {
 }
 
 /**
+ * Revalidates the account settings page, such as after a sharing change.
+ *
+ * @returns Nothing.
+ */
+export function revalidateSettingsRoutes(): void {
+  revalidatePath("/settings");
+}
+
+/**
+ * Revalidates the administrator console after an account or catalog change.
+ *
+ * @returns Nothing.
+ */
+export function revalidateAdminRoutes(): void {
+  revalidatePath("/admin");
+}
+
+/**
+ * Revalidates every route below the root layout, such as after a locale change.
+ *
+ * @returns Nothing.
+ */
+export function revalidateAllRoutes(): void {
+  revalidatePath("/", "layout");
+}
+
+/**
  * Revalidates the account settings page along with every library route.
  *
  * @returns Nothing.
  */
 export function revalidateAccountRoutes(): void {
-  revalidatePath("/settings");
+  revalidateSettingsRoutes();
   revalidateLibraryRoutes();
 }
 
@@ -44,6 +71,6 @@ export function revalidateAccountRoutes(): void {
  * @returns Nothing.
  */
 export function revalidateSharedGameRoutes(): void {
-  revalidatePath("/admin");
+  revalidateAdminRoutes();
   revalidateLibraryRoutes();
 }

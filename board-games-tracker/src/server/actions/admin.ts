@@ -1,7 +1,6 @@
 "use server";
 
 import { asc, eq, inArray } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
 
 import {
   adminPageSchema,
@@ -16,6 +15,7 @@ import { writeAuditEvent } from "@/server/audit";
 import { createPasswordResetToken } from "@/server/auth/passwordReset";
 import { db } from "@/server/db";
 import { account, collectionItems, session, user } from "@/server/db/schema";
+import { revalidateAdminRoutes } from "@/server/revalidate";
 import { isCurrentlyBanned } from "@/server/security/ban";
 import { requireAdmin } from "@/server/session";
 
@@ -101,7 +101,7 @@ export async function updateUserRoleAction(formData: FormData): Promise<void> {
     targetId,
     metadata: { role },
   });
-  revalidatePath("/admin");
+  revalidateAdminRoutes();
 }
 
 /**
@@ -134,7 +134,7 @@ export async function toggleUserBanAction(formData: FormData): Promise<void> {
     targetType: "user",
     targetId,
   });
-  revalidatePath("/admin");
+  revalidateAdminRoutes();
 }
 
 /**
@@ -160,7 +160,7 @@ export async function deleteUserAction(formData: FormData): Promise<void> {
     targetType: "user",
     targetId,
   });
-  revalidatePath("/admin");
+  revalidateAdminRoutes();
 }
 
 /**

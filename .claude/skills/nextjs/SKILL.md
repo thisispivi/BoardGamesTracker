@@ -47,9 +47,9 @@ grep -rl "<api name>" board-games-tracker/node_modules/next/dist/docs/01-app
   `src/app/(app)/layout.tsx` and the `protectedPrefixes` list in
   `src/proxy.ts`. Add both for a new authenticated area.
 - Mutations are server actions in `src/server/actions/`. They refresh pages
-  through `revalidateLibraryRoutes`, `revalidateAccountRoutes` or
-  `revalidateSharedGameRoutes` in `src/server/revalidate.ts`, not through
-  scattered `revalidatePath` calls.
+  through the helpers in `src/server/revalidate.ts` (library, account, shared
+  game, settings, admin, and all routes), not through scattered
+  `revalidatePath` calls.
 - `src/app/login/page.tsx` calls `await connection()` so the build never
   touches the database. Do the same for any page whose output depends on live
   data at request time.
