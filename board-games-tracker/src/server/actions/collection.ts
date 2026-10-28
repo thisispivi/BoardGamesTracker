@@ -208,20 +208,17 @@ export async function importBggCsvAction(
       artwork.set(metadata.bggId, metadata.imageUrl);
     }
   }
-  const cachedArtwork = await downloadBggImages(artwork);
+  const cachedArtwork = await downloadBggImages(
+    artwork,
+    async (_bggId, image) => {
+      await db
+        .insert(gameImages)
+        .values(image)
+        .onConflictDoNothing({ target: gameImages.checksum });
+    },
+  );
   const now = new Date();
   const importedCount = await db.transaction(async (transaction) => {
-    const uniqueImages = [
-      ...new Map(
-        [...cachedArtwork.values()].map((image) => [image.checksum, image]),
-      ).values(),
-    ];
-    if (uniqueImages.length > 0) {
-      await transaction
-        .insert(gameImages)
-        .values(uniqueImages)
-        .onConflictDoNothing({ target: gameImages.checksum });
-    }
     if (creatable.length > 0) {
       await transaction
         .insert(games)
@@ -232,7 +229,7 @@ export async function importBggCsvAction(
             description: metadata.description,
             imageUrl: artwork.get(metadata.bggId) ?? null,
             thumbnailUrl: artwork.get(metadata.bggId) ?? null,
-            imageChecksum: cachedArtwork.get(metadata.bggId)?.checksum ?? null,
+            imageChecksum: cachedArtwork.get(metadata.bggId) ?? null,
             yearPublished: metadata.yearPublished,
             minPlayers: metadata.minPlayers,
             maxPlayers: metadata.maxPlayers,
