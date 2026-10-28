@@ -513,7 +513,7 @@ export async function removeGameAction(formData: FormData): Promise<void> {
         eq(collectionItems.userId, session.user.id),
       ),
     )
-    .returning({ id: collectionItems.id, gameId: collectionItems.gameId });
+    .returning({ id: collectionItems.id });
 
   if (deleted) {
     await writeAuditEvent({
