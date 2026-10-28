@@ -22,6 +22,7 @@ vi.mock("next-intl/server", () => ({
 }));
 vi.mock("@/env", () => ({ env: { NODE_ENV: "test" } }));
 vi.mock("@/server/bgg/scrape", () => ({
+  importScrapeBudgetMs: 60_000,
   scrapeBggMetadata: vi.fn(async () => new Map()),
 }));
 vi.mock("@/server/discovery/searxng", () => ({
@@ -274,7 +275,7 @@ Unknown upload,999999,1,1,4,10,20,2001,2,6,7,0`,
     );
 
     expect(result.success).toBe(true);
-    expect(scrapeBggMetadata).toHaveBeenLastCalledWith([822, 999_999]);
+    expect(scrapeBggMetadata).toHaveBeenLastCalledWith([822, 999_999], 60_000);
     expect(
       await testDb
         .select({
@@ -525,7 +526,7 @@ Unknown upload,999999,1,1,4,10,20,2001,2,6,7,0`,
     });
 
     expect(await importUserDataDocument("owner", document)).toBe(2);
-    expect(scrapeBggMetadata).toHaveBeenLastCalledWith([822, 999_999]);
+    expect(scrapeBggMetadata).toHaveBeenLastCalledWith([822, 999_999], 60_000);
     expect(
       await testDb
         .select({

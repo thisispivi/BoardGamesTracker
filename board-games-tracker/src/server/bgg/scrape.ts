@@ -151,14 +151,29 @@ async function scrapePage(bggId: number): Promise<BggMetadata | null> {
 }
 
 /**
+ * Time an import may spend scraping BoardGameGeek before it gives up, in milliseconds.
+ *
+ * Imports run inside one request, so the scrape stops starting new batches
+ * well before a reverse proxy would time the request out.
+ */
+export const importScrapeBudgetMs = 60_000;
+
+/**
  * Performs a best-effort, low-concurrency scrape of public BGG pages.
  *
+ * Once `budgetMs` has elapsed no further batch is started; the batch already
+ * running finishes, bounded by its own request timeouts, and identifiers not
+ * reached are simply absent from the result.
+ *
  * @param ids - BoardGameGeek identifiers needing metadata.
+ * @param budgetMs - Time after which no new batch is started, in milliseconds.
  * @returns The successfully scraped metadata keyed by identifier.
  */
 export async function scrapeBggMetadata(
   ids: number[],
+  budgetMs = Number.POSITIVE_INFINITY,
 ): Promise<Map<number, BggMetadata>> {
+  const stopAt = Date.now() + budgetMs;
   const uniqueIds = [...new Set(ids)]
     .filter((id) => Number.isSafeInteger(id) && id > 0)
     .slice(0, 2_000);
@@ -174,6 +189,7 @@ export async function scrapeBggMetadata(
   }
 
   for (let index = 0; index < pending.length; index += 4) {
+    if (Date.now() >= stopAt) break;
     const batch = pending.slice(index, index + 4);
     const results = await Promise.all(
       batch.map((id) => scrapePage(id).catch(() => null)),
