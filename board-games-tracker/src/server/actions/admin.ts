@@ -45,19 +45,19 @@ type AdminTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
  * @param actorId - Administrator who submitted the operation.
  * @param targetId - Account being managed.
  * @param change - Mutation executed only after the locked authorization check.
- * @returns Completion of the authorized transaction.
+ * @returns The change's result once the authorized transaction commits.
  */
-async function manageUser(
+async function manageUser<TResult>(
   actorId: string,
   targetId: string,
-  change: (transaction: AdminTransaction) => Promise<void>,
-): Promise<void> {
+  change: (transaction: AdminTransaction) => Promise<TResult>,
+): Promise<TResult> {
   if (actorId === targetId) {
     throw new Error(
       "Administrators cannot perform this action on their own account.",
     );
   }
-  await db.transaction(async (transaction) => {
+  return db.transaction(async (transaction) => {
     const accounts = await transaction
       .select()
       .from(user)
@@ -74,7 +74,7 @@ async function manageUser(
     ) {
       throw new Error("The account change is no longer authorized.");
     }
-    await change(transaction);
+    return change(transaction);
   });
 }
 
@@ -168,7 +168,9 @@ export async function deleteUserAction(formData: FormData): Promise<void> {
  *
  * The link is returned to the administrator to deliver out of band, because a
  * self-hosted instance is not assumed to have a working mail server. It stops
- * working once it is used or after an hour, whichever comes first.
+ * working once it is used or after an hour, whichever comes first. Like every
+ * cross-account change it runs under {@link manageUser}, so the actor must
+ * still be an active administrator and cannot target its own account.
  *
  * @param formData - The submitted form data.
  * @returns The reset link to hand to the account owner.
@@ -178,21 +180,14 @@ export async function createPasswordResetLinkAction(
 ): Promise<string> {
   const session = await requireAdmin();
   const userId = userIdSchema.parse(formData.get("userId"));
-  const [target] = await db
-    .select({ id: user.id })
-    .from(user)
-    .where(eq(user.id, userId))
-    .limit(1);
-  if (!target) {
-    throw new Error("The account no longer exists.");
-  }
-
-  const token = await createPasswordResetToken(target.id);
+  const token = await manageUser(session.user.id, userId, () =>
+    createPasswordResetToken(userId),
+  );
   await writeAuditEvent({
     actorId: session.user.id,
     action: "admin.password_reset_issued",
     targetType: "user",
-    targetId: target.id,
+    targetId: userId,
   });
   return `${env.NEXT_PUBLIC_APP_URL}/reset-password/${token}`;
 }
