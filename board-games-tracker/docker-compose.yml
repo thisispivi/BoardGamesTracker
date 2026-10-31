@@ -43,7 +43,7 @@ services:
       - private
 
   searxng:
-    image: searxng/searxng:2026.10.24-ef0ec03da
+    image: searxng/searxng:2026.10.28-c360868e5
     restart: unless-stopped
     environment:
       SEARXNG_SECRET: ${SEARXNG_SECRET:?Set SEARXNG_SECRET in .env}
