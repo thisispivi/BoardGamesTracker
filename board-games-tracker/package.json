@@ -68,7 +68,7 @@
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.15",
-    "@sentry/node": "^11.10.0",
+    "@sentry/node": "^11.11.0",
     "@tailwindcss/postcss": "^4.3.4",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
