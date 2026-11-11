@@ -1,15 +1,22 @@
+# Dependabot: security updates open as soon as an advisory lands; version
+# updates arrive once a week, minor and patch grouped into one pull request.
+# Triage both with the fix-vulnerabilities skill (.claude/skills/).
 version: 2
 updates:
   - package-ecosystem: npm
     directory: /board-games-tracker
     schedule:
       interval: weekly
+    commit-message:
+      prefix: chore
+      include: scope
     groups:
-      production-dependencies:
-        dependency-type: production
-        update-types: [minor, patch]
-      development-dependencies:
-        dependency-type: development
+      security:
+        applies-to: security-updates
+        patterns: ["*"]
+      dependencies:
+        applies-to: version-updates
+        patterns: ["*"]
         update-types: [minor, patch]
     ignore:
       - dependency-name: "@types/node"
@@ -18,22 +25,58 @@ updates:
         update-types: [version-update:semver-major]
       - dependency-name: typescript
         update-types: [version-update:semver-major]
+
   - package-ecosystem: docker
     directory: /board-games-tracker
     schedule:
       interval: weekly
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      security:
+        applies-to: security-updates
+        patterns: ["*"]
+      dependencies:
+        applies-to: version-updates
+        patterns: ["*"]
+        update-types: [minor, patch]
     ignore:
       - dependency-name: node
         update-types: [version-update:semver-major]
+
   - package-ecosystem: docker-compose
     directory: /board-games-tracker
     schedule:
       interval: weekly
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      security:
+        applies-to: security-updates
+        patterns: ["*"]
+      dependencies:
+        applies-to: version-updates
+        patterns: ["*"]
+        update-types: [minor, patch]
     ignore:
       # A PostgreSQL major upgrade needs a dump and restore, not a tag bump.
       - dependency-name: postgres
         update-types: [version-update:semver-major]
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: monthly
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      security:
+        applies-to: security-updates
+        patterns: ["*"]
+      actions:
+        applies-to: version-updates
+        patterns: ["*"]
+        update-types: [minor, patch]

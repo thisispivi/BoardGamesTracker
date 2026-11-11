@@ -1,12 +1,7 @@
-# Repository instructions
+# Application instructions
 
-Before writing, reviewing, or suggesting code, read
-[`CODING_GUIDELINES.md`](CODING_GUIDELINES.md) completely and follow it as the
-authoritative repository standard. Apply it to every file in the scope of the
-change, including tests, scripts, documentation, and configuration.
-
-Do not finish a change until the gate at the top of `CODING_GUIDELINES.md`
-passes.
+The repository-wide rules are in [`../AGENTS.md`](../AGENTS.md) and
+[`../CODING_GUIDELINES.md`](../CODING_GUIDELINES.md). Read both first.
 
 <!-- BEGIN:nextjs-agent-rules -->
 
