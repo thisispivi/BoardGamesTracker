@@ -3,8 +3,8 @@
 The [public demo](https://demo.boardgames.pivi.dev/) is an isolated
 static Next.js export built from the application's UI components. Alex Morgan
 is a fictional account with 18 base games, two expansions, and six wishlist
-games. Purchase prices, favorites, ratings, played status, and dates are example
-data, not somebody's collection.
+games. Purchase prices, favorites, ratings, played status, and dates are all
+example data.
 
 Visitors can browse every demo page, search, filter, sort, switch languages and
 themes, inspect charts, and use the animated game-night picker. Sign-in, account
@@ -37,9 +37,8 @@ GitHub Pages must use **GitHub Actions** as its publishing source, with
 
 ## Reproduce the README screenshots
 
-The six README images are real 1920×1080 viewport captures of the authenticated
-application, using the same fictional library. They are not generated mockups.
-Use a new, empty local PostgreSQL database named `board_games_tracker_demo`.
+The six README images are 1920×1080 viewport captures of the running,
+authenticated application with the same fictional library. Use a new, empty local PostgreSQL database named `board_games_tracker_demo`.
 The seed command rejects remote hosts and other database names, applies the
 production migrations, and never reads `.env.local`.
 
@@ -64,15 +63,15 @@ use a 1920×1080 viewport, hide the development overlay, and capture Home,
 Collection, Wishlist, Pick a game after a spin, Stats, and Collection in dark
 mode. Save JPEGs under `docs/screenshots/`. A browser that excludes the scrollbar
 from its default screenshot needs an explicit 1920×1080 capture rectangle.
-Verify image dimensions before committing. No real account or private library
-should appear in the screenshots.
+Verify image dimensions before committing. Keep every real account and private
+library out of the screenshots.
 
 ## Example game artwork
 
 `board-games-tracker/src/core/demo/library.json` contains public game metadata
 retrieved from BoardGameGeek on 6 October 2026. The bundled JPEGs under
 `board-games-tracker/public/demo/games/` are the corresponding box-cover
-thumbnails, used solely to illustrate the collection. Original artwork and
+thumbnails, used only to illustrate the collection. Original artwork and
 trademarks remain the property of their respective owners; the repository's MIT
 license does not grant rights to those images. Each demo cover links to its
 BoardGameGeek entry. The project is independent of BoardGameGeek and the game

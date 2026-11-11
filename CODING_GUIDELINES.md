@@ -1,7 +1,7 @@
-# Coding Guidelines
+# Coding guidelines
 
-This is the canonical standard for every change in this repository, whether it
-is written by a human or an agent. `AGENTS.md`, `CLAUDE.md`, and
+This is the canonical standard for every change in this repository, whether a
+human or an agent writes it. `AGENTS.md`, `CLAUDE.md`, and
 `.github/copilot-instructions.md` are adapters that point here; shared rules
 belong only in this file. The task checklists in the repository root's
 `.claude/skills/` apply these rules to recurring changes. When a skill and this
@@ -33,7 +33,7 @@ drizzle/          Generated migrations and snapshots
 scripts/          Repository operations and maintenance commands
 ```
 
-Every change must pass, before review:
+Before review, every change must pass:
 
 ```bash
 pnpm check && pnpm test:coverage && pnpm build && pnpm audit --audit-level=moderate
@@ -42,15 +42,13 @@ pnpm check && pnpm test:coverage && pnpm build && pnpm audit --audit-level=moder
 `pnpm check` runs typecheck, ESLint (zero warnings), Prettier, Vitest and Knip in
 parallel. `pnpm lint:fix` and `pnpm format` fix the mechanical failures.
 
----
-
 ## 1. Language and type safety
 
 1. TypeScript only. No `.js`/`.jsx` source files outside build configuration.
    `scripts/migrate.mjs` is the one exception: it runs inside the production
    image, which ships without `tsx`.
 2. `strict`, `noUncheckedIndexedAccess`, and `exactOptionalPropertyTypes` are on
-   and must stay on. Index access yields `T | undefined` — handle it, do not
+   and must stay on. Index access yields `T | undefined`: handle it, do not
    assert it away.
 3. **Never** use `any`. Use `unknown` at boundaries and narrow with a type guard
    or a Zod schema.
@@ -77,17 +75,17 @@ parallel. `pnpm lint:fix` and `pnpm format` fix the mechanical failures.
 
 ## 2. File and directory naming
 
-| Kind                   | Location                                   | Naming                         | Example                                                         |
-| ---------------------- | ------------------------------------------ | ------------------------------ | --------------------------------------------------------------- |
-| React component        | `src/components/<layer>/<Name>/<Name>.tsx` | `PascalCase` dir **and** file  | `src/components/atoms/Button/Button.tsx`                        |
-| Component test         | beside its component                       | `<Name>.test.tsx`              | `src/components/molecules/ConfirmDialog/ConfirmDialog.test.tsx` |
-| Shared type / contract | `src/core/<domain>/<domain>[.contract].ts` | `camelCase`                    | `src/core/discovery/discovery.contract.ts`                      |
-| Server-only module     | `src/server/<area>/<module>.ts`            | `camelCase`                    | `src/server/discovery/searxng.ts`                               |
-| Server action module   | `src/server/actions/<domain>.ts`           | `camelCase`                    | `src/server/actions/collection.ts`                              |
-| Isomorphic helper      | `src/utils/<name>.ts`                      | `camelCase`                    | `src/utils/ttlCache.ts`                                         |
-| Unit test              | beside its source file                     | `<name>.test.ts`               | `src/utils/search.test.ts`                                      |
-| Route / page           | `src/app/**`                               | Next.js reserved names, lower  | `src/app/share/[token]/page.tsx`                                |
-| Migration              | `drizzle/`                                 | generated — never hand-written | `drizzle/0007_flowery_blizzard.sql`                             |
+| Kind                   | Location                                   | Naming                        | Example                                                         |
+| ---------------------- | ------------------------------------------ | ----------------------------- | --------------------------------------------------------------- |
+| React component        | `src/components/<layer>/<Name>/<Name>.tsx` | `PascalCase` dir **and** file | `src/components/atoms/Button/Button.tsx`                        |
+| Component test         | beside its component                       | `<Name>.test.tsx`             | `src/components/molecules/ConfirmDialog/ConfirmDialog.test.tsx` |
+| Shared type / contract | `src/core/<domain>/<domain>[.contract].ts` | `camelCase`                   | `src/core/discovery/discovery.contract.ts`                      |
+| Server-only module     | `src/server/<area>/<module>.ts`            | `camelCase`                   | `src/server/discovery/searxng.ts`                               |
+| Server action module   | `src/server/actions/<domain>.ts`           | `camelCase`                   | `src/server/actions/collection.ts`                              |
+| Isomorphic helper      | `src/utils/<name>.ts`                      | `camelCase`                   | `src/utils/ttlCache.ts`                                         |
+| Unit test              | beside its source file                     | `<name>.test.ts`              | `src/utils/search.test.ts`                                      |
+| Route / page           | `src/app/**`                               | Next.js reserved names, lower | `src/app/share/[token]/page.tsx`                                |
+| Migration              | `drizzle/`                                 | generated, never hand-written | `drizzle/0007_flowery_blizzard.sql`                             |
 
 Additional rules:
 
@@ -137,18 +135,17 @@ Dependencies point one way: `app` → `components` → `utils` → `core`, and `
 `client`. Only colocated route tests may import `app`. `core` is the innermost
 layer: it contains no React or Next.js runtime dependencies and imports nothing
 from `server` or `utils`, so a constant both a contract and a helper need lives
-in `core`. `utils` holds isomorphic helpers only — a file there that reaches for
+in `core`. `utils` holds isomorphic helpers only. A file there that reaches for
 the database, `env`, or React is in the wrong place, and a file named for a grab
 bag (`helpers.ts`, `misc.ts`) does not belong there at all.
 
-Reach for a shared abstraction when two call sites express the _same_ rule, not
-when they merely look alike. Two similar-looking validations of different
-domain concepts stay separate.
+Add a shared abstraction only when two call sites express the _same_ rule.
+Two similar-looking validations of different domain concepts stay separate.
 
 ## 3. Documentation and comments
 
-JSDoc is enforced by `eslint-plugin-jsdoc` at error level. It is part of the
-public contract, not filler added to satisfy lint.
+`eslint-plugin-jsdoc` enforces JSDoc at error level, and the JSDoc is part of
+the public contract.
 
 1. Every named function, React component, class, constructor, method, type alias,
    interface, and enum MUST carry a JSDoc block, whether exported or private.
@@ -207,7 +204,7 @@ Prettier owns formatting; never fight it by hand. Settings: 2-space indent,
 double quotes, semicolons, trailing commas everywhere, LF endings, UTF-8, final
 newline (`.prettierrc.json`, `.editorconfig`).
 
-1. Imports are sorted and grouped by `simple-import-sort` — run `pnpm lint:fix`
+1. Imports are sorted and grouped by `simple-import-sort`; run `pnpm lint:fix`
    rather than ordering them yourself. Exports are sorted too.
 2. `import "server-only";` is the first statement of every server-only module,
    and `"use client"` / `"use server"` is the first line of the file when used.
@@ -226,7 +223,7 @@ before writing routing, caching, or data-fetching code.**
 1. Server Components are the default. Add `"use client"` only when the component
    needs state, effects, or browser APIs, and push it as far down the tree as
    possible.
-2. Props are destructured in the function signature — enforced by
+2. Props are destructured in the function signature, enforced by
    `react/destructuring-assignment` with `destructureInSignature: "always"`.
 3. Props are declared as a named `type <Name>Props = { … }` above the component,
    with fields in alphabetical order.
@@ -251,7 +248,7 @@ before writing routing, caching, or data-fetching code.**
    through `next-intl`: `useTranslations()` in client components,
    `getTranslations()` on the server.
 2. `messages/en.json` and `messages/it.json` must stay structurally identical
-   with identical ICU arguments — `messages/messages.test.ts` fails otherwise.
+   with identical ICU arguments, or `messages/messages.test.ts` fails.
 3. Keys are `camelCase` and grouped by feature namespace (`sharing.copyFailed`).
 4. Format numbers, currency, and dates through `useFormatter()` /
    `next-intl`, never with manual string building.
@@ -272,7 +269,7 @@ before writing routing, caching, or data-fetching code.**
 5. Bound everything that crosses a boundary: string `.max()`, numeric ranges,
    array slices, response size caps, and `AbortSignal.timeout` on every
    outbound `fetch`.
-6. Drizzle only — no raw SQL strings except through the `sql` template for
+6. Drizzle only. No raw SQL strings except through the `sql` template for
    expressions Drizzle cannot express, and never with interpolated user input.
 7. Authorization belongs in the same query as the mutation:
    `where(and(eq(table.id, id), eq(table.userId, session.user.id)))`. Never
@@ -281,11 +278,11 @@ before writing routing, caching, or data-fetching code.**
    recheck authorization inside the transaction. User imports may create missing
    catalog games only from BoardGameGeek metadata, never from the uploaded
    file, and only administrator actions may change existing metadata.
-8. Enforce invariants in the database as well as in code — `check`, `unique`,
-   and foreign-key constraints — so a bug cannot corrupt state.
+8. Enforce invariants in the database as well as in code (`check`, `unique`,
+   and foreign-key constraints) so a bug cannot corrupt state.
 9. Schema changes are made in `src/server/db/schema.ts` and then generated with
    `pnpm db:generate`. Never hand-write or edit a file under `drizzle/`.
-10. `await response.json()` returns `unknown`. Never cast it — parse it with the
+10. `await response.json()` returns `unknown`. Never cast it; parse it with the
     route's schema from `src/core/api/api.contract.ts`. That applies to this
     application's own routes too: the browser is a separate process, so a
     response is a runtime value, not a compile-time guarantee.
@@ -326,7 +323,7 @@ before writing routing, caching, or data-fetching code.**
    Error responses are generic, either a translated message or a fixed error
    code such as `{ error: "unauthorized" }`; details go to `log()`.
 5. Redact at the source. When data must not be shared, strip it in the query or
-   the server module — never merely hide it in the UI.
+   the server module. Never merely hide it in the UI.
 6. Treat every external URL as hostile: parse with `URL`, allowlist the
    protocol and host, and rebuild the canonical URL from validated parts rather
    than passing the input through.
@@ -355,8 +352,7 @@ before writing routing, caching, or data-fetching code.**
 2. Every non-trivial pure function (parser, validator, money or security path)
    gets at least one test. Trivial one-liners do not.
 3. Test names read as behaviour: `it("rejects a spoofed BGG hostname")`.
-4. Cover the failure and abuse cases, not just the happy path — that is the
-   point of the test.
+4. Cover the failure and abuse cases as well as the happy path.
 5. Component tests use Testing Library and query by accessible role or label,
    never by class name or test id.
 6. No network in tests. Stub the boundary.
@@ -380,7 +376,7 @@ before writing routing, caching, or data-fetching code.**
 4. Never surface a raw upstream error message to the client.
 5. Every promise is awaited, returned, or explicitly discarded with `void`.
    `no-floating-promises` and `no-misused-promises` are type-aware and run over
-   `src`, so an unawaited request cannot slip into review.
+   `src`, so they catch an unawaited request before review.
 6. A handler that talks to the network handles its own failure: clear the
    pending state in `finally` and tell the user what happened. Attach it to JSX
    through a synchronous wrapper (`onSubmit={(event) => void submit(event)}`)
@@ -390,8 +386,8 @@ before writing routing, caching, or data-fetching code.**
 
 1. Knip runs in `pnpm check`: unused files, exports, and dependencies fail the
    build. Delete dead code instead of retaining it "for later".
-2. Use Depcheck (`pnpm dlx depcheck`; it is not a dependency) as a corroborating audit, not as the source of truth. It cannot
-   understand every PostCSS, Tailwind, CLI, or framework configuration; verify
+2. Use Depcheck (`pnpm dlx depcheck`; it is not a dependency) as a corroborating audit
+   only. It cannot understand every PostCSS, Tailwind, CLI, or framework configuration; verify
    each report against package scripts and configuration before removing it.
 3. Prefer deletion to addition, the platform to a package, and an existing
    package to a second tool with overlapping responsibility.

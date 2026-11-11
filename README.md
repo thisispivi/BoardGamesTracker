@@ -4,21 +4,19 @@
 
 # [Board Games Tracker](https://demo.boardgames.pivi.dev/)
 
-A self-hosted app for your board-game shelf: collection, wishlist, prices,
-ratings, and a picker for game night. You run it, and your data stays in your
-own database.
+A self-hosted app for a board-game shelf: collection, wishlist, prices, ratings,
+and a picker for game night. It is built with Next.js, React, TypeScript, and
+PostgreSQL, and you run it on your own server with Docker Compose.
 
-![Next.js](https://img.shields.io/badge/next.js-000000.svg?style=for-the-badge&logo=nextdotjs&logoColor=white) ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB) ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white) ![Tailwind CSS](https://img.shields.io/badge/tailwind_css-06B6D4.svg?style=for-the-badge&logo=tailwindcss&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/postgresql-4169E1.svg?style=for-the-badge&logo=postgresql&logoColor=white) ![Drizzle](https://img.shields.io/badge/drizzle-C5F74F.svg?style=for-the-badge&logo=drizzle&logoColor=black) ![Zod](https://img.shields.io/badge/zod-3E67B1.svg?style=for-the-badge&logo=zod&logoColor=white) ![Radix UI](https://img.shields.io/badge/radix_ui-161618.svg?style=for-the-badge&logo=radixui&logoColor=white) ![Vitest](https://img.shields.io/badge/vitest-6E9F18.svg?style=for-the-badge&logo=vitest&logoColor=white) ![ESLint](https://img.shields.io/badge/eslint-4B3263.svg?style=for-the-badge&logo=eslint&logoColor=white) ![Prettier](https://img.shields.io/badge/prettier-F7B93E.svg?style=for-the-badge&logo=prettier&logoColor=black) ![pnpm](https://img.shields.io/badge/pnpm-%23F69220.svg?style=for-the-badge&logo=pnpm&logoColor=white) ![Node.js](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white) ![Docker](https://img.shields.io/badge/docker-2496ED.svg?style=for-the-badge&logo=docker&logoColor=white) ![SearXNG](https://img.shields.io/badge/searxng-3050FF.svg?style=for-the-badge&logo=searxng&logoColor=white) ![AI Generated](https://img.shields.io/badge/AI_Generated-FF69B4?style=for-the-badge&logo=probot&logoColor=white)
+![Next.js](https://img.shields.io/badge/next.js-000000.svg?style=for-the-badge&logo=nextdotjs&logoColor=white) ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB) ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white) ![Tailwind CSS](https://img.shields.io/badge/tailwind_css-06B6D4.svg?style=for-the-badge&logo=tailwindcss&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/postgresql-4169E1.svg?style=for-the-badge&logo=postgresql&logoColor=white) ![Drizzle](https://img.shields.io/badge/drizzle-C5F74F.svg?style=for-the-badge&logo=drizzle&logoColor=black) ![Zod](https://img.shields.io/badge/zod-3E67B1.svg?style=for-the-badge&logo=zod&logoColor=white) ![Radix UI](https://img.shields.io/badge/radix_ui-161618.svg?style=for-the-badge&logo=radixui&logoColor=white) ![Vitest](https://img.shields.io/badge/vitest-6E9F18.svg?style=for-the-badge&logo=vitest&logoColor=white) ![ESLint](https://img.shields.io/badge/eslint-4B3263.svg?style=for-the-badge&logo=eslint&logoColor=white) ![Prettier](https://img.shields.io/badge/prettier-F7B93E.svg?style=for-the-badge&logo=prettier&logoColor=black) ![pnpm](https://img.shields.io/badge/pnpm-%23F69220.svg?style=for-the-badge&logo=pnpm&logoColor=white) ![Node.js](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white) ![Docker](https://img.shields.io/badge/docker-2496ED.svg?style=for-the-badge&logo=docker&logoColor=white) ![SearXNG](https://img.shields.io/badge/searxng-3050FF.svg?style=for-the-badge&logo=searxng&logoColor=white)
 
-## Explore the app
+The [live demo](https://demo.boardgames.pivi.dev/) shows Alex Morgan's fictional
+collection, wishlist, game-night picker, and statistics. It needs no account and
+is read-only; search, filters, the picker, and theme controls run in your
+browser. [DEPLOYMENT.md](./DEPLOYMENT.md) covers running your own copy.
 
-[Open the live demo](https://demo.boardgames.pivi.dev/) to explore
-Alex Morgan's fictional collection, wishlist, game-night picker, and statistics.
-No account is needed. The demo is read-only; search, filters, the picker, and
-theme controls work in your browser.
-
-These six screenshots show the actual webapp with an example account. Each
-image is **1920 × 1080**; click a preview to view it at full size.
+The six screenshots below show the real app with an example account. Each image
+is 1920 × 1080; click a preview to open it at full size.
 
 | Dashboard                                                                             | Collection                                                                                                    |
 | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
@@ -28,10 +26,86 @@ image is **1920 × 1080**; click a preview to view it at full size.
 | Statistics                                                                            | Dark theme                                                                                                    |
 | [![Statistics](./docs/screenshots/statistics.jpg)](./docs/screenshots/statistics.jpg) | [![Collection in dark theme](./docs/screenshots/collection-dark.jpg)](./docs/screenshots/collection-dark.jpg) |
 
-See [showcase setup](./docs/SHOWCASE.md) for demo deployment and screenshot
-reproduction instructions.
+[docs/SHOWCASE.md](./docs/SHOWCASE.md) explains how the demo is deployed and how
+to reproduce the screenshots.
 
-## Quick start
+## Tech Stack
+
+- **App**: Next.js 16 (App Router), React 19, TypeScript 6.
+- **Interface**: Tailwind CSS 4, Radix UI, Recharts, `next-intl`.
+- **Data**: PostgreSQL 17, Drizzle ORM, Zod.
+- **Accounts**: Better Auth.
+- **Search**: SearXNG.
+- **Quality**: Vitest, ESLint, Prettier, Knip, Husky.
+
+## Features
+
+### Library
+
+- A collection and a wishlist, with favorites, played status, and gifts.
+- Your own rating, notes, and price for every game.
+- Search and filters for players, duration, complexity, categories, and
+  mechanics.
+- Expansions grouped under their base game.
+- A wishlist game moves into the collection when you buy it.
+
+### Adding games
+
+- Search by title, or paste a BoardGameGeek link.
+- The app fills in details and artwork, and you can edit them before saving.
+- Import the games you own from a BoardGameGeek CSV export.
+- Export or restore your library as JSON, CSV, XLSX, or SQL.
+
+### Game night and statistics
+
+- A picker that chooses a game for your player count and the time you have.
+- Charts for spending, complexity, player counts, play time, and publication
+  decade.
+- Your most-owned categories and mechanics, with total, average, and median
+  spend.
+
+### Accounts and sharing
+
+- An administrator manages users and reads the audit log.
+- A share link for your collection, your wishlist, or both. Prices stay hidden
+  unless you choose to show them.
+- Optional email for address verification and password recovery.
+- English and Italian, light and dark themes, and a layout that works on
+  phones.
+
+> BoardGameGeek is a trademark of BoardGameGeek, LLC. This project is
+> independent and is not affiliated with or endorsed by BoardGameGeek.
+
+## How it works
+
+```mermaid
+flowchart LR
+    Browser["Browser"] --> App["Next.js application"]
+    App --> Database[("PostgreSQL")]
+    App --> Search["Private SearXNG"]
+    App --> Sources["BoardGameGeek pages and artwork"]
+```
+
+1. The browser talks only to the application, plus your error-monitoring server
+   if you set one.
+2. Your own PostgreSQL database holds accounts, libraries, cached game
+   details, and the audit log.
+3. Game search goes through a private SearXNG container. The server downloads
+   artwork and serves it itself.
+
+PostgreSQL and SearXNG are never exposed. Your library leaves the server only
+through a share link you create or an export you download. Searching for a game
+contacts BoardGameGeek and the search engines listed in
+`board-games-tracker/searxng/settings.yml`.
+
+## Getting Started
+
+```bash
+git clone https://github.com/thisispivi/BoardGamesTracker.git
+cd BoardGamesTracker
+```
+
+### Quick start
 
 You need Docker with Compose.
 
@@ -63,81 +137,9 @@ You need Docker with Compose.
 Registration closes after that first account. Set `ALLOW_SIGN_UP=true` in
 `.env` to let other people register.
 
-Backups, upgrades, and the main settings are in [DEPLOYMENT.md](./DEPLOYMENT.md).
 `board-games-tracker/.env.example` lists every setting.
 
-## Features
-
-**Your library**
-
-- A collection and a wishlist, with favorites, played status, and gifts.
-- Your own rating, notes, and price for every game.
-- Search and filters for players, duration, complexity, categories, and
-  mechanics.
-- Expansions grouped under their base game.
-- A wishlist game moves into the collection when you buy it.
-
-**Adding games**
-
-- Search by title, or paste a BoardGameGeek link.
-- Details and artwork are filled in for you, and you can edit them before
-  saving.
-- Import the games you own from a BoardGameGeek CSV export.
-- Export or restore your library as JSON, CSV, XLSX, or SQL.
-
-**Game night and statistics**
-
-- A picker that chooses a game for your player count and the time you have.
-- Charts for spending, complexity, player counts, play time, and publication
-  decade.
-- Your most-owned categories and mechanics, with total, average, and median
-  spend.
-
-**Accounts and sharing**
-
-- An administrator who manages users and reads the audit log.
-- A share link for your collection, your wishlist, or both. Prices stay hidden
-  unless you choose to show them.
-- Optional email for address verification and password recovery.
-- English and Italian, light and dark themes, and a layout that works on
-  phones.
-
-> BoardGameGeek is a trademark of BoardGameGeek, LLC. This project is
-> independent and is not affiliated with or endorsed by BoardGameGeek.
-
-## How it works
-
-```mermaid
-flowchart LR
-    Browser["Browser"] --> App["Next.js application"]
-    App --> Database[("PostgreSQL")]
-    App --> Search["Private SearXNG"]
-    App --> Sources["BoardGameGeek pages and artwork"]
-```
-
-- The browser talks only to the application, and to your error-monitoring
-  server if you set one.
-- PostgreSQL holds accounts, libraries, cached game details, and the audit log.
-- Game search goes through a private SearXNG container. The server downloads
-  artwork and serves it itself.
-
-PostgreSQL and SearXNG are never exposed. Your library leaves the server only
-through a share link you create or an export you download. Searching for a game
-does contact BoardGameGeek and the search engines listed in
-`board-games-tracker/searxng/settings.yml`.
-
-## Tech Stack
-
-| Area      | Tools                                           |
-| --------- | ----------------------------------------------- |
-| App       | Next.js 16 (App Router), React 19, TypeScript 6 |
-| Interface | Tailwind CSS 4, Radix UI, Recharts, `next-intl` |
-| Data      | PostgreSQL 17, Drizzle ORM, Zod                 |
-| Accounts  | Better Auth                                     |
-| Search    | SearXNG                                         |
-| Quality   | Vitest, ESLint, Prettier, Knip, Husky           |
-
-## Development
+### Development
 
 You need Node.js 24.18 or newer, pnpm 11.21 or newer, a PostgreSQL database,
 and a SearXNG instance you can reach.
@@ -178,10 +180,69 @@ Run them from `board-games-tracker/`.
 | `pnpm lint:fix`      | Fixes lint errors                                  |
 | `pnpm format`        | Fixes formatting                                   |
 
+## Development checks
+
+`pnpm install` sets up Git hooks: a commit formats and lints the staged files,
+and a push runs `pnpm check`. The full gate and the rules for a change are in
+[AGENTS.md](./AGENTS.md).
+
 Tests need no database. They run the real migrations against an in-process
 PostgreSQL.
 
-### Repository layout
+## Deployment
+
+The app ships as the Docker Compose project from the [quick start](#quick-start).
+[DEPLOYMENT.md](./DEPLOYMENT.md) covers going live, backups, upgrades, and the
+main settings.
+
+## Security
+
+- Sessions stay on the server, in `HttpOnly` cookies.
+- Every change checks the signed-in user and ownership in the same query.
+- All input is validated at the boundary with Zod.
+- The server fetches only from allowlisted hosts, with timeouts and size
+  limits.
+- Administrative and privacy changes are written to an audit log.
+
+## Troubleshooting
+
+### Windows: `ERR_SWC_NATIVE_CACHE` on `pnpm dev` or `pnpm build`
+
+SWC refuses its default cache folder when another app has write access to it.
+Give it a short folder of your own, then open a new terminal:
+
+```powershell
+mkdir "$env:USERPROFILE\.swc-cache"
+setx SWC_NATIVE_BINDING_CACHE "$env:USERPROFILE\.swc-cache"
+```
+
+Keep the path short. SWC creates long file names inside it, and Windows stops
+at 260 characters.
+
+## Versioning and releases
+
+Releases are automatic and follow [Semantic Versioning](https://semver.org/).
+Every pull request that changes code bumps the version in
+`board-games-tracker/package.json` (major, minor, or patch, as
+[AGENTS.md](./AGENTS.md#versioning-and-releases) describes). When CI passes on
+`main`, the Release workflow tags the new version, publishes the
+[GitHub release](https://github.com/thisispivi/BoardGamesTracker/releases), and
+redeploys the [demo](https://demo.boardgames.pivi.dev/).
+
+Dependabot alerts and security updates are on; the `fix-vulnerabilities` skill
+triages them.
+
+## Documentation
+
+| Document                                       | Covers                                               |
+| ---------------------------------------------- | ---------------------------------------------------- |
+| [DEPLOYMENT.md](./DEPLOYMENT.md)               | Going live, backups, upgrades, settings              |
+| [AGENTS.md](./AGENTS.md)                       | Workflow, quality gate, and versioning               |
+| [CODING_GUIDELINES.md](./CODING_GUIDELINES.md) | Code, test, and architecture rules                   |
+| [SHOWCASE.md](./docs/SHOWCASE.md)              | Demo deployment and screenshots                      |
+| [`.claude/skills/`](./.claude/skills)          | Step-by-step checklists for AI assistants and people |
+
+## Project Structure
 
 ```text
 .claude/               Claude Code settings and project skills
@@ -195,63 +256,6 @@ board-games-tracker/   The application
   scripts/             Migrations, backups, demo seeding, image cache
   searxng/             Private search engine settings
 ```
-
-### Before a pull request
-
-`pnpm install` sets up Git hooks: a commit formats and lints the staged files,
-and a push runs `pnpm check`. The full gate and the rules for a change are in
-[AGENTS.md](./AGENTS.md).
-
-### Releases
-
-Releases are automatic. Every pull request that changes code bumps the version
-in `board-games-tracker/package.json` (major, minor, or patch, as
-[AGENTS.md](./AGENTS.md#versioning-and-releases) describes). When CI passes on
-`main`, the Release workflow tags that version, publishes the GitHub release,
-and redeploys the demo.
-
-### Troubleshooting
-
-**Windows: `ERR_SWC_NATIVE_CACHE` on `pnpm dev` or `pnpm build`.** SWC refuses
-its default cache folder when another app has write access to it. Give it a
-short folder of your own, then open a new terminal:
-
-```powershell
-mkdir "$env:USERPROFILE\.swc-cache"
-setx SWC_NATIVE_BINDING_CACHE "$env:USERPROFILE\.swc-cache"
-```
-
-Keep the path short. SWC creates long file names inside it, and Windows stops
-at 260 characters.
-
-## Security
-
-- Sessions stay on the server, in `HttpOnly` cookies.
-- Every change checks the signed-in user and ownership in the same query.
-- All input is validated at the boundary with Zod.
-- The server fetches only from allowlisted hosts, with timeouts and size
-  limits.
-- Administrative and privacy changes are written to an audit log.
-
-## Documentation
-
-| Document                                       | Covers                                               |
-| ---------------------------------------------- | ---------------------------------------------------- |
-| [DEPLOYMENT.md](./DEPLOYMENT.md)               | Going live, backups, upgrades, settings              |
-| [AGENTS.md](./AGENTS.md)                       | Workflow, quality gate, and versioning               |
-| [CODING_GUIDELINES.md](./CODING_GUIDELINES.md) | Code, test, and architecture rules                   |
-| [SHOWCASE.md](./docs/SHOWCASE.md)              | Demo deployment and screenshots                      |
-| [`.claude/skills/`](./.claude/skills)          | Step-by-step checklists for AI assistants and people |
-
-## Versioning and releases
-
-Releases are automatic and follow [Semantic Versioning](https://semver.org/).
-Every pull request that changes code bumps the version in `board-games-tracker/package.json`, as
-[AGENTS.md](./AGENTS.md#versioning-and-releases) describes. When CI passes on
-`main`, the Release workflow tags the new version, publishes the
-[GitHub release](https://github.com/thisispivi/BoardGamesTracker/releases), and redeploys the [demo](https://demo.boardgames.pivi.dev/).
-Dependabot alerts and security updates are on; the `fix-vulnerabilities` skill
-triages them.
 
 ## License
 
