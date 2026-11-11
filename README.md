@@ -1,8 +1,8 @@
-<p align="center">
+<div align="center">
   <img alt="Board Games Tracker banner" src="./board-games-tracker/public/board-games-tracker-banner.png" width="100%">
-</p>
+</div>
 
-# Board Games Tracker
+# [Board Games Tracker](https://demo.boardgames.pivi.dev/)
 
 A self-hosted app for your board-game shelf: collection, wishlist, prices,
 ratings, and a picker for game night. You run it, and your data stays in your
@@ -126,7 +126,7 @@ through a share link you create or an export you download. Searching for a game
 does contact BoardGameGeek and the search engines listed in
 `board-games-tracker/searxng/settings.yml`.
 
-## Tech stack
+## Tech Stack
 
 | Area      | Tools                                           |
 | --------- | ----------------------------------------------- |
@@ -185,7 +185,7 @@ PostgreSQL.
 
 ```text
 .claude/               Claude Code settings and project skills
-.github/               CI workflow, Dependabot, Copilot instructions
+.github/               CI and release workflows, Dependabot, Copilot instructions
 docs/                  Showcase notes and screenshots
 board-games-tracker/   The application
   src/                 Code, laid out in CODING_GUIDELINES.md
@@ -200,19 +200,15 @@ board-games-tracker/   The application
 
 `pnpm install` sets up Git hooks: a commit formats and lints the staged files,
 and a push runs `pnpm check`. The full gate and the rules for a change are in
-[CONTRIBUTING.md](./CONTRIBUTING.md).
+[AGENTS.md](./AGENTS.md).
 
 ### Releases
 
-Version bumps go through pull requests, keeping `main` protected. Before a
-release, run `pnpm version minor --no-git-tag-version` from `board-games-tracker/`
-(use `patch` for fixes or `major` for breaking changes), and include the
-`package.json` change in a PR. CI publishes the tag and GitHub Release after that
-versioned commit passes the quality gate on `main`.
-
-Merges without a version bump still deploy the demo. The release job skips
-publishing and suggests a bump from the conventional commit messages; it never
-pushes a version commit directly to `main`.
+Releases are automatic. Every pull request that changes code bumps the version
+in `board-games-tracker/package.json` (major, minor, or patch, as
+[AGENTS.md](./AGENTS.md#versioning-and-releases) describes). When CI passes on
+`main`, the Release workflow tags that version, publishes the GitHub release,
+and redeploys the demo.
 
 ### Troubleshooting
 
@@ -239,13 +235,23 @@ at 260 characters.
 
 ## Documentation
 
-| Document                                                           | Covers                                               |
-| ------------------------------------------------------------------ | ---------------------------------------------------- |
-| [DEPLOYMENT.md](./DEPLOYMENT.md)                                   | Going live, backups, upgrades, settings              |
-| [CONTRIBUTING.md](./CONTRIBUTING.md)                               | How to send a change                                 |
-| [CODING_GUIDELINES.md](./board-games-tracker/CODING_GUIDELINES.md) | Code, test, and architecture rules                   |
-| [SHOWCASE.md](./docs/SHOWCASE.md)                                  | Demo deployment and screenshots                      |
-| [`.claude/skills/`](./.claude/skills)                              | Step-by-step checklists for AI assistants and people |
+| Document                                       | Covers                                               |
+| ---------------------------------------------- | ---------------------------------------------------- |
+| [DEPLOYMENT.md](./DEPLOYMENT.md)               | Going live, backups, upgrades, settings              |
+| [AGENTS.md](./AGENTS.md)                       | Workflow, quality gate, and versioning               |
+| [CODING_GUIDELINES.md](./CODING_GUIDELINES.md) | Code, test, and architecture rules                   |
+| [SHOWCASE.md](./docs/SHOWCASE.md)              | Demo deployment and screenshots                      |
+| [`.claude/skills/`](./.claude/skills)          | Step-by-step checklists for AI assistants and people |
+
+## Versioning and releases
+
+Releases are automatic and follow [Semantic Versioning](https://semver.org/).
+Every pull request that changes code bumps the version in `board-games-tracker/package.json`, as
+[AGENTS.md](./AGENTS.md#versioning-and-releases) describes. When CI passes on
+`main`, the Release workflow tags the new version, publishes the
+[GitHub release](https://github.com/thisispivi/BoardGamesTracker/releases), and redeploys the [demo](https://demo.boardgames.pivi.dev/).
+Dependabot alerts and security updates are on; the `fix-vulnerabilities` skill
+triages them.
 
 ## License
 

@@ -1,12 +1,7 @@
 # GitHub Copilot instructions
 
-Always read and follow
-[`CODING_GUIDELINES.md`](../board-games-tracker/CODING_GUIDELINES.md) before
-generating, reviewing, or editing code. It is the canonical repository standard
-and applies to source, tests, scripts, documentation, and configuration.
-
-Also follow [`AGENTS.md`](../board-games-tracker/AGENTS.md), including its
-requirement to consult the installed documentation in
-`board-games-tracker/node_modules/next/dist/docs/` before changing Next.js
-behavior. Do not suggest completion until the repository quality gates defined
-by those files pass.
+Read and follow [`AGENTS.md`](../AGENTS.md) and
+[`CODING_GUIDELINES.md`](../CODING_GUIDELINES.md) before generating, reviewing,
+or editing code. `CODING_GUIDELINES.md` is the canonical standard; `AGENTS.md`
+holds the workflow, verification, and versioning rules. Do not suggest
+completion until the quality gate in `AGENTS.md` passes.
