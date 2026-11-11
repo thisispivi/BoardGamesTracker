@@ -5,7 +5,7 @@ code. It is the canonical coding standard for this repository and applies to
 every file in the change, including tests, scripts, docs, and configuration.
 Existing deviations are not precedent for new code.
 
-This file holds the workflow rules. `CLAUDE.md` and
+The workflow rules are in this file. `CLAUDE.md` and
 `.github/copilot-instructions.md` are thin adapters that point here; do not
 copy rules into them.
 
