@@ -5,7 +5,7 @@ description: Changes the database schema or writes Drizzle queries, transactions
 
 # Database
 
-Paths are relative to `board-games-tracker/`. The rules in
+Paths are relative to `apps/board-games-tracker/`. The rules in
 `CODING_GUIDELINES.md` §8 and §10.7 apply; this skill adds the steps and the
 patterns the codebase already uses.
 

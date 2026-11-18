@@ -5,7 +5,7 @@ description: Runs the repository's definition of done and fixes each failure. Us
 
 # Check
 
-Every command runs from `board-games-tracker/`.
+Every command runs from the repository root.
 
 ## The gate
 

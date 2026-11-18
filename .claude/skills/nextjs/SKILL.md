@@ -10,7 +10,7 @@ versions and from most training data. The docs that match the installed
 version ship with the package. Read the relevant one before writing code:
 
 ```text
-board-games-tracker/node_modules/next/dist/docs/01-app/
+apps/board-games-tracker/node_modules/next/dist/docs/01-app/
 ```
 
 ## Which guide to read
@@ -38,7 +38,7 @@ board-games-tracker/node_modules/next/dist/docs/01-app/
 Search the folder when the table does not cover the task:
 
 ```bash
-grep -rl "<api name>" board-games-tracker/node_modules/next/dist/docs/01-app
+grep -rl "<api name>" apps/board-games-tracker/node_modules/next/dist/docs/01-app
 ```
 
 ## How this app uses Next.js
@@ -57,6 +57,6 @@ grep -rl "<api name>" board-games-tracker/node_modules/next/dist/docs/01-app
   with `next-intl` and Sentry. The demo is a separate static export built with
   `pnpm demo:build`.
 - `next dev` rewrites the block between the `nextjs-agent-rules` markers in
-  `board-games-tracker/AGENTS.md`. Commit that change; do not fight it.
+  `apps/board-games-tracker/AGENTS.md`. Commit that change; do not fight it.
 
 Then run the `check` skill.

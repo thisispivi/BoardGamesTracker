@@ -14,8 +14,9 @@ wins for the current run and this document MUST be corrected in the same change.
 
 The application uses the Next.js App Router, React Server Components,
 TypeScript, Tailwind CSS, `next-intl`, Better Auth, Drizzle ORM, PostgreSQL,
-Zod, Vitest, ESLint, Prettier, and pnpm. It lives in `board-games-tracker/`, and
-every path and command in this document is relative to that folder. Its main
+Zod, Vitest, ESLint, Prettier, and pnpm. It lives in `apps/board-games-tracker/`, and
+every path in this document is relative to that folder. Run commands from
+the repository root. Its main
 boundaries are:
 
 ```text

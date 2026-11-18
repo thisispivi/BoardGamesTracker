@@ -54,7 +54,8 @@ services:
 
   app:
     build:
-      context: .
+      context: ../..
+      dockerfile: apps/board-games-tracker/Dockerfile
       args:
         APP_URL: ${APP_URL:?Set APP_URL in .env}
         NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}

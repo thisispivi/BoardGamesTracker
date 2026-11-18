@@ -1,7 +1,7 @@
 # Deployment
 
 For a first install, follow the [quick start](./README.md#quick-start). This
-page covers what comes after. Run every command from `board-games-tracker/`.
+page covers what comes after. Run every command from `apps/board-games-tracker/`.
 
 ## Before you go live
 
@@ -19,7 +19,7 @@ page covers what comes after. Run every command from `board-games-tracker/`.
 
 ## Backups
 
-The `backup` service writes a database dump to `board-games-tracker/backups`
+The `backup` service writes a database dump to `apps/board-games-tracker/backups`
 once a week. It keeps the eight newest dumps, about two months. An old dump is
 deleted only after a new one succeeds.
 
@@ -81,7 +81,7 @@ The app applies database migrations when it starts.
 
 ## Settings
 
-[`.env.example`](./board-games-tracker/.env.example) lists every setting with a
+[`.env.example`](./apps/board-games-tracker/.env.example) lists every setting with a
 comment.
 
 With Docker Compose you set the four values from the quick start. Compose

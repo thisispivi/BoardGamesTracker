@@ -16,9 +16,6 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    defaults:
-      run:
-        working-directory: board-games-tracker
     env:
       DATABASE_URL: postgresql://build:build@127.0.0.1:5432/build
       BETTER_AUTH_SECRET: build-only-secret-not-used-at-runtime-000000000
@@ -31,8 +28,8 @@ jobs:
         with:
           runtime: node@24.22.0
           cache: true
-          cache-dependency-path: board-games-tracker/pnpm-lock.yaml
-          package-json-file: board-games-tracker/package.json
+          cache-dependency-path: pnpm-lock.yaml
+          package-json-file: package.json
           install: false
       - name: Install dependencies
         if: github.actor != 'dependabot[bot]'

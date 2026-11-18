@@ -1,5 +1,5 @@
 <div align="center">
-  <img alt="Board Games Tracker banner" src="./board-games-tracker/public/board-games-tracker-banner.png" width="100%">
+  <img alt="Board Games Tracker banner" src="./apps/board-games-tracker/public/board-games-tracker-banner.png" width="100%">
 </div>
 
 # [Board Games Tracker](https://demo.boardgames.pivi.dev/)
@@ -96,7 +96,7 @@ flowchart LR
 PostgreSQL and SearXNG are never exposed. Your library leaves the server only
 through a share link you create or an export you download. Searching for a game
 contacts BoardGameGeek and the search engines listed in
-`board-games-tracker/searxng/settings.yml`.
+`apps/board-games-tracker/searxng/settings.yml`.
 
 ## Getting Started
 
@@ -112,7 +112,7 @@ You need Docker with Compose.
 1. Copy the settings template:
 
    ```bash
-   cd board-games-tracker
+   cd apps/board-games-tracker
    cp .env.example .env
    ```
 
@@ -137,22 +137,21 @@ You need Docker with Compose.
 Registration closes after that first account. Set `ALLOW_SIGN_UP=true` in
 `.env` to let other people register.
 
-`board-games-tracker/.env.example` lists every setting.
+`apps/board-games-tracker/.env.example` lists every setting.
 
 ### Development
 
-You need Node.js 24.18 or newer, pnpm 11.21 or newer, a PostgreSQL database,
+You need Node.js 24.18 or newer, pnpm 12.21 or newer, a PostgreSQL database,
 and a SearXNG instance you can reach.
 
 1. Install and copy the settings template:
 
    ```bash
-   cd board-games-tracker
    pnpm install
-   cp .env.example .env.local
+   cp apps/board-games-tracker/.env.example apps/board-games-tracker/.env.local
    ```
 
-2. In `.env.local`, point `DATABASE_URL`, `BETTER_AUTH_URL`,
+2. In `apps/board-games-tracker/.env.local`, point `DATABASE_URL`, `BETTER_AUTH_URL`,
    `NEXT_PUBLIC_APP_URL`, and `SEARXNG_URL` at your local services.
 
 3. Create the tables and start the app:
@@ -166,7 +165,7 @@ The app runs at <http://localhost:12500>.
 
 ### Commands
 
-Run them from `board-games-tracker/`.
+Run them from the repository root.
 
 | Command              | What it does                                       |
 | -------------------- | -------------------------------------------------- |
@@ -223,7 +222,7 @@ at 260 characters.
 
 Releases are automatic and follow [Semantic Versioning](https://semver.org/).
 Every pull request that changes code bumps the version in
-`board-games-tracker/package.json` (major, minor, or patch, as
+`apps/board-games-tracker/package.json` (major, minor, or patch, as
 [AGENTS.md](./AGENTS.md#versioning-and-releases) describes). When CI passes on
 `main`, the Release workflow tags the new version, publishes the
 [GitHub release](https://github.com/thisispivi/BoardGamesTracker/releases), and
@@ -248,13 +247,14 @@ triages them.
 .claude/               Claude Code settings and project skills
 .github/               CI and release workflows, Dependabot, Copilot instructions
 docs/                  Showcase notes and screenshots
-board-games-tracker/   The application
-  src/                 Code, laid out in CODING_GUIDELINES.md
-  messages/            English and Italian copy
-  drizzle/             Generated migrations
-  demo/                Static read-only demo
-  scripts/             Migrations, backups, demo seeding, image cache
-  searxng/             Private search engine settings
+apps/
+  apps/board-games-tracker/ The application
+    src/               Code, laid out in CODING_GUIDELINES.md
+    messages/          English and Italian copy
+    drizzle/           Generated migrations
+    demo/              Static read-only demo
+    scripts/           Migrations, backups, demo seeding, image cache
+    searxng/           Private search engine settings
 ```
 
 ## License

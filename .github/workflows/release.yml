@@ -22,7 +22,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  VERSION_FILE: board-games-tracker/package.json
+  VERSION_FILE: apps/board-games-tracker/package.json
 
 jobs:
   version-bump:
@@ -106,9 +106,6 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    defaults:
-      run:
-        working-directory: board-games-tracker
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -118,8 +115,8 @@ jobs:
         with:
           runtime: node@24.22.0
           cache: true
-          cache-dependency-path: board-games-tracker/pnpm-lock.yaml
-          package-json-file: board-games-tracker/package.json
+          cache-dependency-path: pnpm-lock.yaml
+          package-json-file: package.json
           install: false
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       - run: pnpm install --frozen-lockfile
@@ -127,7 +124,7 @@ jobs:
         run: pnpm demo:build
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
-          path: board-games-tracker/demo/out
+          path: apps/board-games-tracker/demo/out
       - name: Deploy the demo
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

@@ -1,10 +1,9 @@
 {
   "name": "board-games-tracker",
-  "version": "0.3.9",
+  "version": "0.3.10",
   "private": true,
   "description": "A secure, self-hosted board-game collection and game-night picker.",
   "license": "MIT",
-  "packageManager": "pnpm@12.21.0",
   "engines": {
     "node": ">=24.18.0",
     "pnpm": ">=12.21.0"
@@ -20,8 +19,9 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write . \"../*.md\" ../.github ../docs ../.claude/settings.json \"../.claude/skills/**/*.md\"",
-    "format:check": "prettier --check . \"../*.md\" ../.github ../docs ../.claude/settings.json \"../.claude/skills/**/*.md\"",
+    "lint:staged": "lint-staged --max-arg-length 7000",
+    "format": "prettier --write . \"../../*.md\" ../../.github ../../docs ../../.claude/settings.json \"../../.claude/skills/**/*.md\"",
+    "format:check": "prettier --check . \"../../*.md\" ../../.github ../../docs ../../.claude/settings.json \"../../.claude/skills/**/*.md\"",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -30,8 +30,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "node --env-file-if-exists=.env.local scripts/migrate.mjs",
     "db:studio": "drizzle-kit studio",
-    "images:cache": "node --env-file-if-exists=.env.local --import tsx scripts/cache-game-images.ts",
-    "prepare": "cd .. && husky board-games-tracker/.husky"
+    "images:cache": "node --env-file-if-exists=.env.local --import tsx scripts/cache-game-images.ts"
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.2.1",
@@ -85,7 +84,6 @@
     "eslint-config-next": "16.4.6",
     "eslint-plugin-jsdoc": "^65.4.9",
     "eslint-plugin-simple-import-sort": "^14.0.0",
-    "husky": "^9.1.7",
     "jsdom": "^31.0.1",
     "knip": "^6.45.1",
     "lint-staged": "^17.6.1",

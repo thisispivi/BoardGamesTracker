@@ -1,7 +1,7 @@
 # Application instructions
 
-The repository-wide rules are in [`../AGENTS.md`](../AGENTS.md) and
-[`../CODING_GUIDELINES.md`](../CODING_GUIDELINES.md). Read both first.
+The repository-wide rules are in [`../../AGENTS.md`](../../AGENTS.md) and
+[`../../CODING_GUIDELINES.md`](../../CODING_GUIDELINES.md). Read both first.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

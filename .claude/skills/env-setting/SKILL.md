@@ -5,14 +5,14 @@ description: Adds, renames, removes or changes the default of an environment var
 
 # Environment setting
 
-Paths are relative to `board-games-tracker/` unless they start with `../`.
+Paths are relative to `apps/board-games-tracker/` unless they start with `../../`.
 
 A runtime setting the app reads lives in the five places below. Change all of
 them in the same commit. Two other kinds differ:
 
 - Compose-only settings (`APP_PORT`, `APP_BIND_ADDRESS`, `BACKUP_*`,
   `POSTGRES_*`) skip step 1 and go only in `.env.example`,
-  `docker-compose.yml` and `../DEPLOYMENT.md`.
+  `docker-compose.yml` and `../../DEPLOYMENT.md`.
 - Build-time settings read by `next.config.ts` (`SENTRY_*`,
   `NEXT_PUBLIC_*`) also need an `ARG`/`ENV` pair in `Dockerfile` and an entry
   under the `app` service's `build.args` in `docker-compose.yml`.
@@ -27,10 +27,10 @@ them in the same commit. Two other kinds differ:
 3. `docker-compose.yml`: pass it to the `app` service as
    `KEY: ${KEY:-default}` with the same default as `src/env.ts`, or
    `${KEY:?message}` when it is required.
-4. `../DEPLOYMENT.md`: the row in the matching settings table, with the same
+4. `../../DEPLOYMENT.md`: the row in the matching settings table, with the same
    name, and the same default where the table has a Default column.
 5. CI: if `pnpm build` needs it, add a placeholder to the `env:` blocks in
-   `../.github/workflows/ci.yml`.
+   `../../.github/workflows/ci.yml`.
 
 Then read it through `env.KEY` and run the `check` skill.
 

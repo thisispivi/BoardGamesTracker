@@ -1,0 +1,24 @@
+# Docker builds from the repository root; only the app and workspace files matter.
+.git
+.github
+.claude
+.husky
+.vscode
+docs
+*.md
+**/node_modules
+**/.next
+**/coverage
+**/.env*
+**/.sentry-auth-token*
+**/*.pem
+**/*.key
+**/*.sql
+!apps/board-games-tracker/drizzle/*.sql
+**/backups
+**/*.log
+**/*.tsbuildinfo
+apps/board-games-tracker/demo/.next
+apps/board-games-tracker/demo/out
+apps/board-games-tracker/demo/public
+apps/board-games-tracker/public/demo

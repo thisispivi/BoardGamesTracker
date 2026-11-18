@@ -11,7 +11,8 @@ const config: NextConfig = {
   trailingSlash: true,
   poweredByHeader: false,
   images: { unoptimized: true },
-  turbopack: { root: path.resolve(import.meta.dirname, "..") },
+  // The workspace root, where the lockfile and pnpm store live.
+  turbopack: { root: path.resolve(import.meta.dirname, "../../..") },
   env: { NEXT_PUBLIC_DEMO_BASE_PATH: basePath },
 };
 

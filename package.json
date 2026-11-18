@@ -1,0 +1,37 @@
+{
+  "name": "board-games-tracker-workspace",
+  "private": true,
+  "packageManager": "pnpm@12.21.0",
+  "engines": {
+    "node": ">=24.18.0",
+    "pnpm": ">=12.21.0"
+  },
+  "scripts": {
+    "demo:build": "pnpm --filter board-games-tracker demo:build",
+    "demo:dev": "pnpm --filter board-games-tracker demo:dev",
+    "demo:seed": "pnpm --filter board-games-tracker demo:seed",
+    "dev": "pnpm --filter board-games-tracker dev",
+    "build": "pnpm --filter board-games-tracker build",
+    "bugsink:test": "pnpm --filter board-games-tracker bugsink:test",
+    "start": "pnpm --filter board-games-tracker start",
+    "typecheck": "pnpm --filter board-games-tracker typecheck",
+    "lint": "pnpm --filter board-games-tracker lint",
+    "lint:fix": "pnpm --filter board-games-tracker lint:fix",
+    "lint:staged": "pnpm --filter board-games-tracker lint:staged",
+    "format": "pnpm --filter board-games-tracker format",
+    "format:check": "pnpm --filter board-games-tracker format:check",
+    "test": "pnpm --filter board-games-tracker test",
+    "test:watch": "pnpm --filter board-games-tracker test:watch",
+    "test:coverage": "pnpm --filter board-games-tracker test:coverage",
+    "knip": "pnpm --filter board-games-tracker knip",
+    "check": "pnpm --filter board-games-tracker check",
+    "db:generate": "pnpm --filter board-games-tracker db:generate",
+    "db:migrate": "pnpm --filter board-games-tracker db:migrate",
+    "db:studio": "pnpm --filter board-games-tracker db:studio",
+    "images:cache": "pnpm --filter board-games-tracker images:cache",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7"
+  }
+}
