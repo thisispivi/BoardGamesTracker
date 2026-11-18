@@ -11,8 +11,9 @@ copy rules into them.
 
 ## Repository layout
 
-- `board-games-tracker/` is the Next.js application. Run every `pnpm` command
-  there. Its own `AGENTS.md` holds the Next.js rules that `next dev` writes:
+- `apps/board-games-tracker/` is the Next.js application. Run `pnpm` commands
+  from the repository root: each root script runs the app script of the same
+  name. Its own `AGENTS.md` holds the Next.js rules that `next dev` writes:
   read the installed docs in `node_modules/next/dist/docs/` before changing
   Next.js behavior.
 - `docs/` holds the showcase notes and screenshots.
@@ -21,7 +22,7 @@ copy rules into them.
 
 ## Required verification
 
-From `board-games-tracker/`, every change must pass:
+From the repository root, every change must pass:
 
 ```bash
 pnpm check && pnpm test:coverage && pnpm build && pnpm audit --audit-level=moderate
@@ -41,7 +42,7 @@ Run `pnpm demo:build` too when the demo or shared UI can be affected.
 
 ## Versioning and releases
 
-`board-games-tracker/package.json` holds the version, and it is what triggers a release. When
+`apps/board-games-tracker/package.json` holds the version, and it is what triggers a release. When
 CI passes on `main` and that version has no tag yet, the Release workflow tags
 it, publishes the GitHub release with generated notes, and deploys the demo at <https://demo.boardgames.pivi.dev/>. Nobody
 releases by hand, and nothing is committed back to `main`.

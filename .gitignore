@@ -1,28 +1,29 @@
 # dependencies and build output
-board-games-tracker/node_modules/
-board-games-tracker/.next/
-board-games-tracker/out/
-board-games-tracker/build/
-board-games-tracker/coverage/
-board-games-tracker/demo/.next/
-board-games-tracker/demo/out/
-board-games-tracker/demo/public/
+node_modules/
+apps/board-games-tracker/node_modules/
+apps/board-games-tracker/.next/
+apps/board-games-tracker/out/
+apps/board-games-tracker/build/
+apps/board-games-tracker/coverage/
+apps/board-games-tracker/demo/.next/
+apps/board-games-tracker/demo/out/
+apps/board-games-tracker/demo/public/
 *.tsbuildinfo
 next-env.d.ts
 
 # secrets and local settings
 .env*
 !.env.example
-board-games-tracker/.sentry-auth-token
+apps/board-games-tracker/.sentry-auth-token
 *.pem
 *.key
 
 # data
-board-games-tracker/backups/
+apps/board-games-tracker/backups/
 *.sqlite*
 *.db
 *.sql
-!board-games-tracker/drizzle/*.sql
+!apps/board-games-tracker/drizzle/*.sql
 
 # logs
 *.log

@@ -14,7 +14,7 @@ API service, or production authentication bypass in the export.
 
 ## Build and preview
 
-Run from `board-games-tracker/`:
+Run from the repository root:
 
 ```bash
 pnpm demo:dev
@@ -28,7 +28,7 @@ pnpm demo:build
 
 The demo is served from the root of its custom domain, so no base path is
 needed. To host it under a subpath instead, set `DEMO_BASE_PATH` (for example
-`/BoardGamesTracker`) before building. Static files are written to `board-games-tracker/demo/out/`.
+`/BoardGamesTracker`) before building. Static files are written to `apps/board-games-tracker/demo/out/`.
 Only that directory is uploaded by the deployment job. Every push to `main`
 deploys after the quality gate; pull requests validate the demo without publishing.
 GitHub Pages must use **GitHub Actions** as its publishing source, with
@@ -68,9 +68,9 @@ library out of the screenshots.
 
 ## Example game artwork
 
-`board-games-tracker/src/core/demo/library.json` contains public game metadata
+`apps/board-games-tracker/src/core/demo/library.json` contains public game metadata
 retrieved from BoardGameGeek on 6 October 2026. The bundled JPEGs under
-`board-games-tracker/public/demo/games/` are the corresponding box-cover
+`apps/board-games-tracker/public/demo/games/` are the corresponding box-cover
 thumbnails, used only to illustrate the collection. Original artwork and
 trademarks remain the property of their respective owners; the repository's MIT
 license does not grant rights to those images. Each demo cover links to its
