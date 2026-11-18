@@ -1,46 +1,43 @@
-# Held major versions. Each is the newest release compatible with the supported
-# Node, ESLint, and TypeScript stack; re-evaluate whenever the blocker below
-# ships a widened range.
-#   @types/node 26 - describes Node 26 APIs while every runtime here is Node 24,
-#     so the newer typings would admit calls the runtime does not have.
-#   eslint 10 - eslint-plugin-import, eslint-plugin-jsx-a11y, and
-#     eslint-plugin-react still declare a `^9` peer ceiling.
-#   typescript 7 - the typescript-eslint 8 packages cap their peer at <6.1.0.
-auditConfig:
-  ignoreGhsas:
-    # GHSA-g3hv-75wg-m249 is globparts amplification in minimatch's
-    # firstPhasePreProcess. Its range covers every release below 11.0.1, but the
-    # installed 3.1.5 (ESLint, glob 7) and 5.1.9 (readdir-glob) predate that code,
-    # and neither can take 11, which drops their callable CommonJS export. Remove
-    # this once no minimatch below 11.0.1 remains in the tree.
-    - GHSA-g3hv-75wg-m249
+packages:
+  - "."
+
+# Supply chain: only install versions published at least a day ago, refuse
+# git/tarball sub-dependencies, and refuse versions with weaker provenance than
+# an earlier one. A day, not longer, so Dependabot security fixes (opened as
+# soon as a fix ships) pass CI on the next run. Dependabot's own version
+# updates wait three days (cooldown in .github/dependabot.yml).
+minimumReleaseAge: 1440
+blockExoticSubdeps: true
+trustPolicy: no-downgrade
+
+# Packages whose install scripts may run (true) or are skipped (false).
 allowBuilds:
   "@parcel/watcher": true
   "@sentry/cli": true
   "@swc/core": true
-  esbuild: true
-  sharp: true
-  unrs-resolver: true
+  "esbuild": true
+  "sharp": true
+  "unrs-resolver": true
+
+# eslint-config-next still asks for the 3.x line, which its maintainer publishes
+# by hand; only 4.x is published from CI with provenance.
+trustPolicyExclude:
+  - eslint-import-resolver-typescript@3.10.1
+
 overrides:
-  # Security fixes for the transitive build-tool chains used by Next.js and Sentry.
-  browserslist: 4.28.8
-  exceljs>uuid: 11.1.1
-  esbuild: 0.28.2
-  # braces has no patched release for GHSA-vfj7-8cjw-p6xm. The Next.js ESLint
-  # plugin pulls it in only through fast-glob's micromatch, and calls nothing
-  # but globSync(pattern, { onlyDirectories: true }), which tinyglobby provides
-  # with the same signature. Drop this once the plugin leaves fast-glob.
-  "@next/eslint-plugin-next>fast-glob": npm:tinyglobby@0.2.17
-  # GHSA-3g3m-2fjr-6pw4 and GHSA-g3hv-75wg-m249: Sentry's bundler plugins and
-  # typescript-estree are the consumers on the affected glob and minimatch 10
-  # code. Drop these once both declare the patched majors.
-  "@sentry/bundler-plugins>glob": 14.0.3
-  "@typescript-eslint/typescript-estree>minimatch": 11.0.3
-  # Reached through Sentry's bundler plugins and webpack's schema-utils.
-  fast-uri: 3.1.9
-  postcss: 8.5.26
-  sharp: 0.35.5
-  source-map-js: 1.2.2
-  vite: 8.3.5
-packages:
-  - .
+  # Security floors: each applies only to the vulnerable range, so patched
+  # releases keep flowing. Drop one once no consumer requests that range.
+  # GHSA-67mh-4wv8-2f99: drizzle-kit's esbuild loader still asks for 0.18.
+  "esbuild@<0.25.0": ^0.28.2
+  # GHSA-w5hq-g745-h8pq: exceljs still asks for uuid 8.
+  "uuid@<11.1.1": ^11.1.1
+  # GHSA-g3hv-75wg-m249: typescript-estree still asks for minimatch 10.
+  "minimatch@>=7 <11.0.1": ^11.0.1
+
+auditConfig:
+  ignoreGhsas:
+    # picomatch ReDoS on repeated extglobs: every release up to 4.0.7 is affected
+    # and no fix exists yet. It is reached only through build and lint tooling
+    # that matches glob patterns this repository writes itself. Drop this entry
+    # once picomatch publishes a patched release.
+    - GHSA-fc5q-39xc-vjpf

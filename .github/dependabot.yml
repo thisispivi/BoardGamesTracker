@@ -7,6 +7,8 @@ updates:
     directory: /board-games-tracker
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 3
     commit-message:
       prefix: chore
       include: scope
@@ -30,6 +32,8 @@ updates:
     directory: /board-games-tracker
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 3
     commit-message:
       prefix: chore
       include: scope
@@ -49,6 +53,8 @@ updates:
     directory: /board-games-tracker
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 3
     commit-message:
       prefix: chore
       include: scope
@@ -69,6 +75,8 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    cooldown:
+      default-days: 3
     commit-message:
       prefix: chore
       include: scope
