@@ -55,6 +55,39 @@ describe("proxy", () => {
     expect(response.status).toBe(403);
   });
 
+  it("refuses a same-origin multipart post without a boundary", async () => {
+    const response = await proxy(
+      post("/", {
+        "content-type": "multipart/form-data",
+        origin: appOrigin,
+      }),
+    );
+
+    expect(response.status).toBe(400);
+  });
+
+  it("refuses a multipart post with an empty boundary", async () => {
+    const response = await proxy(
+      post("/", {
+        "content-type": "multipart/form-data; boundary=",
+        origin: appOrigin,
+      }),
+    );
+
+    expect(response.status).toBe(400);
+  });
+
+  it("lets a same-origin multipart post with a boundary through", async () => {
+    const response = await proxy(
+      post("/", {
+        "content-type": 'multipart/form-data; boundary="----probe"',
+        origin: appOrigin,
+      }),
+    );
+
+    expect(response.status).toBe(200);
+  });
+
   it("lets a Server Action from the application's own origin through", async () => {
     const response = await proxy(
       post("/login", {

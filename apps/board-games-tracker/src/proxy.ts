@@ -98,6 +98,36 @@ function isServerActionRequest(request: NextRequest): boolean {
 }
 
 /**
+ * Reports whether a request declares a multipart body without a usable boundary.
+ *
+ * The Server Action decoder throws on such a body before any application code
+ * runs, so a scripted probe would otherwise surface as an unhandled error.
+ *
+ * @param request - The incoming request.
+ * @returns Whether the multipart `boundary` parameter is missing or empty.
+ */
+function hasMalformedMultipartBody(request: NextRequest): boolean {
+  const contentType = request.headers.get("content-type") ?? "";
+  if (!contentType.toLowerCase().startsWith("multipart/form-data")) {
+    return false;
+  }
+
+  return !/;\s*boundary=("[^"]+"|[^\s;]+)/i.test(contentType);
+}
+
+/**
+ * Refuses a request whose body cannot be decoded.
+ *
+ * @returns A generic bad-request response without details.
+ */
+function badRequest(): NextResponse {
+  return new NextResponse("Bad Request", {
+    status: 400,
+    headers: { "Content-Type": "text/plain; charset=utf-8" },
+  });
+}
+
+/**
  * Refuses a request that exhausted its allowance, without leaking why.
  *
  * @returns A generic rate-limit response without sensitive details.
@@ -150,6 +180,10 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
 
   if (isServerActionRequest(request) && !hasTrustedOrigin(request)) {
     return forbidden();
+  }
+
+  if (isServerActionRequest(request) && hasMalformedMultipartBody(request)) {
+    return badRequest();
   }
 
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
