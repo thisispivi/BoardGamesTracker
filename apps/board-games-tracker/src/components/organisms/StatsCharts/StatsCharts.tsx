@@ -773,7 +773,7 @@ function ComplexitySlice({
       data-recharts-item-id={itemId}
       data-recharts-item-index={itemIndex}
       endAngle={endAngle}
-      fill={fill}
+      {...(fill === undefined ? {} : { fill })}
       innerRadius={innerRadius}
       outerRadius={outerRadius}
       startAngle={startAngle}
